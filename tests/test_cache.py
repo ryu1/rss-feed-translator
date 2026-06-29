@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-import json
-import os
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
-from src.cache import load_translated_cache, save_translated_cache, load_http_cache, save_http_cache
+from src.cache import (
+    load_http_cache,
+    load_translated_cache,
+    save_http_cache,
+    save_translated_cache,
+)
 from src.models import TranslatedArticle
 
 
@@ -34,7 +37,10 @@ def sample_article() -> TranslatedArticle:
     )
 
 
-def test_save_and_load_translated_cache(tmp_cache_path: str, sample_article: TranslatedArticle) -> None:
+def test_save_and_load_translated_cache(
+    tmp_cache_path: str,
+    sample_article: TranslatedArticle,
+) -> None:
     cache = {sample_article.guid: sample_article}
     save_translated_cache(tmp_cache_path, cache)
 
@@ -44,7 +50,9 @@ def test_save_and_load_translated_cache(tmp_cache_path: str, sample_article: Tra
     assert loaded[sample_article.guid].natural_title == "自然なタイトル"
 
 
-def test_load_translated_cache_returns_empty_when_not_exists(tmp_cache_path: str) -> None:
+def test_load_translated_cache_returns_empty_when_not_exists(
+    tmp_cache_path: str,
+) -> None:
     result = load_translated_cache(tmp_cache_path)
     assert result == {}
 

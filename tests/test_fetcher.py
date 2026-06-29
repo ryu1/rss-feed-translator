@@ -60,7 +60,12 @@ def test_fetch_feed_uses_etag() -> None:
 
 @resp_mock.activate
 def test_fetch_all_feeds_continues_on_failure() -> None:
-    resp_mock.add(resp_mock.GET, "https://example.com/good", body=RSS_SAMPLE, status=200)
+    resp_mock.add(
+        resp_mock.GET,
+        "https://example.com/good",
+        body=RSS_SAMPLE,
+        status=200,
+    )
     resp_mock.add(resp_mock.GET, "https://example.com/bad", status=500)
     feeds = [
         FeedConfig(name="Good", url="https://example.com/good"),

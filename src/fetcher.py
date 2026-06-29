@@ -36,16 +36,24 @@ def fetch_feed(
         raise FeedFetchError(f"HTTP {response.status_code} fetching {feed.url}")
 
     if response.headers.get("ETag"):
-        http_cache.setdefault(feed.url, {})["etag"] = response.headers["ETag"]
+        http_cache.setdefault(feed.url, {})["etag"] = response.headers[
+            "ETag"
+        ]
     if response.headers.get("Last-Modified"):
-        http_cache.setdefault(feed.url, {})["last_modified"] = response.headers["Last-Modified"]
+        last_mod_header = response.headers["Last-Modified"]
+        http_cache.setdefault(feed.url, {})["last_modified"] = last_mod_header
 
     parsed = feedparser.parse(response.text)
     articles: list[Article] = []
     for entry in parsed.entries:
-        guid: str = str(getattr(entry, "id", None) or getattr(entry, "link", ""))
+        guid: str = str(
+            getattr(entry, "id", None) or getattr(entry, "link", "")
+        )
         title: str = getattr(entry, "title", "")
-        description: str = getattr(entry, "summary", "") or getattr(entry, "description", "")
+        description: str = (
+            getattr(entry, "summary", "")
+            or getattr(entry, "description", "")
+        )
         link: str = getattr(entry, "link", "")
         published_parsed = getattr(entry, "published_parsed", None)
         if published_parsed:

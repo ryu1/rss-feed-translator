@@ -27,8 +27,12 @@ class DeepLTranslator:
         try:
             import deepl as _deepl
 
-            raw = self._translator.translate_text(texts, target_lang=target_lang.upper())
+            raw = self._translator.translate_text(
+                texts,
+                target_lang=target_lang.upper(),
+            )
             results = cast(list[_deepl.TextResult], raw)
             return [r.text for r in results]
         except Exception as e:
-            raise TranslationError(f"DeepL API error: {e}") from e
+            msg = f"DeepL API error: {e}"
+            raise TranslationError(msg) from e

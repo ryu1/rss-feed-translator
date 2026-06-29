@@ -9,14 +9,19 @@ from src.models import Article
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_SUMMARIZER_PROMPT = """以下の英語のITニュース記事のタイトルと概要を読み、次のJSONを返してください。
-{{
-  "natural_title": "自然な日本語タイトル（直訳でなく読みやすく）",
-  "summary": "1行目の要約。\\n2行目の要約。\\n3行目の要約。"
-}}
-タイトル: {title}
-概要: {description}
-ソース: {source}"""
+DEFAULT_SUMMARIZER_PROMPT = (  # noqa: E501
+    "以下の英語のITニュース記事のタイトルと概要を読み、"
+    "次のJSONを返してください。\n"
+    "{{\n"
+    '  "natural_title": '
+    '"自然な日本語タイトル（直訳でなく読みやすく）",\n'
+    '  "summary": '
+    '"1行目の要約。\\\\n2行目の要約。\\\\n3行目の要約。"\n'
+    "}}\n"
+    "タイトル: {title}\n"
+    "概要: {description}\n"
+    "ソース: {source}"
+)
 
 
 class Summarizer(Protocol):
@@ -60,4 +65,8 @@ def get_summarizer(engine: str, model: str, prompt_template: str) -> Summarizer:
         from src.summarizers.claude import ClaudeSummarizer
 
         return ClaudeSummarizer(model=model, prompt_template=prompt_template)
-    raise ValueError(f"Unknown summarizer engine: {engine!r}. Choose from: openai, claude")
+    msg = (
+        f"Unknown summarizer engine: {engine!r}. "
+        f"Choose from: openai, claude"
+    )
+    raise ValueError(msg)

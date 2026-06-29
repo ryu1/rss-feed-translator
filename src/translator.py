@@ -23,7 +23,11 @@ def with_retry(fn: Callable[[], T], max_attempts: int = 3) -> T:
             return fn()
         except TranslationError as e:
             if attempt == max_attempts:
-                logger.error("Translation failed after %d attempts: %s", max_attempts, e)
+                logger.error(
+                    "Translation failed after %d attempts: %s",
+                    max_attempts,
+                    e,
+                )
                 raise TranslationSkippedError(str(e)) from e
             wait = 2 ** (attempt - 1)
             logger.warning(
@@ -34,8 +38,10 @@ def with_retry(fn: Callable[[], T], max_attempts: int = 3) -> T:
                 e,
             )
             time.sleep(wait)
-    # This line is unreachable: the loop always returns on success or raises on final failure.
-    raise AssertionError("with_retry loop exited without returning or raising")  # pragma: no cover
+    # This line is unreachable: the loop always returns on success or
+    # raises on final failure.
+    msg = "with_retry loop exited without returning or raising"
+    raise AssertionError(msg)  # pragma: no cover
 
 
 def translate_articles(
@@ -50,9 +56,11 @@ def translate_articles(
 
     translated = with_retry(_translate)
     if len(translated) != len(all_texts):
-        raise TranslationError(
-            f"Translator returned {len(translated)} items, expected {len(all_texts)}"
+        msg = (
+            f"Translator returned {len(translated)} items, "
+            f"expected {len(all_texts)}"
         )
+        raise TranslationError(msg)
     mid = len(articles)
     return list(zip(translated[:mid], translated[mid:]))
 
@@ -70,4 +78,8 @@ def get_translator(engine: str) -> Translator:
         from src.translators.deepl import DeepLTranslator
 
         return DeepLTranslator()
-    raise ValueError(f"Unknown translator engine: {engine!r}. Choose from: google, openai, deepl")
+    msg = (
+        f"Unknown translator engine: {engine!r}. "
+        f"Choose from: google, openai, deepl"
+    )
+    raise ValueError(msg)

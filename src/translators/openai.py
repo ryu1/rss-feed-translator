@@ -18,7 +18,8 @@ class OpenAITranslator:
 
             self._client = OpenAI(api_key=api_key)
         except Exception as e:
-            raise TranslationError(f"Failed to initialize OpenAI client: {e}") from e
+            msg = f"Failed to initialize OpenAI client: {e}"
+            raise TranslationError(msg) from e
 
     def translate(self, texts: list[str], target_lang: str = "ja") -> list[str]:
         if not texts:
@@ -37,9 +38,12 @@ class OpenAITranslator:
             content = response.choices[0].message.content or ""
             parts = [t.strip() for t in content.split("\n---\n")]
             if len(parts) != len(texts):
-                raise TranslationError(
-                    f"Expected {len(texts)} translations, got {len(parts)}"
+                msg = (
+                    f"Expected {len(texts)} translations, "
+                    f"got {len(parts)}"
                 )
+                raise TranslationError(msg)
             return parts
         except Exception as e:
-            raise TranslationError(f"OpenAI translation error: {e}") from e
+            msg = f"OpenAI translation error: {e}"
+            raise TranslationError(msg) from e

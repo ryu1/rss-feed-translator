@@ -34,7 +34,11 @@ def make_article() -> Article:
 def test_mock_summarizer_returns_tuple() -> None:
     article = make_article()
     result = MockSummarizer().summarize(article)
-    assert result == ("自然: AI Breakthrough", "要約: Researchers found a new approach.")
+    expected = (
+        "自然: AI Breakthrough",
+        "要約: Researchers found a new approach.",
+    )
+    assert result == expected
 
 
 def test_summarize_with_retry_returns_none_on_failure() -> None:
@@ -47,7 +51,11 @@ def test_summarize_with_retry_returns_none_on_failure() -> None:
 def test_summarize_with_retry_succeeds() -> None:
     article = make_article()
     result = summarize_with_retry(MockSummarizer(), article, max_attempts=3)
-    assert result == ("自然: AI Breakthrough", "要約: Researchers found a new approach.")
+    expected = (
+        "自然: AI Breakthrough",
+        "要約: Researchers found a new approach.",
+    )
+    assert result == expected
 
 
 def test_get_summarizer_raises_on_unknown_engine() -> None:

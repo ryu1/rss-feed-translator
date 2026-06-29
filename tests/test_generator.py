@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import defusedxml.ElementTree as ET  # type: ignore[import-untyped]
-import pytest
 
 from src.generator import generate_rss
 from src.models import TranslatedArticle
@@ -43,9 +42,17 @@ def test_generate_rss_creates_valid_xml(tmp_path: Path) -> None:
     assert len(items) == 3
 
 
-def test_generate_rss_uses_natural_title_when_available(tmp_path: Path) -> None:
+def test_generate_rss_uses_natural_title_when_available(
+    tmp_path: Path,
+) -> None:
     output = str(tmp_path / "rss.xml")
-    articles = [make_translated_article(1, natural_title="自然なタイトル", summary="要約文")]
+    articles = [
+        make_translated_article(
+            1,
+            natural_title="自然なタイトル",
+            summary="要約文",
+        )
+    ]
     generate_rss(articles, output)
 
     tree = ET.parse(output)

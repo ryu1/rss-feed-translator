@@ -39,7 +39,9 @@ class ClaudeSummarizer:
                 messages=[{"role": "user", "content": prompt}],
             )
             text_blocks = [
-                block for block in response.content if isinstance(block, anthropic.types.TextBlock)
+                block
+                for block in response.content
+                if isinstance(block, anthropic.types.TextBlock)
             ]
             content = text_blocks[0].text if text_blocks else "{}"
             start = content.find("{")

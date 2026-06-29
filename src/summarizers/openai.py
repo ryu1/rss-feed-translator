@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 class OpenAISummarizer:
     def __init__(
-        self, model: str = "gpt-4o-mini", prompt_template: str = DEFAULT_SUMMARIZER_PROMPT
+        self,
+        model: str = "gpt-4o-mini",
+        prompt_template: str = DEFAULT_SUMMARIZER_PROMPT,
     ) -> None:
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:

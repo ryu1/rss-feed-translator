@@ -14,11 +14,16 @@ class GoogleTranslator:
         if not api_key:
             raise EnvironmentError("GOOGLE_API_KEY environment variable not set")
         try:
-            from google.cloud import translate_v2 as google_translate  # type: ignore[import-untyped]
+            from google.cloud import (  # type: ignore[import-untyped]
+                translate_v2 as google_translate,
+            )
 
-            self._client = google_translate.Client(client_options={"api_key": api_key})
+            self._client = google_translate.Client(
+                client_options={"api_key": api_key}
+            )
         except Exception as e:
-            raise TranslationError(f"Failed to initialize Google Translate client: {e}") from e
+            msg = f"Failed to initialize Google Translate client: {e}"
+            raise TranslationError(msg) from e
 
     def translate(self, texts: list[str], target_lang: str = "ja") -> list[str]:
         if not texts:
@@ -27,4 +32,5 @@ class GoogleTranslator:
             results = self._client.translate(texts, target_language=target_lang)
             return [r["translatedText"] for r in results]
         except Exception as e:
-            raise TranslationError(f"Google Translate API error: {e}") from e
+            msg = f"Google Translate API error: {e}"
+            raise TranslationError(msg) from e

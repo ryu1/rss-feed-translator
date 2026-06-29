@@ -17,14 +17,32 @@ def load_translated_cache(path: str) -> dict[str, TranslatedArticle]:
         data: dict[str, dict[str, object]] = json.load(f)
     result: dict[str, TranslatedArticle] = {}
     for guid, item in data.items():
+        translated_title: str | None = (
+            str(item["translated_title"])
+            if item.get("translated_title")
+            else None
+        )
+        translated_description: str | None = (
+            str(item["translated_description"])
+            if item.get("translated_description")
+            else None
+        )
+        natural_title: str | None = (
+            str(item["natural_title"])
+            if item.get("natural_title")
+            else None
+        )
+        summary: str | None = (
+            str(item["summary"]) if item.get("summary") else None
+        )
         result[guid] = TranslatedArticle(
             guid=guid,
             original_title=str(item["original_title"]),
             original_description=str(item["original_description"]),
-            translated_title=item.get("translated_title") and str(item["translated_title"]) or None,  # type: ignore[arg-type]
-            translated_description=item.get("translated_description") and str(item["translated_description"]) or None,  # type: ignore[arg-type]
-            natural_title=item.get("natural_title") and str(item["natural_title"]) or None,  # type: ignore[arg-type]
-            summary=item.get("summary") and str(item["summary"]) or None,  # type: ignore[arg-type]
+            translated_title=translated_title,
+            translated_description=translated_description,
+            natural_title=natural_title,
+            summary=summary,
             link=str(item["link"]),
             published=datetime.fromisoformat(str(item["published"])),
             source=str(item["source"]),
