@@ -9,6 +9,15 @@ from src.models import Article
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_SUMMARIZER_PROMPT = """以下の英語のITニュース記事のタイトルと概要を読み、次のJSONを返してください。
+{{
+  "natural_title": "自然な日本語タイトル（直訳でなく読みやすく）",
+  "summary": "1行目の要約。\\n2行目の要約。\\n3行目の要約。"
+}}
+タイトル: {title}
+概要: {description}
+ソース: {source}"""
+
 
 class Summarizer(Protocol):
     def summarize(self, article: Article) -> tuple[str, str]: ...

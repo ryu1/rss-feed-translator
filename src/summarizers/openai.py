@@ -6,24 +6,18 @@ import os
 
 from src.exceptions import SummarizationError
 from src.models import Article
+from src.summarizer import DEFAULT_SUMMARIZER_PROMPT
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PROMPT = """以下の英語のITニュース記事のタイトルと概要を読み、次のJSONを返してください。
-{{
-  "natural_title": "自然な日本語タイトル（直訳でなく読みやすく）",
-  "summary": "1行目の要約。\\n2行目の要約。\\n3行目の要約。"
-}}
-タイトル: {title}
-概要: {description}
-ソース: {source}"""
-
 
 class OpenAISummarizer:
-    def __init__(self, model: str = "gpt-4o-mini", prompt_template: str = DEFAULT_PROMPT) -> None:
+    def __init__(
+        self, model: str = "gpt-4o-mini", prompt_template: str = DEFAULT_SUMMARIZER_PROMPT
+    ) -> None:
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
-            raise EnvironmentError("OPENAI_API_KEY environment variable not set")
+            raise ValueError("OPENAI_API_KEY environment variable not set")
         from openai import OpenAI
 
         self._client = OpenAI(api_key=api_key)
