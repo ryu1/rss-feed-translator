@@ -60,7 +60,7 @@ def translate_articles(
             f"Translator returned {len(translated)} items, "
             f"expected {len(all_texts)}"
         )
-        raise TranslationError(msg)
+        raise TranslationSkippedError(msg)
     mid = len(articles)
     return list(zip(translated[:mid], translated[mid:]))
 

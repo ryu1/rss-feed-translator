@@ -27,10 +27,13 @@ class ClaudeSummarizer:
         self._prompt_template = prompt_template
 
     def summarize(self, article: Article) -> tuple[str, str]:
+        safe_title = article.title.replace("{", "{{").replace("}", "}}")
+        safe_description = article.description.replace("{", "{{").replace("}", "}}")
+        safe_source = article.source.replace("{", "{{").replace("}", "}}")
         prompt = self._prompt_template.format(
-            title=article.title,
-            description=article.description,
-            source=article.source,
+            title=safe_title,
+            description=safe_description,
+            source=safe_source,
         )
         try:
             response = self._client.messages.create(

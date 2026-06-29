@@ -43,7 +43,7 @@ def fetch_feed(
         last_mod_header = response.headers["Last-Modified"]
         http_cache.setdefault(feed.url, {})["last_modified"] = last_mod_header
 
-    parsed = feedparser.parse(response.text)
+    parsed = feedparser.parse(response.content)
     articles: list[Article] = []
     for entry in parsed.entries:
         guid: str = str(

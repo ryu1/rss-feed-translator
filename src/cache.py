@@ -2,12 +2,20 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from src.models import TranslatedArticle
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_dt(value: str) -> datetime:
+    """Parse an ISO-format datetime string, attaching UTC if tzinfo is absent."""
+    dt = datetime.fromisoformat(value)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
 
 
 def load_translated_cache(path: str) -> dict[str, TranslatedArticle]:
@@ -44,9 +52,9 @@ def load_translated_cache(path: str) -> dict[str, TranslatedArticle]:
             natural_title=natural_title,
             summary=summary,
             link=str(item["link"]),
-            published=datetime.fromisoformat(str(item["published"])),
+            published=_parse_dt(str(item["published"])),
             source=str(item["source"]),
-            translated_at=datetime.fromisoformat(str(item["translated_at"])),
+            translated_at=_parse_dt(str(item["translated_at"])),
         )
     logger.debug("Loaded %d entries from cache: %s", len(result), path)
     return result
