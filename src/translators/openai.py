@@ -35,6 +35,11 @@ class OpenAITranslator:
                 messages=[{"role": "user", "content": prompt}],
             )
             content = response.choices[0].message.content or ""
-            return [t.strip() for t in content.split("---")]
+            parts = [t.strip() for t in content.split("\n---\n")]
+            if len(parts) != len(texts):
+                raise TranslationError(
+                    f"Expected {len(texts)} translations, got {len(parts)}"
+                )
+            return parts
         except Exception as e:
             raise TranslationError(f"OpenAI translation error: {e}") from e

@@ -43,7 +43,8 @@ def test_mock_translator_returns_translated_texts() -> None:
     assert result == ["翻訳: Hello", "翻訳: World"]
 
 
-def test_with_retry_succeeds_on_second_attempt() -> None:
+def test_with_retry_succeeds_on_second_attempt(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("src.translator.time.sleep", lambda _: None)
     calls = 0
 
     def flaky() -> str:
@@ -58,7 +59,9 @@ def test_with_retry_succeeds_on_second_attempt() -> None:
     assert calls == 2
 
 
-def test_with_retry_raises_after_max_attempts() -> None:
+def test_with_retry_raises_after_max_attempts(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("src.translator.time.sleep", lambda _: None)
+
     def always_fail() -> str:
         raise TranslationError("fail")
 

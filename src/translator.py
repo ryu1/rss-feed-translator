@@ -17,6 +17,7 @@ class Translator(Protocol):
 
 
 def with_retry(fn: Callable[[], T], max_attempts: int = 3) -> T:
+    assert max_attempts >= 1, "max_attempts must be at least 1"
     for attempt in range(1, max_attempts + 1):
         try:
             return fn()
@@ -33,7 +34,8 @@ def with_retry(fn: Callable[[], T], max_attempts: int = 3) -> T:
                 e,
             )
             time.sleep(wait)
-    raise TranslationSkippedError("Unreachable")
+    # This line is unreachable: the loop always returns on success or raises on final failure.
+    raise AssertionError("with_retry loop exited without returning or raising")  # pragma: no cover
 
 
 def translate_articles(
@@ -47,6 +49,10 @@ def translate_articles(
         return translator.translate(all_texts)
 
     translated = with_retry(_translate)
+    if len(translated) != len(all_texts):
+        raise TranslationError(
+            f"Translator returned {len(translated)} items, expected {len(all_texts)}"
+        )
     mid = len(articles)
     return list(zip(translated[:mid], translated[mid:]))
 
