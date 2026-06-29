@@ -1,0 +1,69 @@
+from __future__ import annotations
+
+import json
+import logging
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+
+from src.models import TranslatedArticle
+
+logger = logging.getLogger(__name__)
+
+
+def load_translated_cache(path: str) -> dict[str, TranslatedArticle]:
+    if not Path(path).exists():
+        return {}
+    with open(path, encoding="utf-8") as f:
+        data: dict[str, dict[str, object]] = json.load(f)
+    result: dict[str, TranslatedArticle] = {}
+    for guid, item in data.items():
+        result[guid] = TranslatedArticle(
+            guid=guid,
+            original_title=str(item["original_title"]),
+            original_description=str(item["original_description"]),
+            translated_title=item.get("translated_title") and str(item["translated_title"]) or None,  # type: ignore[arg-type]
+            translated_description=item.get("translated_description") and str(item["translated_description"]) or None,  # type: ignore[arg-type]
+            natural_title=item.get("natural_title") and str(item["natural_title"]) or None,  # type: ignore[arg-type]
+            summary=item.get("summary") and str(item["summary"]) or None,  # type: ignore[arg-type]
+            link=str(item["link"]),
+            published=datetime.fromisoformat(str(item["published"])),
+            source=str(item["source"]),
+            translated_at=datetime.fromisoformat(str(item["translated_at"])),
+        )
+    logger.debug("Loaded %d entries from cache: %s", len(result), path)
+    return result
+
+
+def save_translated_cache(path: str, cache: dict[str, TranslatedArticle]) -> None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    data: dict[str, dict[str, object]] = {}
+    for guid, article in cache.items():
+        data[guid] = {
+            "original_title": article.original_title,
+            "original_description": article.original_description,
+            "translated_title": article.translated_title,
+            "translated_description": article.translated_description,
+            "natural_title": article.natural_title,
+            "summary": article.summary,
+            "link": article.link,
+            "published": article.published.isoformat(),
+            "source": article.source,
+            "translated_at": article.translated_at.isoformat(),
+        }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    logger.debug("Saved %d entries to cache: %s", len(cache), path)
+
+
+def load_http_cache(path: str) -> dict[str, dict[str, str]]:
+    if not Path(path).exists():
+        return {}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)  # type: ignore[no-any-return]
+
+
+def save_http_cache(path: str, cache: dict[str, dict[str, str]]) -> None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(cache, f, ensure_ascii=False, indent=2)
