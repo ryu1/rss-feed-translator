@@ -78,8 +78,12 @@ def get_translator(engine: str) -> Translator:
         from src.translators.deepl import DeepLTranslator
 
         return DeepLTranslator()
+    if engine == "claude":
+        from src.translators.claude import ClaudeTranslator
+
+        return ClaudeTranslator()
     msg = (
         f"Unknown translator engine: {engine!r}. "
-        f"Choose from: google, openai, deepl"
+        f"Choose from: google, openai, deepl, claude"
     )
     raise ValueError(msg)

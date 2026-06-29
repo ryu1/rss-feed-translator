@@ -5,7 +5,7 @@ feeds:
     url: https://hnrss.org/frontpage
 
 translator:
-  engine: google  # google | openai | deepl
+  engine: claude  # google | openai | deepl | claude
 
 summarizer:
   enabled: true
