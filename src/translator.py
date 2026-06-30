@@ -44,11 +44,14 @@ def with_retry(fn: Callable[[], T], max_attempts: int = 3) -> T:
     raise AssertionError(msg)  # pragma: no cover
 
 
+_MAX_DESCRIPTION_CHARS = 500
+
+
 def translate_articles(
     articles: list[Article], translator: Translator
 ) -> list[tuple[str, str]]:
     titles = [a.title for a in articles]
-    descriptions = [a.description for a in articles]
+    descriptions = [a.description[:_MAX_DESCRIPTION_CHARS] for a in articles]
     all_texts = titles + descriptions
 
     def _translate() -> list[str]:
