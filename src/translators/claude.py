@@ -37,7 +37,7 @@ class ClaudeTranslator:
             self._model = model or _DEFAULT_MODEL
 
     _SEP = "<<<TRANSLATION_SEP>>>"
-    _CHUNK_SIZE = 20
+    _CHUNK_SIZE = 10
 
     def translate(self, texts: list[str], target_lang: str = "ja") -> list[str]:
         if not texts:
@@ -60,7 +60,7 @@ class ClaudeTranslator:
         try:
             response = self._client.messages.create(
                 model=self._model,
-                max_tokens=4096,
+                max_tokens=8192,
                 messages=[{"role": "user", "content": prompt}],
             )
             text_blocks = [
