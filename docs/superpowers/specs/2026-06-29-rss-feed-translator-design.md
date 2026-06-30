@@ -174,7 +174,7 @@ graph TD
 
 #### パイプライン（データフロー）
 
-単一の`main.py`エントリポイントから5つのモジュールをシーケンシャルに呼び出す。
+単一の`main.py`エントリポイントから5つのモジュールを6ステップでシーケンシャルに呼び出す。
 
 ```mermaid
 flowchart LR
@@ -600,7 +600,6 @@ flowchart LR
   <pubDate>Mon, 29 Jun 2026 10:00:00 +0000</pubDate>
   <source>Ars Technica</source>
   <guid isPermaLink="false">https://example.com/article-1</guid>
-  <original:title>AI Breakthrough</original:title>
 </item>
 ```
 
