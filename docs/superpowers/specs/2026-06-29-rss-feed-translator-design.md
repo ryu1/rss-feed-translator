@@ -669,6 +669,7 @@ dev = [
     "responses",   # HTTPモック
     "mypy",
     "ruff",
+    "pre-commit",
 ]
 
 [tool.ruff]
@@ -682,13 +683,40 @@ strict = true
 
 ---
 
+## 開発環境セットアップ
+
+```bash
+# 依存関係インストール（dev含む）
+uv sync --all-extras
+
+# pre-commit フックをインストール（初回のみ）
+uv run pre-commit install
+```
+
+インストール後は `git commit` のたびに lint・フォーマットが自動実行される。
+
+### 開発コマンド
+
+| コマンド | 目的 |
+|---------|------|
+| `uv run pytest tests/ -v` | テスト実行 |
+| `uv run ruff check src/ tests/` | lint チェック |
+| `uv run ruff format src/ tests/` | コード整形 |
+| `uv run mypy src/` | 型チェック |
+| `uv run pre-commit run --all-files` | 全ファイルに pre-commit を手動実行 |
+| `uv run python main.py` | パイプライン手動実行 |
+
+---
+
 ## コーディング規約
 
 - **型ヒント**: 全関数のパラメータと戻り値に型ヒントを付与する（`from __future__ import annotations`を活用）
 - **例外処理**: 例外を握り潰さない。`except Exception`は最外層のみ。内部では`FeedFetchError`・`TranslationError`等のカスタム例外を使う
 - **ログ**: 各モジュールは`logging.getLogger(__name__)`でロガーを取得し、適切なレベルで出力する
 - **リンター**: `ruff`でコードスタイルを統一（`uv run ruff check src/ tests/`）
+- **フォーマッター**: `ruff format`でコードを自動整形（`uv run ruff format src/ tests/`）
 - **型チェック**: `mypy`またはpyrightで静的解析（`uv run mypy src/`）
+- **pre-commit**: コミット前に `ruff --fix` と `ruff-format` が自動実行される。初回セットアップ時に `uv run pre-commit install` を実行すること
 
 ---
 
