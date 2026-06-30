@@ -114,7 +114,8 @@ rss-feed-translator/
 │   └── rss.xml                      # 生成済みRSS（GitHub Pages公開）
 ├── .github/
 │   └── workflows/
-│       ├── update-rss.yml           # 30分cron + workflow_dispatch
+│       ├── update-rss.yml           # 3時間cron（JST夜間停止）+ workflow_dispatch
+│       ├── dependabot-auto-merge.yml # Dependabot patch自動マージ
 │       └── test.yml                 # プッシュ時のテスト実行
 ├── pyproject.toml                   # 依存関係・リンター設定
 └── uv.lock                          # 依存関係ロックファイル
@@ -593,55 +594,78 @@ graph LR
     end
 
     subgraph "update-rss.yml"
-        CRON["schedule\n毎30分"] --> RUN["main.py 実行"]
+        CRON["schedule\nJST 7:00〜22:00\n3時間ごと"] --> RUN["main.py 実行"]
         DISPATCH["workflow_dispatch\n手動実行"] --> RUN
-        RUN --> COMMIT["cache/ + docs/feed/rss.xml\nコミット＆プッシュ"]
+        RUN --> COMMIT["cache/ + docs/feed/\nコミット＆プッシュ"]
         COMMIT --> PAGES["GitHub Pages\n自動デプロイ"]
+    end
+
+    subgraph "dependabot-auto-merge.yml"
+        DEP["Dependabot PR"] --> CHECK["patch update?"]
+        CHECK -->|Yes| MERGE["自動マージ"]
+        CHECK -->|No| MANUAL["手動マージ"]
     end
 ```
 
 ### update-rss.yml（.github/workflows/update-rss.yml）
 
-```yaml
-on:
-  schedule:
-    - cron: '*/30 * * * *'   # 30分ごと
-  workflow_dispatch:           # 手動実行
+- **スケジュール**: JST 7:00〜22:00 の間、3時間ごとに実行（夜間停止）
+- **手動実行**: `workflow_dispatch` で任意のタイミングで実行可能
+- **コミット対象**: `cache/`（翻訳キャッシュ）と `docs/feed/`（フィード別 RSS ファイル）
+- **新着なし**: 差分がない場合はコミットをスキップ
 
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: astral-sh/setup-uv@v5
-      - run: uv sync
-      - run: uv run python main.py
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add cache/ docs/rss.xml
-          git diff --staged --quiet || git commit -m "chore: update RSS feed"
-          git push
-```
+**必要な GitHub Secrets:**
 
-変更がない場合（新着記事なし）はコミットをスキップする。
+| Secret 名 | 用途 |
+|---|---|
+| `OPENAI_API_KEY` | OpenAI 翻訳・要約エンジン |
+| `ANTHROPIC_API_KEY` | Claude 翻訳・要約エンジン（直接 API） |
+| `AWS_BEARER_TOKEN_BEDROCK` | Claude 翻訳・要約エンジン（Bedrock 経由） |
+| `AWS_DEFAULT_REGION` | Bedrock リージョン |
+| `GOOGLE_API_KEY` | Google 翻訳エンジン |
+| `DEEPL_API_KEY` | DeepL 翻訳エンジン |
+
+### test.yml（.github/workflows/test.yml）
+
+- **トリガー**: push / pull_request
+- **ステップ**: `pytest` → `ruff check` → `mypy`
+
+### dependabot-auto-merge.yml（.github/workflows/dependabot-auto-merge.yml）
+
+- Dependabot の PR を自動検出
+- **patch** アップデートのみ自動マージ（squash）
+- **minor / major** は PR を作成するが手動マージが必要
+
+### dependabot.yml（.github/dependabot.yml）
+
+- `pip`（Python パッケージ）と `github-actions` を毎週チェック
+- 古いバージョンの依存があれば自動で PR を作成
+
+---
+
+## ブランチ保護（Rulesets）
+
+`main` ブランチに以下のルールを適用（`.github/rulesets/main-protection.json`）。
+
+| ルール | 内容 |
+|---|---|
+| `deletion` | `main` ブランチの削除を禁止 |
+| `non_fast_forward` | force push を禁止 |
+| `restrict_pushes` | `ryu1` 以外の直接 push を禁止 |
+| `required_status_checks` | `test` ジョブの通過を必須 |
+
+`github-actions[bot]` による RSS 更新の直接 push は `restrict_pushes` の対象外として動作する。
 
 ---
 
 ## GitHub Pages設定
 
-リポジトリの Settings → Pages → Source を `docs/` フォルダに設定することで、以下のURLでRSSが公開される。
+リポジトリの Settings → Pages → Source を `docs/` フォルダに設定することで、以下の URL で RSS が公開される。
 
 ```
-https://<username>.github.io/<repository>/rss.xml
+https://ryu1.github.io/rss-feed-translator/feed/ars-technica.xml
+https://ryu1.github.io/rss-feed-translator/feed/hacker-news.xml
+https://ryu1.github.io/rss-feed-translator/feed/dev-community.xml
 ```
 
 ---
