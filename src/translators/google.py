@@ -3,9 +3,13 @@ from __future__ import annotations
 import logging
 import os
 
+import requests
+
 from src.exceptions import TranslationError
 
 logger = logging.getLogger(__name__)
+
+_TRANSLATE_URL = "https://translation.googleapis.com/language/translate/v2"
 
 
 class GoogleTranslator:
@@ -13,22 +17,21 @@ class GoogleTranslator:
         api_key = os.environ.get("GOOGLE_API_KEY")
         if not api_key:
             raise EnvironmentError("GOOGLE_API_KEY environment variable not set")
-        try:
-            from google.cloud import (  # type: ignore[import-untyped]
-                translate_v2 as google_translate,
-            )
-
-            self._client = google_translate.Client(client_options={"api_key": api_key})
-        except Exception as e:
-            msg = f"Failed to initialize Google Translate client: {e}"
-            raise TranslationError(msg) from e
+        self._api_key = api_key
 
     def translate(self, texts: list[str], target_lang: str = "ja") -> list[str]:
         if not texts:
             return []
         try:
-            results = self._client.translate(texts, target_language=target_lang)
-            return [r["translatedText"] for r in results]
+            response = requests.post(
+                _TRANSLATE_URL,
+                params={"key": self._api_key},
+                json={"q": texts, "target": target_lang, "format": "text"},
+                timeout=30,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return [item["translatedText"] for item in data["data"]["translations"]]
         except Exception as e:
             msg = f"Google Translate API error: {e}"
             raise TranslationError(msg) from e
