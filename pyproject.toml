@@ -14,7 +14,7 @@ dependencies = [
     "openai>=1.50",
     "anthropic>=0.34",
     "deepl>=1.18",
-    "defusedxml>=0.7",
+    "defusedxml>=0.7.1",
 ]
 
 [project.optional-dependencies]
