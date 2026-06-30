@@ -4,5 +4,115 @@
     <title>DEV Community</title>
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
+    <item>
+      <title>Linuxログの読み方を完全解説：トラブルシューティングの必須スキル</title>
+      <description>Linuxのログは、システムとアプリケーションの活動を記録する「ブラックボックスレコーダー」であり、/var/log以下に保存されている。
+tail、less、grepなどのコマンドでログを表示・検索し、tail -fでリアルタイム監視、journalctlで最新のsystemdログを確認できる。
+ログローテーションでディスク容量を管理し、Webサーバーエラーなどの本来の原因を特定することで、効率的なトラブルシューティングが実現できる。</description>
+      <link>https://dev.to/sreekanth_kuruba_91721e5d/linux-logs-explained-simply-3pjn</link>
+      <pubDate>Tue, 30 Jun 2026 03:22:27 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sreekanth_kuruba_91721e5d/linux-logs-explained-simply-3pjn</guid>
+    </item>
+    <item>
+      <title>テスト管理ツール5つを徹底比較：開発者向けの実践的な選択ガイド</title>
+      <description>TestRail、Xray、Zephyr Scale、Azure Test Plans、qTestの5つのテスト管理ツールを、開発者視点で実装例を交えて比較解説。
+各ツールの統合モデル、強み、トレードオフを整理し、Playwright + TypeScriptの実例リポジトリで複数ツール対応の中立的なスキーマを示す。
+チーム体制や既存ツール環境に応じた選択基準と、ベストプラクティスとしてのID管理・マッピング集約・標準レポート保持などのチェックリストを提示。</description>
+      <link>https://dev.to/andrecarbajal/testing-management-tools-compared-real-world-developer-examples-4hk4</link>
+      <pubDate>Tue, 30 Jun 2026 03:21:25 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/andrecarbajal/testing-management-tools-compared-real-world-developer-examples-4hk4</guid>
+    </item>
+    <item>
+      <title>Kubernetes運用で誰も正直に語らない2つの重要な決定</title>
+      <description>ノードグループのサイジング戦略として、少数の大型ノードより多数の小型ノードの方が、ノード障害時の影響範囲（ブラスト半径）を低減でき、クラスタ全体の安定性が向上することを実例で解説。\nReadinessプローブとLivenessプローブを同じ条件で設定すると、外部依存（例：データベース遅延）の影響でポッドが無限再起動ループに陥るため、各プローブの目的を明確に分離して設定することの重要性を説明。\n両者とも通常時は問題に見えないが、障害時にストレスを受けるとその設定の不備が顕在化するため、実運用では想定される障害モードを理解した上で最適な設定を選択する必要があることを強調。</description>
+      <link>https://dev.to/mrinal_narang_13a3d00eb37/two-kubernetes-decisions-nobody-writes-about-honestly-29fb</link>
+      <pubDate>Tue, 30 Jun 2026 03:14:00 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/mrinal_narang_13a3d00eb37/two-kubernetes-decisions-nobody-writes-about-honestly-29fb</guid>
+    </item>
+    <item>
+      <title>自社営業チームを対象とした Dynamics 365 Sales のカスタマイズ - Customer Zero イニシアティブ</title>
+      <description>Customer Zero戦略により、自社をテスト顧客として Dynamics 365 Sales を活用し、実運用での課題を早期に発見して改善することで、顧客提案の信頼性を高める。
+Zone A～D の4つの領域にて、Power Automate と BPF を活用した次のアクション自動生成、案件滞留検知、顧客ヘルス管理、ドキュメントフロー管理などを段階的に実装する。
+カスタムフィールド（Opportunity 12個、Account 6個）の作成から始まり、計4段階の内部処理フロー、12個のアラートフロー、ダッシュボード再構成までを実装予定。</description>
+      <link>https://dev.to/tecturajpndx/customizing-d365-sales-for-our-own-sales-team-customer-zero-preparation-56f9</link>
+      <pubDate>Tue, 30 Jun 2026 03:12:16 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/tecturajpndx/customizing-d365-sales-for-our-own-sales-team-customer-zero-preparation-56f9</guid>
+    </item>
+    <item>
+      <title>ファビコン生成ツールがあなたのロゴをサーバーにアップロードしている理由</title>
+      <description>一般的なファビコン生成ツールはサーバーにアップロードされたロゴを保持・利用しており、クライアントの非公開ブランド資産の流出リスクがある。\nCanvas APIを使用することで、ブラウザ側だけでファビコン生成や画像変換を完結させることが可能であり、プライバシーを保護できる。\nブランド資産をアップロードする際は必ずネットワークタブを確認し、本当に必要なサーバー送信がないか検証すべき。</description>
+      <link>https://dev.to/jamiepark-design/why-your-favicon-generator-probably-uploads-your-logo-to-a-server-3e1o</link>
+      <pubDate>Tue, 30 Jun 2026 03:08:34 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/jamiepark-design/why-your-favicon-generator-probably-uploads-your-logo-to-a-server-3e1o</guid>
+    </item>
+    <item>
+      <title>オンラインファイル変換ツール10個を検証してみた—プライバシー保護は実装ゼロ</title>
+      <description>人気のオンライン変換ツール10個をネットワーク監視で調査したところ、すべてがファイルをリモートサーバーに送信していた。ほとんどは15ページのプライバシーポリシーに埋もれた記述でしか開示していない。
+ブラウザ内ですべて処理される完全プライベート変換ツール（formlyapp.org、svg2png.org、webp2png.ioなど）を開発した。Canvas APIやFileReader、ブラウザネイティブパーサーを活用して、ローカル処理を実現している。
+DevToolsのNetworkタブで確認すれば、これらのツールではアップロードリクエストが一切発生せず、すべてのデータがブラウザメモリに留まることが検証できる。</description>
+      <link>https://dev.to/jamiepark-design/i-tested-10-online-file-converters-none-of-them-were-actually-private-2pdc</link>
+      <pubDate>Tue, 30 Jun 2026 03:08:32 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/jamiepark-design/i-tested-10-online-file-converters-none-of-them-were-actually-private-2pdc</guid>
+    </item>
+    <item>
+      <title>AIコード監査ツールは主張するのではなく、異議を唱えられるべき</title>
+      <description>AIコード監査ツールの現状は、低ノイズ（誤検知を減らす）か高リコール（検出を増やす）かで二分されているが、問題はドキュメントとコードの実装が一致しているかを検証できていない点にある。\nドキュメントが自信を持って嘘をついている場合、信頼に基づいた判断が危険になる。監査ツールは各指摘について、それが間違っている条件を明示し、その指摘が本当に検出しているかテスト可能にする必要がある。\n監査ツール自体の信頼性を担保するには、既知の欠陥が埋め込まれたテストケースで検証し、その欠陥を修正すると指摘が消えることを確認する「赤-緑テスト」の原則を適用すべきである。</description>
+      <link>https://dev.to/devanomaly/confront-dont-assert-313n</link>
+      <pubDate>Tue, 30 Jun 2026 03:00:00 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/devanomaly/confront-dont-assert-313n</guid>
+    </item>
+    <item>
+      <title>仕様書よりも大切なのは、その過程での議論だ</title>
+      <description>AIを使った開発では、完成した仕様書を提示して実装させるアプローチより、設計段階でAIと対話し、想定外のケースや矛盾を事前に指摘させることが重要。\n仕様書を最終成果物として扱うと、早期の誤った前提が全体に波及するため、チャット形式で逐次決定を修正する方が効果的。\nAIに異論を唱えさせるための明示的なプロンプトルールを用意することで、単なる追従者ではなく真の思考パートナーとして機能させられる。</description>
+      <link>https://dev.to/anchildress1/the-spec-was-never-the-good-part-45i4</link>
+      <pubDate>Tue, 30 Jun 2026 02:59:11 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/anchildress1/the-spec-was-never-the-good-part-45i4</guid>
+    </item>
+    <item>
+      <title>GLM 5.2の100万トークンコンテキストがAPI料金に与える影響</title>
+      <description>Z.aiが2026年6月13日にリリースしたGLM 5.2は、100万トークンのコンテキストウィンドウを備えた744BパラメータのMoEモデルで、オープンソースコーディングベンチマークで最高レベルの性能を実現している。
+しかし100万トークンのコンテキストは同時に100万トークン分のコスト増加を意味し、開発者が無制限に大量のデータをプロンプトに詰め込むことで、API料金が10～100倍に膨れ上がる危険性がある。
+料金を抑えるには送信トークン数を最小限に保つ、使用量を追跡する、セマンティックキャッシュを活用するなど、コンテキストウィンドウの利用に規律が必要である。</description>
+      <link>https://dev.to/tokoscope/glm-52-has-a-1m-token-context-window-heres-what-that-does-to-your-api-bill-2fjp</link>
+      <pubDate>Tue, 30 Jun 2026 02:53:59 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/tokoscope/glm-52-has-a-1m-token-context-window-heres-what-that-does-to-your-api-bill-2fjp</guid>
+    </item>
+    <item>
+      <title>AIエージェントを使って「弱い紐帯」を活性化させよう</title>
+      <description>人間関係ネットワークに眠る数千の「弱い紐帯」（名前と肩書き程度しか知らない関係）の中には協業の機会が潜んでいるが、従来のソーシャルメディアでは発掘できない問題がある。\n脳の処理限界、情報の静的性、社交的コスト、既存プラットフォームの構造上の制限という4つの理由により、これらの機会は埋もれたままになっている。\nAIエージェントを使った「マッチング型ソーシャル」により、弱い紐帯を動的な機会ネットワークに変え、適切なタイミングで最適な相手を自動マッチングできるようになる。</description>
+      <link>https://dev.to/innovationsiyu/try-this-use-your-ai-agent-to-activate-your-weak-ties-33hm</link>
+      <pubDate>Tue, 30 Jun 2026 02:53:26 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/innovationsiyu/try-this-use-your-ai-agent-to-activate-your-weak-ties-33hm</guid>
+    </item>
+    <item>
+      <title>AIエージェント時代における動的なプロフェッショナルプロフィール管理</title>
+      <description>LinkedInや履歴書などの静的なプロフィールの代わりに、AIエージェントが日々の業務から自動抽出した動的な「インプレッション」によって、常に最新の専門スキルや協働スタイルを維持するシステムが紹介されている。
+否定的要件・品質基準・協働の境界線といった3つのシグナルをAIが分析して、ユーザーの暗黙的な仕事スタイルを捉え、外部に公開される検索可能な専門家プロフィールへ変換する。
+買い手と専門家という2つの異なる検索ID、ベクトル距離による自動的な古い情報の削除、動的なタグボキャブラリーなどの技術的工夫により、ネットワーク効果を最大化しながら個人の発見可能性を向上させる仕組みになっている。</description>
+      <link>https://dev.to/innovationsiyu/the-way-you-direct-your-agent-defines-your-professional-interface-in-the-agent-network-1ch1</link>
+      <pubDate>Tue, 30 Jun 2026 02:50:38 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/innovationsiyu/the-way-you-direct-your-agent-defines-your-professional-interface-in-the-agent-network-1ch1</guid>
+    </item>
+    <item>
+      <title>Clash Verge RevとMihomoの完全セットアップガイド：初心者向け2026年版</title>
+      <description>Clash Verge Revの基本的なインストール方法とセットアップ手順を、Windows・macOS・Linuxの各OSに対応させて解説するガイド。
+単なるインストール方法だけでなく、プロキシモード選択やTUNモード、DNS設定など、実際の使用時に直面する疑問にも答える実践的な内容。
+Mihomoカーネルを搭載した同ソフトの主要機能（クロスプラットフォーム対応、複数プロトコル互換、インテリジェントルーティング、高度なネットワーク機能）と、初起動後の基本操作を初心者向けに説明。</description>
+      <link>https://dev.to/qnca_zzlx_2bf58ba0978b390/how-to-set-up-clash-verge-rev-with-mihomo-the-complete-beginners-guide-2026-2o88</link>
+      <pubDate>Tue, 30 Jun 2026 02:44:51 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/qnca_zzlx_2bf58ba0978b390/how-to-set-up-clash-verge-rev-with-mihomo-the-complete-beginners-guide-2026-2o88</guid>
+    </item>
   </channel>
 </rss>
