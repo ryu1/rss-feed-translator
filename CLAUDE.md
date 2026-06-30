@@ -8,6 +8,23 @@
 
 ## ドキュメント構成
 
+各ドキュメントの役割と関係を示します。
+
+```mermaid
+graph TD
+    README["📄 README.md<br/>目次・RSSフィードURL"]
+    SPECS["📐 docs/superpowers/specs/<br/>設計ドキュメント（永続）"]
+    PLANS["📋 docs/superpowers/plans/<br/>実装計画（作業単位）"]
+    PROGRESS["📊 .superpowers/sdd/progress.md<br/>進捗管理"]
+    GLOSSARY["📖 docs/glossary.md<br/>ユビキタス言語定義"]
+
+    README -->|リンク| SPECS
+    README -->|リンク| PLANS
+    README -->|リンク| GLOSSARY
+    PLANS -->|参照| SPECS
+    PROGRESS -->|記録| PLANS
+```
+
 ### 1. 設計ドキュメント（`docs/superpowers/specs/`）
 
 `superpowers:brainstorming` スキルで生成。基本設計や方針が変わらない限り更新しません。
@@ -68,6 +85,14 @@ docs/superpowers/plans/YYYY-MM-DD-<feature>.md         # 実装計画
 
 ### 初回セットアップ
 
+```mermaid
+flowchart LR
+    A[設計\nbrainstorming] --> B[実装計画\nwriting-plans]
+    B --> C[環境セットアップ\nuv sync]
+    C --> D[実装\nsubagent-driven-development]
+    D --> E[品質チェック\npytest / ruff / mypy]
+```
+
 1. **設計** — `superpowers:brainstorming` で設計し `docs/superpowers/specs/` に保存
 2. **実装計画** — `superpowers:writing-plans` で計画を作成し `docs/superpowers/plans/` に保存
 3. **環境セットアップ** — `uv sync --all-extras`
@@ -75,6 +100,16 @@ docs/superpowers/plans/YYYY-MM-DD-<feature>.md         # 実装計画
 5. **品質チェック** — `uv run pytest`, `uv run ruff check src/ tests/`, `uv run mypy src/`
 
 ### 機能追加・修正
+
+```mermaid
+flowchart LR
+    A[影響分析] --> B{設計変更\n必要?}
+    B -->|Yes| C[設計更新\nbrainstorming]
+    B -->|No| D[実装計画\nwriting-plans]
+    C --> D
+    D --> E[実装\nsubagent-driven-development]
+    E --> F[品質チェック]
+```
 
 1. **影響分析** — `docs/superpowers/specs/` の設計ドキュメントへの影響を確認
 2. **設計更新** — 基本設計に影響する場合は `superpowers:brainstorming` で更新
