@@ -42,13 +42,14 @@
 
 ```mermaid
 graph TD
-    subgraph "GitHub Actions（30分ごと）"
+    subgraph "GitHub Actions（JST 7:00〜22:00 / 3時間ごと）"
         MAIN["main.py"]
     end
 
     subgraph "外部RSSフィード"
         FEED1["Ars Technica"]
         FEED2["Hacker News"]
+        FEED3["DEV Community"]
     end
 
     subgraph "翻訳・要約API"
@@ -58,15 +59,16 @@ graph TD
 
     subgraph "リポジトリ"
         CACHE["cache/translated.json\nhttp_cache.json"]
-        RSS["docs/feed/rss.xml"]
+        RSS["docs/feed/ars-technica.xml\ndocs/feed/hacker-news.xml\ndocs/feed/dev-community.xml"]
     end
 
     subgraph "GitHub Pages"
-        PUB["https://ryu1.github.io/\nrss-feed-translator/feed/rss.xml"]
+        PUB["https://ryu1.github.io/\nrss-feed-translator/feed/<feed>.xml"]
     end
 
     FEED1 -->|RSS取得| MAIN
     FEED2 -->|RSS取得| MAIN
+    FEED3 -->|RSS取得| MAIN
     MAIN -->|翻訳リクエスト| TRANS
     MAIN -->|要約リクエスト| SUMM
     MAIN -->|読み書き| CACHE
@@ -117,11 +119,12 @@ rss-feed-translator/
 │   ├── translators/
 │   │   ├── google.py                # Google Translate実装
 │   │   ├── openai.py                # OpenAI翻訳実装
+│   │   ├── claude.py                # Claude翻訳実装（Anthropic / Bedrock）
 │   │   └── deepl.py                 # DeepL実装
 │   ├── summarizer.py                # Summarizerプロトコル定義 + エンジン選択
 │   ├── summarizers/
 │   │   ├── openai.py                # OpenAI（GPT-4o等）実装
-│   │   └── claude.py                # Claude実装
+│   │   └── claude.py                # Claude実装（Anthropic / Bedrock）
 │   ├── generator.py                 # RSS XML生成
 │   ├── cache.py                     # 翻訳キャッシュ管理
 │   ├── models.py                    # データクラス定義
@@ -132,17 +135,26 @@ rss-feed-translator/
 │   ├── test_translator.py
 │   ├── test_summarizer.py
 │   ├── test_cache.py
-│   └── test_generator.py
+│   ├── test_generator.py
+│   ├── test_models.py
+│   └── test_pipeline.py
 ├── cache/
 │   ├── translated.json              # 翻訳済み記事キャッシュ（gitコミット対象）
 │   └── http_cache.json              # ETag/Last-Modifiedキャッシュ（gitコミット対象）
 ├── docs/
-│   └── rss.xml                      # 生成済みRSS（GitHub Pages公開）
+│   └── feed/
+│       ├── ars-technica.xml         # フィード別RSS（GitHub Pages公開）
+│       ├── hacker-news.xml
+│       └── dev-community.xml
 ├── .github/
-│   └── workflows/
-│       ├── update-rss.yml           # 3時間cron（JST夜間停止）+ workflow_dispatch
-│       ├── dependabot-auto-merge.yml # Dependabot patch自動マージ
-│       └── test.yml                 # プッシュ時のテスト実行
+│   ├── workflows/
+│   │   ├── update-rss.yml           # 3時間cron（JST夜間停止）+ workflow_dispatch
+│   │   ├── dependabot-auto-merge.yml # Dependabot patch自動マージ
+│   │   └── test.yml                 # プッシュ時のテスト実行
+│   ├── rulesets/
+│   │   └── main-protection.json     # ブランチ保護Ruleset（インポート用）
+│   └── dependabot.yml               # Dependabot設定
+├── .pre-commit-config.yaml          # ruff lint + ruff-format
 ├── pyproject.toml                   # 依存関係・リンター設定
 └── uv.lock                          # 依存関係ロックファイル
 ```
@@ -155,25 +167,30 @@ rss-feed-translator/
 feeds:
   - name: Ars Technica
     url: https://feeds.arstechnica.com/arstechnica/index
+    output_path: docs/feed/ars-technica.xml   # per-feed 出力ファイルパス
+    link_url: https://arstechnica.com         # RSS <channel><link>
   - name: Hacker News
     url: https://hnrss.org/frontpage
+    output_path: docs/feed/hacker-news.xml
+    link_url: https://news.ycombinator.com
+  - name: DEV Community
+    url: https://dev.to/feed
+    output_path: docs/feed/dev-community.xml
+    link_url: https://dev.to
 
 translator:
-  engine: google   # google | openai | deepl
+  engine: openai   # google | openai | deepl | claude
+  # provider: anthropic  # anthropic (default) | bedrock
 
 summarizer:
   enabled: true                  # falseにすると翻訳のみ
   engine: openai                 # openai | claude
   model: gpt-4o-mini             # 使用モデル（コスト最適化）
-  prompt: |
-    以下の英語のITニュース記事のタイトルと概要を読み、
-    1. 自然な日本語タイトル（直訳でなく読みやすく）
-    2. 3行程度の日本語要約
-    を生成してください。
+  # provider: anthropic          # anthropic (default) | bedrock
+  # prompt: |                    # 省略時は DEFAULT_SUMMARIZER_PROMPT を使用
 
 output:
-  path: docs/rss.xml
-  max_items: 200   # RSSに含める最大記事数
+  max_items: 200   # フィードごとのRSSに含める最大記事数
 
 cache:
   path: cache/translated.json
@@ -193,6 +210,8 @@ classDiagram
     class FeedConfig {
         +str name
         +str url
+        +str|None output_path
+        +str link_url
     }
     class Article {
         +str guid
@@ -228,6 +247,8 @@ from datetime import datetime
 class FeedConfig:
     name: str
     url: str
+    output_path: str | None = None   # per-feed 出力ファイルパス
+    link_url: str = ""               # RSS <channel><link>
 
 @dataclass(frozen=True)
 class Article:
@@ -420,13 +441,17 @@ class Translator(Protocol):
 
 構造的サブタイピングにより継承不要。`translate()`メソッドを持つクラスであれば自動的に適合する。
 
-### エンジン優先順位
+### エンジン一覧
 
-1. Google Translate（`google-cloud-translate`）
-2. OpenAI（`openai`）
-3. DeepL（`deepl`）
+| エンジン | キー | 認証環境変数 |
+|---|---|---|
+| Google Translate | `google` | `GOOGLE_API_KEY` |
+| OpenAI | `openai` | `OPENAI_API_KEY` |
+| DeepL | `deepl` | `DEEPL_API_KEY` |
+| Claude（Anthropic直接） | `claude` | `ANTHROPIC_API_KEY` |
+| Claude（Amazon Bedrock） | `claude` + `provider: bedrock` | `AWS_BEARER_TOKEN_BEDROCK` |
 
-`config.yaml`の`translator.engine`で切り替え。APIキーは環境変数から取得。
+`config.yaml`の`translator.engine`で切り替え。`provider`を`bedrock`にするとAmazon Bedrock経由でClaudeを使用する（IAM認証不使用、`AWS_BEARER_TOKEN_BEDROCK`のBearer Token方式のみ）。
 
 ### 翻訳対象
 
@@ -489,6 +514,8 @@ flowchart TD
 ### translated.json
 
 GUIDをキーとしたJSONオブジェクト。差分更新はGUIDの存在確認のみでO(1)。
+
+**キャッシュ上限（プルーニング）:** `save_translated_cache()` 呼び出し時にエントリ数が 10,000 を超えると、`published` 降順でソートして上位 10,000 件に自動プルーニングされる。
 
 ```json
 {
@@ -554,8 +581,9 @@ flowchart LR
 ```
 
 - `defusedxml`を使いXXE/Billion Laughs攻撃を防ぐ。生成には`xml.etree.ElementTree`、解析には`defusedxml.ElementTree`を使用
-- `cache/translated.json`の全件を`pubDate`降順でソートして出力
-- 出力先: `docs/feed/rss.xml`（GitHub Pagesのソースディレクトリ）
+- キャッシュの全件を`pubDate`降順でソートし、`max_items`件まで出力
+- **フィード別出力**: `FeedConfig.output_path` に指定されたパスへフィードごとに個別ファイルを生成（`docs/feed/ars-technica.xml` など）
+- `<channel><link>` は `FeedConfig.link_url` から設定（空文字列の場合は空で出力）
 
 ### itemの構成
 
@@ -678,9 +706,10 @@ graph LR
 | `deletion` | `main` ブランチの削除を禁止 |
 | `non_fast_forward` | force push を禁止 |
 | `restrict_pushes` | `ryu1` 以外の直接 push を禁止 |
-| `required_status_checks` | `test` ジョブの通過を必須 |
 
-`github-actions[bot]` による RSS 更新の直接 push は `restrict_pushes` の対象外として動作する。
+> **注意:** `pull_request` および `required_status_checks` ルールは適用していない。`github-actions[bot]` による RSS 更新の直接 push（`update-rss.yml`）は PR なしで行われるため、これらのルールを有効にするとワークフローがブロックされる。
+
+JSON ファイルは `.github/rulesets/main-protection.json` に保存されており、GitHub の Import Ruleset 機能でインポートできる（インポート後 `bypass_actors` や `ryu1` の追加は GUI で行う）。
 
 ---
 
@@ -787,8 +816,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
       - run: uv sync --all-extras
       - run: uv run pytest tests/ -v
       - run: uv run ruff check src/ tests/

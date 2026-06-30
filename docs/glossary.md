@@ -13,7 +13,7 @@
 | **キャッシュ (Cache)** | 翻訳済み記事を`cache/translated.json`にGUIDをキーとして保存したもの。差分更新に使用する |
 | **HTTPキャッシュ (HTTP Cache)** | フィードのETag/Last-Modifiedを`cache/http_cache.json`に保存したもの。不要なフィード取得を防ぐ |
 | **差分更新** | キャッシュに存在しないGUIDの記事のみを翻訳・要約する処理 |
-| **翻訳エンジン (Translator)** | タイトル・概要を機械翻訳するコンポーネント。Google Translate / OpenAI / DeepL / Claude |
+| **翻訳エンジン (Translator)** | タイトル・概要を機械翻訳するコンポーネント。Google Translate / OpenAI / DeepL / Claude（Anthropic直接 または Amazon Bedrock経由） |
 | **要約エンジン (Summarizer)** | LLMを使って自然な日本語タイトルと3行要約を生成するコンポーネント。OpenAI / Claude |
 | **自然な日本語タイトル (natural_title)** | 直訳でなく読みやすさを重視してLLMが生成した日本語タイトル |
 | **要約 (summary)** | LLMが生成した3行程度の日本語要約 |
@@ -27,13 +27,15 @@
 | **Translator** | 翻訳処理のProtocolインターフェース（`src/translator.py`） |
 | **Summarizer** | 要約処理のProtocolインターフェース（`src/summarizer.py`） |
 | **Generator** | `TranslatedArticle`リストからRSS XMLを生成するモジュール（`src/generator.py`） |
-| **FeedConfig** | フィードのname・URLを持つ設定データクラス |
+| **FeedConfig** | フィードのname・URL・output_path・link_urlを持つ設定データクラス |
 
 ## 英語・日本語対応表
 
 | 英語 | 日本語 | コード上の名前 |
 |------|--------|--------------|
 | Feed | フィード | `FeedConfig`, `feeds` |
+| Output Path | 出力ファイルパス | `output_path` |
+| Link URL | チャンネルリンクURL | `link_url` |
 | Article | 記事 | `Article` |
 | Translated Article | 翻訳済み記事 | `TranslatedArticle` |
 | GUID | GUID | `guid` |
