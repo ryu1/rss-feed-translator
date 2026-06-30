@@ -5,6 +5,9 @@ feeds:
   - name: Hacker News
     url: https://hnrss.org/frontpage
     output_path: docs/feed/hacker-news.xml
+  - name: DEV Community
+    url: https://dev.to/feed
+    output_path: docs/feed/dev-community.xml
 
 translator:
   engine: openai  # google | openai | deepl | claude
