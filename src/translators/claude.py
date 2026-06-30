@@ -20,9 +20,11 @@ class ClaudeTranslator:
         provider: str = "anthropic",
     ) -> None:
         if provider == "bedrock":
-            # AWS_BEARER_TOKEN_BEDROCK が設定されていれば api_key として使用
-            # 未設定の場合は AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY で認証
             bedrock_token = os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
+            if not bedrock_token:
+                raise ValueError(
+                    "AWS_BEARER_TOKEN_BEDROCK environment variable not set"
+                )
             self._client: anthropic.Anthropic | anthropic.AnthropicBedrock = (
                 anthropic.AnthropicBedrock(api_key=bedrock_token)
             )
