@@ -15,6 +15,7 @@ feeds:
 translator:
   engine: claude
   provider: bedrock
+  # daily_char_limit: 15000  # Google Translate 使用時のみ有効。省略時は無制限
 
 summarizer:
   enabled: true
@@ -28,3 +29,4 @@ output:
 cache:
   path: cache/translated.json
   http_cache_path: cache/http_cache.json
+  char_usage_path: cache/char_usage.json

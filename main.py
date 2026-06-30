@@ -13,12 +13,13 @@ from src.cache import (
     save_http_cache,
     save_translated_cache,
 )
+from src.daily_budget import DailyBudget
 from src.exceptions import TranslationSkippedError
 from src.fetcher import fetch_all_feeds
 from src.generator import generate_rss
 from src.models import Article, FeedConfig, TranslatedArticle
 from src.summarizer import get_summarizer, summarize_with_retry
-from src.translator import get_translator, translate_articles
+from src.translator import _MAX_DESCRIPTION_CHARS, get_translator, translate_articles
 
 logging.basicConfig(
     level=logging.INFO,
@@ -57,6 +58,11 @@ def main() -> None:
     translator_config: dict[str, str] = config.get("translator", {})  # type: ignore[assignment]
     translator_engine = translator_config.get("engine", "google")
     translator_provider = translator_config.get("provider", "anthropic")
+    daily_char_limit: int | None = (
+        int(str(translator_config["daily_char_limit"]))
+        if "daily_char_limit" in translator_config
+        else None
+    )
 
     summarizer_config: dict[str, object] = config.get("summarizer", {})  # type: ignore[assignment]
     summarizer_enabled = bool(summarizer_config.get("enabled", False))
@@ -71,6 +77,7 @@ def main() -> None:
     cache_config: dict[str, str] = config.get("cache", {})  # type: ignore[assignment]
     cache_path = cache_config.get("path", "cache/translated.json")
     http_cache_path = cache_config.get("http_cache_path", "cache/http_cache.json")
+    char_usage_path = cache_config.get("char_usage_path", "cache/char_usage.json")
 
     translated_cache = load_translated_cache(cache_path)
     http_cache = load_http_cache(http_cache_path)
@@ -90,6 +97,7 @@ def main() -> None:
     translated_count = 0
     skipped_count = 0
     error_count = 0
+    budget_skipped: list[Article] = []
 
     if new_articles:
         try:
@@ -99,37 +107,84 @@ def main() -> None:
             translator = None
 
         if translator is not None:
+            # バジェット対象記事（実際に翻訳する）
+            articles_to_translate: list[Article] = []
+
+            if daily_char_limit is not None:
+                budget = DailyBudget(path=char_usage_path, limit=daily_char_limit)
+                for article in new_articles:
+                    char_count = len(article.title) + len(
+                        article.description[:_MAX_DESCRIPTION_CHARS]
+                    )
+                    if budget.can_translate(char_count):
+                        articles_to_translate.append(article)
+                    else:
+                        budget_skipped.append(article)
+                if budget_skipped:
+                    logger.warning(
+                        "Daily character budget exceeded (%d/%d used):"
+                        " skipping %d articles",
+                        budget.limit - budget.remaining(),
+                        budget.limit,
+                        len(budget_skipped),
+                    )
+            else:
+                articles_to_translate = new_articles
+
             logger.info(
                 "Translating %d articles (engine=%s)...",
-                len(new_articles),
+                len(articles_to_translate),
                 translator_engine,
             )
-            try:
-                results = translate_articles(new_articles, translator)
-            except TranslationSkippedError as e:
-                logger.error("Batch translation failed, skipping cache write: %s", e)
-                error_count += len(new_articles)
-                results = None
-            except Exception as e:
-                logger.error(
-                    "Unexpected translation error, skipping cache write: %s", e
-                )
-                error_count += len(new_articles)
-                results = None
+            if articles_to_translate:
+                try:
+                    results = translate_articles(articles_to_translate, translator)
+                except TranslationSkippedError as e:
+                    logger.error(
+                        "Batch translation failed, skipping cache write: %s", e
+                    )
+                    error_count += len(articles_to_translate)
+                    results = None
+                except Exception as e:
+                    logger.error(
+                        "Unexpected translation error, skipping cache write: %s", e
+                    )
+                    error_count += len(articles_to_translate)
+                    results = None
 
-            if results is not None:
-                now = datetime.now(tz=timezone.utc)
-                for article, (translated_title, translated_description) in zip(
-                    new_articles, results
-                ):
-                    if not translated_title:
-                        skipped_count += 1
+                if results is not None:
+                    now = datetime.now(tz=timezone.utc)
+                    total_chars = sum(
+                        len(a.title) + len(a.description[:_MAX_DESCRIPTION_CHARS])
+                        for a in articles_to_translate
+                    )
+                    if daily_char_limit is not None:
+                        budget.consume(total_chars)
+                    for article, (translated_title, translated_description) in zip(
+                        articles_to_translate, results
+                    ):
+                        if not translated_title:
+                            skipped_count += 1
+                            translated_cache[article.guid] = TranslatedArticle(
+                                guid=article.guid,
+                                original_title=article.title,
+                                original_description=article.description,
+                                translated_title=None,
+                                translated_description=None,
+                                natural_title=None,
+                                summary=None,
+                                link=article.link,
+                                published=article.published,
+                                source=article.source,
+                                translated_at=now,
+                            )
+                            continue
                         translated_cache[article.guid] = TranslatedArticle(
                             guid=article.guid,
                             original_title=article.title,
                             original_description=article.description,
-                            translated_title=None,
-                            translated_description=None,
+                            translated_title=translated_title,
+                            translated_description=translated_description,
                             natural_title=None,
                             summary=None,
                             link=article.link,
@@ -137,24 +192,13 @@ def main() -> None:
                             source=article.source,
                             translated_at=now,
                         )
-                        continue
-                    translated_cache[article.guid] = TranslatedArticle(
-                        guid=article.guid,
-                        original_title=article.title,
-                        original_description=article.description,
-                        translated_title=translated_title,
-                        translated_description=translated_description,
-                        natural_title=None,
-                        summary=None,
-                        link=article.link,
-                        published=article.published,
-                        source=article.source,
-                        translated_at=now,
-                    )
-                    translated_count += 1
+                        translated_count += 1
 
             logger.info(
-                "Translated: %d articles (%d skipped)", translated_count, skipped_count
+                "Translated: %d articles (%d skipped, %d budget-skipped)",
+                translated_count,
+                skipped_count,
+                len(budget_skipped),
             )
 
     summarized_count = 0
@@ -218,7 +262,25 @@ def main() -> None:
     except Exception as e:
         logger.error("Failed to save cache: %s", e)
 
-    all_translated = list(translated_cache.values())
+    # バジェット超過でスキップした記事はキャッシュには保存せず RSS 生成のみに含める
+    now = datetime.now(tz=timezone.utc)
+    budget_skipped_articles = [
+        TranslatedArticle(
+            guid=a.guid,
+            original_title=a.title,
+            original_description=a.description,
+            translated_title=None,
+            translated_description=None,
+            natural_title=None,
+            summary=None,
+            link=a.link,
+            published=a.published,
+            source=a.source,
+            translated_at=now,
+        )
+        for a in budget_skipped
+    ]
+    all_translated = list(translated_cache.values()) + budget_skipped_articles
 
     for feed in feeds:
         if feed.output_path is None:
