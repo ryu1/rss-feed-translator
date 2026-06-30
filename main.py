@@ -106,26 +106,43 @@ def main() -> None:
             try:
                 results = translate_articles(new_articles, translator)
             except TranslationSkippedError as e:
-                logger.error("Batch translation failed: %s", e)
-                results = [("", "")] * len(new_articles)
+                logger.error("Batch translation failed, skipping cache write: %s", e)
                 error_count += len(new_articles)
+                results = None
             except Exception as e:
-                logger.error("Unexpected translation error: %s", e)
-                results = [("", "")] * len(new_articles)
+                logger.error(
+                    "Unexpected translation error, skipping cache write: %s", e
+                )
                 error_count += len(new_articles)
+                results = None
 
-            now = datetime.now(tz=timezone.utc)
-            for article, (translated_title, translated_description) in zip(
-                new_articles, results
-            ):
-                if not translated_title:
-                    skipped_count += 1
+            if results is not None:
+                now = datetime.now(tz=timezone.utc)
+                for article, (translated_title, translated_description) in zip(
+                    new_articles, results
+                ):
+                    if not translated_title:
+                        skipped_count += 1
+                        translated_cache[article.guid] = TranslatedArticle(
+                            guid=article.guid,
+                            original_title=article.title,
+                            original_description=article.description,
+                            translated_title=None,
+                            translated_description=None,
+                            natural_title=None,
+                            summary=None,
+                            link=article.link,
+                            published=article.published,
+                            source=article.source,
+                            translated_at=now,
+                        )
+                        continue
                     translated_cache[article.guid] = TranslatedArticle(
                         guid=article.guid,
                         original_title=article.title,
                         original_description=article.description,
-                        translated_title=None,
-                        translated_description=None,
+                        translated_title=translated_title,
+                        translated_description=translated_description,
                         natural_title=None,
                         summary=None,
                         link=article.link,
@@ -133,21 +150,7 @@ def main() -> None:
                         source=article.source,
                         translated_at=now,
                     )
-                    continue
-                translated_cache[article.guid] = TranslatedArticle(
-                    guid=article.guid,
-                    original_title=article.title,
-                    original_description=article.description,
-                    translated_title=translated_title,
-                    translated_description=translated_description,
-                    natural_title=None,
-                    summary=None,
-                    link=article.link,
-                    published=article.published,
-                    source=article.source,
-                    translated_at=now,
-                )
-                translated_count += 1
+                    translated_count += 1
 
             logger.info(
                 "Translated: %d articles (%d skipped)", translated_count, skipped_count

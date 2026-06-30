@@ -54,7 +54,18 @@ def load_translated_cache(path: str) -> dict[str, TranslatedArticle]:
     return result
 
 
+_MAX_CACHE_ENTRIES = 10_000
+
+
 def save_translated_cache(path: str, cache: dict[str, TranslatedArticle]) -> None:
+    if len(cache) > _MAX_CACHE_ENTRIES:
+        pruned = dict(
+            sorted(cache.items(), key=lambda x: x[1].published, reverse=True)[
+                :_MAX_CACHE_ENTRIES
+            ]
+        )
+        logger.info("Cache pruned from %d to %d entries", len(cache), len(pruned))
+        cache = pruned
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     data: dict[str, dict[str, object]] = {}
     for guid, article in cache.items():
