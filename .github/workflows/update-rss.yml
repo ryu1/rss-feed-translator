@@ -2,8 +2,8 @@ name: Update RSS
 
 on:
   schedule:
-    # JST 7:00〜22:00 の間で3時間ごと（UTC 22, 1, 4, 7, 10, 13 時）
-    - cron: '0 22,1,4,7,10,13 * * *'
+    # JST 9:00 と 12:00（UTC 0:00 と 3:00）
+    - cron: '0 0,3 * * *'
   workflow_dispatch:
 
 concurrency:
