@@ -45,9 +45,11 @@
 
 ---
 
-## アーキテクチャ
+## アーキテクチャ・設計
 
-### システム全体構成
+### アーキテクチャ
+
+#### システム全体構成
 
 ```mermaid
 graph TD
@@ -85,7 +87,7 @@ graph TD
     RSS -->|自動公開| PUB
 ```
 
-### パイプライン（データフロー）
+#### パイプライン（データフロー）
 
 単一の`main.py`エントリポイントから5つのモジュールをシーケンシャルに呼び出す。
 
@@ -114,9 +116,7 @@ flowchart LR
 
 `config.yaml`の`summarizer.enabled`で切り替え可能。
 
----
-
-## リポジトリ構造
+### リポジトリ構造
 
 ```
 rss-feed-translator/
@@ -168,9 +168,7 @@ rss-feed-translator/
 └── uv.lock                          # 依存関係ロックファイル
 ```
 
----
-
-## 設定ファイル（config.yaml）
+### 設定ファイル（config.yaml）
 
 ```yaml
 feeds:
@@ -208,9 +206,7 @@ cache:
 
 APIキーはGitHub Secretsから環境変数として注入する。設定ファイルにはハードコードしない。
 
----
-
-## データモデル（src/models.py）
+### データモデル（src/models.py）
 
 全クラスに型ヒントを付与する。`dataclass`を使用してイミュータブルなデータ構造を定義する。
 
@@ -285,7 +281,126 @@ class TranslatedArticle:
 
 RSS生成時は`natural_title`が存在すれば優先して使用し、なければ`translated_title`にフォールバックする。`summary`が存在すれば`<description>`に使用する。
 
-## LLM要約処理（src/summarizer.py / src/summarizers/）
+---
+
+## コンポーネント
+
+### RSS取得（src/fetcher.py）
+
+```mermaid
+sequenceDiagram
+    participant M as main.py
+    participant F as fetcher.py
+    participant R as RSS Server
+    participant C as http_cache.json
+
+    M->>F: fetch_all_feeds(feeds, http_cache)
+    loop 各フィード
+        F->>C: ETag / Last-Modified を読み込み
+        F->>R: GET feed (If-None-Match / If-Modified-Since)
+        alt 304 Not Modified
+            R-->>F: 304
+            F-->>M: [] (スキップ)
+        else 200 OK
+            R-->>F: フィードデータ
+            F->>C: ETag / Last-Modified を保存
+            F-->>M: List[Article]
+        end
+    end
+```
+
+- `feedparser`でRSS 2.0およびAtomを解析
+- `requests`でHTTPリクエスト。ETag / Last-Modifiedをリクエストヘッダに付与し、304 Not Modifiedを活用
+- フィードごとに独立してtry/catchし、取得失敗しても他フィードの処理を継続
+- 新着記事の判定はキャッシュのGUID一覧との差分で行う
+
+### 翻訳エンジン（src/translator.py / src/translators/）
+
+```mermaid
+classDiagram
+    class Translator {
+        <<Protocol>>
+        +translate(texts: list[str], target_lang: str) list[str]
+    }
+    class GoogleTranslator {
+        +translate(texts, target_lang) list[str]
+    }
+    class OpenAITranslator {
+        +translate(texts, target_lang) list[str]
+    }
+    class DeepLTranslator {
+        +translate(texts, target_lang) list[str]
+    }
+    class ClaudeTranslator {
+        +translate(texts, target_lang) list[str]
+    }
+
+    Translator <|.. GoogleTranslator : implements
+    Translator <|.. OpenAITranslator : implements
+    Translator <|.. DeepLTranslator : implements
+    Translator <|.. ClaudeTranslator : implements
+```
+
+#### Protocolインターフェース
+
+```python
+from typing import Protocol
+
+class Translator(Protocol):
+    def translate(self, texts: list[str], target_lang: str = "ja") -> list[str]:
+        ...
+```
+
+構造的サブタイピングにより継承不要。`translate()`メソッドを持つクラスであれば自動的に適合する。
+
+#### エンジン一覧
+
+| エンジン | キー | 認証環境変数 |
+|---|---|---|
+| Google Translate | `google` | `GOOGLE_API_KEY` |
+| OpenAI | `openai` | `OPENAI_API_KEY` |
+| DeepL | `deepl` | `DEEPL_API_KEY` |
+| Claude（Anthropic直接） | `claude` | `ANTHROPIC_API_KEY` |
+| Claude（Amazon Bedrock） | `claude` + `provider: bedrock` | `AWS_BEARER_TOKEN_BEDROCK` |
+
+`config.yaml`の`translator.engine`で切り替え。`provider`を`bedrock`にするとAmazon Bedrock経由でClaudeを使用する（IAM認証不使用、`AWS_BEARER_TOKEN_BEDROCK`のBearer Token方式のみ）。
+
+#### 翻訳対象
+
+- `title`（記事タイトル）
+- `description`（記事概要）
+- 本文（full text）は対象外
+
+#### バッチ翻訳
+
+1記事ずつではなく、新着記事の title・description をまとめてAPIに送信しAPI呼び出し回数を最小化する。description は翻訳前に500文字に切り詰める（DEV Communityなど記事本文が含まれるフィードの対策）。一度に送るテキスト数が多いとレスポンスがトークン上限で切れるため、10件ずつのチャンクに分割して送信する。
+
+#### リトライ（指数バックオフ）
+
+```mermaid
+sequenceDiagram
+    participant T as translate_articles()
+    participant R as with_retry()
+    participant A as 翻訳API
+
+    T->>R: with_retry(fn, max_attempts=3)
+    R->>A: attempt 1
+    A-->>R: TranslationError
+    Note over R: sleep 1s
+    R->>A: attempt 2
+    A-->>R: TranslationError
+    Note over R: sleep 2s
+    R->>A: attempt 3
+    alt 成功
+        A-->>R: list[str]
+        R-->>T: list[str]
+    else 失敗
+        A-->>R: TranslationError
+        R-->>T: TranslationSkippedError（スキップ）
+    end
+```
+
+### LLM要約処理（src/summarizer.py / src/summarizers/）
 
 ```mermaid
 classDiagram
@@ -304,7 +419,7 @@ classDiagram
     Summarizer <|.. ClaudeSummarizer : implements
 ```
 
-### Protocolインターフェース
+#### Protocolインターフェース
 
 ```python
 from typing import Protocol
@@ -318,12 +433,12 @@ class Summarizer(Protocol):
 
 翻訳エンジンと同様にProtocolで抽象化。`config.yaml`の`summarizer.enabled: false`で無効化でき、翻訳のみの構成にも対応する。
 
-### エンジン
+#### エンジン
 
 - **OpenAI**（`gpt-4o-mini`推奨）: コスト低、応答速度良好
 - **Claude**（`claude-haiku-4-5-20251001`推奨）: 日本語品質が高い
 
-### プロンプト設計
+#### プロンプト設計
 
 記事の`title`・`description`・`source`を入力とし、構造化された出力（JSONモード）を使って`natural_title`と`summary`を確実に取得する。
 
@@ -335,13 +450,124 @@ class Summarizer(Protocol):
 }
 ```
 
-### コスト考慮
+#### コスト考慮
 
 `summarizer`はLLM呼び出しのためコストが発生する。キャッシュに`natural_title`と`summary`を保存し、再処理を防ぐ。設定で`enabled: false`にすれば翻訳APIのみで動作する低コスト構成にいつでも戻せる。
 
----
+### RSS生成（src/generator.py）
 
-## カスタム例外（src/exceptions.py）
+#### タイトル・説明文のフォールバック
+
+```mermaid
+flowchart LR
+    subgraph title ["タイトル選択"]
+        NT{"natural_title\nあり?"}
+        TT{"translated_title\nあり?"}
+        OT["original_title\n（元記事タイトル）"]
+        NT -->|Yes| NT_OUT["natural_title を使用"]
+        NT -->|No| TT
+        TT -->|Yes| TT_OUT["translated_title を使用"]
+        TT -->|No| OT
+    end
+
+    subgraph desc ["説明文選択"]
+        SM{"summary\nあり?"}
+        TD{"translated_description\nあり?"}
+        OD["original_description\n（元記事概要）"]
+        SM -->|Yes| SM_OUT["summary を使用"]
+        SM -->|No| TD
+        TD -->|Yes| TD_OUT["translated_description を使用"]
+        TD -->|No| OD
+    end
+```
+
+- `defusedxml`を使いXXE/Billion Laughs攻撃を防ぐ。生成には`xml.etree.ElementTree`、解析には`defusedxml.ElementTree`を使用
+- キャッシュの全件を`pubDate`降順でソートし、`max_items`件まで出力
+- **フィード別出力**: `FeedConfig.output_path` に指定されたパスへフィードごとに個別ファイルを生成（`docs/feed/ars-technica.xml` など）
+- `<channel><link>` は `FeedConfig.link_url` から設定（空文字列の場合は空で出力）
+
+#### タイトルプレフィックス
+
+全記事のタイトル先頭に `[翻訳]` を付与する。翻訳成功・失敗を問わず常に付与し、Feedly などのリーダーでこのフィードが翻訳フィードであることを一目で識別できるようにする。
+
+#### itemの構成
+
+```xml
+<item>
+  <title>[翻訳] AI分野の突破口</title>
+  <description>研究者たちは...</description>
+  <link>https://example.com/article-1</link>
+  <pubDate>Mon, 29 Jun 2026 10:00:00 +0000</pubDate>
+  <source>Ars Technica</source>
+  <guid isPermaLink="false">https://example.com/article-1</guid>
+  <original:title>AI Breakthrough</original:title>
+</item>
+```
+
+GUIDは元記事のGUIDをそのまま保持する。
+
+### キャッシュ（src/cache.py）
+
+#### 差分更新フロー
+
+```mermaid
+flowchart TD
+    FETCH["fetch_all_feeds()\n全記事取得"]
+    LOAD["load_translated_cache()\nキャッシュ読み込み"]
+    DIFF{"GUID が\nキャッシュに存在?"}
+    SKIP["スキップ\n（翻訳済み）"]
+    TRANS["translate_articles()\n翻訳・要約"]
+    SAVE["save_translated_cache()\nキャッシュ保存"]
+
+    FETCH --> LOAD
+    LOAD --> DIFF
+    DIFF -->|Yes| SKIP
+    DIFF -->|No| TRANS
+    TRANS --> SAVE
+    SKIP --> SAVE
+```
+
+#### translated.json
+
+GUIDをキーとしたJSONオブジェクト。差分更新はGUIDの存在確認のみでO(1)。
+
+**キャッシュ上限（プルーニング）:** `save_translated_cache()` 呼び出し時にエントリ数が 10,000 を超えると、`published` 降順でソートして上位 10,000 件に自動プルーニングされる。
+
+```json
+{
+  "https://example.com/article-1": {
+    "original_title": "AI Breakthrough",
+    "original_description": "Researchers found...",
+    "translated_title": "AI分野の突破口",
+    "translated_description": "研究者たちは...",
+    "natural_title": "AI研究に新たな突破口、業界に波紋",
+    "summary": "研究者チームが新たなAIアーキテクチャを発表した。\n従来手法の10倍の効率を達成し、エネルギー消費も大幅に削減。\n商用化に向けた実証実験が2026年内に開始される予定。",
+    "source": "Ars Technica",
+    "published": "2026-06-29T10:00:00Z",
+    "link": "https://example.com/article-1",
+    "translated_at": "2026-06-29T10:05:00Z"
+  }
+}
+```
+
+`natural_title`・`summary`はsummarizer無効時は`null`として保存される。
+
+翻訳失敗でスキップされた記事も`translated_title: null`でキャッシュに保存し、無限リトライを防止する。再翻訳が必要な場合はキャッシュエントリを手動削除する。
+
+#### http_cache.json
+
+フィードURLをキーとして`ETag`と`Last-Modified`を保存。
+
+```json
+{
+  "https://feeds.arstechnica.com/arstechnica/index": {
+    "etag": "\"abc123\"",
+    "last_modified": "Mon, 29 Jun 2026 10:00:00 GMT"
+  }
+}
+```
+
+### カスタム例外（src/exceptions.py）
 
 エラー種別を明示的に分類し、呼び出し元でのハンドリングを容易にする。
 
@@ -380,243 +606,9 @@ class SummarizationSkippedError(SummarizationError):
 
 ---
 
-## RSS取得（src/fetcher.py）
+## 運用・インフラ
 
-```mermaid
-sequenceDiagram
-    participant M as main.py
-    participant F as fetcher.py
-    participant R as RSS Server
-    participant C as http_cache.json
-
-    M->>F: fetch_all_feeds(feeds, http_cache)
-    loop 各フィード
-        F->>C: ETag / Last-Modified を読み込み
-        F->>R: GET feed (If-None-Match / If-Modified-Since)
-        alt 304 Not Modified
-            R-->>F: 304
-            F-->>M: [] (スキップ)
-        else 200 OK
-            R-->>F: フィードデータ
-            F->>C: ETag / Last-Modified を保存
-            F-->>M: List[Article]
-        end
-    end
-```
-
-- `feedparser`でRSS 2.0およびAtomを解析
-- `requests`でHTTPリクエスト。ETag / Last-Modifiedをリクエストヘッダに付与し、304 Not Modifiedを活用
-- フィードごとに独立してtry/catchし、取得失敗しても他フィードの処理を継続
-- 新着記事の判定はキャッシュのGUID一覧との差分で行う
-
----
-
-## 翻訳エンジン（src/translator.py / src/translators/）
-
-```mermaid
-classDiagram
-    class Translator {
-        <<Protocol>>
-        +translate(texts: list[str], target_lang: str) list[str]
-    }
-    class GoogleTranslator {
-        +translate(texts, target_lang) list[str]
-    }
-    class OpenAITranslator {
-        +translate(texts, target_lang) list[str]
-    }
-    class DeepLTranslator {
-        +translate(texts, target_lang) list[str]
-    }
-    class ClaudeTranslator {
-        +translate(texts, target_lang) list[str]
-    }
-
-    Translator <|.. GoogleTranslator : implements
-    Translator <|.. OpenAITranslator : implements
-    Translator <|.. DeepLTranslator : implements
-    Translator <|.. ClaudeTranslator : implements
-```
-
-### Protocolインターフェース
-
-```python
-from typing import Protocol
-
-class Translator(Protocol):
-    def translate(self, texts: list[str], target_lang: str = "ja") -> list[str]:
-        ...
-```
-
-構造的サブタイピングにより継承不要。`translate()`メソッドを持つクラスであれば自動的に適合する。
-
-### エンジン一覧
-
-| エンジン | キー | 認証環境変数 |
-|---|---|---|
-| Google Translate | `google` | `GOOGLE_API_KEY` |
-| OpenAI | `openai` | `OPENAI_API_KEY` |
-| DeepL | `deepl` | `DEEPL_API_KEY` |
-| Claude（Anthropic直接） | `claude` | `ANTHROPIC_API_KEY` |
-| Claude（Amazon Bedrock） | `claude` + `provider: bedrock` | `AWS_BEARER_TOKEN_BEDROCK` |
-
-`config.yaml`の`translator.engine`で切り替え。`provider`を`bedrock`にするとAmazon Bedrock経由でClaudeを使用する（IAM認証不使用、`AWS_BEARER_TOKEN_BEDROCK`のBearer Token方式のみ）。
-
-### 翻訳対象
-
-- `title`（記事タイトル）
-- `description`（記事概要）
-- 本文（full text）は対象外
-
-### バッチ翻訳
-
-1記事ずつではなく、新着記事の title・description をまとめてAPIに送信しAPI呼び出し回数を最小化する。description は翻訳前に500文字に切り詰める（DEV Communityなど記事本文が含まれるフィードの対策）。一度に送るテキスト数が多いとレスポンスがトークン上限で切れるため、10件ずつのチャンクに分割して送信する。
-
-### リトライ（指数バックオフ）
-
-```mermaid
-sequenceDiagram
-    participant T as translate_articles()
-    participant R as with_retry()
-    participant A as 翻訳API
-
-    T->>R: with_retry(fn, max_attempts=3)
-    R->>A: attempt 1
-    A-->>R: TranslationError
-    Note over R: sleep 1s
-    R->>A: attempt 2
-    A-->>R: TranslationError
-    Note over R: sleep 2s
-    R->>A: attempt 3
-    alt 成功
-        A-->>R: list[str]
-        R-->>T: list[str]
-    else 失敗
-        A-->>R: TranslationError
-        R-->>T: TranslationSkippedError（スキップ）
-    end
-```
-
----
-
-## キャッシュ（src/cache.py）
-
-### 差分更新フロー
-
-```mermaid
-flowchart TD
-    FETCH["fetch_all_feeds()\n全記事取得"]
-    LOAD["load_translated_cache()\nキャッシュ読み込み"]
-    DIFF{"GUID が\nキャッシュに存在?"}
-    SKIP["スキップ\n（翻訳済み）"]
-    TRANS["translate_articles()\n翻訳・要約"]
-    SAVE["save_translated_cache()\nキャッシュ保存"]
-
-    FETCH --> LOAD
-    LOAD --> DIFF
-    DIFF -->|Yes| SKIP
-    DIFF -->|No| TRANS
-    TRANS --> SAVE
-    SKIP --> SAVE
-```
-
-### translated.json
-
-GUIDをキーとしたJSONオブジェクト。差分更新はGUIDの存在確認のみでO(1)。
-
-**キャッシュ上限（プルーニング）:** `save_translated_cache()` 呼び出し時にエントリ数が 10,000 を超えると、`published` 降順でソートして上位 10,000 件に自動プルーニングされる。
-
-```json
-{
-  "https://example.com/article-1": {
-    "original_title": "AI Breakthrough",
-    "original_description": "Researchers found...",
-    "translated_title": "AI分野の突破口",
-    "translated_description": "研究者たちは...",
-    "natural_title": "AI研究に新たな突破口、業界に波紋",
-    "summary": "研究者チームが新たなAIアーキテクチャを発表した。\n従来手法の10倍の効率を達成し、エネルギー消費も大幅に削減。\n商用化に向けた実証実験が2026年内に開始される予定。",
-    "source": "Ars Technica",
-    "published": "2026-06-29T10:00:00Z",
-    "link": "https://example.com/article-1",
-    "translated_at": "2026-06-29T10:05:00Z"
-  }
-}
-```
-
-`natural_title`・`summary`はsummarizer無効時は`null`として保存される。
-
-翻訳失敗でスキップされた記事も`translated_title: null`でキャッシュに保存し、無限リトライを防止する。再翻訳が必要な場合はキャッシュエントリを手動削除する。
-
-### http_cache.json
-
-フィードURLをキーとして`ETag`と`Last-Modified`を保存。
-
-```json
-{
-  "https://feeds.arstechnica.com/arstechnica/index": {
-    "etag": "\"abc123\"",
-    "last_modified": "Mon, 29 Jun 2026 10:00:00 GMT"
-  }
-}
-```
-
----
-
-## RSS生成（src/generator.py）
-
-### タイトル・説明文のフォールバック
-
-```mermaid
-flowchart LR
-    subgraph title ["タイトル選択"]
-        NT{"natural_title\nあり?"}
-        TT{"translated_title\nあり?"}
-        OT["original_title\n（元記事タイトル）"]
-        NT -->|Yes| NT_OUT["natural_title を使用"]
-        NT -->|No| TT
-        TT -->|Yes| TT_OUT["translated_title を使用"]
-        TT -->|No| OT
-    end
-
-    subgraph desc ["説明文選択"]
-        SM{"summary\nあり?"}
-        TD{"translated_description\nあり?"}
-        OD["original_description\n（元記事概要）"]
-        SM -->|Yes| SM_OUT["summary を使用"]
-        SM -->|No| TD
-        TD -->|Yes| TD_OUT["translated_description を使用"]
-        TD -->|No| OD
-    end
-```
-
-- `defusedxml`を使いXXE/Billion Laughs攻撃を防ぐ。生成には`xml.etree.ElementTree`、解析には`defusedxml.ElementTree`を使用
-- キャッシュの全件を`pubDate`降順でソートし、`max_items`件まで出力
-- **フィード別出力**: `FeedConfig.output_path` に指定されたパスへフィードごとに個別ファイルを生成（`docs/feed/ars-technica.xml` など）
-- `<channel><link>` は `FeedConfig.link_url` から設定（空文字列の場合は空で出力）
-
-### タイトルプレフィックス
-
-全記事のタイトル先頭に `[翻訳]` を付与する。翻訳成功・失敗を問わず常に付与し、Feedly などのリーダーでこのフィードが翻訳フィードであることを一目で識別できるようにする。
-
-### itemの構成
-
-```xml
-<item>
-  <title>[翻訳] AI分野の突破口</title>
-  <description>研究者たちは...</description>
-  <link>https://example.com/article-1</link>
-  <pubDate>Mon, 29 Jun 2026 10:00:00 +0000</pubDate>
-  <source>Ars Technica</source>
-  <guid isPermaLink="false">https://example.com/article-1</guid>
-  <original:title>AI Breakthrough</original:title>
-</item>
-```
-
-GUIDは元記事のGUIDをそのまま保持する。
-
----
-
-## エラー処理
+### エラー処理
 
 | 状況 | 動作 |
 |---|---|
@@ -629,9 +621,7 @@ GUIDは元記事のGUIDをそのまま保持する。
 
 各フィード・各記事単位で例外をキャッチし、システム全体が停止しない設計とする。
 
----
-
-## ログ
+### ログ
 
 Pythonの標準`logging`モジュールを使用。`StreamHandler`でGitHub Actionsのコンソールに出力。
 
@@ -650,9 +640,7 @@ Pythonの標準`logging`モジュールを使用。`StreamHandler`でGitHub Acti
 
 最終行のサマリー行でGitHub Actionsのログから一目で状況を把握できる。
 
----
-
-## GitHub Actionsワークフロー
+### GitHub Actionsワークフロー
 
 ```mermaid
 graph LR
@@ -674,7 +662,7 @@ graph LR
     end
 ```
 
-### update-rss.yml（.github/workflows/update-rss.yml）
+#### update-rss.yml（.github/workflows/update-rss.yml）
 
 - **スケジュール**: JST 9:00 と 12:00 の1日2回実行（UTC 0:00 と 3:00）
 - **手動実行**: `workflow_dispatch` で任意のタイミングで実行可能
@@ -692,25 +680,23 @@ graph LR
 | `GOOGLE_API_KEY` | Google 翻訳エンジン |
 | `DEEPL_API_KEY` | DeepL 翻訳エンジン |
 
-### test.yml（.github/workflows/test.yml）
+#### test.yml（.github/workflows/test.yml）
 
 - **トリガー**: push / pull_request
 - **ステップ**: `pytest` → `ruff check` → `mypy`
 
-### dependabot-auto-merge.yml（.github/workflows/dependabot-auto-merge.yml）
+#### dependabot-auto-merge.yml（.github/workflows/dependabot-auto-merge.yml）
 
 - Dependabot の PR を自動検出
 - **patch** アップデートのみ自動マージ（squash）
 - **minor / major** は PR を作成するが手動マージが必要
 
-### dependabot.yml（.github/dependabot.yml）
+#### dependabot.yml（.github/dependabot.yml）
 
 - `pip`（Python パッケージ）と `github-actions` を毎週チェック
 - 古いバージョンの依存があれば自動で PR を作成
 
----
-
-## ブランチ保護（Rulesets）
+### ブランチ保護（Rulesets）
 
 `main` ブランチに以下のルールを適用（`.github/rulesets/main-protection.json`）。
 
@@ -724,9 +710,7 @@ graph LR
 
 JSON ファイルは `.github/rulesets/main-protection.json` に保存されており、GitHub の Import Ruleset 機能でインポートできる（インポート後 `bypass_actors` や `ryu1` の追加は GUI で行う）。
 
----
-
-## GitHub Pages設定
+### GitHub Pages設定
 
 リポジトリの Settings → Pages → Source を `docs/` フォルダに設定することで、以下の URL で RSS が公開される。
 
@@ -738,7 +722,9 @@ https://ryu1.github.io/rss-feed-translator/feed/dev-community.xml
 
 ---
 
-## 依存関係（pyproject.toml）
+## 開発
+
+### 依存関係（pyproject.toml）
 
 ```toml
 [project]
@@ -773,9 +759,7 @@ strict = true
 
 `uv.lock`をコミットすることでローカルとGitHub Actionsで完全に同一の依存関係を再現する。
 
----
-
-## 開発環境セットアップ
+### 開発環境セットアップ
 
 ```bash
 # 依存関係インストール（dev含む）
@@ -787,7 +771,7 @@ uv run pre-commit install
 
 インストール後は `git commit` のたびに lint・フォーマットが自動実行される。
 
-### 開発コマンド
+#### 開発コマンド
 
 | コマンド | 目的 |
 |---------|------|
@@ -798,9 +782,7 @@ uv run pre-commit install
 | `uv run pre-commit run --all-files` | 全ファイルに pre-commit を手動実行 |
 | `uv run python main.py` | パイプライン手動実行 |
 
----
-
-## コーディング規約
+### コーディング規約
 
 - **型ヒント**: 全関数のパラメータと戻り値に型ヒントを付与する（`from __future__ import annotations`を活用）
 - **例外処理**: 例外を握り潰さない。`except Exception`は最外層のみ。内部では`FeedFetchError`・`TranslationError`等のカスタム例外を使う
@@ -810,9 +792,7 @@ uv run pre-commit install
 - **型チェック**: `mypy`またはpyrightで静的解析（`uv run mypy src/`）
 - **pre-commit**: コミット前に `ruff --fix` と `ruff-format` が自動実行される。初回セットアップ時に `uv run pre-commit install` を実行すること
 
----
-
-## テスト方針
+### テスト方針
 
 - `tests/`配下にモジュール対応のテストファイルを配置し、`pytest`で実行
 - 翻訳エンジンはProtocolを活用したモック実装でテスト（実APIを呼ばない）
@@ -820,7 +800,7 @@ uv run pre-commit install
 - `conftest.py`に共通フィクスチャ（サンプルフィード、モック翻訳器等）を定義
 - 各テストは`Arrange / Act / Assert`の構造で記述し、1テスト1アサートを原則とする
 
-### テスト用GitHub Actionsワークフロー（.github/workflows/test.yml）
+#### テスト用GitHub Actionsワークフロー（.github/workflows/test.yml）
 
 ```yaml
 on: [push, pull_request]
