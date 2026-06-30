@@ -1,8 +1,10 @@
 feeds:
   - name: Ars Technica
     url: https://feeds.arstechnica.com/arstechnica/index
+    output_path: docs/feed/ars-technica.xml
   - name: Hacker News
     url: https://hnrss.org/frontpage
+    output_path: docs/feed/hacker-news.xml
 
 translator:
   engine: openai  # google | openai | deepl | claude

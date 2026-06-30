@@ -8,6 +8,7 @@ from datetime import datetime
 class FeedConfig:
     name: str
     url: str
+    output_path: str | None = None
 
 
 @dataclass(frozen=True)

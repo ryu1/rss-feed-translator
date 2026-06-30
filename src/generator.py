@@ -15,6 +15,8 @@ def generate_rss(
     articles: list[TranslatedArticle],
     output_path: str,
     max_items: int = 200,
+    title: str = "RSS Feed Translator",
+    description: str = "海外ITニュースの日本語翻訳フィード",
 ) -> None:
     sorted_articles = sorted(
         articles,
@@ -24,8 +26,8 @@ def generate_rss(
 
     rss = ET.Element("rss", version="2.0")
     channel = ET.SubElement(rss, "channel")
-    ET.SubElement(channel, "title").text = "RSS Feed Translator"
-    ET.SubElement(channel, "description").text = "海外ITニュースの日本語翻訳フィード"
+    ET.SubElement(channel, "title").text = title
+    ET.SubElement(channel, "description").text = description
     ET.SubElement(channel, "link").text = "https://github.com"
 
     for article in sorted_articles:

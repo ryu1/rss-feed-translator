@@ -44,7 +44,14 @@ def main() -> None:
         return
 
     feeds_config: list[dict[str, str]] = config.get("feeds", [])  # type: ignore[assignment]
-    feeds = [FeedConfig(name=f["name"], url=f["url"]) for f in feeds_config]
+    feeds = [
+        FeedConfig(
+            name=f["name"],
+            url=f["url"],
+            output_path=f.get("output_path"),
+        )
+        for f in feeds_config
+    ]
 
     translator_config: dict[str, str] = config.get("translator", {})  # type: ignore[assignment]
     translator_engine = translator_config.get("engine", "google")
@@ -204,6 +211,24 @@ def main() -> None:
         logger.error("Failed to save cache: %s", e)
 
     all_translated = list(translated_cache.values())
+
+    # フィード別ファイル生成
+    for feed in feeds:
+        if feed.output_path is None:
+            continue
+        feed_articles = [a for a in all_translated if a.source == feed.name]
+        try:
+            generate_rss(
+                feed_articles,
+                feed.output_path,
+                max_items=max_items,
+                title=feed.name,
+                description=f"{feed.name} 日本語翻訳フィード",
+            )
+        except Exception as e:
+            logger.error("Failed to generate RSS for %s: %s", feed.name, e)
+
+    # 全フィードをまとめたファイル生成
     try:
         generate_rss(all_translated, output_path, max_items=max_items)
     except Exception as e:
