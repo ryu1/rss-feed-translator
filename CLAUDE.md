@@ -91,10 +91,8 @@ superpowers スキルを使って開発を進めます。
 独立したdiagramsフォルダは作成せず、手間を最小限に抑えます。
 
 **配置例：**
-- ER図、データモデル図 → `functional-design.md` 内に記載
-- ユースケース図 → `functional-design.md` または `product-requirements.md` 内に記載
-- 画面遷移図、ワイヤフレーム → `functional-design.md` 内に記載
-- システム構成図 → `functional-design.md` または `architecture.md` 内に記載
+- ER図、データモデル図 → `docs/superpowers/specs/` 内の設計ドキュメントに記載
+- システム構成図 → `docs/superpowers/specs/` 内の設計ドキュメントに記載
 
 ### 記述形式
 1. **Mermaid記法（推奨）**
