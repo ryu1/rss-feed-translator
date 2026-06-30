@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -43,8 +44,6 @@ def test_consume_persists_to_file(budget_path: str) -> None:
 
 
 def test_daily_reset_when_date_changes(budget_path: str, tmp_path: Path) -> None:
-    import json
-
     # 昨日の日付でファイルを作成
     with open(budget_path, "w") as f:
         json.dump({"date": "2000-01-01", "used": 9000}, f)

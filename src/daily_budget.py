@@ -24,8 +24,13 @@ class DailyBudget:
         if not p.exists():
             self._used = 0
             return
-        with open(self.path, encoding="utf-8") as f:
-            data: dict[str, object] = json.load(f)
+        try:
+            with open(self.path, encoding="utf-8") as f:
+                data: dict[str, object] = json.load(f)
+        except json.JSONDecodeError:
+            logger.warning("Corrupted budget file %s, resetting to 0", self.path)
+            self._used = 0
+            return
         today = date.today().isoformat()
         if data.get("date") != today:
             logger.info(
@@ -35,7 +40,8 @@ class DailyBudget:
             )
             self._used = 0
             return
-        self._used = int(str(data.get("used", 0)))
+        used_raw = data.get("used", 0)
+        self._used = int(used_raw) if isinstance(used_raw, (int, float)) else 0
 
     def remaining(self) -> int:
         self._load()
@@ -50,7 +56,7 @@ class DailyBudget:
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         today = date.today().isoformat()
         with open(self.path, "w", encoding="utf-8") as f:
-            json.dump({"date": today, "used": self._used}, f, ensure_ascii=False)
+            json.dump({"date": today, "used": self._used}, f)
         logger.debug(
             "DailyBudget consumed %d chars, total=%d/%d",
             char_count,
