@@ -58,3 +58,11 @@ def test_consume_multiple_times(budget_path: str) -> None:
     budget.consume(1000)
     budget.consume(2000)
     assert budget.remaining() == 12000
+
+
+def test_load_resets_on_corrupted_file(budget_path: str) -> None:
+    from pathlib import Path
+
+    Path(budget_path).write_text("not-json", encoding="utf-8")
+    budget = DailyBudget(path=budget_path, limit=15000)
+    assert budget.remaining() == 15000

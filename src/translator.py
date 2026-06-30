@@ -45,6 +45,7 @@ def with_retry(fn: Callable[[], T], max_attempts: int = 3) -> T:
 
 
 _MAX_DESCRIPTION_CHARS = 500
+MAX_DESCRIPTION_CHARS = _MAX_DESCRIPTION_CHARS
 
 
 def translate_articles(

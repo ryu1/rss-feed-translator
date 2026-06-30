@@ -27,7 +27,7 @@ class DailyBudget:
         try:
             with open(self.path, encoding="utf-8") as f:
                 data: dict[str, object] = json.load(f)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, OSError):
             logger.warning("Corrupted budget file %s, resetting to 0", self.path)
             self._used = 0
             return
@@ -55,8 +55,11 @@ class DailyBudget:
         self._used += char_count
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         today = date.today().isoformat()
-        with open(self.path, "w", encoding="utf-8") as f:
-            json.dump({"date": today, "used": self._used}, f)
+        try:
+            with open(self.path, "w", encoding="utf-8") as f:
+                json.dump({"date": today, "used": self._used}, f)
+        except OSError as e:
+            logger.warning("Failed to persist budget to %s: %s", self.path, e)
         logger.debug(
             "DailyBudget consumed %d chars, total=%d/%d",
             char_count,

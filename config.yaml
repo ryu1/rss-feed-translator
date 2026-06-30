@@ -15,7 +15,7 @@ feeds:
 translator:
   engine: claude
   provider: bedrock
-  # daily_char_limit: 15000  # Google Translate 使用時のみ有効。省略時は無制限
+  # daily_char_limit: 15000  # 省略時は無制限。エンジン問わず1日の翻訳文字数を制限したい場合に設定。
 
 summarizer:
   enabled: true

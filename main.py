@@ -19,7 +19,7 @@ from src.fetcher import fetch_all_feeds
 from src.generator import generate_rss
 from src.models import Article, FeedConfig, TranslatedArticle
 from src.summarizer import get_summarizer, summarize_with_retry
-from src.translator import _MAX_DESCRIPTION_CHARS, get_translator, translate_articles
+from src.translator import MAX_DESCRIPTION_CHARS, get_translator, translate_articles
 
 logging.basicConfig(
     level=logging.INFO,
@@ -114,7 +114,7 @@ def main() -> None:
                 budget = DailyBudget(path=char_usage_path, limit=daily_char_limit)
                 for article in new_articles:
                     char_count = len(article.title) + len(
-                        article.description[:_MAX_DESCRIPTION_CHARS]
+                        article.description[:MAX_DESCRIPTION_CHARS]
                     )
                     if budget.can_translate(char_count):
                         articles_to_translate.append(article)
@@ -155,7 +155,7 @@ def main() -> None:
                 if results is not None:
                     now = datetime.now(tz=timezone.utc)
                     total_chars = sum(
-                        len(a.title) + len(a.description[:_MAX_DESCRIPTION_CHARS])
+                        len(a.title) + len(a.description[:MAX_DESCRIPTION_CHARS])
                         for a in articles_to_translate
                     )
                     if daily_char_limit is not None:
