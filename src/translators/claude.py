@@ -37,10 +37,18 @@ class ClaudeTranslator:
             self._model = model or _DEFAULT_MODEL
 
     _SEP = "<<<TRANSLATION_SEP>>>"
+    _CHUNK_SIZE = 20
 
     def translate(self, texts: list[str], target_lang: str = "ja") -> list[str]:
         if not texts:
             return []
+        results: list[str] = []
+        for i in range(0, len(texts), self._CHUNK_SIZE):
+            chunk = texts[i : i + self._CHUNK_SIZE]
+            results.extend(self._translate_chunk(chunk, target_lang))
+        return results
+
+    def _translate_chunk(self, texts: list[str], target_lang: str) -> list[str]:
         joined = f"\n{self._SEP}\n".join(texts)
         sep = self._SEP
         prompt = (
