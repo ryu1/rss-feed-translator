@@ -12,24 +12,70 @@
 
 ## アーキテクチャ
 
-シンプルなパイプライン構成。単一の`main.py`エントリポイントから5つのモジュールをシーケンシャルに呼び出す。
+### システム全体構成
 
+```mermaid
+graph TD
+    subgraph "GitHub Actions（30分ごと）"
+        MAIN["main.py"]
+    end
+
+    subgraph "外部RSSフィード"
+        FEED1["Ars Technica"]
+        FEED2["Hacker News"]
+    end
+
+    subgraph "翻訳・要約API"
+        TRANS["翻訳エンジン\nOpenAI / Google / DeepL / Claude"]
+        SUMM["要約エンジン\nOpenAI / Claude"]
+    end
+
+    subgraph "リポジトリ"
+        CACHE["cache/translated.json\nhttp_cache.json"]
+        RSS["docs/feed/rss.xml"]
+    end
+
+    subgraph "GitHub Pages"
+        PUB["https://ryu1.github.io/\nrss-feed-translator/feed/rss.xml"]
+    end
+
+    FEED1 -->|RSS取得| MAIN
+    FEED2 -->|RSS取得| MAIN
+    MAIN -->|翻訳リクエスト| TRANS
+    MAIN -->|要約リクエスト| SUMM
+    MAIN -->|読み書き| CACHE
+    MAIN -->|生成| RSS
+    RSS -->|自動公開| PUB
 ```
-main.py
-  ├─ load_config(config.yaml)
-  ├─ fetch_feeds()          → List[Article]（新着のみ）
-  ├─ translate_articles()   → List[TranslatedArticle]（キャッシュヒットはスキップ）
-  ├─ process_articles()     → List[TranslatedArticle]（LLM処理、設定で有効化）
-  ├─ save_cache()           → cache/translated.json
-  └─ generate_rss()         → docs/rss.xml
+
+### パイプライン（データフロー）
+
+単一の`main.py`エントリポイントから5つのモジュールをシーケンシャルに呼び出す。
+
+```mermaid
+flowchart LR
+    CONFIG["config.yaml"]
+    FETCH["fetch_feeds()\nfetcher.py"]
+    CACHE_R["キャッシュ参照\ncache.py"]
+    TRANS["translate_articles()\ntranslator.py"]
+    SUMM["process_articles()\nsummarizer.py\n※optonal"]
+    CACHE_W["save_cache()\ncache.py"]
+    GEN["generate_rss()\ngenerator.py"]
+
+    CONFIG --> FETCH
+    FETCH -->|"List[Article]"| CACHE_R
+    CACHE_R -->|"新着記事のみ"| TRANS
+    TRANS -->|"List[TranslatedArticle]"| SUMM
+    SUMM -->|"List[TranslatedArticle]"| CACHE_W
+    CACHE_W -->|"全キャッシュ"| GEN
 ```
 
-**翻訳とLLM処理の分離:**
+**翻訳とLLM処理の2段階設計:**
 
-- **翻訳**（`Translator`）: タイトル・概要の機械翻訳。Google Translate / DeepL。高速・低コスト
-- **LLM処理**（`Summarizer`）: 自然な日本語タイトルの生成 + 3行要約。OpenAI / Claude。翻訳後にオプションで実行
+- **翻訳**（`Translator`）: タイトル・概要の機械翻訳。高速・低コスト
+- **LLM処理**（`Summarizer`）: 自然な日本語タイトル + 3行要約。翻訳後にオプションで実行
 
-この2段階設計により、翻訳だけ使う構成とLLM処理も有効にする構成を設定で切り替えられる。
+`config.yaml`の`summarizer.enabled`で切り替え可能。
 
 ---
 
@@ -115,6 +161,38 @@ APIキーはGitHub Secretsから環境変数として注入する。設定ファ
 
 全クラスに型ヒントを付与する。`dataclass`を使用してイミュータブルなデータ構造を定義する。
 
+```mermaid
+classDiagram
+    class FeedConfig {
+        +str name
+        +str url
+    }
+    class Article {
+        +str guid
+        +str title
+        +str description
+        +str link
+        +datetime published
+        +str source
+    }
+    class TranslatedArticle {
+        +str guid
+        +str original_title
+        +str original_description
+        +str|None translated_title
+        +str|None translated_description
+        +str|None natural_title
+        +str|None summary
+        +str link
+        +datetime published
+        +str source
+        +datetime translated_at
+    }
+
+    FeedConfig --> Article : fetcher.py が生成
+    Article --> TranslatedArticle : translator/summarizer が変換
+```
+
 ```python
 from dataclasses import dataclass
 from datetime import datetime
@@ -151,6 +229,23 @@ class TranslatedArticle:
 RSS生成時は`natural_title`が存在すれば優先して使用し、なければ`translated_title`にフォールバックする。`summary`が存在すれば`<description>`に使用する。
 
 ## LLM要約処理（src/summarizer.py / src/summarizers/）
+
+```mermaid
+classDiagram
+    class Summarizer {
+        <<Protocol>>
+        +summarize(article: Article) tuple[str, str]
+    }
+    class OpenAISummarizer {
+        +summarize(article) tuple[str, str]
+    }
+    class ClaudeSummarizer {
+        +summarize(article) tuple[str, str]
+    }
+
+    Summarizer <|.. OpenAISummarizer : implements
+    Summarizer <|.. ClaudeSummarizer : implements
+```
 
 ### Protocolインターフェース
 
@@ -193,6 +288,22 @@ class Summarizer(Protocol):
 
 エラー種別を明示的に分類し、呼び出し元でのハンドリングを容易にする。
 
+```mermaid
+classDiagram
+    class Exception
+    class FeedFetchError
+    class TranslationError
+    class TranslationSkippedError
+    class SummarizationError
+    class SummarizationSkippedError
+
+    Exception <|-- FeedFetchError
+    Exception <|-- TranslationError
+    Exception <|-- SummarizationError
+    TranslationError <|-- TranslationSkippedError
+    SummarizationError <|-- SummarizationSkippedError
+```
+
 ```python
 class FeedFetchError(Exception):
     """RSSフィードの取得に失敗した場合"""
@@ -214,6 +325,28 @@ class SummarizationSkippedError(SummarizationError):
 
 ## RSS取得（src/fetcher.py）
 
+```mermaid
+sequenceDiagram
+    participant M as main.py
+    participant F as fetcher.py
+    participant R as RSS Server
+    participant C as http_cache.json
+
+    M->>F: fetch_all_feeds(feeds, http_cache)
+    loop 各フィード
+        F->>C: ETag / Last-Modified を読み込み
+        F->>R: GET feed (If-None-Match / If-Modified-Since)
+        alt 304 Not Modified
+            R-->>F: 304
+            F-->>M: [] (スキップ)
+        else 200 OK
+            R-->>F: フィードデータ
+            F->>C: ETag / Last-Modified を保存
+            F-->>M: List[Article]
+        end
+    end
+```
+
 - `feedparser`でRSS 2.0およびAtomを解析
 - `requests`でHTTPリクエスト。ETag / Last-Modifiedをリクエストヘッダに付与し、304 Not Modifiedを活用
 - フィードごとに独立してtry/catchし、取得失敗しても他フィードの処理を継続
@@ -222,6 +355,31 @@ class SummarizationSkippedError(SummarizationError):
 ---
 
 ## 翻訳エンジン（src/translator.py / src/translators/）
+
+```mermaid
+classDiagram
+    class Translator {
+        <<Protocol>>
+        +translate(texts: list[str], target_lang: str) list[str]
+    }
+    class GoogleTranslator {
+        +translate(texts, target_lang) list[str]
+    }
+    class OpenAITranslator {
+        +translate(texts, target_lang) list[str]
+    }
+    class DeepLTranslator {
+        +translate(texts, target_lang) list[str]
+    }
+    class ClaudeTranslator {
+        +translate(texts, target_lang) list[str]
+    }
+
+    Translator <|.. GoogleTranslator : implements
+    Translator <|.. OpenAITranslator : implements
+    Translator <|.. DeepLTranslator : implements
+    Translator <|.. ClaudeTranslator : implements
+```
 
 ### Protocolインターフェース
 
