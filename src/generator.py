@@ -37,7 +37,7 @@ def generate_rss(
         display_title = (
             article.natural_title or article.translated_title or article.original_title
         )
-        ET.SubElement(item, "title").text = display_title
+        ET.SubElement(item, "title").text = "[翻訳] " + display_title
 
         display_description = (
             article.summary

@@ -59,7 +59,7 @@ def test_generate_rss_uses_natural_title_when_available(
     root = tree.getroot()
     title_el = root.find("./channel/item/title")
     assert title_el is not None
-    assert title_el.text == "自然なタイトル"
+    assert title_el.text == "[翻訳] 自然なタイトル"
 
 
 def test_generate_rss_falls_back_to_translated_title(tmp_path: Path) -> None:
@@ -71,7 +71,7 @@ def test_generate_rss_falls_back_to_translated_title(tmp_path: Path) -> None:
     root = tree.getroot()
     title_el = root.find("./channel/item/title")
     assert title_el is not None
-    assert title_el.text == "翻訳タイトル 1"
+    assert title_el.text == "[翻訳] 翻訳タイトル 1"
 
 
 def test_generate_rss_respects_max_items(tmp_path: Path) -> None:

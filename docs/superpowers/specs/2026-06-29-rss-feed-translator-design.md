@@ -585,11 +585,15 @@ flowchart LR
 - **フィード別出力**: `FeedConfig.output_path` に指定されたパスへフィードごとに個別ファイルを生成（`docs/feed/ars-technica.xml` など）
 - `<channel><link>` は `FeedConfig.link_url` から設定（空文字列の場合は空で出力）
 
+### タイトルプレフィックス
+
+全記事のタイトル先頭に `[翻訳]` を付与する。翻訳成功・失敗を問わず常に付与し、Feedly などのリーダーでこのフィードが翻訳フィードであることを一目で識別できるようにする。
+
 ### itemの構成
 
 ```xml
 <item>
-  <title>AI分野の突破口</title>
+  <title>[翻訳] AI分野の突破口</title>
   <description>研究者たちは...</description>
   <link>https://example.com/article-1</link>
   <pubDate>Mon, 29 Jun 2026 10:00:00 +0000</pubDate>
