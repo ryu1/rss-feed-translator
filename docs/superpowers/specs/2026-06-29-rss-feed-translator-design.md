@@ -148,6 +148,7 @@ graph TD
         FEED1["Ars Technica"]
         FEED2["Hacker News"]
         FEED3["DEV Community"]
+        FEED4["InfoQ"]
     end
 
     subgraph "翻訳・要約API"
@@ -157,7 +158,7 @@ graph TD
 
     subgraph "リポジトリ"
         CACHE["cache/translated.json\nhttp_cache.json"]
-        RSS["docs/feed/ars-technica.xml\ndocs/feed/hacker-news.xml\ndocs/feed/dev-community.xml"]
+        RSS["docs/feed/ars-technica.xml\ndocs/feed/hacker-news.xml\ndocs/feed/dev-community.xml\ndocs/feed/infoq.xml"]
     end
 
     subgraph "GitHub Pages"
@@ -167,6 +168,7 @@ graph TD
     FEED1 -->|RSS取得| MAIN
     FEED2 -->|RSS取得| MAIN
     FEED3 -->|RSS取得| MAIN
+    FEED4 -->|RSS取得| MAIN
     MAIN -->|翻訳リクエスト| TRANS
     MAIN -->|要約リクエスト| SUMM
     MAIN -->|読み書き| CACHE
@@ -244,7 +246,8 @@ rss-feed-translator/
 │   └── feed/
 │       ├── ars-technica.xml         # フィード別RSS（GitHub Pages公開）
 │       ├── hacker-news.xml
-│       └── dev-community.xml
+│       ├── dev-community.xml
+│       └── infoq.xml
 ├── .github/
 │   ├── workflows/
 │   │   ├── update-rss.yml           # 1日2回cron（JST 9:00・12:00）+ workflow_dispatch
@@ -290,6 +293,10 @@ feeds:
     url: https://dev.to/feed
     output_path: docs/feed/dev-community.xml
     link_url: https://dev.to
+  - name: InfoQ
+    url: https://feed.infoq.com/
+    output_path: docs/feed/infoq.xml
+    link_url: https://www.infoq.com
 
 translator:
   engine: google   # google | openai | deepl | claude

@@ -11,6 +11,10 @@ feeds:
     url: https://dev.to/feed
     output_path: docs/feed/dev-community.xml
     link_url: https://dev.to
+  - name: InfoQ
+    url: https://feed.infoq.com/
+    output_path: docs/feed/infoq.xml
+    link_url: https://www.infoq.com
 
 translator:
   engine: google
