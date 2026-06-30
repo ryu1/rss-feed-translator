@@ -7,25 +7,34 @@
 ## 目次
 
 - [概要](#概要)
+
+**アーキテクチャ・設計**
 - [アーキテクチャ](#アーキテクチャ)
 - [リポジトリ構造](#リポジトリ構造)
 - [設定ファイル（config.yaml）](#設定ファイルconfigyaml)
 - [データモデル（src/models.py）](#データモデルsrcmodelspy)
-- [LLM要約処理](#llm要約処理srcsumarizerpysrcsumarizerspy)
-- [カスタム例外（src/exceptions.py）](#カスタム例外srcexceptionspy)
+
+**コンポーネント**
 - [RSS取得（src/fetcher.py）](#rss取得srcfetcherpy)
 - [翻訳エンジン（src/translator.py）](#翻訳エンジンsrctranslatorpysrctranslatorspy)
-- [キャッシュ（src/cache.py）](#キャッシュsrccachepy)
+- [LLM要約処理（src/summarizer.py）](#llm要約処理srcsumarizerpysrcsumarizerspy)
 - [RSS生成（src/generator.py）](#rss生成srcgeneratorpy)
+- [キャッシュ（src/cache.py）](#キャッシュsrccachepy)
+- [カスタム例外（src/exceptions.py）](#カスタム例外srcexceptionspy)
+
+**運用・インフラ**
 - [エラー処理](#エラー処理)
 - [ログ](#ログ)
 - [GitHub Actionsワークフロー](#github-actionsワークフロー)
 - [ブランチ保護（Rulesets）](#ブランチ保護rulesets)
 - [GitHub Pages設定](#github-pages設定)
+
+**開発**
 - [依存関係（pyproject.toml）](#依存関係pyprojecttoml)
 - [開発環境セットアップ](#開発環境セットアップ)
 - [コーディング規約](#コーディング規約)
 - [テスト方針](#テスト方針)
+
 - [将来的な拡張への考慮](#将来的な拡張への考慮)
 
 ---
