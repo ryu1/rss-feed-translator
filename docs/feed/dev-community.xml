@@ -5,6 +5,124 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] 米国開発ツールでカードが拒否される理由と対策方法</title>
+      <description>US SaaS企業の多くはStripeを使用しており、海外からのカード拒否は残高不足ではなくリスク判定が原因であることがほとんど。
+主な原因はAVS不一致、BINブロッキング、プリペイドカードフィルタ、3DS認証の問題など複数あり、decline_codeで原因特定が可能。
+対策としては請求先住所の修正、グローバル対応のカード（WiseやRevolut）の使用、または仮想カードの発行が有効。</description>
+      <link>https://dev.to/tung_fizen/your-card-keeps-getting-declined-by-us-dev-tools-here-is-what-is-actually-happening-2nh4</link>
+      <pubDate>Tue, 30 Jun 2026 08:47:37 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/tung_fizen/your-card-keeps-getting-declined-by-us-dev-tools-here-is-what-is-actually-happening-2nh4</guid>
+    </item>
+    <item>
+      <title>[翻訳] Claude AIエージェントを自動ループ化するスキルを開発、面倒な反復作業を自動化</title>
+      <description>従来のように手動でAIエージェントにプロンプトを与え続ける代わりに、目標と停止条件を一度設定すれば自動実行されるループエンジニアリングシステムをClaudeスキルとして実装した。
+メーカーとチェッカーの二つのエージェント、状態管理ファイル、検証機構などから構成され、状態ファイルがエージェントの記憶として機能するため、同じ作業の繰り返しを防ぎながら自律的に目標達成を目指す。
+人間による承認ゲートやチェッカーによる独立した検証など、複数の安全機構を組み込むことで、AIエージェントの自動化による判断ミスのリスクを最小化している。</description>
+      <link>https://dev.to/sxivansx/i-wrote-a-claude-skill-that-sets-up-loop-engineering-in-your-repo-2pok</link>
+      <pubDate>Tue, 30 Jun 2026 08:46:13 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sxivansx/i-wrote-a-claude-skill-that-sets-up-loop-engineering-in-your-repo-2pok</guid>
+    </item>
+    <item>
+      <title>[翻訳] 高額なエラー監視サービスへの不満から生まれたRavn：Pythonエラー監視ツールの開発秘話</title>
+      <description>開発者がSentryの料金に不満を感じたことをきっかけに、Pythonアプリケーション向けの軽量なエラー監視ツール「Ravn」を開発した。
+AIによる根本原因分析機能を備え、わずか2行のコードで導入でき、無料で試用できるデモも提供されている。
+企業向けの高度な機能は提供していないが、小規模プロジェクトや個人開発向けのシンプルで手頃な代替手段として位置付けている。</description>
+      <link>https://dev.to/kosevskey/why-i-built-ravn-the-real-cost-of-python-error-monitoring-21h</link>
+      <pubDate>Tue, 30 Jun 2026 08:45:40 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/kosevskey/why-i-built-ravn-the-real-cost-of-python-error-monitoring-21h</guid>
+    </item>
+    <item>
+      <title>[翻訳] ユーザーが提供したHTMLを安全に実行する：クッキーレスオリジンサンドボックスパターン</title>
+      <description>ShareMyPageは、ユーザーが提供した任意のHTMLを安全に実行・配信するため、クッキーレスの別オリジンでコンテンツを提供し、iframeサンドボックスで厳密に隔離する方式を採用している。
+同一オリジンのiframeではなく、異なるドメイン（app.yoursite.comではなくview.yoursite.comなど）を使用し、そこからクッキーを完全に排除することで、セッション盗聴を構造的に防止している。
+アクセス制御は署名付きURLで実装し、60秒の有効期限付きJWTで認可を行うため、URLが漏洩してもリプレイ攻撃や転送が不可能になる設計である。</description>
+      <link>https://dev.to/henning_witzel/safely-hosting-arbitrary-user-html-the-cookieless-origin-sandbox-pattern-j7p</link>
+      <pubDate>Tue, 30 Jun 2026 08:44:44 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/henning_witzel/safely-hosting-arbitrary-user-html-the-cookieless-origin-sandbox-pattern-j7p</guid>
+    </item>
+    <item>
+      <title>[翻訳] Swiftの構造体でカスタムイニシャライザを使いこなす — selfの力を活用する</title>
+      <description>Swiftでは構造体のインスタンス生成時に自動的にメンバーワイズイニシャライザが生成されますが、カスタムイニシャライザを定義することでセットアップ処理を細かく制御できます。\nカスタムイニシャライザ内ではselfを使ってプロパティ名とパラメータ名の衝突を回避し、すべてのプロパティに値を割り当てる必要があります（golden rule）。\n複数のイニシャライザを持たせたり、extension内にカスタムイニシャライザを配置することで、デフォルトのメンバーワイズイニシャライザと併用することも可能です。</description>
+      <link>https://dev.to/gamya_m/swift-structs-custom-initializers-the-power-of-self-3pd2</link>
+      <pubDate>Tue, 30 Jun 2026 08:44:00 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/gamya_m/swift-structs-custom-initializers-the-power-of-self-3pd2</guid>
+    </item>
+    <item>
+      <title>[翻訳] バックエンド開発者向け：Solanaトランザクションの仕組みを徹底解説</title>
+      <description>Web2のHTTP通信とは異なり、Solanaトランザクションは1,232バイト以下のバイナリペイロードで、署名、メッセージ（アカウントキー、最近のブロックハッシュ、実行命令）を含む。
+トランザクションはProcessed → Confirmed → Finalizedの3段階で状態が変わり、Web2のデータベーストランザクションより複雑な合意形成プロセスを経る。
+Web2と異なりSolanaでは失敗したトランザクションでもガス代を支払う必要があるため、クライアント側のプリフライトチェックで事前検証することが重要。</description>
+      <link>https://dev.to/atharv_shukla_f7a20a5893f/solana-transactions-explained-for-backend-developers-23hb</link>
+      <pubDate>Tue, 30 Jun 2026 08:41:51 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/atharv_shukla_f7a20a5893f/solana-transactions-explained-for-backend-developers-23hb</guid>
+    </item>
+    <item>
+      <title>[翻訳] AI支援開発における建築モデルを一級市民に：設計図から実行可能な知識へ</title>
+      <description>従来、アーキテクチャ図は設計後のドキュメント扱いでしたが、AI が実装を生成するようになった今、設計図を現役の開発アーティファクトとして活用する必要があります。
+アーキテクチャモデルを要件定義、セキュリティ制御、実装ガイダンスの源泉とすることで、仕様の導出や変更管理が自動化され、AI システムが設計意図に沿った実装を行えるようになります。
+将来のソフトウェア品質は単なるプロンプトの質ではなく、アーキテクチャモデルという構造化された知識をいかに提供できるかで決まるでしょう。</description>
+      <link>https://dev.to/adbc99/architecture-models-as-first-class-context-for-ai-assisted-software-development-82j</link>
+      <pubDate>Tue, 30 Jun 2026 08:36:58 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/adbc99/architecture-models-as-first-class-context-for-ai-assisted-software-development-82j</guid>
+    </item>
+    <item>
+      <title>[翻訳] チェックアウトのリダイレクトは決済確認ではない - Eコマース決済統合の重要な落とし穴</title>
+      <description>チェックアウト後のリダイレクトだけで注文を「支払い済み」にするのは危険。ブラウザは信頼できず、タブが閉じられたり接続が切れたりする可能性があるため、支払い確認はWebhookなどのバックエンド信頼イベントで行うべき。
+バックエンドで署名検証・重複処理・金額確認などのセキュリティ対策を施したWebhook処理により、確実な決済管理が実現する。また複数の決済ステータス（保留中、処理中、支払い済み、失敗など）を用意し、フロントエンドから送られてくる金額データは信頼せず、バックエンドで計算または検証することが重要。
+WooCommerce、Shopify、Laravel、Next.jsなど全てのEコマースプラットフォームに共通する原則であり、本番運用ではログ記録、べき等性の確保、ユーザーへの透明な状態表示が欠かせない。</description>
+      <link>https://dev.to/ecomtrad24/your-checkout-redirect-is-not-payment-confirmation-c4i</link>
+      <pubDate>Tue, 30 Jun 2026 08:36:24 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ecomtrad24/your-checkout-redirect-is-not-payment-confirmation-c4i</guid>
+    </item>
+    <item>
+      <title>[翻訳] csvtidy：ターミナルでCSVファイルを統合・クリーニングする再利用可能なレシピツール</title>
+      <description>毎月同じCSVファイルの処理を繰り返す手間を解決するため、コマンドラインツール「csvtidy」が開発されました。重複排除、空白削除、日付修正、ファイル統合などの処理を一度レシピとして保存すれば、翌月も同じコマンドで再実行できます。
+DuckDBをベースにしているため、メモリに収まらない大容量CSVもストリーム処理でき、Excelやpandasで対応できないサイズのファイルに対応します。すべての処理はローカルで完結し、データが外部に送信されないため機密性も高いです。
+MITライセンスのオープンソースプロジェクトで、pipでインストール可能。複数のクリーニング処理をYAML形式のレシピで管理し、Unixの思想に基づきパイプで処理をつなげられます。</description>
+      <link>https://dev.to/abhishekrai43/csvtidy-merge-and-clean-csv-files-from-the-terminal-with-reusable-recipes-2p61</link>
+      <pubDate>Tue, 30 Jun 2026 08:32:06 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/abhishekrai43/csvtidy-merge-and-clean-csv-files-from-the-terminal-with-reusable-recipes-2p61</guid>
+    </item>
+    <item>
+      <title>[翻訳] ロボット産業が6ヶ月で558億ドル調達——技術は準備完了、企業の組織体制は追いついているか</title>
+      <description>2026年上半期にロボット産業は558億ドルを調達し、12種類の商用ヒューマノイドロボットが購入可能になるなど、物理AIの実装フェーズが本格化した。
+NVIDIAが統一されたモデルスタック(Isaac)を世界中のロボットメーカーに展開する一方、中国のロボテラが2億ドルを調達し、国家主導の展開で独自の競争軸を形成している。
+テクノロジーの準備は完了したが、企業の組織的対応力——プロセス設計、ワークフロー改革、パフォーマンス指標の再定義——が次の成功要因であり、この準備を先行実施する企業が第2段階で優位に立つ。</description>
+      <link>https://dev.to/xberry-tech/physical-ai-raised-558-billion-in-six-months-the-robots-are-ready-but-your-company-might-not-be-53oh</link>
+      <pubDate>Tue, 30 Jun 2026 08:29:30 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/xberry-tech/physical-ai-raised-558-billion-in-six-months-the-robots-are-ready-but-your-company-might-not-be-53oh</guid>
+    </item>
+    <item>
+      <title>[翻訳] 生成AIがデータエンジニアを置き換えることはない。実際に変わることとは</title>
+      <description>生成AIは定型的なコーディングタスクを自動化するが、システム設計やオーケストレーション、障害対応といった判断が必要な部分はAIでは代替できない。
+データエンジニアの本来の価値は、複雑なシステムがどのように動作するべきかを理解し、スケーラブルで保守性の高い構成を実現することにある。
+将来は「AI対人間」ではなく「AI+人間」の協働により、より高速でレジリエントなデータプラットフォームが実現される。</description>
+      <link>https://dev.to/iamyashagarwal/genai-wont-replace-data-engineers-heres-what-actually-changes-3pn1</link>
+      <pubDate>Tue, 30 Jun 2026 08:27:43 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/iamyashagarwal/genai-wont-replace-data-engineers-heres-what-actually-changes-3pn1</guid>
+    </item>
+    <item>
+      <title>[翻訳] MCPプロトコル完全ガイド：AIモデルを現実のツールと連携させる</title>
+      <description>MCPはAnthropicが開発した標準プロトコルで、AIモデルと外部ツールやシステムを統一的に連携させるための共通言語です。
+MCP導入前はフレームワークごとに個別統合が必要でしたが、MCPの標準化により重複コード削減・保守性向上・再利用性向上が実現されます。
+ツール・リソース・プロンプトなどのコンポーネントを備え、エンタープライズオートメーションやRAGシステムなど複雑なAI応用で特に有用です。</description>
+      <link>https://dev.to/sridhar_s_dfc5fa7b6b295f9/the-complete-guide-to-mcp-connecting-ai-models-with-real-world-tools-21om</link>
+      <pubDate>Tue, 30 Jun 2026 08:25:04 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sridhar_s_dfc5fa7b6b295f9/the-complete-guide-to-mcp-connecting-ai-models-with-real-world-tools-21om</guid>
+    </item>
+    <item>
       <title>[翻訳] Linuxログの読み方を完全解説：トラブルシューティングの必須スキル</title>
       <description>Linuxのログは、システムとアプリケーションの活動を記録する「ブラックボックスレコーダー」であり、/var/log以下に保存されている。
 tail、less、grepなどのコマンドでログを表示・検索し、tail -fでリアルタイム監視、journalctlで最新のsystemdログを確認できる。
