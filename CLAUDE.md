@@ -122,6 +122,7 @@ flowchart LR
 3. **実装計画** — `superpowers:writing-plans` で新しい計画ファイルを作成
 4. **実装** — `superpowers:subagent-driven-development` で実装
 5. **品質チェック**
+6. **ドキュメント更新** — コード変更と**同じコミット**で設計ドキュメント・用語定義・READMEを更新する。後回し禁止。
 
 ---
 
