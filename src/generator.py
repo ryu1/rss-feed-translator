@@ -32,9 +32,7 @@ def generate_rss(
         item = ET.SubElement(channel, "item")
 
         display_title = (
-            article.natural_title
-            or article.translated_title
-            or article.original_title
+            article.natural_title or article.translated_title or article.original_title
         )
         ET.SubElement(item, "title").text = display_title
 

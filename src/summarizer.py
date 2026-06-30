@@ -65,8 +65,5 @@ def get_summarizer(engine: str, model: str, prompt_template: str) -> Summarizer:
         from src.summarizers.claude import ClaudeSummarizer
 
         return ClaudeSummarizer(model=model, prompt_template=prompt_template)
-    msg = (
-        f"Unknown summarizer engine: {engine!r}. "
-        f"Choose from: openai, claude"
-    )
+    msg = f"Unknown summarizer engine: {engine!r}. Choose from: openai, claude"
     raise ValueError(msg)

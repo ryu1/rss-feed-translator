@@ -56,10 +56,7 @@ def translate_articles(
 
     translated = with_retry(_translate)
     if len(translated) != len(all_texts):
-        msg = (
-            f"Translator returned {len(translated)} items, "
-            f"expected {len(all_texts)}"
-        )
+        msg = f"Translator returned {len(translated)} items, expected {len(all_texts)}"
         raise TranslationSkippedError(msg)
     mid = len(articles)
     return list(zip(translated[:mid], translated[mid:]))

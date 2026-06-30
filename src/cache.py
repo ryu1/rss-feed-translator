@@ -26,9 +26,7 @@ def load_translated_cache(path: str) -> dict[str, TranslatedArticle]:
     result: dict[str, TranslatedArticle] = {}
     for guid, item in data.items():
         translated_title: str | None = (
-            str(item["translated_title"])
-            if item.get("translated_title")
-            else None
+            str(item["translated_title"]) if item.get("translated_title") else None
         )
         translated_description: str | None = (
             str(item["translated_description"])
@@ -36,13 +34,9 @@ def load_translated_cache(path: str) -> dict[str, TranslatedArticle]:
             else None
         )
         natural_title: str | None = (
-            str(item["natural_title"])
-            if item.get("natural_title")
-            else None
+            str(item["natural_title"]) if item.get("natural_title") else None
         )
-        summary: str | None = (
-            str(item["summary"]) if item.get("summary") else None
-        )
+        summary: str | None = str(item["summary"]) if item.get("summary") else None
         result[guid] = TranslatedArticle(
             guid=guid,
             original_title=str(item["original_title"]),

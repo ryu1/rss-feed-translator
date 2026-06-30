@@ -41,10 +41,7 @@ class ClaudeTranslator:
             content = text_blocks[0].text if text_blocks else ""
             parts = [t.strip() for t in content.split("\n---\n")]
             if len(parts) != len(texts):
-                msg = (
-                    f"Expected {len(texts)} translations, "
-                    f"got {len(parts)}"
-                )
+                msg = f"Expected {len(texts)} translations, got {len(parts)}"
                 raise TranslationError(msg)
             return parts
         except TranslationError:

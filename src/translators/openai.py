@@ -38,10 +38,7 @@ class OpenAITranslator:
             content = response.choices[0].message.content or ""
             parts = [t.strip() for t in content.split("\n---\n")]
             if len(parts) != len(texts):
-                msg = (
-                    f"Expected {len(texts)} translations, "
-                    f"got {len(parts)}"
-                )
+                msg = f"Expected {len(texts)} translations, got {len(parts)}"
                 raise TranslationError(msg)
             return parts
         except Exception as e:

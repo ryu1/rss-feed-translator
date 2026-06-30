@@ -18,9 +18,7 @@ class GoogleTranslator:
                 translate_v2 as google_translate,
             )
 
-            self._client = google_translate.Client(
-                client_options={"api_key": api_key}
-            )
+            self._client = google_translate.Client(client_options={"api_key": api_key})
         except Exception as e:
             msg = f"Failed to initialize Google Translate client: {e}"
             raise TranslationError(msg) from e
