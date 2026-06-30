@@ -63,7 +63,6 @@ def main() -> None:
     summarizer_prompt = str(summarizer_config.get("prompt", ""))
 
     output_config: dict[str, object] = config.get("output", {})  # type: ignore[assignment]
-    output_path = str(output_config.get("path", "docs/rss.xml"))
     max_items = int(str(output_config.get("max_items", 200)))
 
     cache_config: dict[str, str] = config.get("cache", {})  # type: ignore[assignment]
@@ -212,7 +211,6 @@ def main() -> None:
 
     all_translated = list(translated_cache.values())
 
-    # フィード別ファイル生成
     for feed in feeds:
         if feed.output_path is None:
             continue
@@ -227,12 +225,6 @@ def main() -> None:
             )
         except Exception as e:
             logger.error("Failed to generate RSS for %s: %s", feed.name, e)
-
-    # 全フィードをまとめたファイル生成
-    try:
-        generate_rss(all_translated, output_path, max_items=max_items)
-    except Exception as e:
-        logger.error("Failed to generate RSS: %s", e)
 
     elapsed = time.time() - start
     logger.info(

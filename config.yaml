@@ -15,7 +15,6 @@ summarizer:
   model: gpt-4o-mini
 
 output:
-  path: docs/feed/rss.xml
   max_items: 200
 
 cache:
