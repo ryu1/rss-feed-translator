@@ -42,7 +42,7 @@
 
 ```mermaid
 graph TD
-    subgraph "GitHub Actions（JST 7:00〜22:00 / 3時間ごと）"
+    subgraph "GitHub Actions（JST 9:00・12:00 / 1日2回）"
         MAIN["main.py"]
     end
 
@@ -148,7 +148,7 @@ rss-feed-translator/
 │       └── dev-community.xml
 ├── .github/
 │   ├── workflows/
-│   │   ├── update-rss.yml           # 3時間cron（JST夜間停止）+ workflow_dispatch
+│   │   ├── update-rss.yml           # 1日2回cron（JST 9:00・12:00）+ workflow_dispatch
 │   │   ├── dependabot-auto-merge.yml # Dependabot patch自動マージ
 │   │   └── test.yml                 # プッシュ時のテスト実行
 │   ├── rulesets/
@@ -461,7 +461,7 @@ class Translator(Protocol):
 
 ### バッチ翻訳
 
-1記事ずつではなく、新着記事のtitle・descriptionをまとめてAPIに送信しAPI呼び出し回数を最小化する。
+1記事ずつではなく、新着記事の title・description をまとめてAPIに送信しAPI呼び出し回数を最小化する。description は翻訳前に500文字に切り詰める（DEV Communityなど記事本文が含まれるフィードの対策）。一度に送るテキスト数が多いとレスポンスがトークン上限で切れるため、10件ずつのチャンクに分割して送信する。
 
 ### リトライ（指数バックオフ）
 
@@ -648,7 +648,7 @@ graph LR
     end
 
     subgraph "update-rss.yml"
-        CRON["schedule\nJST 7:00〜22:00\n3時間ごと"] --> RUN["main.py 実行"]
+        CRON["schedule\nJST 9:00・12:00\n1日2回"] --> RUN["main.py 実行"]
         DISPATCH["workflow_dispatch\n手動実行"] --> RUN
         RUN --> COMMIT["cache/ + docs/feed/\nコミット＆プッシュ"]
         COMMIT --> PAGES["GitHub Pages\n自動デプロイ"]
@@ -663,7 +663,7 @@ graph LR
 
 ### update-rss.yml（.github/workflows/update-rss.yml）
 
-- **スケジュール**: JST 7:00〜22:00 の間、3時間ごとに実行（夜間停止）
+- **スケジュール**: JST 9:00 と 12:00 の1日2回実行（UTC 0:00 と 3:00）
 - **手動実行**: `workflow_dispatch` で任意のタイミングで実行可能
 - **コミット対象**: `cache/`（翻訳キャッシュ）と `docs/feed/`（フィード別 RSS ファイル）
 - **新着なし**: 差分がない場合はコミットをスキップ
