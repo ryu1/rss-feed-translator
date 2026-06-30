@@ -11,11 +11,13 @@ feeds:
 
 translator:
   engine: openai  # google | openai | deepl | claude
+  # provider: anthropic  # anthropic (default) | bedrock
 
 summarizer:
   enabled: true
   engine: openai  # openai | claude
   model: gpt-4o-mini
+  # provider: anthropic  # anthropic (default) | bedrock
 
 output:
   max_items: 200

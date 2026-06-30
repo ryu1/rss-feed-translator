@@ -9,14 +9,27 @@ from src.exceptions import TranslationError
 
 logger = logging.getLogger(__name__)
 
+_DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+_DEFAULT_BEDROCK_MODEL = "anthropic.claude-haiku-4-5-20251001-v1:0"
+
 
 class ClaudeTranslator:
-    def __init__(self, model: str = "claude-haiku-4-5-20251001") -> None:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
-        if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable not set")
-        self._client = anthropic.Anthropic(api_key=api_key)
-        self._model = model
+    def __init__(
+        self,
+        model: str | None = None,
+        provider: str = "anthropic",
+    ) -> None:
+        if provider == "bedrock":
+            self._client: anthropic.Anthropic | anthropic.AnthropicBedrock = (
+                anthropic.AnthropicBedrock()
+            )
+            self._model = model or _DEFAULT_BEDROCK_MODEL
+        else:
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                raise ValueError("ANTHROPIC_API_KEY environment variable not set")
+            self._client = anthropic.Anthropic(api_key=api_key)
+            self._model = model or _DEFAULT_MODEL
 
     def translate(self, texts: list[str], target_lang: str = "ja") -> list[str]:
         if not texts:

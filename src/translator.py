@@ -62,7 +62,7 @@ def translate_articles(
     return list(zip(translated[:mid], translated[mid:]))
 
 
-def get_translator(engine: str) -> Translator:
+def get_translator(engine: str, provider: str = "anthropic") -> Translator:
     if engine == "google":
         from src.translators.google import GoogleTranslator
 
@@ -78,7 +78,7 @@ def get_translator(engine: str) -> Translator:
     if engine == "claude":
         from src.translators.claude import ClaudeTranslator
 
-        return ClaudeTranslator()
+        return ClaudeTranslator(provider=provider)
     msg = (
         f"Unknown translator engine: {engine!r}. "
         f"Choose from: google, openai, deepl, claude"

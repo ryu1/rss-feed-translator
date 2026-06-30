@@ -12,18 +12,28 @@ from src.summarizer import DEFAULT_SUMMARIZER_PROMPT
 
 logger = logging.getLogger(__name__)
 
+_DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+_DEFAULT_BEDROCK_MODEL = "anthropic.claude-haiku-4-5-20251001-v1:0"
+
 
 class ClaudeSummarizer:
     def __init__(
         self,
-        model: str = "claude-haiku-4-5-20251001",
+        model: str | None = None,
         prompt_template: str = DEFAULT_SUMMARIZER_PROMPT,
+        provider: str = "anthropic",
     ) -> None:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
-        if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable not set")
-        self._client = anthropic.Anthropic(api_key=api_key)
-        self._model = model
+        if provider == "bedrock":
+            self._client: anthropic.Anthropic | anthropic.AnthropicBedrock = (
+                anthropic.AnthropicBedrock()
+            )
+            self._model = model or _DEFAULT_BEDROCK_MODEL
+        else:
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                raise ValueError("ANTHROPIC_API_KEY environment variable not set")
+            self._client = anthropic.Anthropic(api_key=api_key)
+            self._model = model or _DEFAULT_MODEL
         self._prompt_template = prompt_template
 
     def summarize(self, article: Article) -> tuple[str, str]:

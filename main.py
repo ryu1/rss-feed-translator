@@ -55,12 +55,14 @@ def main() -> None:
 
     translator_config: dict[str, str] = config.get("translator", {})  # type: ignore[assignment]
     translator_engine = translator_config.get("engine", "google")
+    translator_provider = translator_config.get("provider", "anthropic")
 
     summarizer_config: dict[str, object] = config.get("summarizer", {})  # type: ignore[assignment]
     summarizer_enabled = bool(summarizer_config.get("enabled", False))
     summarizer_engine = str(summarizer_config.get("engine", "openai"))
     summarizer_model = str(summarizer_config.get("model", "gpt-4o-mini"))
     summarizer_prompt = str(summarizer_config.get("prompt", ""))
+    summarizer_provider = str(summarizer_config.get("provider", "anthropic"))
 
     output_config: dict[str, object] = config.get("output", {})  # type: ignore[assignment]
     max_items = int(str(output_config.get("max_items", 200)))
@@ -90,7 +92,7 @@ def main() -> None:
 
     if new_articles:
         try:
-            translator = get_translator(translator_engine)
+            translator = get_translator(translator_engine, provider=translator_provider)
         except Exception as e:
             logger.error("Failed to initialize translator: %s", e)
             translator = None
@@ -155,7 +157,10 @@ def main() -> None:
     if summarizer_enabled and new_articles:
         try:
             summarizer = get_summarizer(
-                summarizer_engine, summarizer_model, summarizer_prompt
+                summarizer_engine,
+                summarizer_model,
+                summarizer_prompt,
+                provider=summarizer_provider,
             )
         except Exception as e:
             logger.error("Failed to initialize summarizer: %s", e)
