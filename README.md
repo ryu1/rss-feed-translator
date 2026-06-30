@@ -14,7 +14,7 @@
 ## RSSフィード
 
 ```
-https://ryu1.github.io/rss-feed-translator/rss.xml
+https://ryu1.github.io/rss-feed-translator/feed/rss.xml
 ```
 
 ## セットアップ
