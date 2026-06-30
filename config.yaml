@@ -13,14 +13,14 @@ feeds:
     link_url: https://dev.to
 
 translator:
-  engine: openai  # google | openai | deepl | claude
-  # provider: anthropic  # anthropic (default) | bedrock
+  engine: claude
+  provider: bedrock
 
 summarizer:
   enabled: true
-  engine: openai  # openai | claude
-  model: gpt-4o-mini
-  # provider: anthropic  # anthropic (default) | bedrock
+  engine: claude
+  model: anthropic.claude-haiku-4-5-20251001-v1:0
+  provider: bedrock
 
 output:
   max_items: 200
