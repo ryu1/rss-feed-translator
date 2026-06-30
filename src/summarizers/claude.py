@@ -24,8 +24,11 @@ class ClaudeSummarizer:
         provider: str = "anthropic",
     ) -> None:
         if provider == "bedrock":
+            # AWS_BEARER_TOKEN_BEDROCK が設定されていれば api_key として使用
+            # 未設定の場合は AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY で認証
+            bedrock_token = os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
             self._client: anthropic.Anthropic | anthropic.AnthropicBedrock = (
-                anthropic.AnthropicBedrock()
+                anthropic.AnthropicBedrock(api_key=bedrock_token)
             )
             self._model = model or _DEFAULT_BEDROCK_MODEL
         else:
