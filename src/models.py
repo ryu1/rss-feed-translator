@@ -9,6 +9,7 @@ class FeedConfig:
     name: str
     url: str
     output_path: str | None = None
+    link_url: str = ""
 
 
 @dataclass(frozen=True)

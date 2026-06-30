@@ -2,12 +2,15 @@ feeds:
   - name: Ars Technica
     url: https://feeds.arstechnica.com/arstechnica/index
     output_path: docs/feed/ars-technica.xml
+    link_url: https://arstechnica.com
   - name: Hacker News
     url: https://hnrss.org/frontpage
     output_path: docs/feed/hacker-news.xml
+    link_url: https://news.ycombinator.com
   - name: DEV Community
     url: https://dev.to/feed
     output_path: docs/feed/dev-community.xml
+    link_url: https://dev.to
 
 translator:
   engine: openai  # google | openai | deepl | claude

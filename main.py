@@ -49,6 +49,7 @@ def main() -> None:
             name=f["name"],
             url=f["url"],
             output_path=f.get("output_path"),
+            link_url=f.get("link_url", ""),
         )
         for f in feeds_config
     ]
@@ -230,6 +231,7 @@ def main() -> None:
                 max_items=max_items,
                 title=feed.name,
                 description=f"{feed.name} 日本語翻訳フィード",
+                link=feed.link_url,
             )
         except Exception as e:
             logger.error("Failed to generate RSS for %s: %s", feed.name, e)

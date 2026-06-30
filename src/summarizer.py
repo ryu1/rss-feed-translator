@@ -57,17 +57,18 @@ def summarize_with_retry(
 
 
 def get_summarizer(
-    engine: str, model: str, prompt_template: str, provider: str = "anthropic"
+    engine: str, model: str, prompt_template: str = "", provider: str = "anthropic"
 ) -> Summarizer:
+    effective_prompt = prompt_template or DEFAULT_SUMMARIZER_PROMPT
     if engine == "openai":
         from src.summarizers.openai import OpenAISummarizer
 
-        return OpenAISummarizer(model=model, prompt_template=prompt_template)
+        return OpenAISummarizer(model=model, prompt_template=effective_prompt)
     if engine == "claude":
         from src.summarizers.claude import ClaudeSummarizer
 
         return ClaudeSummarizer(
-            model=model, prompt_template=prompt_template, provider=provider
+            model=model, prompt_template=effective_prompt, provider=provider
         )
     msg = f"Unknown summarizer engine: {engine!r}. Choose from: openai, claude"
     raise ValueError(msg)

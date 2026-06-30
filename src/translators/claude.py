@@ -36,13 +36,17 @@ class ClaudeTranslator:
             self._client = anthropic.Anthropic(api_key=api_key)
             self._model = model or _DEFAULT_MODEL
 
+    _SEP = "<<<TRANSLATION_SEP>>>"
+
     def translate(self, texts: list[str], target_lang: str = "ja") -> list[str]:
         if not texts:
             return []
-        joined = "\n---\n".join(texts)
+        joined = f"\n{self._SEP}\n".join(texts)
+        sep = self._SEP
         prompt = (
-            f"Translate each section separated by '---' into {target_lang}. "
-            "Return only the translations separated by '\\n---\\n', in the same order. "
+            f"Translate each section separated by '{sep}' into {target_lang}. "
+            f"Return only the translations separated by '\\n{sep}\\n', "
+            "in the same order. "
             "Do not add any explanation.\n\n" + joined
         )
         try:
@@ -57,7 +61,7 @@ class ClaudeTranslator:
                 if isinstance(block, anthropic.types.TextBlock)
             ]
             content = text_blocks[0].text if text_blocks else ""
-            parts = [t.strip() for t in content.split("\n---\n")]
+            parts = [t.strip() for t in content.split(f"\n{self._SEP}\n")]
             if len(parts) != len(texts):
                 msg = f"Expected {len(texts)} translations, got {len(parts)}"
                 raise TranslationError(msg)
