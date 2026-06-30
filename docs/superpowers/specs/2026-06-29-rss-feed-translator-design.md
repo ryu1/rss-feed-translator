@@ -34,10 +34,14 @@
 - [GitHub Pages設定](#github-pages設定)
 
 **開発**
+- [テクノロジースタック](#テクノロジースタック)
+- [開発ツールと手法](#開発ツールと手法)
+- [技術的制約と要件](#技術的制約と要件)
 - [依存関係（pyproject.toml）](#依存関係pyprojecttoml)
 - [開発環境セットアップ](#開発環境セットアップ)
 - [命名規則・Git規約](#命名規則git規約)
 - [コーディング規約](#コーディング規約)
+- [スタイリング規約](#スタイリング規約)
 - [テスト方針](#テスト方針)
 
 - [将来的な拡張への考慮](#将来的な拡張への考慮)
@@ -779,6 +783,47 @@ https://ryu1.github.io/rss-feed-translator/feed/dev-community.xml
 
 ## 開発
 
+### テクノロジースタック
+
+| カテゴリ | 技術 |
+|---|---|
+| 言語 | Python 3.12+ |
+| パッケージ管理 | uv |
+| RSSパーサー | feedparser |
+| HTTPクライアント | requests |
+| 設定ファイル | PyYAML（config.yaml） |
+| XML生成 | xml.etree.ElementTree（標準ライブラリ） |
+| XML解析（セキュア） | defusedxml |
+| 翻訳API | Google Cloud Translate / OpenAI / DeepL / Anthropic Claude |
+| 要約API | OpenAI / Anthropic Claude（Amazon Bedrock経由も可） |
+| CI/CD | GitHub Actions |
+| ホスティング | GitHub Pages |
+
+### 開発ツールと手法
+
+| ツール | 用途 |
+|---|---|
+| `ruff` | リンター・フォーマッター |
+| `mypy` | 静的型チェック（`strict` モード） |
+| `pytest` | テストフレームワーク |
+| `responses` | HTTPモックライブラリ（テスト用） |
+| `pre-commit` | コミット前の自動lint・フォーマット |
+| `uv` | 依存関係管理・仮想環境・スクリプト実行 |
+
+**手法:**
+- Protocolによる構造的サブタイピング（依存性逆転・テスト容易性）
+- `Arrange / Act / Assert` パターンによるテスト記述
+- Conventional Commits によるコミットメッセージ規約
+
+### 技術的制約と要件
+
+- **実行環境**: GitHub Actions（Ubuntu）および macOS ローカル環境
+- **Python バージョン**: 3.12 以上必須（`str | None` 型構文・`match` 文など）
+- **インフラ制約**: サーバーレス運用必須。常時稼働サーバーは使用しない
+- **APIキー管理**: 認証情報はすべて環境変数で管理。設定ファイル・コードへのハードコード禁止
+- **Amazon Bedrock**: IAM 認証は使用しない。`AWS_BEARER_TOKEN_BEDROCK` による Bearer Token 方式のみ対応
+- **RSS出力**: RSS 2.0 形式。Atom は出力しない（feedparser で読み込みのみ対応）
+
 ### 依存関係（pyproject.toml）
 
 ```toml
@@ -862,6 +907,17 @@ ci:       CI/CD設定の変更
 - **フォーマッター**: `ruff format`でコードを自動整形（`uv run ruff format src/ tests/`）
 - **型チェック**: `mypy`またはpyrightで静的解析（`uv run mypy src/`）
 - **pre-commit**: コミット前に `ruff --fix` と `ruff-format` が自動実行される。初回セットアップ時に `uv run pre-commit install` を実行すること
+
+### スタイリング規約
+
+- **行長**: 最大88文字（`ruff` デフォルト）
+- **インデント**: スペース4つ（Python標準）
+- **クォート**: ダブルクォート（`ruff` デフォルト）
+- **import順**: `from __future__ import annotations` を先頭に、標準ライブラリ → サードパーティ → ローカルの順（`ruff` が自動整理）
+- **末尾カンマ**: 複数行のリスト・辞書・関数引数には末尾カンマを付与
+- **空行**: トップレベル定義の間は2行、クラス内メソッドの間は1行
+
+これらは `uv run ruff format src/ tests/` で自動適用される。手動調整不要。
 
 ### テスト方針
 
