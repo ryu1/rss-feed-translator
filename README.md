@@ -1,5 +1,8 @@
 # rss-feed-translator
 
+[![Update RSS](https://github.com/ryu1/rss-feed-translator/actions/workflows/update-rss.yml/badge.svg)](https://github.com/ryu1/rss-feed-translator/actions/workflows/update-rss.yml)
+[![Test](https://github.com/ryu1/rss-feed-translator/actions/workflows/test.yml/badge.svg)](https://github.com/ryu1/rss-feed-translator/actions/workflows/test.yml)
+
 海外の英語RSSフィードを日本語に翻訳し、GitHub Pages で配信するシステムです。
 
 ## RSSフィード
