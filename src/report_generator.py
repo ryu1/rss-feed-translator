@@ -120,7 +120,9 @@ def _render_feed_section(source: str, articles: list[TranslatedArticle]) -> str:
 
 def _render_card(article: TranslatedArticle) -> str:
     original_title = html.escape(article.original_title)
-    link = html.escape(article.link)
+    is_safe_url = article.link.startswith(("https://", "http://"))
+    safe_link = article.link if is_safe_url else "#"
+    link = html.escape(safe_link)
 
     # タイトル行
     if article.translated_title:

@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import logging
+import unittest.mock
 from datetime import datetime, timezone
 from pathlib import Path
+
+import pytest
 
 from src.models import TranslatedArticle
 from src.report_generator import generate_report
@@ -158,3 +162,19 @@ def test_generate_report_multiple_feeds(tmp_path: Path) -> None:
     html = Path(output).read_text(encoding="utf-8")
     assert "Feed A" in html
     assert "Feed B" in html
+
+
+def test_generate_report_logs_warning_on_write_failure(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    output = str(tmp_path / "report.html")
+    articles = [
+        _make_article("1", "Feed A", datetime(2026, 7, 1, tzinfo=timezone.utc)),
+    ]
+    with unittest.mock.patch(
+        "pathlib.Path.write_text", side_effect=OSError("disk full")
+    ):
+        with caplog.at_level(logging.WARNING, logger="src.report_generator"):
+            generate_report(articles, output)
+    assert any("Failed to write report" in r.message for r in caplog.records)
