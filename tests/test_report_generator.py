@@ -178,3 +178,26 @@ def test_generate_report_logs_warning_on_write_failure(
         with caplog.at_level(logging.WARNING, logger="src.report_generator"):
             generate_report(articles, output)
     assert any("Failed to write report" in r.message for r in caplog.records)
+
+
+def test_generate_report_sanitizes_javascript_url(tmp_path: Path) -> None:
+    output = str(tmp_path / "report.html")
+    articles = [
+        TranslatedArticle(
+            guid="1",
+            original_title="Test",
+            original_description="desc",
+            translated_title=None,
+            translated_description=None,
+            natural_title=None,
+            summary=None,
+            link="javascript:alert('xss')",
+            published=datetime(2026, 7, 1, tzinfo=timezone.utc),
+            source="Feed A",
+            translated_at=datetime(2026, 7, 1, tzinfo=timezone.utc),
+        )
+    ]
+    generate_report(articles, output)
+    content = Path(output).read_text(encoding="utf-8")
+    assert 'href="#"' in content
+    assert "javascript:" not in content
