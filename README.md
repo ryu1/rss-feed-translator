@@ -1,5 +1,7 @@
 # rss-feed-translator
 
+![banner](docs/images/banner.svg)
+
 [![Update RSS](https://github.com/ryu1/rss-feed-translator/actions/workflows/update-rss.yml/badge.svg)](https://github.com/ryu1/rss-feed-translator/actions/workflows/update-rss.yml)
 [![Test](https://github.com/ryu1/rss-feed-translator/actions/workflows/test.yml/badge.svg)](https://github.com/ryu1/rss-feed-translator/actions/workflows/test.yml)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)

@@ -1,0 +1,61 @@
+<svg width="800" height="140" viewBox="0 0 800 140" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="140" rx="12" fill="url(#bg)"/>
+
+  <!-- Accent bar top -->
+  <rect x="0" y="0" width="800" height="4" rx="2" fill="url(#accent)"/>
+
+  <!-- RSS icon -->
+  <g transform="translate(36, 34)">
+    <rect width="16" height="16" rx="3" fill="#f97316"/>
+    <circle cx="5" cy="11" r="2" fill="white"/>
+    <path d="M4 7 Q10 7 10 13" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M4 3 Q14 3 14 13" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Title -->
+  <text x="68" y="52" font-family="'Segoe UI', system-ui, sans-serif" font-size="22" font-weight="700" fill="white">rss-feed-translator</text>
+
+  <!-- Subtitle -->
+  <text x="68" y="76" font-family="'Segoe UI', system-ui, sans-serif" font-size="13" fill="#94a3b8">海外ITニュースを自動翻訳・要約して日本語RSSフィードとして配信</text>
+
+  <!-- Divider -->
+  <line x1="36" y1="96" x2="764" y2="96" stroke="#334155" stroke-width="1"/>
+
+  <!-- Pills row -->
+  <!-- 4 Feeds -->
+  <rect x="36" y="108" width="78" height="22" rx="11" fill="#1e3a5f"/>
+  <text x="75" y="123" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#60a5fa" text-anchor="middle">4 Feeds</text>
+
+  <!-- Google Translate -->
+  <rect x="124" y="108" width="130" height="22" rx="11" fill="#1a3350"/>
+  <text x="189" y="123" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#60a5fa" text-anchor="middle">Google Translate</text>
+
+  <!-- Claude Haiku -->
+  <rect x="264" y="108" width="110" height="22" rx="11" fill="#2d1f4e"/>
+  <text x="319" y="123" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#a78bfa" text-anchor="middle">Claude Haiku</text>
+
+  <!-- GitHub Pages -->
+  <rect x="384" y="108" width="118" height="22" rx="11" fill="#0f2a1a"/>
+  <text x="443" y="123" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#4ade80" text-anchor="middle">GitHub Pages</text>
+
+  <!-- 1日2回 -->
+  <rect x="512" y="108" width="108" height="22" rx="11" fill="#2a1f10"/>
+  <text x="566" y="123" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#fb923c" text-anchor="middle">1日2回 自動更新</text>
+
+  <!-- AI circle (right) -->
+  <circle cx="730" cy="50" r="30" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+  <text x="730" y="45" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">powered</text>
+  <text x="730" y="59" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">by AI</text>
+</svg>
