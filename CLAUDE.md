@@ -69,12 +69,24 @@ graph TD
 
 ### 5. README（`README.md`）
 
-リポジトリの目次として機能します。詳細は設計ドキュメントへのリンクで参照する構成にします。
+リポジトリの顔として機能します。FastAPI スタイル（中央揃えロゴ → バッジ → リンク → 概要 → 特長）を採用しています。
 
 含めるべき内容：
-- プロジェクトの一行説明
-- RSSフィードURL
-- ドキュメントへのリンク（設計・実装計画・用語定義）
+- **SVG ロゴ** — `docs/images/logo.svg`（中央揃え）
+- **キャッチコピー** — イタリック・中央揃えの一行説明
+- **バッジ** — CI ステータス（Update RSS・Test）・Python バージョン・Review Report リンク
+- **重要リンク** — 各フィードの RSS URL・翻訳要約レビューレポート（`docs/report.html`）
+- **アプリケーション概要・特長** — 箇条書きで主要機能を説明
+- **ドキュメントへのリンク** — 設計・実装計画・用語定義
+
+バッジ追加の指針：
+- CI/CD ステータスは GitHub Actions バッジを使用する
+- 技術スタック（Python バージョン等）は shields.io バッジを使用する
+- `logo=` パラメータでアイコンを付与してビジュアルを強化する
+
+SVG ロゴの注意事項：
+- `docs/images/logo.svg` に配置する
+- GitHub の Markdown レンダラーは SVG 内の CSS `@media (prefers-color-scheme: dark)` を無効化するため、ダークモード対応には `<picture>` タグを使う必要がある（現状はライトモード固定）
 
 ---
 
@@ -221,7 +233,10 @@ flowchart LR
 
 ### README（`README.md`）
 
-- [ ] RSSフィードURLが最新のパスを指している
+- [ ] `docs/images/logo.svg` が存在し、中央揃えで表示されている
+- [ ] CI/CD バッジ（Update RSS・Test）が最新のワークフロー名と一致している
+- [ ] フィードURLが全フィード（Ars Technica・Hacker News・DEV Community・InfoQ）を含んでいる
+- [ ] 翻訳要約レビューレポートへのリンクが有効である
 - [ ] 設計ドキュメント・実装計画・用語定義へのリンクが有効である
 
 ### 実装計画（`docs/superpowers/plans/`）
