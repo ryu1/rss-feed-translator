@@ -4,5 +4,201 @@
     <title>Ars Technica</title>
     <description>Ars Technica 日本語翻訳フィード</description>
     <link>https://arstechnica.com</link>
+    <item>
+      <title>[翻訳] 6月の科学ニュース：見落としそうだった興味深い研究成果</title>
+      <description>6月の科学分野で、報道の目が届きにくかった興味深い研究成果をまとめたもの。\nウンチの独特な形状の科学的メカニズム、ホウ素で作られたバッキーボール、サッカーのフェイントの秘密などを紹介。\nArsTechnicaが選りすぐった科学的に価値のある発見や研究を解説している。</description>
+      <link>https://arstechnica.com/science/2026/06/june-research-roundup-6-cool-science-stories-we-almost-missed/</link>
+      <pubDate>Tue, 30 Jun 2026 22:11:10 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/science/2026/06/june-research-roundup-6-cool-science-stories-we-almost-missed/</guid>
+    </item>
+    <item>
+      <title>[翻訳] Redditが旧UIへのアクセスにログインを必須化</title>
+      <description>Redditは、旧デザイン（old.reddit.com）の利用にログイン要件を導入する。
+この変更は、ログアウト状態でのアクセスが「悪質なスクレイピングの重大な源」となっているため。
+ユーザーは旧UIを継続して利用できるが、今後はアカウントでのログインが必要になる予定。</description>
+      <link>https://arstechnica.com/gadgets/2026/06/reddit-will-require-you-to-log-in-to-use-old-reddit-com/</link>
+      <pubDate>Tue, 30 Jun 2026 21:46:35 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/gadgets/2026/06/reddit-will-require-you-to-log-in-to-use-old-reddit-com/</guid>
+    </item>
+    <item>
+      <title>[翻訳] Amazon、マルウェア含む海賊版アプリがFireスティックのサイドローディング廃止の原因と主張</title>
+      <description>Amazonは新しいFire Stick OSで、サードパーティ製のホームランチャーと広告ブロッカーをブロックできるようにした。
+この変更はセキュリティ上の脅威を理由に実施されている。
+同社は非公式アプリの配布がマルウェアリスクをもたらしていると説明している。</description>
+      <link>https://arstechnica.com/gadgets/2026/06/exec-blames-malware-threat-for-amazon-blocking-sideloading-on-new-fire-sticks/</link>
+      <pubDate>Tue, 30 Jun 2026 21:04:53 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/gadgets/2026/06/exec-blames-malware-threat-for-amazon-blocking-sideloading-on-new-fire-sticks/</guid>
+    </item>
+    <item>
+      <title>[翻訳] NASAが予備の原子力火星探査機を月へ送ることを検討</title>
+      <description>NASAは当初火星用に開発された予備の核動力ローバーを月ミッションに転用することを検討している。
+原子力を搭載することで、月の過酷な環境下でも長期間の探査活動が可能になる。
+この柔軟な資源活用は、予算効率と探査能力の向上を両立させる戦略となる。</description>
+      <link>https://arstechnica.com/space/2026/06/nasa-may-send-a-backup-nuclear-powered-mars-rover-to-the-moon/</link>
+      <pubDate>Tue, 30 Jun 2026 20:50:14 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/space/2026/06/nasa-may-send-a-backup-nuclear-powered-mars-rover-to-the-moon/</guid>
+    </item>
+    <item>
+      <title>[翻訳] GoogleがTenor GIF APIを廃止へ、X・Discordなど多数のプラットフォームに影響</title>
+      <description>GoogleがTenor GIF APIのサービスを終了する予定で、X（旧Twitter）やDiscordなどのプラットフォームが代替手段を検討せざるを得ない状況に。
+TenorはGoogle関連アプリとの接続は継続される見通しだが、外部プラットフォームはGIF取得元を別途確保する必要がある。
+この決定により、多くのアプリやサービスのGIF機能に変更が余儀なくされる。</description>
+      <link>https://arstechnica.com/gadgets/2026/06/google-kills-tenor-gif-api-forcing-changes-at-x-discord-and-more/</link>
+      <pubDate>Tue, 30 Jun 2026 20:38:51 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/gadgets/2026/06/google-kills-tenor-gif-api-forcing-changes-at-x-discord-and-more/</guid>
+    </item>
+    <item>
+      <title>[翻訳] AppleがEpicとのアプリストア手数料訴訟を最高裁に上訴</title>
+      <description>AppleがEpic Games との訴訟でアプリストア手数料に関する争点を米最高裁まで持ち込む。
+最高裁はAppleが下された侮辱罪判決が「誤りであるかどうか」を判断することになる。
+この判決はアプリストアの規制と企業の支配力に関する重要な判例となる可能性がある。</description>
+      <link>https://arstechnica.com/tech-policy/2026/06/apple-takes-epic-fight-over-app-store-fees-to-the-supreme-court/</link>
+      <pubDate>Tue, 30 Jun 2026 20:20:29 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/tech-policy/2026/06/apple-takes-epic-fight-over-app-store-fees-to-the-supreme-court/</guid>
+    </item>
+    <item>
+      <title>[翻訳] AI ブラウザが危険な理由が新たに判明</title>
+      <description>LLMに対して「2 + 2 = 5」といった誤った情報を入力するだけで、禁止されている指示に従わせることが可能であることが確認された。
+この脆弱性はAIブラウザの安全性に深刻な懸念を示している。
+セキュリティ研究者らは、このような攻撃方法の対策が急務だと指摘している。</description>
+      <link>https://arstechnica.com/security/2026/06/ai-browsers-can-be-lulled-into-a-dream-world-where-guardrails-no-longer-apply/</link>
+      <pubDate>Tue, 30 Jun 2026 20:03:14 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/security/2026/06/ai-browsers-can-be-lulled-into-a-dream-world-where-guardrails-no-longer-apply/</guid>
+    </item>
+    <item>
+      <title>[翻訳] Googleが最速・最安の画像生成モデル「Nano Banana 2 Lite」をリリース</title>
+      <description>GoogleがNano Banana 2 Liteという新しい画像生成モデルを発表した。
+画質は従来モデルより劣るものの、数秒で画像生成が完了する高速性が特徴。
+低コストと高速処理を両立した軽量版として、実用的な用途への利用が期待される。</description>
+      <link>https://arstechnica.com/ai/2026/06/googles-new-nano-banana-2-lite-image-model-is-its-fastest-and-cheapest-yet/</link>
+      <pubDate>Tue, 30 Jun 2026 18:36:10 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/ai/2026/06/googles-new-nano-banana-2-lite-image-model-is-its-fastest-and-cheapest-yet/</guid>
+    </item>
+    <item>
+      <title>[翻訳] RFK Jr.がペプチド販売業者をFDA委員会に配置、FDA科学者は反発</title>
+      <description>ペプチド医薬品は人気だが、FDA科学者らは検査済みではなく害をもたらす可能性があると警告している。
+RFK Jr.は規制当局の見直しを進める中、ペプチド業界に有利な委員会構成を進めている。
+未承認医薬品の安全性と有効性をめぐる規制機関内での対立が激化している。</description>
+      <link>https://arstechnica.com/health/2026/06/rfk-jr-stacks-fda-panel-with-peptide-peddlers-as-fda-scientists-oppose-access/</link>
+      <pubDate>Tue, 30 Jun 2026 18:25:10 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/health/2026/06/rfk-jr-stacks-fda-panel-with-peptide-peddlers-as-fda-scientists-oppose-access/</guid>
+    </item>
+    <item>
+      <title>[翻訳] トランプ政権の政府ウェブサイト再設計計画、AI生成デザインの問題で停滞</title>
+      <description>トランプ政権が推進する全ての.govサイトの再設計計画が、AI生成デザインの品質問題に直面している。
+National Design Studioが政府ウェブ標準の更新計画を1年遅延させることを決定した。
+AIツールを使用したデザイン自動化が、予想外の問題を引き起こしている。</description>
+      <link>https://arstechnica.com/tech-policy/2026/06/trumps-plan-to-redesign-every-gov-website-leads-to-ai-designed-horrors/</link>
+      <pubDate>Tue, 30 Jun 2026 16:59:02 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/tech-policy/2026/06/trumps-plan-to-redesign-every-gov-website-leads-to-ai-designed-horrors/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 米国が2040年までに100%電動車化すれば10万人以上の命が救われる、研究報告</title>
+      <description>米国が2040年までに乗用車を完全に電動車（EV）化した場合、10万人以上の死亡を防ぐことができるという研究結果が発表された。\n削減効果の大部分は、ディーゼルを燃料とする重型トラックとバスの排ガス削減によるもの。\n大気汚染による健康被害の軽減が、電動化の大きなメリットとして明らかになった。</description>
+      <link>https://arstechnica.com/cars/2026/06/the-us-going-100-ev-by-2040-would-save-more-than-100k-lives-study-says/</link>
+      <pubDate>Tue, 30 Jun 2026 16:03:44 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/cars/2026/06/the-us-going-100-ev-by-2040-would-save-more-than-100k-lives-study-says/</guid>
+    </item>
+    <item>
+      <title>[翻訳] トランプ前大統領、米国の子どもの貯蓄口座基金創設のためムスク氏にSpaceX株の寄付を要請</title>
+      <description>複数の情報筋によると、トランプ前大統領はイーロン・ムスク氏にSpaceXの株式を提供するよう要請した。
+その目的は、米国の子どもたちの貯蓄口座を支援する基金の種銭とすることだという。
+ムスク氏はトランプ氏の新設予定の基金への大型寄付を検討している可能性が報じられている。</description>
+      <link>https://arstechnica.com/tech-policy/2026/06/spacex-may-donate-stock-to-trumps-savings-accounts-for-kids-report-says/</link>
+      <pubDate>Tue, 30 Jun 2026 15:38:08 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/tech-policy/2026/06/spacex-may-donate-stock-to-trumps-savings-accounts-for-kids-report-says/</guid>
+    </item>
+    <item>
+      <title>[翻訳] フロリダ州、地方政府のネットゼロ排出目標追求を禁止</title>
+      <description>フロリダ州のロン・デサンティス知事が、地方政府によるネットゼロ排出目標の追求を禁止する措置を実施。
+知事は本措置を「急進的な気候変動政策の取り締まり」と位置づけている。
+州内の自治体が独自の脱炭素目標を設定・推進することが制限される事態となる。</description>
+      <link>https://arstechnica.com/science/2026/06/florida-bans-local-governments-from-pursuing-net-zero-emissions-goals/</link>
+      <pubDate>Tue, 30 Jun 2026 13:40:16 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/science/2026/06/florida-bans-local-governments-from-pursuing-net-zero-emissions-goals/</guid>
+    </item>
+    <item>
+      <title>[翻訳] アルス・ライブ：ニュー・グレン打ち上げ失敗の影響を徹底解説</title>
+      <description>本日午後1時（東部時間）よりライブストリーム配信を実施します。
+ニュー・グレン打ち上げ失敗後の影響について、専門家が詳しく解説します。
+視聴者からのご質問もライブ中に受け付けております。</description>
+      <link>https://arstechnica.com/space/2026/06/ars-live-whats-the-latest-in-the-aftermath-of-the-new-glenn-catastrophe/</link>
+      <pubDate>Tue, 30 Jun 2026 13:15:59 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/space/2026/06/ars-live-whats-the-latest-in-the-aftermath-of-the-new-glenn-catastrophe/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 米国、SignalとWhatsAppへの大規模ハッキング犯人情報に1000万ドルの懸賞金を提示</title>
+      <description>ロシア政府系の2つのグループによる作戦が、少なくとも3月から継続中。
+米国が情報提供者に対して1000万ドルの懸賞金を用意してキャンペーンを展開。
+SignalとWhatsAppを含む複数の暗号化通信アプリが対象となっている。</description>
+      <link>https://arstechnica.com/information-technology/2026/06/us-offers-10-million-for-info-on-group-behind-signal-and-whatsapp-hacking-spree/</link>
+      <pubDate>Mon, 29 Jun 2026 22:05:33 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/information-technology/2026/06/us-offers-10-million-for-info-on-group-behind-signal-and-whatsapp-hacking-spree/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 韓国が1兆ドルを投資、メモリチップ生産と人型ロボット開発を加速</title>
+      <description>韓国は2028年までに物理的AIの優位性確保と商用人型ロボットの実現を目指す。
+メモリチップ生産能力の大幅な拡大とロボット技術開発に1兆ドルの予算を配分する計画。
+世界的なAI競争で競争力を維持するため、官民を挙げた大規模投資戦略を展開。</description>
+      <link>https://arstechnica.com/ai/2026/06/south-korea-to-spend-1t-on-more-memory-chip-production-and-humanoid-robots/</link>
+      <pubDate>Mon, 29 Jun 2026 21:09:43 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/ai/2026/06/south-korea-to-spend-1t-on-more-memory-chip-production-and-humanoid-robots/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 米国の再生可能エネルギー、4月に重要なマイルストーン達成</title>
+      <description>米国で再生可能エネルギーが石炭発電の3倍近い発電量を記録した。
+小規模太陽光発電がこの成長を大きく牽引した。
+再生可能エネルギー産業が新たな転換点を迎えている。</description>
+      <link>https://arstechnica.com/science/2026/06/solar-outproduced-coal-in-april-but-not-on-the-grid/</link>
+      <pubDate>Mon, 29 Jun 2026 20:12:30 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/science/2026/06/solar-outproduced-coal-in-april-but-not-on-the-grid/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 最高裁判所が政府のジオフェンス令状使用を制限する判決を下す</title>
+      <description>米最高裁判所が、政府によるジオフェンス令状の使用に対して制限を加える判決を下した。
+ただし、最高裁はジオフェンス令状そのものを違憲と判断するまでは至らなかった。
+今後、政府がジオフェンス技術を用いた捜査の際には、より厳格な基準の適用が求められることになる。</description>
+      <link>https://arstechnica.com/tech-policy/2026/06/supreme-court-ruling-guts-governments-use-of-geofence-warrants/</link>
+      <pubDate>Mon, 29 Jun 2026 20:04:04 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/tech-policy/2026/06/supreme-court-ruling-guts-governments-use-of-geofence-warrants/</guid>
+    </item>
+    <item>
+      <title>[翻訳] ソニーがデジタルコンテンツライブラリから作品を削除、購入しても所有権がないことが改めて浮き彫りに</title>
+      <description>ソニーが数年前からデジタルストアの縮小を進めており、ユーザーのライブラリからコンテンツが削除されている。
+デジタル購入したコンテンツは実質的には企業に依存した利用権に過ぎず、真の所有権がないことが問題として浮き彫りになった。
+この事例はデジタルコンテンツの購入と所有の違いについて、ユーザーが改めて認識させられた出来事である。</description>
+      <link>https://arstechnica.com/gadgets/2026/06/sony-erases-digital-content-from-libraries-were-reminded-we-dont-own-what-we-buy/</link>
+      <pubDate>Mon, 29 Jun 2026 19:10:57 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/gadgets/2026/06/sony-erases-digital-content-from-libraries-were-reminded-we-dont-own-what-we-buy/</guid>
+    </item>
+    <item>
+      <title>[翻訳] フロンガス普及前にもオゾン層破壊は起きていた</title>
+      <description>オゾン層破壊問題は、フロンガス（CFC）が広く使用される前から実は発生していた。
+1950年代の時点で、現在の科学技術があれば、その問題を検出できた可能性がある。
+大気中のオゾン減少は、かつて想定されていたよりも早い段階から始まっていたことが判明。</description>
+      <link>https://arstechnica.com/science/2026/06/ozone-damage-could-have-been-detected-decades-earlier/</link>
+      <pubDate>Mon, 29 Jun 2026 19:00:23 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/science/2026/06/ozone-damage-could-have-been-detected-decades-earlier/</guid>
+    </item>
   </channel>
 </rss>

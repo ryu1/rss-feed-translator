@@ -4,5 +4,205 @@
     <title>Hacker News</title>
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
+    <item>
+      <title>[翻訳] フォレスティエール地下庭園 - 驚異の地下建造物</title>
+      <description>カリフォルニアの地下に広がる独特な庭園遺跡。
+1世紀以上前に手掘りで造られた広大な地下空間。
+Wikipediaで詳細が紹介されている歴史的建造物。</description>
+      <link>https://en.wikipedia.org/wiki/Forestiere_Underground_Gardens</link>
+      <pubDate>Wed, 01 Jul 2026 01:23:09 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48741359</guid>
+    </item>
+    <item>
+      <title>[翻訳] 大統領、暗号資産取引で10億ドル以上の利益を獲得</title>
+      <description>米大統領がトランプ・メディア・テクノロジー・グループの株式売却やビットコイン関連事業を通じて、2025年に10億ドルを超える利益を得た。
+この収益は同氏の2025年における大幅な資産増加の一部を構成している。
+ウォール・ストリート・ジャーナルが報じた暗号資産取引による莫大な利益は、政界での影響力とビジネス利益の関係について議論を呼んでいる。</description>
+      <link>https://www.wsj.com/politics/policy/trump-made-more-than-1-billion-on-crypto-deals-part-of-2025-windfall-ee917d3f</link>
+      <pubDate>Wed, 01 Jul 2026 00:27:56 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48741012</guid>
+    </item>
+    <item>
+      <title>[翻訳] 米商務省がClaude Fable 5とMythos 5の輸出規制を解除</title>
+      <description>米商務省がAnthropicのAIモデル「Claude Fable 5」と「Mythos 5」の輸出規制を解除した。
+これまでの輸出制限が緩和され、国際的なアクセスが拡大することが期待される。
+Hacker Newsで大きな話題となり、232ポイントを獲得し90件のコメントが寄せられている。</description>
+      <link>https://twitter.com/AnthropicAI/status/2072106151890809341</link>
+      <pubDate>Tue, 30 Jun 2026 23:55:12 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48740771</guid>
+    </item>
+    <item>
+      <title>[翻訳] Googleが開発したコードリポジトリ間移行ツール「Copybara」</title>
+      <description>Googleが開発したオープンソースツール「Copybara」は、複数のリポジトリ間でコードを効率的に移動・同期することができます。
+GitHub上で公開されており、複雑なコード移行作業を自動化し、開発チームの生産性向上を実現します。
+Hacker Newsで注目を集めており、開発者コミュニティから高い関心が寄せられています。</description>
+      <link>https://github.com/google/copybara</link>
+      <pubDate>Tue, 30 Jun 2026 23:45:39 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48740698</guid>
+    </item>
+    <item>
+      <title>[翻訳] Hatari - ブラウザで動作するAtari ST/STE/TT/Falconエミュレータ</title>
+      <description>懐かしのAtariコンピュータシリーズをオンラインでエミュレートするWebベースのツールが登場しました。
+Hatariを使用することで、ブラウザ上でAtari ST、STE、TT、Falconの各機種を直接実行できます。
+レトロなゲームやアプリケーションの動作環境を現代的に再現する取り組みとして注目されています。</description>
+      <link>https://hatari.frama.io/hatari/online/hatari.html</link>
+      <pubDate>Tue, 30 Jun 2026 22:34:23 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48740135</guid>
+    </item>
+    <item>
+      <title>[翻訳] 表形式データ向けゼロショット基盤モデル「TabFM」をGoogleが発表</title>
+      <description>Googleが表形式データに特化したゼロショット基盤モデル「TabFM」を開発しました。
+事前学習だけで新しいタスクに対応でき、追加の学習なしに表形式データの分析が可能です。
+このモデルは機械学習パイプラインの効率化と精度向上を実現します。</description>
+      <link>https://research.google/blog/introducing-tabfm-a-zero-shot-foundation-model-for-tabular-data/</link>
+      <pubDate>Tue, 30 Jun 2026 22:08:38 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48739919</guid>
+    </item>
+    <item>
+      <title>[翻訳] 脳波から文字へ：手術なしの新たなコミュニケーション方法</title>
+      <description>Metaが開発した脳波を直接テキストに変換する技術により、侵襲的な手術を必要としない新しいコミュニケーション方法が実現した。
+脳活動を読み取るAI技術により、身体に制約のある人々も含め、より多くの人々が脳インターフェースの恩恵を受けることが可能になる。
+この非侵襲的アプローチは、従来の脳コンピュータインターフェースの課題を克服し、より安全で実用的なコミュニケーション支援ツールとしての応用が期待される。</description>
+      <link>https://ai.meta.com/blog/brain2qwerty-brain-ai-human-communication/?_fb_noscript=1</link>
+      <pubDate>Tue, 30 Jun 2026 21:29:13 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48739466</guid>
+    </item>
+    <item>
+      <title>[翻訳] Kubernetesをブラウザに移植した</title>
+      <description>ngrokがKubernetesをブラウザ上で動作させるプロジェクト「Webernetes」を公開しました。
+GitHubで公開されているコードと実際に動作するデモサイトを提供しており、ブラウザからKubernetesを操作できます。
+Hacker Newsで167ポイントを獲得し、55件のコメントが寄せられるなど、技術コミュニティから高い関心を集めています。</description>
+      <link>https://ngrok.com/blog/i-ported-kubernetes-to-the-browser</link>
+      <pubDate>Tue, 30 Jun 2026 20:48:36 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48738985</guid>
+    </item>
+    <item>
+      <title>[翻訳] 軽量で高性能なLeanstral 1.5モデルがリリース</title>
+      <description>MistralがLeanstral 1.5という新しいAIモデルをリリースしました。
+軽量で効率的な設計により、リソース制限がある環境での利用に適しています。
+Hacker Newsで102ポイントを獲得し、開発者からの注目を集めています。</description>
+      <link>https://docs.mistral.ai/models/model-cards/leanstral-1-5-26-06</link>
+      <pubDate>Tue, 30 Jun 2026 20:44:56 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48738938</guid>
+    </item>
+    <item>
+      <title>[翻訳] 東京に残る2軒の麦茶職人—伝統的な麦茶製造の現場を訪問</title>
+      <description>東京には麦茶を製造する職人がわずか2軒しか残っていない。
+記者が実際にその一軒を訪問し、伝統的な麦茶製造の工程を取材した。
+日本の伝統的な飲料文化と職人技術の継承の課題が浮き彫りになっている。</description>
+      <link>https://soranews24.com/2026/06/30/tokyo-has-only-two-barley-tea-makers-and-we-visited-one-to-see-how-mugicha-is-made/</link>
+      <pubDate>Tue, 30 Jun 2026 19:47:24 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48738262</guid>
+    </item>
+    <item>
+      <title>[翻訳] Anthropic、AI アシスタント「Claude Sonnet 5」を発表</title>
+      <description>Anthropic が新世代の AI モデル「Claude Sonnet 5」を発表。
+Hacker News で高い関心を集め、889 ポイント、499 件のコメントを獲得。
+詳細は Anthropic の公式ニュースページで確認可能。</description>
+      <link>https://www.anthropic.com/news/claude-sonnet-5</link>
+      <pubDate>Tue, 30 Jun 2026 17:59:52 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48736605</guid>
+    </item>
+    <item>
+      <title>[翻訳] ミリ波を使った材質判定レーダーを自作してみた</title>
+      <description>ミリ波技術を用いて、異なる材質を識別できるレーダーシステムを構築したプロジェクト。
+電磁波を利用して材料の特性を検出し、分類する仕組みを実装。
+Hacker Newsで142ポイント、38件のコメントを獲得した注目の技術記事。</description>
+      <link>https://gauthier-lechevalier.com/radar</link>
+      <pubDate>Tue, 30 Jun 2026 17:29:36 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48736137</guid>
+    </item>
+    <item>
+      <title>[翻訳] AnthropicがClaudeの科学研究向け新機能「Claude Science」を発表</title>
+      <description>AnthropicがAI助手Claudeに科学研究を支援する専門機能を追加した新製品「Claude Science」をリリースした。
+科学論文の分析、データの可視化、実験結果の解釈など、研究者向けの高度な機能を備えている。
+Hacker Newsで高い関心を集め、371ポイント、122件のコメントを獲得している。</description>
+      <link>https://claude.com/product/claude-science</link>
+      <pubDate>Tue, 30 Jun 2026 17:07:41 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48735770</guid>
+    </item>
+    <item>
+      <title>[翻訳] 13歳の少年が開発したアリコロニー追跡アプリ</title>
+      <description>13歳の少年がAIツールの支援を受けながら、自分のアリの飼育状況を管理するアプリを自作しました。
+成長、給餌、湿度などの指標をリアルタイムで追跡でき、父親がサーバーへのデプロイを手伝いました。
+開発者は、ユーザーからのフィードバックを求めており、若年層によるプログラミング学習と実践の好例として注目を集めています。</description>
+      <link>https://formicarium.es</link>
+      <pubDate>Tue, 30 Jun 2026 16:48:47 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48735446</guid>
+    </item>
+    <item>
+      <title>[翻訳] Google、軽量版の高性能AI画像モデル「Gemini Flash Lite」を発表</title>
+      <description>GoogleがGemini画像モデルの軽量版「Flash Lite」をリリースし、より高速で効率的な画像処理を実現。
+低リソース環境やモバイルデバイスでの利用に最適化された新バージョンにより、AI機能の普及が加速。
+Hacker Newsで308ポイントを獲得し、120件のコメントで活発な議論が展開中。</description>
+      <link>https://deepmind.google/models/gemini-image/flash-lite/</link>
+      <pubDate>Tue, 30 Jun 2026 16:48:37 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48735444</guid>
+    </item>
+    <item>
+      <title>[翻訳] Claudeがコードリクエストにステガノグラフィーで隠しマーキングを施している</title>
+      <description>AnthropicのAIアシスタント「Claude」が、コード生成タスクにおいてステガノグラフィー（隠し書き）技術を使用してリクエストをマーキングしていることが発見された。
+この隠しマーキングはユーザーに見えない形でプロンプトに組み込まれており、モデルの動作を制御するために使用されている可能性がある。
+発見者はこの手法の透明性と倫理的側面について懸念を表明しており、Hacker Newsで大きな議論を呼んでいる。</description>
+      <link>https://thereallo.dev/blog/claude-code-prompt-steganography</link>
+      <pubDate>Tue, 30 Jun 2026 15:44:24 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48734373</guid>
+    </item>
+    <item>
+      <title>[翻訳] コンピューターの再起動は週に1回の習慣にしよう</title>
+      <description>定期的なコンピューター再起動の重要性について扱った記事。
+システムのパフォーマンス維持やセキュリティ面でのメリットが議論されている。
+Hacker Newsで115ポイント、220件のコメントを集め、高い関心を示している。</description>
+      <link>https://taonaw.com/2026/06/27/have-you-restarted-your-computer.html</link>
+      <pubDate>Tue, 30 Jun 2026 14:15:29 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48733043</guid>
+    </item>
+    <item>
+      <title>[翻訳] Knoppix - ライブLinuxディストリビューション</title>
+      <description>Knoppixはブートメディアから直接起動できるLinuxディストリビューション。
+ハードドライブへのインストール不要で、CDやUSBメモリから実行可能。
+システム管理やディザスタリカバリなど様々な用途で活用されている。</description>
+      <link>https://www.knopper.net/knoppix/index-en.html</link>
+      <pubDate>Tue, 30 Jun 2026 12:54:01 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48732056</guid>
+    </item>
+    <item>
+      <title>[翻訳] 1852年の古典『異常な大衆幻想と群衆の狂気の回想録』がProject Gutenbergで公開</title>
+      <description>19世紀の古典著作『Memoirs of Extraordinary Popular Delusions and the Madness of Crowds』がProject Gutenbergで無料公開されている。
+歴史的な投機バブルや大衆心理現象を分析した重要な文献で、Hacker Newsで注目を集めている。
+170ポイント、54件のコメントを獲得し、技術コミュニティの間で人気がある。</description>
+      <link>https://www.gutenberg.org/ebooks/24518</link>
+      <pubDate>Tue, 30 Jun 2026 12:47:51 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48731989</guid>
+    </item>
+    <item>
+      <title>[翻訳] Loko Scheme バージョン0.13.0がリリース</title>
+      <description>Loko Schemeの新バージョン0.13.0がリリースされました。
+このScheme処理系の最新アップデートについての詳細情報が記事で紹介されています。
+Hacker Newsで14ポイントを獲得し、コミュニティから関心を集めています。</description>
+      <link>https://weinholt.se/articles/loko-scheme-0-13-0/</link>
+      <pubDate>Tue, 30 Jun 2026 02:39:56 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48727953</guid>
+    </item>
   </channel>
 </rss>
