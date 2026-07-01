@@ -1,30 +1,42 @@
-# rss-feed-translator
+<p align="center">
+  <img src="docs/images/logo.svg" alt="rss-feed-translator" width="420">
+</p>
+<p align="center">
+    <em>海外ITニュースを自動翻訳・要約して、日本語RSSフィードとして配信するサーバーレスシステム。</em>
+</p>
+<p align="center">
+  <a href="https://github.com/ryu1/rss-feed-translator/actions/workflows/update-rss.yml">
+    <img src="https://github.com/ryu1/rss-feed-translator/actions/workflows/update-rss.yml/badge.svg" alt="Update RSS">
+  </a>
+  <a href="https://github.com/ryu1/rss-feed-translator/actions/workflows/test.yml">
+    <img src="https://github.com/ryu1/rss-feed-translator/actions/workflows/test.yml/badge.svg" alt="Test">
+  </a>
+  <a href="https://github.com/ryu1/rss-feed-translator">
+    <img src="https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white" alt="Python">
+  </a>
+  <a href="https://ryu1.github.io/rss-feed-translator/report.html">
+    <img src="https://img.shields.io/badge/Review_Report-GitHub_Pages-22863A?logo=github&logoColor=white" alt="Report">
+  </a>
+</p>
 
-![banner](docs/images/banner.svg)
+---
 
-[![Update RSS](https://github.com/ryu1/rss-feed-translator/actions/workflows/update-rss.yml/badge.svg)](https://github.com/ryu1/rss-feed-translator/actions/workflows/update-rss.yml)
-[![Test](https://github.com/ryu1/rss-feed-translator/actions/workflows/test.yml/badge.svg)](https://github.com/ryu1/rss-feed-translator/actions/workflows/test.yml)
-![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
-![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-deployed-22863A?logo=github&logoColor=white)
-![Google Translate](https://img.shields.io/badge/Translated_by-Google_Translate-4285F4?logo=googletranslate&logoColor=white)
-![Claude](https://img.shields.io/badge/Summarized_by-Claude_Haiku-D97706?logo=anthropic&logoColor=white)
+**RSSフィード**: [Ars Technica](https://ryu1.github.io/rss-feed-translator/feed/ars-technica.xml) · [Hacker News](https://ryu1.github.io/rss-feed-translator/feed/hacker-news.xml) · [DEV Community](https://ryu1.github.io/rss-feed-translator/feed/dev-community.xml) · [InfoQ](https://ryu1.github.io/rss-feed-translator/feed/infoq.xml)
 
-海外の英語RSSフィードを日本語に翻訳し、GitHub Pages で配信するシステムです。
+**翻訳・要約レポート**: [report.html](https://ryu1.github.io/rss-feed-translator/report.html)
 
-## RSSフィード
+---
 
-フィードごとに個別のXMLファイルを生成・公開しています。
+英語の海外ITニュースを毎日自動で日本語に翻訳・要約し、Feedlyなどのフィードリーダーで購読できる形式で配信します。
 
-| フィード | URL |
-|---|---|
-| Ars Technica | `https://ryu1.github.io/rss-feed-translator/feed/ars-technica.xml` |
-| Hacker News | `https://ryu1.github.io/rss-feed-translator/feed/hacker-news.xml` |
-| DEV Community | `https://ryu1.github.io/rss-feed-translator/feed/dev-community.xml` |
-| InfoQ | `https://ryu1.github.io/rss-feed-translator/feed/infoq.xml` |
+主な特長:
 
-## レビューレポート
-
-翻訳・要約の精度を確認できます: [report.html](https://ryu1.github.io/rss-feed-translator/report.html)
+- **自動翻訳**: Google Translate API でタイトルと説明文を日本語に翻訳
+- **AI要約**: Claude Haiku（Amazon Bedrock）で自然な日本語タイトルと3行要約を生成
+- **差分更新**: 翻訳済み記事はキャッシュし、新着記事のみを処理
+- **コスト管理**: 1日あたりの翻訳文字数に上限を設定可能
+- **サーバーレス**: GitHub Actions + GitHub Pages のみで運用。追加インフラ不要
+- **1日2回自動更新**: JST 9:00・12:00 に自動実行（手動実行も可）
 
 ## ドキュメント
 

@@ -1,0 +1,24 @@
+<svg width="420" height="80" viewBox="0 0 420 80" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .title { fill: #0f172a; }
+    .sub   { fill: #64748b; }
+    @media (prefers-color-scheme: dark) {
+      .title { fill: #f1f5f9; }
+      .sub   { fill: #94a3b8; }
+    }
+  </style>
+
+  <!-- RSS icon -->
+  <rect x="0" y="12" width="56" height="56" rx="12" fill="#f97316"/>
+  <circle cx="16" cy="52" r="6" fill="white"/>
+  <path d="M14 40 Q28 40 28 54" stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M14 29 Q41 29 41 56" stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Title -->
+  <text x="72" y="40" font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
+        font-size="28" font-weight="700" letter-spacing="-0.5" class="title">rss-feed-translator</text>
+
+  <!-- Subtitle -->
+  <text x="73" y="62" font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
+        font-size="15" class="sub">海外ITニュースを自動翻訳・要約して日本語RSSフィードとして配信</text>
+</svg>
