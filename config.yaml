@@ -33,3 +33,7 @@ cache:
   path: cache/translated.json
   http_cache_path: cache/http_cache.json
   char_usage_path: cache/char_usage.json
+
+report:
+  output_path: docs/report.html
+  items_per_feed: 10

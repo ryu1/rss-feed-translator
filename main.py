@@ -18,6 +18,7 @@ from src.exceptions import TranslationSkippedError
 from src.fetcher import fetch_all_feeds
 from src.generator import generate_rss
 from src.models import Article, FeedConfig, TranslatedArticle
+from src.report_generator import generate_report
 from src.summarizer import get_summarizer, summarize_with_retry
 from src.translator import MAX_DESCRIPTION_CHARS, get_translator, translate_articles
 
@@ -78,6 +79,10 @@ def main() -> None:
     cache_path = cache_config.get("path", "cache/translated.json")
     http_cache_path = cache_config.get("http_cache_path", "cache/http_cache.json")
     char_usage_path = cache_config.get("char_usage_path", "cache/char_usage.json")
+
+    report_config: dict[str, object] = config.get("report", {})  # type: ignore[assignment]
+    report_output_path = str(report_config.get("output_path", "docs/report.html"))
+    report_items_per_feed = int(str(report_config.get("items_per_feed", 10)))
 
     translated_cache = load_translated_cache(cache_path)
     http_cache = load_http_cache(http_cache_path)
@@ -297,6 +302,13 @@ def main() -> None:
             )
         except Exception as e:
             logger.error("Failed to generate RSS for %s: %s", feed.name, e)
+
+    try:
+        generate_report(
+            all_translated, report_output_path, items_per_feed=report_items_per_feed
+        )
+    except Exception as e:
+        logger.warning("Failed to generate report: %s", e)
 
     elapsed = time.time() - start
     logger.info(
