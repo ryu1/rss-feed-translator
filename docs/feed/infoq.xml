@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss version="2.0">
+  <channel>
+    <title>InfoQ</title>
+    <description>InfoQ 日本語翻訳フィード</description>
+    <link>https://www.infoq.com</link>
+    <item>
+      <title>[翻訳] Javaリアルタイムシステムのスケーリング：イベント駆動設計の隠れたトレードオフ</title>
+      <description>イベント駆動アーキテクチャはスケーラビリティを約束しているが、Java/Kafkaベースのリアルタイムシステムではトレードオフが本番環境で顕在化する。
+80,000BHCCを扱う1万エージェント規模のコンタクトセンタープラットフォームの事例から、ステート管理、パーティション制限、重複排除、JVMチューニング、カスケード式の消費者障害などの設計上の問題点と対策を詳解。
+Redis連携パターンでこれらの課題がどのように解決されたかを具体的に紹介。</description>
+      <link>https://www.infoq.com/articles/tradeoffs-event-driven-design/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Tue, 30 Jun 2026 09:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/articles/tradeoffs-event-driven-design/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Java週間ニュース：Hardwood 1.0、Endive 1.0、Azul Payara、Quarkus、WildFly、LangChain4jなど</title>
+      <description>Hardwood 1.0とEndive 1.0の正式版リリース、Azul Payara 2026年6月版、Quarkus and LangChain4jのポイントリリースが発表された。
+WildFly 41の初ベータ版がリリースされた。
+HeroDevsとCommonhaus Foundationが設立したEliya JDKとOpen Source Sustainability Initiative（OSSI）が新たに紹介された。</description>
+      <link>https://www.infoq.com/news/2026/06/java-news-roundup-jun22-2026/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Mon, 29 Jun 2026 23:30:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/java-news-roundup-jun22-2026/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Eliya 25がOpenJDK 25 LTSに本番環境向け診断プロファイルをもたらす</title>
+      <description>Asymm Systemsが、Java環境の本番診断機能を強化するOpenJDK 25 LTSディストリビューション「Eliya 25.0.3」をリリースした。\nHotSpotの複数機能をオプション機能の本番プロファイルに統合し、チームが信頼性の高い診断データを取得できるよう設計されている。\n規制が厳しい環境でのニーズに対応し、Phase 2での機能拡張も予定されている。</description>
+      <link>https://www.infoq.com/news/2026/06/eliya-jvm-diagnostic-profile/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Mon, 29 Jun 2026 14:50:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/eliya-jvm-diagnostic-profile/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Targetのマーケティング予測システムにおける生成AIを活用したセマンティックマッチング技術</title>
+      <description>Targetが生成AIシステムを開発し、過去のキャンペーンデータから類似事例を検索・ランク付けすることでマーケティングキャンペーン予測を改善。
+エンベディング、ベクトル検索、LLMランキングを組み合わせ、従来のルールベースワークフローを置き換え、トップ1で75%、トップ3で100%のカバレッジを実現。
+手作業の削減、一貫性向上を達成し、キャンペーン結果からのフィードバックループにより検索精度を継続的に改善。</description>
+      <link>https://www.infoq.com/news/2026/06/target-ai-campaign-forecasting/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Mon, 29 Jun 2026 14:26:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/target-ai-campaign-forecasting/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] 100万枚のPDF生成：RustとTypstで実現するモダンなドキュメント基盤</title>
+      <description>銀行や製造業などの規制対象業界における従来のPDF生成の課題と、Puppeteer、LaTeXなどのリソース集約的なエンジンからServerless Rust + Typst アーキテクチャへの移行により、レンダリング遅延を2ms以下に削減する方法を紹介。
+GitやDockerの概念をテンプレートレジストリに適用することで、コンプライアンス対応と迅速なデバッグを実現するアプローチについて解説。
+大規模PDF生成システムにおけるパフォーマンス最適化と運用効率化の実践的な事例共有。</description>
+      <link>https://www.infoq.com/presentations/document-infrastructure-rust-typst/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Mon, 29 Jun 2026 12:35:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/presentations/document-infrastructure-rust-typst/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] AI時代のセキュリティ：機械学習の脅威進化に関する専門家パネル</title>
+      <description>AI駆動型脅威の進化について、プロンプトインジェクション、データポイズニング、エージェント悪用、AI活用した社会工学的攻撃など新たな攻撃パターンを検討するパネル討論。
+セキュリティチームが直面する新たなインシデント対応の課題と、AIシステムの自律性の向上および重要ワークフローへの統合に伴う対策の必要性を探究。
+複数のAIセキュリティ専門家が、組織のセキュリティ体制の変革について洞察を提供。</description>
+      <link>https://www.infoq.com/articles/security-ai-threat-evolution/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Mon, 29 Jun 2026 11:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/articles/security-ai-threat-evolution/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] ポッドキャスト：クラウドネイティブから地域優先へ - アーキテクチャパターンの進化（Adam Wiggins解説）</title>
+      <description>Heroku共同創設者のAdam Wigginsが、クラウドベースのコラボレーション機能とローカルソフトウェアのパフォーマンス・データ所有権を両立させる「地域優先」アーキテクチャの必要性を主張。
+CRDTとバージョン管理の仕組みをコード以外の領域に適用する可能性や、ハイブリッドなAI環境での活用について探討。
+今後の生産性向上ツールにおいて、ローカルモデルがどのような役割を果たしうるかについて考察。</description>
+      <link>https://www.infoq.com/podcasts/natural-evolution-cloud-native/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Mon, 29 Jun 2026 11:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/podcasts/natural-evolution-cloud-native/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIツールがコード作成は高速化するも、ソフトウェア配信全体では効果なし―GitLab調査</title>
+      <description>GitLabの2026年AI責任報告書によると、開発者の78%がコード作成速度の向上を報告している一方で、全体的なソフトウェア配信速度は加速していない。
+テスト・レビュー段階のボトルネック、エンタープライズレベルのガバナンスと追跡可能性の課題が、全体的な効率改善を阻害している。
+この調査は、AIツール導入による部分的な効率化が、統合的なソフトウェア配信プロセス全体では十分な改善につながっていない実態を示唆している。</description>
+      <link>https://www.infoq.com/news/2026/06/ai-coding-outpaces-governance/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Mon, 29 Jun 2026 08:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/ai-coding-outpaces-governance/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Swift 6.4がテスト機能の相互運用性と新しい言語機能を強化</title>
+      <description>Swift 6.4がXcode 27ベータで利用可能になり、C言語との相互運用性の改善やOS可用性チェックの簡素化などの機能強化が実装された。
+defer内でのasync対応、非コピー可能型の効率的なイテレーション、URL解析の最大4倍高速化など複数の パフォーマンス改善が含まれる。
+Swift TestingとXCTestの相互運用性が改善され、テストツール間の連携がより柔軟になった。</description>
+      <link>https://www.infoq.com/news/2026/06/swift-6-4-beta-features/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Sun, 28 Jun 2026 08:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/swift-6-4-beta-features/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] AWSが費用分析と最適化を自動化する「FinOps Agent」をプレビュー公開</title>
+      <description>AmazonがFinOps Agentをパブリックプレビューで公開し、一般的なFinOpsワークフローを自動化する管理サービスを提供開始。
+このエージェントは費用異常の調査、支出変化とAWSアクティビティデータの関連付け、および分析結果の自動レポーティングを実現。
+SlackやJiraなどのツールと統合でき、検出結果をリソースオーナーへ自動的にルーティング可能。</description>
+      <link>https://www.infoq.com/news/2026/06/aws-finops-agent/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Sun, 28 Jun 2026 05:55:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/aws-finops-agent/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] AWSが自動化された証明書とシークレット管理のためのワークロード認証情報プロバイダーを発表</title>
+      <description>AWSが、アプリケーション向けに証明書とシークレットを自動で配信・更新するワークロード認証情報プロバイダーを発表しました。
+このオープンソースツールはカスタム自動化の必要性を低減し、証明書失効による障害の防止に役立ちます。
+AWS環境と非AWS環境の両方で動作します。</description>
+      <link>https://www.infoq.com/news/2026/06/aws-credentials-provider/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Sat, 27 Jun 2026 11:04:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/aws-credentials-provider/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] VercelがAIエージェント構築用のオープンソースフレームワーク「Eve」を発表</title>
+      <description>VercelがAIエージェントの構築・デプロイ・運用を行うためのオープンソースフレームワーク「Eve」をリリース。
+ファイルシステムベースの構造でエージェント命令、ツール、スキル、サブエージェント、通信チャネル、スケジュール化タスクを整理可能。
+開発者はエージェントの動作を定義しながら、必要なインフラストラクチャの実装を最小化できる。</description>
+      <link>https://www.infoq.com/news/2026/06/vercel-eve-agents/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 26 Jun 2026 16:39:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/vercel-eve-agents/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIは機能するが、プルリクエストは機能しない：AIがSDLCを破壊する理由と対策</title>
+      <description>ヘッドレスAIエージェントの台頭により、ソフトウェア配信パイプラインに大きな影響が生じている。
+AIが生成する大量のプルリクエストがレビュアーのボトルネックになり、技術負債が蓄積されている。
+テスト影響分析と自動検証パイプラインを活用することで、安定性を損なわずにAIの出力を検証できる。</description>
+      <link>https://www.infoq.com/presentations/ai-sdlc-pull-request/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 26 Jun 2026 14:17:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/presentations/ai-sdlc-pull-request/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Dapr 1.18で検証可能な実行が実現 - AIエージェントとワークフローに暗号学的な信頼性をもたらす</title>
+      <description>Diagridが、Dapr 1.18をリリースし、分散アプリケーションとAIエージェント向けに暗号学的信頼性、出処証明、改ざん検知機能を提供する「検証可能な実行」機能を導入した。\nこの新機能により、ワークフローの実行記録に対して改ざん防止の能力を付与し、AIエージェントの信頼性が向上する。\n暗号学的手法を用いることで、分散システムにおける実行の透明性と整合性が確保される。</description>
+      <link>https://www.infoq.com/news/2026/06/dapr-1-18-cryptographic-ai/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 26 Jun 2026 12:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/dapr-1-18-cryptographic-ai/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Argo CD 3.5がmTLSとコミット署名検証でサプライチェーンセキュリティを強化</title>
+      <description>Argo CD v3.5がリリース候補版として公開され、内部コンポーネント間の相互TLS（mTLS）の強制が追加されました。
+Gitコミット署名検証機能とUIでのネイティブApplicationSet管理が新たに実装されています。
+ImpersonationとSource Hydratorという2つの重要機能がアルファ版からベータ版に昇格しました。</description>
+      <link>https://www.infoq.com/news/2026/06/argocd-supply-chain-security/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 26 Jun 2026 12:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/argocd-supply-chain-security/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+  </channel>
+</rss>
