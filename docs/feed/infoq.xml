@@ -5,6 +5,46 @@
     <description>InfoQ 日本語翻訳フィード</description>
     <link>https://www.infoq.com</link>
     <item>
+      <title>[翻訳] 信頼できる生産性の実現：AI駆動開発のセキュリティ確保</title>
+      <description>自律型AIエージェントを本番環境で安全に運用するための業界横断的なセキュリティパターンについての講演。
+ReActループ内のコンテキスト、推論、ツール実行に潜む重大な脆弱性と、メモリ汚染や不正なツール実行などのリスク要因を解説。
+多層防御戦略、LLM判定機構、MAESTRO脅威モデリングを活用したリスク軽減手法を紹介。</description>
+      <link>https://www.infoq.com/presentations/ai-development/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Tue, 30 Jun 2026 14:35:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/presentations/ai-development/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Elasticが認知科学に基づくエージェント用メモリシステム「Atlas」をオープンソース化</title>
+      <description>ElasticがElasticsearchを基盤とした「Atlas」をオープンソース化し、AIエージェント向けの3段階のメモリ管理システムを提供。
+AtlasはMCP経由でエージェントと統合でき、ユーザーごとのメモリ隔離を実現。
+質問応答の評価テストではRecall@10で0.89を達成し、高い性能を示している。</description>
+      <link>https://www.infoq.com/news/2026/06/elastic-atlas-agent-memory/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Tue, 30 Jun 2026 13:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/elastic-atlas-agent-memory/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Microsoft、Azure DevOpsにCopilot Autofixを導入し脆弱性の自動修復をAI化</title>
+      <description>MicrosoftがGitHub Advanced Security for Azure DevOps向けのCopilot Autofixの限定パブリックプレビューを発表した。
+この機能により、Azure Reposを使用するチームがAI駆動の脆弱性自動修復に対応できるようになる。
+開発者はセキュリティ脆弱性の検出から修正まで、より効率的にワークフロー内で対応することが可能になる。</description>
+      <link>https://www.infoq.com/news/2026/06/azuredevops-copilot-autofix/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Tue, 30 Jun 2026 12:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/azuredevops-copilot-autofix/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] AWSがLambda MicroVMsを発表 — エージェントとユーザーコードの分離実行に対応</title>
+      <description>AWSが新しいサーバーレスコンピュート基盤「Lambda MicroVMs」をリリース。各ユーザーセッションやAIエージェントを独立したFirecracker仮想マシンで実行し、ハードウェアレベルの分離と高速起動を実現。
+スナップショットベースの迅速な起動と最大8時間の状態保存が可能で、エンタープライズグレードのセキュリティを提供。
+Redditコミュニティの分析によると、最小構成で1日あたり約$3.03の費用がかかり、Fargate Spotの約9倍のコストとなる見込み。</description>
+      <link>https://www.infoq.com/news/2026/06/aws-lambda-microvms/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Tue, 30 Jun 2026 09:09:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/06/aws-lambda-microvms/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
       <title>[翻訳] Javaリアルタイムシステムのスケーリング：イベント駆動設計の隠れたトレードオフ</title>
       <description>イベント駆動アーキテクチャはスケーラビリティを約束しているが、Java/Kafkaベースのリアルタイムシステムではトレードオフが本番環境で顕在化する。
 80,000BHCCを扱う1万エージェント規模のコンタクトセンタープラットフォームの事例から、ステート管理、パーティション制限、重複排除、JVMチューニング、カスケード式の消費者障害などの設計上の問題点と対策を詳解。

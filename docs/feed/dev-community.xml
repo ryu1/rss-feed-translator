@@ -5,6 +5,122 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] Antigravity 2.0とGoogle Cloudでエンタープライズ対応のマルチエージェントAIシステムを構築する</title>
+      <description>GoogleのAntigravity 2.0はAIエージェント開発プラットフォームであり、Model Context Protocol(MCP)とGoogle Cloudデータサービスを統合することで、スケーラブルで本番対応のAIアプリケーションを実現します。
+Antigravity 2.0は単一のアシスタントではなく、複数の専門化されたエージェントを協調させ、データベース、API、ファイルストレージなど様々なエンタープライズシステムに安全にアクセスできるマルチエージェントオーケストレーションプラットフォームです。
+MCPサーバーを活用することで、カスタム統合を最小化しながら、IAM、監査ログ、VPCセキュリティコントロールなどのセキュリティ機能を備えた、保守性の高いモジュール型アーキテクチャが実現できます。</description>
+      <link>https://dev.to/gde/the-connected-agent-scaling-antigravity-20-with-google-cloud-data-services-and-model-context-bk0</link>
+      <pubDate>Wed, 01 Jul 2026 01:58:30 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/gde/the-connected-agent-scaling-antigravity-20-with-google-cloud-data-services-and-model-context-bk0</guid>
+    </item>
+    <item>
+      <title>[翻訳] ChatbotからAIエージェントへ：LLMにどのような機能を追加するのか</title>
+      <description>基本的なLLMは入力テキストに対して出力テキストを返すだけだが、System Prompt、Tool Calling、Loop、Memory、Reasoning、Skills、Multi-Agentなど7つのレイヤーを積み重ねることで、Webを検索したりファイルを操作し、複数ステップの作業を自動実行できるAIエージェントに進化させることができる。
+LLMに「仕事内容」「ツール」「記憶」「思考プロセス」「経験」「チーム」を段階的に追加していくことで、単なる質問応答システムから自立的に動作するエージェントへと変わっていく。
+結果として、Agentic AIは LLM本体の知能が優れているのではなく、実行可能な「ツール」と継続的に「行動」できる設計が本質的な違いであり、MCP、RAG、ACPなどの標準プロトコルはこの基本構造の上に成り立っている。</description>
+      <link>https://dev.to/gophernment/cchaak-chatbot-thrrmdaa-suu-ai-thiithamngaanaethneraaaid-eraaetimaairekhaaaipbaang-4ilg</link>
+      <pubDate>Wed, 01 Jul 2026 01:30:51 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/gophernment/cchaak-chatbot-thrrmdaa-suu-ai-thiithamngaanaethneraaaid-eraaetimaairekhaaaipbaang-4ilg</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIエージェントに地盤沈下を検知させる：SibFly + LangChainで衛星計測データを活用</title>
+      <description>SibFlyを使用することで、衛星レーダー干渉計測(InSAR)から得られた実測地盤変動データ(mm/年単位)をAIエージェントに統合し、予測モデルではなく実際の地盤沈下・隆起を検知できます。
+LangChainエージェントへの統合は約30行のコードで実現でき、NASAの公開データを活用して米国内の物件リスク評価を高度化します。
+ミスアクセスは無料、実測データの取得は1件$0.40で、ドライラン機能やMCPサーバーも提供されており、スクリーニング目的での地盤リスク評価に活用できます。</description>
+      <link>https://dev.to/jamessib/tell-your-ai-agent-if-the-ground-is-sinking-measured-ground-motion-with-sibfly-langchain-2dc1</link>
+      <pubDate>Wed, 01 Jul 2026 01:19:15 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/jamessib/tell-your-ai-agent-if-the-ground-is-sinking-measured-ground-motion-with-sibfly-langchain-2dc1</guid>
+    </item>
+    <item>
+      <title>[翻訳] ステージング環境では完璧だったエージェントが本番環境で初実行時に失敗——ドライラン機能の実装から学んだ教訓</title>
+      <description>ステージング環境では100回のテストに成功したエージェントが本番環境での初回実行時に障害を発生させ、4時間のロールバックを強いられた経験から、ドライラン機能を構造的要件として実装する重要性を学んだ。
+エージェントの非決定的な実行経路とモック応答による誤ったコンテキスト共有が根本原因で、解決策として特定のrunIdでドライラン開始時にフラグを設定し、その実行内で後続するすべての書き込み操作をドライランモードに強制する実装を採用した。
+KVの障害時には標準的なフォールスルー動作がドライランフラグを無視するため、エージェント障害とは別にフック失敗の監視が必要であり、これらの設計パターンの限界についても詳細に解説している。</description>
+      <link>https://dev.to/riversea/my-agent-dry-ran-fine-in-staging-100-times-then-wrecked-production-on-the-first-real-run-10cc</link>
+      <pubDate>Wed, 01 Jul 2026 01:12:19 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/riversea/my-agent-dry-ran-fine-in-staging-100-times-then-wrecked-production-on-the-first-real-run-10cc</guid>
+    </item>
+    <item>
+      <title>[翻訳] wrangler dev --remoteでうっかり本番KVを更新してしまう問題と対策</title>
+      <description>wrangler.tomlでpreview_idフィールドを指定しないと、--remoteオプション使用時に開発環境からのデータ書き込みが本番環境のKVネームスペースに直接反映されてしまう危険がある。
+preview_idに開発用ネームスペースを指定することで本番環境を保護でき、同時にローカルシミュレーションとリモート環境の動作差異（最終的一貫性など）を実際にテストできる。
+リモートKVはAPI呼び出しレートに上限があり、シード処理時には1分あたり約1000回以上の書き込みでレート制限が発生するため注意が必要。</description>
+      <link>https://dev.to/riversea/wrangler-dev-remote-silently-writes-to-your-production-kv-namespace-heres-the-fix-2c6p</link>
+      <pubDate>Wed, 01 Jul 2026 01:08:50 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/riversea/wrangler-dev-remote-silently-writes-to-your-production-kv-namespace-heres-the-fix-2c6p</guid>
+    </item>
+    <item>
+      <title>[翻訳] プライバシーは自分で守るしかない—実践的なツール構築ガイド</title>
+      <description>大企業や政府によるプライバシー侵害から身を守るために、ユーザー自身がツールを構築する必要があると主張する記事。VPNやプライバシーダッシュボードといった既存ソリューションは実質的な保護をもたらさず、データ抽出の仕組みは設計通りに機能しているに過ぎない。\nRaspberry Piと開源ソフトウェアを用いて、個人用クラウド、ローカルLLM、DNS フィルタリング、パスワード管理など、自分がコントロール可能なプライバシー基盤を数百ドルで構築可能であることを実例とともに提案。\n脅威モデルの作成、オペレーションセキュリティの実践、信頼できる仲間とのコミュニティ形成を通じて、個人の技術的自主性を取り戻すことが真のプライバシー保護につながるとまとめている。</description>
+      <link>https://dev.to/numbpill3d/nobody-is-coming-to-save-your-privacy-build-the-tools-yourself-4ie</link>
+      <pubDate>Wed, 01 Jul 2026 01:08:42 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/numbpill3d/nobody-is-coming-to-save-your-privacy-build-the-tools-yourself-4ie</guid>
+    </item>
+    <item>
+      <title>[翻訳] 読んだ記事の20%しか実際に活用できていない。その理由と解決策を分析した</title>
+      <description>90日間に340件の記事を保存したが、実際に使った知識はわずか20%（68件）だった。著者は問題の原因を徹底調査した結果、週1回のレビューではなく、情報の鮮度が1週間で急速に低下することが主な原因と判明した。\n解決策は「読んだ直後に自分の言葉で1文を書く」というシンプルなルールの実装。この90秒のアノテーション作業により、完了率が8%から55%に向上し、4ヶ月のレビュー改善より効果的だった。\nさらにObsidianの`decay-date`フィールドで14日の期限を設定し、期限切れ前に昇格されない情報は自動アーカイブする仕組みを導入。この「見える期限」により、実際に活用される知識の率が大幅に改善した。</description>
+      <link>https://dev.to/riversea/i-audited-340-reading-captures-only-20-ever-became-knowledge-i-actually-used-3imp</link>
+      <pubDate>Wed, 01 Jul 2026 01:07:02 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/riversea/i-audited-340-reading-captures-only-20-ever-became-knowledge-i-actually-used-3imp</guid>
+    </item>
+    <item>
+      <title>[翻訳] エージェントの再試行が顧客の二重課金を招く問題と、その防止方法</title>
+      <description>AIエージェントがツール呼び出し時にネットワークタイムアウトが発生すると、サーバー上では正常に完了していても再試行により同じ処理が2回実行される問題が生じる。モデルの指示だけでは防げないため、ハーネスが生成するべき冪等性キー（idempotency key）により、再試行時に前回の結果を再利用する設計が必須である。
+この問題は「Tier 1評価」（外部から検証可能で改ざん不可な証拠）として扱うべきで、AgentLensで記録した追跡データとagent-evalによる検証を組み合わせることで、実際に1回だけ課金されたことを確認できる。
+モデルの判断力に頼るのではなく、冪等性キー・Tier1チェック・改ざん不可の追跡ログの3つで80%の本番環境バグを防ぎ、モデル判定は主観的判断（払戻が適切か等）の20%にだけ限定すべきである。</description>
+      <link>https://dev.to/saurav_bhattacharya/your-agents-retries-are-double-charging-your-users-and-every-eval-is-green-3ija</link>
+      <pubDate>Wed, 01 Jul 2026 01:02:51 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/saurav_bhattacharya/your-agents-retries-are-double-charging-your-users-and-every-eval-is-green-3ija</guid>
+    </item>
+    <item>
+      <title>[翻訳] HTTP Basic認証で保護されたWordPressサイトのメンテナンス — Playwright、urllib、暗号化された認証情報</title>
+      <description>HTTP Basic認証で保護されたWordPressサイトのメンテナンスツールは、SSH/WP-CLIパスは動作するが、Playwrightとurllibを使用するHTTPベースの処理は401エラーで失敗する「半動作・半破損」の非対称性を抱えている。
+認証情報の抽出ロジックを一つのヘルパーモジュールに集約し、Playwrightとurllib両方のパスで同じ(username, password)タプルを元に、それぞれの形式に変換することで、認証情報の形式ズレを防止できる。
+既存サイト設定との互換性を保つため空文字列フォールバックパターンを用い、パスワードはFernet暗号化で保存し、UIでは「🔐 Basic Auth (optional)」を折りたたみ要素で非表示にすることで、99%の非対応サイトへの影響を最小化している。</description>
+      <link>https://dev.to/susumun/maintaining-wordpress-sites-behind-http-basic-auth-playwright-urllib-and-encrypted-credentials-5f2f</link>
+      <pubDate>Wed, 01 Jul 2026 00:56:50 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/susumun/maintaining-wordpress-sites-behind-http-basic-auth-playwright-urllib-and-encrypted-credentials-5f2f</guid>
+    </item>
+    <item>
+      <title>[翻訳] ログ管理のコスト削減：70%削減を実現しながらシグナル品質を維持する方法</title>
+      <description>月12,000ドルのログ費用のうち実際に必要な情報は5%に過ぎなかったため、ログレベルの動的制御、階層型保持ポリシー、構造化ログ、サンプリングの4つの戦略を実施。
+結果として日次取り込み量を2TBから400GBに削減し、月額コストを70%削減（$12,000から$3,600）しながらシグナル品質を5%から70%に向上。
+本来の方針は「インシデント時に見る必要がなければDEBUGレベル以下」とし、ノイズを減らしてログ検索を高速化し問題解決を迅速化。</description>
+      <link>https://dev.to/samson_tanimawo/log-management-at-scale-how-we-cut-costs-70-without-losing-signal-1k1j</link>
+      <pubDate>Wed, 01 Jul 2026 00:55:38 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/samson_tanimawo/log-management-at-scale-how-we-cut-costs-70-without-losing-signal-1k1j</guid>
+    </item>
+    <item>
+      <title>[翻訳] 手動テストの課題を解決するAI搭載QAプラットフォーム「Evaficy Smart Test」をローンチ</title>
+      <description>既存のQAツールは自動化かスプレッドシート的な管理ツールの二者択一に陥っているが、手動テスト業務にはAIの導入が進んでいない状況に対応するため、1年半かけてEvaficy Smart Testを開発した。
+テストケース生成から検証追跡、リスク分析まで手動QA業務全体をカバーするプラットフォームで、AIで生成されたテストケースも手作成されたケースも同じレビュープロセスを通すなど、ユーザーの信頼性を重視した設計が特徴である。
+React・Material UI・Stripeなどで構築され、今日Product Huntでのローンチを発表している。</description>
+      <link>https://dev.to/programmer4web/i-built-an-ai-powered-qa-platform-because-manual-testing-tools-havent-kept-up-launching-on-3h64</link>
+      <pubDate>Wed, 01 Jul 2026 00:54:59 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/programmer4web/i-built-an-ai-powered-qa-platform-because-manual-testing-tools-havent-kept-up-launching-on-3h64</guid>
+    </item>
+    <item>
+      <title>[翻訳] FalkorDBのベクトル検索が動かない理由：db.idx.vector.queryNodesの落とし穴</title>
+      <description>FalkorDBでネイティブベクトル検索を使うには、データが`vecf32()`で変換された真のベクトル型で保存されていることと、そのプロパティにベクトルインデックスが作成されていることの2つの条件が必須です。
+よくある失敗は、埋め込み値をプレーンなリスト型や文字列のまま保存してしまうことで、見た目ではベクトルと区別がつかないため`typeof()`で型を確認することが重要です。
+ベクトルインデックスがないと、クエリが結果を返しても実際にはフルスキャンを行っているため、データ量が増えると大幅に性能が低下します。</description>
+      <link>https://dev.to/eyanpen/a-falkordb-vector-search-gotcha-why-wont-dbidxvectorquerynodes-work-1bio</link>
+      <pubDate>Wed, 01 Jul 2026 00:54:54 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/eyanpen/a-falkordb-vector-search-gotcha-why-wont-dbidxvectorquerynodes-work-1bio</guid>
+    </item>
+    <item>
       <title>[翻訳] 1日1万件のAIパイプラインを構築して学んだ、スケール時の実装課題と対策</title>
       <description>求人情報の説明文を自動生成するAIパイプラインが、1日1万件処理時にAPI費用の問題で停止された経験から、本番環境でのAI導入で重要な実装パターンを紹介。
 関数呼び出しによる構造化出力でハルシネーション防止、モデル選択による23倍のコスト削減、指数バックオフ付き再試行戦略など、スケーラブルなAIパイプライン設計の実践的な知見。

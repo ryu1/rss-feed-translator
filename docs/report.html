@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>翻訳・要約レビューレポート</title>
+<style>
+  body {
+    font-family: sans-serif; max-width: 960px; margin: 0 auto;
+    padding: 1rem; color: #333;
+  }
+  h1 {
+    font-size: 1.4rem; border-bottom: 2px solid #333;
+    padding-bottom: 0.4rem;
+  }
+  h2 {
+    font-size: 1.2rem; margin-top: 2rem;
+    border-left: 4px solid #666; padding-left: 0.6rem;
+  }
+  .meta { color: #666; font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .card {
+    border: 1px solid #ddd; border-radius: 4px;
+    padding: 1rem; margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 1rem; font-weight: bold;
+    margin-bottom: 0.4rem;
+  }
+  .original-title { color: #555; font-size: 0.9rem; }
+  .badge {
+    display: inline-block; font-size: 0.75rem;
+    padding: 0.1rem 0.4rem; border-radius: 3px;
+    background: #f0c040; color: #333; margin-left: 0.5rem;
+  }
+  .label {
+    font-size: 0.8rem; color: #888;
+    margin-top: 0.6rem; margin-bottom: 0.2rem;
+  }
+  .summary { white-space: pre-wrap; font-size: 0.9rem; }
+  .none-text { color: #aaa; font-style: italic; font-size: 0.9rem; }
+  details summary { cursor: pointer; font-size: 0.8rem; color: #555; }
+  details p {
+    font-size: 0.85rem; color: #555;
+    margin: 0.4rem 0 0; white-space: pre-wrap;
+  }
+  .card-footer { margin-top: 0.6rem; font-size: 0.8rem; }
+  .card-footer a { color: #0066cc; }
+  .no-articles { color: #aaa; font-style: italic; }
+</style>
+</head>
+<body>
+<h1>翻訳・要約レビューレポート</h1>
+<p class="meta">
+  生成日時: 2026-07-01 02:05 UTC &nbsp;|&nbsp;
+  表示件数: 40 件
+</p>
+<h2>DEV Community</h2>
+<div class="card">
+  <div class="card-title">コネクテッドエージェント：Google Cloud Data ServicesとモデルコンテキストプロトコルによるAntigravity 2.0のスケーリング</div><div class="original-title">The Connected Agent: Scaling Antigravity 2.0 with Google Cloud Data Services and Model Context Protocol</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;&lt;a class=&quot;article-body-image-wrapper&quot; href=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fhkl0r9sjlw1w2x1kfej7.png&quot;&gt;&lt;img alt=&quot; &quot; height=&quot;437&quot; src=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fhkl0r9sjlw1w2x1kfej7.png&quot; width=&quot;800&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Artificial Intelligence is rapidly evolving from chatbots to autonomous agents capable of reasoning, planning, and taking action. But an AI agent is only as useful as the data and tools it can access.&lt;/p&gt;
+
+&lt;p&gt;This is where &lt;strong&gt;Google&#x27;s Antigravity 2.0&lt;/strong&gt; changes the game.&lt;/p&gt;
+
+&lt;p&gt;Introduced as Google&#x27;s next-generation agent development platform, &lt;strong&gt;Antigravity 2.0&lt;/strong&gt; enables developers to build multi-agent systems, orchestrate long-running workflows, and seamlessly integrate enterprise tools. When combined with &lt;strong&gt;Model Context Protocol (MCP) ** and **Google Cloud Data Services&lt;/strong&gt;, it provides a scalable architecture for building production-ready AI applications.&lt;/p&gt;
+
+&lt;p&gt;In this article, we&#x27;ll explore how these technologies work together and why they represent a modern blueprint for enterprise AI.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;From Agent Manager to Agent Platform&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The original Antigravity, released in November 2025, was a smart coding assistant wrapped around a familiar editor. Version 2.0 is a different category of product entirely. Instead of centering the code editor, it centers the agent itself, shipping simultaneously as a standalone desktop command center, a &lt;strong&gt;CLI (agy)&lt;/strong&gt;, an SDK, and a managed agents tier inside the Gemini API.&lt;/p&gt;
+
+&lt;p&gt;Underneath all of it sits &lt;strong&gt;Gemini 3.5 Flash&lt;/strong&gt;, tuned specifically for agentic workflows and reportedly running several times faster than the previous generation while holding long context. That speed matters more than it sounds like it should  when you&#x27;re running multiple agents in parallel, each one waiting on a database schema lookup or a query result, latency compounds fast. A model that responds in milliseconds instead of seconds is the difference between a fluid multi-agent workflow and a stalled one.&lt;/p&gt;
+
+&lt;p&gt;The architecture reflects this shift toward orchestration. A manager agent breaks an incoming task into subtasks. Specialized sub-agents then work in parallel one writing code, one running terminal commands, another driving a real embedded Chromium browser to click through the UI it just built and catch what&#x27;s broken. It&#x27;s less &quot;autocomplete&quot; and more &quot;team of engineers,&quot; each with a narrow job and a shared plan.&lt;/p&gt;
+
+&lt;p&gt;None of that matters much, though, if the team can&#x27;t see your data.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Why AI Agents Need More Than an LLM&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Consider this user request:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;Summarize yesterday&#x27;s sales, identify delayed shipments, notify affected customers, and generate an executive report.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;A traditional chatbot would struggle because the information lives across multiple systems.&lt;/p&gt;
+
+&lt;p&gt;The agent needs to:&lt;/p&gt;
+
+&lt;p&gt;Query BigQuery for sales analytics.&lt;br /&gt;
+Retrieve customer orders from Cloud SQL.&lt;br /&gt;
+Check shipping status through an external API.&lt;br /&gt;
+Search policy documents stored in Cloud Storage.&lt;br /&gt;
+Send notifications.&lt;br /&gt;
+Remember previous conversations.&lt;/p&gt;
+
+&lt;p&gt;Writing custom integrations for every application quickly becomes difficult to maintain.&lt;/p&gt;
+
+&lt;p&gt;Instead, modern AI systems separate reasoning from tool execution.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Meet Antigravity 2.0&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Antigravity 2.0 is Google&#x27;s platform for building intelligent agents that can reason, collaborate, and execute complex workflows.&lt;/p&gt;
+
+&lt;p&gt;Instead of relying on a single AI assistant, Antigravity 2.0 enables teams to orchestrate multiple specialized agents that work together.&lt;/p&gt;
+
+&lt;p&gt;Some of its key capabilities include:&lt;/p&gt;
+
+&lt;p&gt;🤖 Multi-agent orchestration&lt;br /&gt;
+🧠 Long-running reasoning&lt;br /&gt;
+🔄 Dynamic task decomposition&lt;br /&gt;
+🛠 Native MCP tool integration&lt;br /&gt;
+💻 Antigravity CLI and SDK&lt;br /&gt;
+☁️ Deep integration with Google Cloud&lt;br /&gt;
+📊 Enterprise-ready deployment patterns&lt;/p&gt;
+
+&lt;p&gt;Rather than directly accessing databases or APIs, Antigravity agents invoke MCP tools to retrieve data or perform actions securely.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What is Model Context Protocol (MCP)?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Instead of building custom integrations for every database or API, each capability is exposed as an MCP server.&lt;/p&gt;
+
+&lt;p&gt;The agent discovers available tools and invokes them dynamically.&lt;/p&gt;
+
+&lt;p&gt;User&lt;br /&gt;
+   │&lt;br /&gt;
+   ▼&lt;br /&gt;
+Antigravity 2.0&lt;br /&gt;
+   │&lt;br /&gt;
+Discovers MCP Tools&lt;br /&gt;
+   │&lt;br /&gt;
+───────────────&lt;br /&gt;
+BigQuery Tool&lt;br /&gt;
+Cloud SQL Tool&lt;br /&gt;
+AlloyDB Tool&lt;br /&gt;
+Storage Tool&lt;br /&gt;
+GitHub Tool&lt;br /&gt;
+Slack Tool&lt;br /&gt;
+───────────────&lt;/p&gt;
+
+&lt;p&gt;&lt;a class=&quot;article-body-image-wrapper&quot; href=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ftbzfckrirgt078wbc61c.png&quot;&gt;&lt;img alt=&quot; &quot; height=&quot;437&quot; src=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ftbzfckrirgt078wbc61c.png&quot; width=&quot;800&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The result is a modular architecture where agents remain lightweight while integrations evolve independently.&lt;/p&gt;
+
+&lt;p&gt;Bringing Google Cloud Data Services into the Picture&lt;/p&gt;
+
+&lt;p&gt;The real strength of Antigravity 2.0 comes from combining intelligent orchestration with trusted enterprise data.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;📊 BigQuery&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;BigQuery gives agents access to analytical data at scale.&lt;/p&gt;
+
+&lt;p&gt;Example prompt:&lt;/p&gt;
+
+&lt;p&gt;&quot;Which region had the highest revenue growth this month?&quot;&lt;/p&gt;
+
+&lt;p&gt;The workflow is simple:&lt;/p&gt;
+
+&lt;p&gt;Antigravity selects the BigQuery MCP tool.&lt;br /&gt;
+SQL is executed.&lt;br /&gt;
+Results are summarized using Gemini.&lt;br /&gt;
+The user receives insights instead of raw tables.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;⚡ AlloyDB&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;AlloyDB is ideal for AI applications that require both operational data and semantic search.&lt;/p&gt;
+
+&lt;p&gt;Use cases include:&lt;/p&gt;
+
+&lt;p&gt;Vector search&lt;br /&gt;
+RAG applications&lt;br /&gt;
+Customer support&lt;br /&gt;
+Product recommendations&lt;/p&gt;
+
+&lt;p&gt;Agents can combine structured queries with semantic retrieval to generate highly contextual responses.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;🗄 Cloud SQL&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Most enterprise applications already rely on relational databases.&lt;/p&gt;
+
+&lt;p&gt;Instead of migrating data, organizations can expose Cloud SQL securely through MCP.&lt;/p&gt;
+
+&lt;p&gt;Existing business applications immediately become AI-ready.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;📁 Cloud Storage&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Knowledge doesn&#x27;t always live in databases.&lt;/p&gt;
+
+&lt;p&gt;Contracts, reports, PDFs, manuals, and images often reside in Cloud Storage.&lt;/p&gt;
+
+&lt;p&gt;An MCP server can retrieve relevant documents and provide them as context to the agent.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;🔥 Firestore&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Firestore stores:&lt;/p&gt;
+
+&lt;p&gt;User preferences&lt;br /&gt;
+Conversation history&lt;br /&gt;
+Application state&lt;br /&gt;
+Session data&lt;/p&gt;
+
+&lt;p&gt;This allows Antigravity agents to personalize every interaction.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;⚡ Memorystore (Redis)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Redis helps improve both performance and cost.&lt;/p&gt;
+
+&lt;p&gt;Typical use cases include:&lt;/p&gt;
+
+&lt;p&gt;Semantic cache&lt;br /&gt;
+Conversation memory&lt;br /&gt;
+Shared agent memory&lt;br /&gt;
+Rate limiting&lt;br /&gt;
+Session storage&lt;/p&gt;
+
+&lt;p&gt;Caching reduces latency and minimizes unnecessary LLM requests.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Multi-Agent Workflow in Action&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Imagine a customer support assistant built with Antigravity 2.0.&lt;/p&gt;
+
+&lt;p&gt;A customer asks:&lt;/p&gt;
+
+&lt;p&gt;&quot;&lt;em&gt;My package hasn&#x27;t arrived. What&#x27;s happening, and am I eligible for compensation?&lt;/em&gt;&quot;&lt;/p&gt;
+
+&lt;p&gt;Rather than relying on one agent, Antigravity orchestrates several specialized agents.&lt;/p&gt;
+
+&lt;p&gt;Multi-Agent Workflow in Action&lt;/p&gt;
+
+&lt;p&gt;Imagine a customer support assistant built with Antigravity 2.0.&lt;/p&gt;
+
+&lt;p&gt;A customer asks:&lt;/p&gt;
+
+&lt;p&gt;&quot;My package hasn&#x27;t arrived. What&#x27;s happening, and am I eligible for compensation?&quot;&lt;/p&gt;
+
+&lt;p&gt;Rather than relying on one agent, Antigravity orchestrates several specialized agents.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class=&quot;article-body-image-wrapper&quot; href=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F8f0grxwsz8h9qw2jjc5g.png&quot;&gt;&lt;img alt=&quot; &quot; height=&quot;437&quot; src=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F8f0grxwsz8h9qw2jjc5g.png&quot; width=&quot;800&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;📦 Data Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Queries Cloud SQL to retrieve the order.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;🚚 Logistics Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Calls the shipping provider&#x27;s API.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;📚 Knowledge Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Searches Cloud Storage for compensation policies.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;📈 Analytics Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Queries BigQuery for historical delivery performance.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;🧠 Memory Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Retrieves previous conversations from Firestore and Redis.&lt;/p&gt;
+
+&lt;p&gt;The orchestrator combines these outputs into a single response that is accurate, contextual, and personalized.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;📦 Data Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Queries Cloud SQL to retrieve the order.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;🚚 Logistics Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Calls the shipping provider&#x27;s API.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;📚 Knowledge Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Searches Cloud Storage for compensation policies.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;📈 Analytics Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Queries BigQuery for historical delivery performance.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;🧠 Memory Agent&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Retrieves previous conversations from Firestore and Redis.&lt;/p&gt;
+
+&lt;p&gt;The orchestrator combines these outputs into a single response that is accurate, contextual, and personalized.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Security by Design&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Enterprise AI requires strong governance.&lt;/p&gt;
+
+&lt;p&gt;Google Cloud provides the building blocks:&lt;/p&gt;
+
+&lt;p&gt;IAM&lt;br /&gt;
+Service Accounts&lt;br /&gt;
+Secret Manager&lt;br /&gt;
+Cloud Audit Logs&lt;br /&gt;
+VPC Service Controls&lt;br /&gt;
+Private Service Connect&lt;br /&gt;
+Customer-managed encryption keys (CMEK)&lt;/p&gt;
+
+&lt;p&gt;&lt;a class=&quot;article-body-image-wrapper&quot; href=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fa705vg4fol6baluudv47.png&quot;&gt;&lt;img alt=&quot; &quot; height=&quot;437&quot; src=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fa705vg4fol6baluudv47.png&quot; width=&quot;800&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Since MCP servers expose only approved tools, organizations can apply least-privilege access and maintain strict security boundaries.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Why This Architecture Matters&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Combining Antigravity 2.0 with MCP creates several advantages:&lt;/p&gt;
+
+&lt;p&gt;✅ Standardized integrations&lt;/p&gt;
+
+&lt;p&gt;✅ Reusable enterprise tools&lt;/p&gt;
+
+&lt;p&gt;✅ Modular architecture&lt;/p&gt;
+
+&lt;p&gt;✅ Better observability&lt;/p&gt;
+
+&lt;p&gt;✅ Easier governance&lt;/p&gt;
+
+&lt;p&gt;✅ Lower maintenance costs&lt;/p&gt;
+
+&lt;p&gt;✅ Faster AI development&lt;/p&gt;
+
+&lt;p&gt;As new business systems are introduced, developers simply deploy additional MCP servers instead of modifying the agents themselves.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Best Practices&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;If you&#x27;re building production AI agents, consider these recommendations:&lt;/p&gt;
+
+&lt;p&gt;Keep agents focused on reasoning rather than direct data access.&lt;br /&gt;
+Build small, reusable MCP tools with clear responsibilities.&lt;br /&gt;
+Secure every MCP server with IAM and least-privilege permissions.&lt;br /&gt;
+Cache expensive queries with Memorystore.&lt;br /&gt;
+Monitor agents using Cloud Logging and OpenTelemetry.&lt;br /&gt;
+Store credentials in Secret Manager.&lt;br /&gt;
+Version MCP tools to maintain compatibility.&lt;br /&gt;
+Add approval workflows before executing sensitive business operations.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Final Thoughts&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Antigravity 2.0&lt;/strong&gt; marks an important step toward enterprise-ready agentic AI. Instead of building isolated chatbots, developers can create collaborative AI systems that reason, retrieve trusted business data, and automate complex workflows.&lt;/p&gt;
+
+&lt;p&gt;When paired with Model Context Protocol (MCP) and Google Cloud Data Services, Antigravity 2.0 enables secure, modular, and scalable AI architectures that are easier to build, govern, and extend.&lt;/p&gt;
+
+&lt;p&gt;The future of AI isn&#x27;t just smarter models ,it&#x27;s intelligent agents working together with the right tools, the right data, and the right architecture.&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;&lt;a class=&quot;article-body-image-wrapper&quot; href=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fhkl0r9sjlw1w2x1kfej7.png&quot;&gt;&lt;img alt=&quot; &quot; height=&quot;437&quot; src=&quot;https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fhkl0r9sjlw1w2x1kfej7.png&quot; width=&quot;8</p>
+  <div class="label">要約</div>
+  <p class="summary">GoogleのAntigravity 2.0はAIエージェント開発プラットフォームであり、Model Context Protocol(MCP)とGoogle Cloudデータサービスを統合することで、スケーラブルで本番対応のAIアプリケーションを実現します。
+Antigravity 2.0は単一のアシスタントではなく、複数の専門化されたエージェントを協調させ、データベース、API、ファイルストレージなど様々なエンタープライズシステムに安全にアクセスできるマルチエージェントオーケストレーションプラットフォームです。
+MCPサーバーを活用することで、カスタム統合を最小化しながら、IAM、監査ログ、VPCセキュリティコントロールなどのセキュリティ機能を備えた、保守性の高いモジュール型アーキテクチャが実現できます。</p>
+  <div class="card-footer"><a href="https://dev.to/gde/the-connected-agent-scaling-antigravity-20-with-google-cloud-data-services-and-model-context-bk0" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">シンプルなチャットボットから、私たちの仕事をこなせるAIまで、私たちはAIに何を追加してきたのでしょうか？</div><div class="original-title">จาก chatbot ธรรมดา สู่ AI ที่ทำงานแทนเราได้ — เราเติมอะไรเข้าไปบ้าง?</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;h2&gt;
+  
+  
+  จาก chatbot ธรรมดา สู่ AI ที่ทำงานแทนเราได้ — เราเติมอะไรเข้าไปบ้าง?
+&lt;/h2&gt;
+
+&lt;p&gt;เวลาเราใช้ ChatGPT หรือ Claude ครั้งแรก — เราพิมพ์คำถาม ได้คำตอบ จบ&lt;/p&gt;
+
+&lt;p&gt;นั่นคือ &lt;strong&gt;LLM (Large Language Model)&lt;/strong&gt; ในรูปแบบพื้นฐานที่สุด: ข้อความเข้า → ข้อความออก&lt;/p&gt;
+
+&lt;p&gt;แต่อยู่ ๆ มาวันหนึ่งเราเห็น AI ที่:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;เข้าเว็บหาข้อมูลให้&lt;/li&gt;
+&lt;li&gt;อ่านไฟล์ในเครื่องเรา&lt;/li&gt;
+&lt;li&gt;รันคำสั่ง terminal&lt;/li&gt;
+&lt;li&gt;เขียนโค้ด สร้างไฟล์ รัน test&lt;/li&gt;
+&lt;li&gt;ทำงานต่อเนื่องเป็นสิบนาทีโดยไม่ต้องคอยบอกทุกขั้นตอน&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;เราเติมอะไรลงไปบ้าง?&lt;/strong&gt; — จาก chatbot ธรรมดากลายเป็น agent ได้ยังไง?&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🧱 เริ่มจาก LLM เปล่า ๆ
+&lt;/h2&gt;
+
+&lt;p&gt;LLM คือ &quot;เครื่องทำนายคำถัดไป&quot; — มันเห็นข้อความก่อนหน้า แล้วเดาว่าคำต่อไปควรเป็นอะไร&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;[ผู้ใช้ถาม] → [LLM] → [คำตอบ]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;สิ่งที่ LLM &lt;strong&gt;ทำไม่ได้&lt;/strong&gt; ในสภาพนี้:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;จำว่าเมื่อวานเราคุยอะไรกัน (ไม่มี memory)&lt;/li&gt;
+&lt;li&gt;ค้นหาข้อมูลในเน็ต (ไม่มี tool)&lt;/li&gt;
+&lt;li&gt;รู้วันที่วันนี้ (ถูก train ด้วยข้อมูลเก่า)&lt;/li&gt;
+&lt;li&gt;ทำอะไรบนเครื่องเรา (ไม่มีสิทธิ์)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;มันคือสมองที่เก่ง — แต่ไม่มีแขน ไม่มีขา ไม่มีความจำ&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  ➕ Layer 1: System Prompt — ใส่ &quot;บทบาท&quot; และ &quot;กติกา&quot;
+&lt;/h2&gt;
+
+&lt;p&gt;สิ่งแรกที่เราเติม: &lt;strong&gt;system prompt&lt;/strong&gt; — ข้อความที่บอก LLM ว่า &quot;คุณเป็นใคร&quot; และ &quot;คุณทำอะไรได้บ้าง&quot;&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;คุณคือ AI ผู้ช่วยชื่อ Hermes
+คุณทำงานบนเครื่อง Linux ของผู้ใช้
+คุณตอบเป็นภาษาไทย อ่านง่าย เป็นกันเอง
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;System prompt คือ &lt;strong&gt;&quot;job description&quot;&lt;/strong&gt; ของ AI — มันเปลี่ยน LLM จาก &quot;เครื่องทำนายคำ&quot; เป็น &quot;ผู้ช่วยที่มีตัวตน&quot;&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  ➕ Layer 2: Tool Calling — ใส่ &quot;แขน&quot; และ &quot;ขา&quot;
+&lt;/h2&gt;
+
+&lt;p&gt;LLM เก่งเรื่องภาษา แต่มันกดเครื่องคิดเลขไม่เป็น — เราก็เลยให้ &lt;strong&gt;เครื่องมือ (tools)&lt;/strong&gt; กับมัน&lt;/p&gt;
+
+&lt;p&gt;วิธีทำงาน:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;1. ผู้ใช้: &quot;เช็คสภาพอากาศกรุงเทพวันนี้&quot;
+2. LLM คิด: &quot;ฉันต้องเรียกฟังก์ชัน get_weather(city=&#x27;Bangkok&#x27;)&quot;
+3. ระบบ: เรียก get_weather() จริง → ได้ผลลัพธ์ { temp: 35, humidity: 70 }
+4. ระบบ: ส่งผลลัพธ์กลับไปให้ LLM
+5. LLM: &quot;วันนี้กรุงเทพ 35 องศา ความชื้น 70% ครับ&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;Tools ที่เราให้ AI ได้:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;table-wrapper-paragraph&quot;&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Tool&lt;/th&gt;
+&lt;th&gt;ตัวอย่าง&lt;/th&gt;
+&lt;th&gt;LLM ทำอะไร&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Web search&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;search(&quot;ราคาทองวันนี้&quot;)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;ค้นเน็ต&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;File read&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;read_file(&quot;config.yaml&quot;)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;อ่านไฟล์&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Terminal&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;terminal(&quot;git status&quot;)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;รันคำสั่ง&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Database&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;query(&quot;SELECT * FROM users&quot;)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;ถาม database&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;สิ่งที่เปลี่ยน:&lt;/strong&gt; LLM ไม่ได้แค่ &quot;พูด&quot; แล้ว — มัน &quot;ทำ&quot; ได้แล้ว&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  ➕ Layer 3: Loop — ใส่ &quot;ความต่อเนื่อง&quot;
+&lt;/h2&gt;
+
+&lt;p&gt;tool ครั้งเดียวอาจไม่พอ — LLM อาจต้องเรียก tool หลายรอบเพื่อทำงานชิ้นหนึ่งให้เสร็จ&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;1. ผู้ใช้: &quot;สร้างไฟล์ README.md ให้ project นี้&quot;
+
+2. LLM → tool: read_file(&quot;main.go&quot;)     ← อ่านก่อนว่ามีอะไร
+3. LLM → tool: search_files(&quot;*.go&quot;)      ← หาไฟล์ทั้งหมด
+4. LLM → tool: read_file(&quot;go.mod&quot;)       ← อ่าน module name
+5. LLM → tool: write_file(&quot;README.md&quot;)   ← เขียน!
+6. LLM → ผู้ใช้: &quot;สร้าง README.md เสร็จแล้วครับ&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;นี่คือ &lt;strong&gt;Agent Loop&lt;/strong&gt; — วงจร &quot;คิด → เรียก tool → ดูผล → คิดต่อ → เรียก tool อีก&quot; — ไปเรื่อย ๆ จนกว่างานจะเสร็จ&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;💡 &lt;strong&gt;สังเกต:&lt;/strong&gt; ตอนนี้ LLM ไม่ได้ตอบทันทีแล้ว — มันใช้เวลา &quot;ทำงาน&quot; หลายวินาที หรือหลายนาที&lt;/p&gt;
+&lt;/blockquote&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  ➕ Layer 4: Memory — ใส่ &quot;ความจำ&quot;
+&lt;/h2&gt;
+
+&lt;p&gt;Loop ช่วยให้ AI ทำงานต่อเนื่องใน session เดียว — แต่พอปิด session ทุกอย่างหายหมด&lt;/p&gt;
+
+&lt;p&gt;เราเติม &lt;strong&gt;memory&lt;/strong&gt; — ระบบจดจำสิ่งที่เกิดขึ้นข้าม session:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;Session 1: ผู้ใช้บอกว่า &quot;ผมใช้ Go เป็นหลัก ชอบ pattern แบบนี้&quot;
+Session 2: AI ทักว่า &quot;คราวที่แล้วคุณบอกว่าชอบ table-driven test — จะใช้ pattern นั้นไหม?&quot; ← จำได้!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Memory เก็บอะไร:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ข้อมูลผู้ใช้ (ชื่อ, preference, ภาษาที่ชอบ)&lt;/li&gt;
+&lt;li&gt;ข้อตกลงที่เคยทำไว้ (&quot;ไม่ publish blog โดยไม่ขอ&quot;)&lt;/li&gt;
+&lt;li&gt;วิธีการทำงานที่เคยสำเร็จ (&quot;เวลาใช้ LED ต้องกด button.click()&quot;)&lt;/li&gt;
+&lt;/ul&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  ➕ Layer 5: Planning &amp;amp; Reasoning — ใส่ &quot;การคิดก่อนทำ&quot;
+&lt;/h2&gt;
+
+&lt;p&gt;LLM เก่งเรื่องตอบคำถาม — แต่เวลาเจองานซับซ้อน มันอาจ &quot;ทำเลย&quot; โดยไม่คิดก่อน&lt;/p&gt;
+
+&lt;p&gt;เราเติม &lt;strong&gt;reasoning&lt;/strong&gt; — บังคับให้ AI &quot;คิดดัง ๆ&quot; ก่อนลงมือ:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;ผู้ใช้: &quot;หา condo ในกรุงเทพ ราคา 7-8 ล้าน ขนาด ≥60 ตรม.&quot;
+
+AI คิด (reasoning):
+&quot;1. ต้องเข้าเว็บ led.go.th
+ 2. กรอกฟอร์ม: ประเภท=ห้องชุด, จังหวัด=กรุงเทพ, ราคา=7-8M, ขนาด≥60
+ 3. แต่เว็บมี CAPTCHA — ต้องอ่าน CAPTCHA ทีหลังสุด
+ 4. ต้องใช้ button.click() — form.submit() ใช้ไม่ได้
+ 5. ถ้าไม่มีในห้วยขวาง → ขยายเป็นทั้งกรุงเทพ&quot;
+
+AI ลงมือทำตามแผน → สำเร็จ
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;นี่คือ &lt;strong&gt;reasoning&lt;/strong&gt; — AI ไม่ได้ตอบทันที แต่มัน &quot;คิด&quot; ก่อน — แล้วค่อยทำตามแผน&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  ➕ Layer 6: Skills — ใส่ &quot;ประสบการณ์&quot;
+&lt;/h2&gt;
+
+&lt;p&gt;พอ AI ทำงานซ้ำ ๆ — เราอยากให้มัน &quot;จำวิธีทำ&quot; และใช้ซ้ำได้โดยไม่ต้องคิดใหม่ทุกครั้ง&lt;/p&gt;
+
+&lt;p&gt;เราเติม &lt;strong&gt;skills&lt;/strong&gt; — ไฟล์ที่บรรจุ &quot;วิธีการทำงานที่พิสูจน์แล้ว&quot;:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight markdown&quot;&gt;&lt;code&gt;&lt;span class=&quot;gh&quot;&gt;# Skill: deepseek-balance&lt;/span&gt;
+วิธีเช็คยอดเงิน DeepSeek:
+&lt;span class=&quot;p&quot;&gt;1.&lt;/span&gt; อ่าน key จาก ~/.bashrc
+&lt;span class=&quot;p&quot;&gt;2.&lt;/span&gt; เรียก curl https://api.deepseek.com/user/balance
+&lt;span class=&quot;p&quot;&gt;3.&lt;/span&gt; แสดงผลเป็นภาษาไทย
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;คราวหน้าเวลา AI ต้องเช็คยอด — มันโหลด skill นี้ → ทำตามขั้นตอน → เสร็จใน 3 วิ — ไม่ต้องคิดใหม่&lt;/p&gt;
+
+&lt;p&gt;Skill = &lt;strong&gt;&quot;ประสบการณ์ที่บันทึกไว้&quot;&lt;/strong&gt; — เหมือน SOP ขององค์กร&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  ➕ Layer 7: Multi-Agent — ใส่ &quot;ทีม&quot;
+&lt;/h2&gt;
+
+&lt;p&gt;งานบางอย่างใหญ่มาก — AI ตัวเดียวทำงานไม่ทัน&lt;/p&gt;
+
+&lt;p&gt;เราเติม &lt;strong&gt;delegation&lt;/strong&gt; — AI spawn ลูกน้องไปทำงานย่อย:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;[AI หลัก] → &quot;งานนี้มี 3 อย่าง: 1) research Go 1.27, 2) เขียน blog, 3) โพสต์&quot;
+           → spawn subagent 1: research Go 1.27
+           → spawn subagent 2: ออกแบบโครงสร้าง blog
+           → รอผล → เขียน blog → โพสต์
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;ทำงานพร้อมกัน — เสร็จเร็วขึ้น — เหมือนมีทีมช่วย&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🧩 ประกอบร่าง — Agentic AI
+&lt;/h2&gt;
+
+&lt;p&gt;เอา Layer ทั้งหมดมารวมกัน:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;LLM เปล่า
+  + System Prompt        → มี &quot;ตัวตน&quot;
+  + Tool Calling         → มี &quot;มือ&quot; ทำงานได้
+  + Loop                 → ทำงานต่อเนื่อง ไม่ใช่ตอบทีเดียวจบ
+  + Memory               → จำได้ข้าม session
+  + Reasoning            → คิดก่อนทำ
+  + Skills               → ใช้ประสบการณ์ซ้ำ
+  + Multi-Agent          → มีทีมช่วย
+─────────────────────────────────────
+  = Agentic AI
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Agentic AI ไม่ได้ฉลาดกว่า LLM — มันแค่มี &lt;strong&gt;&quot;เครื่องมือ&quot;&lt;/strong&gt; มากกว่า และถูกออกแบบให้ &lt;strong&gt;&quot;ทำงาน&quot;&lt;/strong&gt; ไม่ใช่แค่ &lt;strong&gt;&quot;ตอบ&quot;&lt;/strong&gt;&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🎯 สรุปให้เห็นภาพ
+&lt;/h2&gt;
+
+
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;           ┌──────────────────────────┐
+           │      User: &quot;สร้าง API&quot;    │
+           └──────────┬───────────────┘
+                      ▼
+           ┌──────────────────────────┐
+           │   System Prompt: กติกา    │  ← &quot;คุณเป็น dev ที่ใช้ Go&quot;
+           └──────────┬───────────────┘
+                      ▼
+           ┌──────────────────────────┐
+           │      Reasoning: คิดก่อน    │  ← &quot;ต้องสร้าง handler, service, repo&quot;
+           └──────────┬───────────────┘
+                      ▼
+     ┌────────────────┼────────────────┐
+     ▼                ▼                ▼
+┌─────────┐    ┌──────────┐    ┌──────────┐
+│  Tool   │    │   Tool   │    │   Tool   │
+│  อ่าน    │    │  เขียน    │    │   รัน     │
+│  โค้ด    │    │  ไฟล์     │    │  test    │
+└────┬────┘    └────┬─────┘    └────┬─────┘
+     │              │               │
+     └──────────────┼───────────────┘
+                    ▼
+           ┌──────────────────────────┐
+           │  Loop: ทำซ้ำจนกว่าจะเสร็จ   │
+           └──────────┬───────────────┘
+                      ▼
+           ┌──────────────────────────┐
+           │  Memory: บันทึกสิ่งที่เรียนรู้    │  ← &quot;คราวหน้าใช้วิธีนี้&quot;
+           └──────────────────────────┘
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h2&gt;
+  
+  
+  ต่อไปจากนี้
+&lt;/h2&gt;
+
+&lt;p&gt;พอเข้าใจตรงนี้แล้ว — เวลาอ่านเรื่อง &lt;strong&gt;MCP (Model Context Protocol)&lt;/strong&gt;, &lt;strong&gt;ACP (Agent Client Protocol)&lt;/strong&gt;, &lt;strong&gt;RAG (Retrieval-Augmented Generation)&lt;/strong&gt; — คุณจะเห็นว่ามันคือ layer ที่เติมเข้าไปเพิ่ม:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;MCP = วิธี standard ในการให้ tool กับ AI&lt;/li&gt;
+&lt;li&gt;RAG = วิธีให้ AI &quot;อ่านเอกสาร&quot; ก่อนตอบ&lt;/li&gt;
+&lt;li&gt;ACP = วิธี standard ในการคุยระหว่าง IDE กับ agent&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;ทั้งหมดคือการเติม &quot;layer&quot; — และทั้งหมดเริ่มจาก LLM เปล่า ๆ ตัวเดียว&lt;/p&gt;
+
+
+
+
+&lt;blockquote&gt;
+&lt;p&gt;📚 &lt;strong&gt;อ่านต่อ:&lt;/strong&gt; &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&quot;https://dev.to/gophernment&quot;&gt;Aider — Pair Programming กับ AI ใน Terminal&lt;/a&gt; — ตัวอย่าง agentic AI ที่ใช้จริง&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&quot;https://www.anthropic.com/engineering/building-effective-agents&quot; rel=&quot;noopener noreferrer&quot;&gt;Anthropic: Building effective agents&lt;/a&gt; — แนวคิดการออกแบบ agentic system&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;h2&gt;
+
+シンプルなチャットボットから、私たちのために働くAIへ ― 何を追加すれば良いのでしょうか？
+
+&lt;/h2&gt;
+
+&lt;p&gt;ChatGPTやClaudeを初めて使った頃は、質問を入力して回答を得るだけでした。&lt;/p&gt;
+
+&lt;p&gt;これは、&lt;strong&gt;LLM（大規模言語モデル）&lt;/strong&gt;の最も基本的な形態でした。つまり、メッセージ入力→メッセージ出力です。&lt;/p&gt;
+
+&lt;p&gt;しかしある日、次のようなAIが登場しました。&lt;/p&gt;
+
+&lt;ul&gt;&lt;li&gt;ウェブサイトをスキャンして情報を検索する&lt;/li&gt;
+&lt;li&gt;コンピューター上のファイルを読み込む&lt;/li&gt;
+&lt;li&gt;ターミナルコマンドを実行する&lt;/li&gt;
+&lt;li&gt;コードを記述し、ファイルを作成し、テストを実行する&lt;/li&gt;
+&lt;li&gt;継続的な指示を必要とせずに、何万分も連続して動作する&lt;/li&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">基本的なLLMは入力テキストに対して出力テキストを返すだけだが、System Prompt、Tool Calling、Loop、Memory、Reasoning、Skills、Multi-Agentなど7つのレイヤーを積み重ねることで、Webを検索したりファイルを操作し、複数ステップの作業を自動実行できるAIエージェントに進化させることができる。
+LLMに「仕事内容」「ツール」「記憶」「思考プロセス」「経験」「チーム」を段階的に追加していくことで、単なる質問応答システムから自立的に動作するエージェントへと変わっていく。
+結果として、Agentic AIは LLM本体の知能が優れているのではなく、実行可能な「ツール」と継続的に「行動」できる設計が本質的な違いであり、MCP、RAG、ACPなどの標準プロトコルはこの基本構造の上に成り立っている。</p>
+  <div class="card-footer"><a href="https://dev.to/gophernment/cchaak-chatbot-thrrmdaa-suu-ai-thiithamngaanaethneraaaid-eraaetimaairekhaaaipbaang-4ilg" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">地面が沈下しているかどうかをAIエージェントに伝えましょう：SibFly + LangChainによる地盤変動の測定</div><div class="original-title">Tell your AI agent if the ground is sinking: measured ground-motion with SibFly + LangChain</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Most &quot;is this property risky?&quot; data your agent can reach is &lt;em&gt;modeled&lt;/em&gt; — a prediction from soil maps and flood zones. There&#x27;s a different, underused signal: &lt;strong&gt;measured&lt;/strong&gt; ground motion. Satellites have been tracking how far the ground has physically moved, to the millimeter, for years.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://sibfly.com&quot; rel=&quot;noopener noreferrer&quot;&gt;SibFly&lt;/a&gt; packages that into one call: give it a US address, get back how fast the ground is sinking or rising, in mm/year, derived from NASA&#x27;s OPERA Sentinel-1 InSAR dataset. Measured, not modeled. Negative = sinking.&lt;/p&gt;
+
+&lt;p&gt;This post wires it into a LangChain agent in about 30 lines.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why measured ground motion?
+&lt;/h2&gt;
+
+&lt;p&gt;Ground subsidence (sinking) quietly wrecks foundations, and it&#x27;s invisible on a normal map. It shows up in radar interferometry (InSAR): compare two satellite passes over the same spot and you can measure sub-centimeter vertical change. NASA processes this for all of North America and publishes it for free — but the raw data is 400 MB HDF5 granules in radar geometry, not something an agent can query per address.&lt;/p&gt;
+
+&lt;p&gt;SibFly does the ETL and serves the pixel: &lt;code&gt;GET /api/v1/motion?address=...&lt;/code&gt; → a JSON verdict.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Install
+&lt;/h2&gt;
+
+
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight shell&quot;&gt;&lt;code&gt;pip &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-U&lt;/span&gt; langchain-sibfly
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SIBFLY_API_KEY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;sf_live_...&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Grab a key with free starter credits at &lt;a href=&quot;https://sibfly.com&quot; rel=&quot;noopener noreferrer&quot;&gt;sibfly.com&lt;/a&gt;. Agents can also self-register with no human in the loop:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight shell&quot;&gt;&lt;code&gt;curl &lt;span class=&quot;nt&quot;&gt;-X&lt;/span&gt; POST https://sibfly.com/api/v1/autonomous/register &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;-H&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Content-Type: application/json&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#x27;{&quot;email&quot;:&quot;you@example.com&quot;}&#x27;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# -&amp;gt; { &quot;api_key&quot;: &quot;sf_live_...&quot;, &quot;credits_usd&quot;: 1.0, ... }&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  The tool on its own
+&lt;/h2&gt;
+
+
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;langchain_sibfly&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SibflyGroundMotion&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;motion&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SibflyGroundMotion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# reads SIBFLY_API_KEY
+&lt;/span&gt;
+&lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;motion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;invoke&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1100 Congress Ave, Austin, TX&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;status&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;velocity_vertical_mm_yr&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;6.0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;velocity_uncertainty_mm_yr&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;1.5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;assessment_code&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;notable_subsidence&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;confidence&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.86&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;data_age_days&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;73&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;cost_usd&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;credits_remaining_usd&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Route your logic on &lt;code&gt;assessment_code&lt;/code&gt; — a stable enum (&lt;code&gt;rapid_subsidence&lt;/code&gt;, &lt;code&gt;notable_subsidence&lt;/code&gt;, &lt;code&gt;stable&lt;/code&gt;, &lt;code&gt;mild_uplift&lt;/code&gt;, &lt;code&gt;strong_uplift&lt;/code&gt;) — not on the human-readable string.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Pricing that doesn&#x27;t punish exploration
+&lt;/h2&gt;
+
+&lt;p&gt;The thing I appreciate as someone who builds agents: &lt;strong&gt;misses are free.&lt;/strong&gt; Out-of-coverage, no-data, too-stale, and low-confidence responses all come back HTTP 200 with &lt;code&gt;cost_usd: 0&lt;/code&gt;. You only pay $0.40 when you get a real covered reading. And there&#x27;s a free preview:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# free: coverage + confidence + would_cost_usd, no charge
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;motion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;invoke&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;lat&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;30.3244&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;lon&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;97.8102&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;dry_run&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;You can also refuse to pay for data you&#x27;d reject, server-side:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;motion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;invoke&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;max_age_days&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;400&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;     &lt;span class=&quot;c1&quot;&gt;# too old -&amp;gt; free &quot;stale_data&quot;
+&lt;/span&gt;    &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;min_confidence&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.7&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;   &lt;span class=&quot;c1&quot;&gt;# too noisy -&amp;gt; free &quot;low_confidence&quot;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  In an agent
+&lt;/h2&gt;
+
+
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;langchain_sibfly&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SibflyGroundMotion&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;langchain_anthropic&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ChatAnthropic&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;langgraph.prebuilt&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;create_react_agent&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;agent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create_react_agent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;ChatAnthropic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;model&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;claude-sonnet-5&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;tools&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SibflyGroundMotion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()],&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;out&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;agent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;invoke&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;messages&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Is the ground sinking under 1100 Congress Ave, Austin TX? &lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;
+             &lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Check coverage first so we don&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;t waste a call.&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;]})&lt;/span&gt;
+&lt;span class=&quot;nf&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;messages&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The agent will typically &lt;code&gt;dry_run&lt;/code&gt; first (free), see it&#x27;s covered, then pull the real reading.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Prefer MCP?
+&lt;/h2&gt;
+
+&lt;p&gt;SibFly also runs a hosted MCP server, so any MCP client can use it with no SDK:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;https://sibfly.com/mcp   (Streamable HTTP, Bearer auth)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;It&#x27;s in the official MCP registry as &lt;code&gt;com.sibfly/ground-motion&lt;/code&gt;. Tools: &lt;code&gt;check_ground_motion&lt;/code&gt;, &lt;code&gt;check_coverage&lt;/code&gt;, &lt;code&gt;check_portfolio&lt;/code&gt;, &lt;code&gt;get_motion_history&lt;/code&gt;, &lt;code&gt;get_account&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  One honest caveat
+&lt;/h2&gt;
+
+&lt;p&gt;This is a &lt;strong&gt;screening&lt;/strong&gt; signal, not an engineering survey. It tells you a parcel is moving and roughly how fast; it doesn&#x27;t replace a geotechnical report. SibFly returns an uncertainty (&lt;code&gt;±mm/yr&lt;/code&gt;), a confidence score, and a &lt;code&gt;neighbor_consistent&lt;/code&gt; flag so your agent can tell a real trend from a single noisy pixel. Treat it like a credit-score check: fast, cheap, directional.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Links
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Docs: &lt;a href=&quot;https://sibfly.com/docs&quot; rel=&quot;noopener noreferrer&quot;&gt;https://sibfly.com/docs&lt;/a&gt; · Agent docs: &lt;a href=&quot;https://sibfly.com/llms.txt&quot; rel=&quot;noopener noreferrer&quot;&gt;https://sibfly.com/llms.txt&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;OpenAPI: &lt;a href=&quot;https://sibfly.com/openapi.json&quot; rel=&quot;noopener noreferrer&quot;&gt;https://sibfly.com/openapi.json&lt;/a&gt; · Machine schema: &lt;a href=&quot;https://sibfly.com/api/v1/schema&quot; rel=&quot;noopener noreferrer&quot;&gt;https://sibfly.com/api/v1/schema&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;PyPI: &lt;a href=&quot;https://pypi.org/project/langchain-sibfly/&quot; rel=&quot;noopener noreferrer&quot;&gt;https://pypi.org/project/langchain-sibfly/&lt;/a&gt; · LlamaIndex: &lt;code&gt;llama-index-tools-sibfly&lt;/code&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;不動産エージェントが入手できる「この物件はリスクが高いか？」というデータのほとんどは、&lt;em&gt;モデル化&lt;/em&gt;されたものです。つまり、土壌図や洪水区域からの予測です。しかし、あまり活用されていない別のシグナルがあります。それは、&lt;strong&gt;測定された&lt;/strong&gt;地盤変動です。衛星は長年にわたり、地盤が実際にどれだけ動いたかをミリメートル単位で追跡してきました。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://sibfly.com&quot; rel=&quot;noopener noreferrer&quot;&gt;SibFly&lt;/a&gt;は、このデータを1回の呼び出しで提供します。米国の住所を入力するだけで、地盤の沈下または隆起の速度（mm/年）が返されます。</p>
+  <div class="label">要約</div>
+  <p class="summary">SibFlyを使用することで、衛星レーダー干渉計測(InSAR)から得られた実測地盤変動データ(mm/年単位)をAIエージェントに統合し、予測モデルではなく実際の地盤沈下・隆起を検知できます。
+LangChainエージェントへの統合は約30行のコードで実現でき、NASAの公開データを活用して米国内の物件リスク評価を高度化します。
+ミスアクセスは無料、実測データの取得は1件$0.40で、ドライラン機能やMCPサーバーも提供されており、スクリーニング目的での地盤リスク評価に活用できます。</p>
+  <div class="card-footer"><a href="https://dev.to/jamessib/tell-your-ai-agent-if-the-ground-is-sinking-measured-ground-motion-with-sibfly-langchain-2dc1" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">私のエージェントは舞台準備のリハーサルを100回は問題なくこなしたが、最初の本番で制作を台無しにしてしまった。</div><div class="original-title">My agent dry-ran fine in staging 100 times — then wrecked production on the first real run</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;A staging-to-production data bleed cost me 4 hours of rollback. That&#x27;s what finally made dry-run a structural requirement, not an afterthought.&lt;/p&gt;
+
+&lt;p&gt;The common advice is: test in staging, promote when green. The problem is environment drift. My D1 schema changes once or twice a week, and a solo operator can&#x27;t keep staging perfectly synchronized. Worse, agents don&#x27;t have fixed execution paths — the same input can produce a different tool call sequence on the next run. I ran a flow 100 times in staging and still hit a fresh path on the first production execution.&lt;/p&gt;
+
+&lt;p&gt;The most surprising thing I learned after 6 months of running this: &lt;strong&gt;latency wasn&#x27;t the problem I expected&lt;/strong&gt;. KV writes averaged 12ms — basically imperceptible. The real problem was that mock responses fool the agent into treating skipped writes as real successes. I&#x27;d dry-run an R2 &lt;code&gt;put&lt;/code&gt;, the agent would believe the file was uploaded, and then proceed to write metadata to D1 — which was &lt;em&gt;not&lt;/em&gt; in dry-run scope. Real write, orphaned record.&lt;/p&gt;
+
+&lt;p&gt;The fix: once any write tool in a run hits dry-run, propagate a flag for that &lt;code&gt;runId&lt;/code&gt; that forces all subsequent writes in the same run to dry-run too.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight typescript&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// after intercepting first dry-run write&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;KV&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`dryrun_active:&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;runId&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;expirationTtl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3600&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// every subsequent hook checks this flag&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;isDryRunActive&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;KV&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`dryrun_active:&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;runId&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;One more thing that burned me: if the hook itself fails — say, KV goes temporarily unavailable — Claude Code&#x27;s default behavior is fall-through. The tool call executes anyway, dry-run flag ignored. Last week a KV spike caused hook timeouts and 3 agents wrote directly to production. No data loss because those ops were idempotent, but it was luck. Hook failure needs its own alert, separate from agent failure.&lt;/p&gt;
+
+&lt;p&gt;I wrote up the full breakdown — including the dry-run propagation edge cases, R2 + D1 orphan scenarios, and where this pattern completely falls apart (read-modify-write loops, APIs with side-effectful reads) — over on riversealab.com.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://riversealab.com/en/posts/agent-dry-run-mode-production-safety/&quot; rel=&quot;noopener noreferrer&quot;&gt;Full post →&lt;/a&gt;&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;ステージング環境から本番環境へのデータ漏洩で、ロールバックに4時間も費やしました。これがきっかけで、ドライランを後付けではなく、構造的な要件として組み込む必要性を痛感しました。&lt;/p&gt;
+
+&lt;p&gt;一般的なアドバイスは、「ステージング環境でテストし、問題がなければ本番環境に移行する」というものです。しかし、問題は環境の変動です。私のD1スキーマは週に1、2回変更されるため、オペレーター1人でステージング環境を完全に同期させるのは不可能です。さらに悪いことに、エージェントの実行パスは固定されていません。同じ入力でも、次の実行では異なるツール呼び出しシーケンスが生成される可能性があります。私はフローを100回実行しました。</p>
+  <div class="label">要約</div>
+  <p class="summary">ステージング環境では100回のテストに成功したエージェントが本番環境での初回実行時に障害を発生させ、4時間のロールバックを強いられた経験から、ドライラン機能を構造的要件として実装する重要性を学んだ。
+エージェントの非決定的な実行経路とモック応答による誤ったコンテキスト共有が根本原因で、解決策として特定のrunIdでドライラン開始時にフラグを設定し、その実行内で後続するすべての書き込み操作をドライランモードに強制する実装を採用した。
+KVの障害時には標準的なフォールスルー動作がドライランフラグを無視するため、エージェント障害とは別にフック失敗の監視が必要であり、これらの設計パターンの限界についても詳細に解説している。</p>
+  <div class="card-footer"><a href="https://dev.to/riversea/my-agent-dry-ran-fine-in-staging-100-times-then-wrecked-production-on-the-first-real-run-10cc" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">`wrangler dev --remote` が本番環境の KV 名前空間にサイレント書き込みを行う問題 ― 解決策はこちら</div><div class="original-title">`wrangler dev --remote` silently writes to your production KV namespace — here&#x27;s the fix</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;I lost production data on a Tuesday afternoon because &lt;code&gt;wrangler.toml&lt;/code&gt; had one missing field. Not a code bug. Not a logic error. A missing &lt;code&gt;preview_id&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;By default, &lt;code&gt;wrangler dev&lt;/code&gt; uses a local SQLite simulation — safe, isolated, zero real traffic. The moment you add &lt;code&gt;--remote&lt;/code&gt;, every KV read and write goes to the actual Cloudflare namespace over the API. If your &lt;code&gt;wrangler.toml&lt;/code&gt; only has the &lt;code&gt;id&lt;/code&gt; field pointing at your production namespace, those writes land in prod. No warning. No confirmation prompt. Just silent data mutation on the namespace your live users depend on.&lt;/p&gt;
+
+&lt;p&gt;The fix is a single extra field:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight toml&quot;&gt;&lt;code&gt;&lt;span class=&quot;nn&quot;&gt;[[kv_namespaces]]&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;binding&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;MY_STORE&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;PROD_NAMESPACE_ID_HERE&quot;&lt;/span&gt;
+&lt;span class=&quot;py&quot;&gt;preview_id&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;DEV_NAMESPACE_ID_HERE&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Wrangler automatically routes &lt;code&gt;--remote&lt;/code&gt; traffic through &lt;code&gt;preview_id&lt;/code&gt; instead of &lt;code&gt;id&lt;/code&gt;. Create a separate dev namespace with &lt;code&gt;wrangler kv namespace create &quot;MY_STORE_dev&quot;&lt;/code&gt;, drop its ID into &lt;code&gt;preview_id&lt;/code&gt;, and your production namespace is untouched. This should probably be in the quickstart docs. It isn&#x27;t, at least not prominently.&lt;/p&gt;
+
+&lt;p&gt;The second thing worth knowing: &lt;code&gt;--remote&lt;/code&gt; exposes a behavioral gap that local simulation hides entirely. Local KV is synchronous and in-process — a &lt;code&gt;put()&lt;/code&gt; followed by a &lt;code&gt;get()&lt;/code&gt; on the same key always returns the fresh value. Remote KV is eventually consistent. I had a rate-limiting worker that looked completely broken under &lt;code&gt;--remote&lt;/code&gt;: I&#x27;d write a counter, immediately read it back, and get the old value. The worker was correct. The local simulation had been lying to me about how production actually behaves. Switching to &lt;code&gt;--remote&lt;/code&gt; (against a dev namespace, not prod) surfaced the real race condition. That&#x27;s uncomfortable, but it&#x27;s accurate.&lt;/p&gt;
+
+&lt;p&gt;There&#x27;s also a write-rate ceiling worth knowing before you run any kind of seed script: hit roughly 1,000 writes/minute and you&#x27;ll start seeing &lt;code&gt;429 Too Many Requests&lt;/code&gt; with error code &lt;code&gt;10013&lt;/code&gt;. A 70ms sleep between writes keeps you under the limit without dramatically slowing a seed operation down.&lt;/p&gt;
+
+&lt;p&gt;I wrote up the full breakdown — including the &lt;code&gt;wrangler tail&lt;/code&gt; JSON truncation trap that cost me two hours, a shell script for seeding a dev namespace with representative data, and the exact &lt;code&gt;cacheTtl: 0&lt;/code&gt; pattern for honest read behavior — over on dailymanuallab.com.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://dailymanuallab.com/posts/wrangler-local-dev-remote-kv-binding/&quot; rel=&quot;noopener noreferrer&quot;&gt;Full post →&lt;/a&gt;&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;火曜日の午後、&lt;code&gt;wrangler.toml&lt;/code&gt; にフィールドが1つ欠けていたため、本番データが失われました。コードのバグでも、論理エラーでもありません。&lt;code&gt;preview_id&lt;/code&gt; が欠けていたのです。&lt;/p&gt;
+
+&lt;p&gt;デフォルトでは、&lt;code&gt;wrangler dev&lt;/code&gt; はローカルの SQLite シミュレーションを使用します。これは安全で隔離されており、実際のトラフィックは発生しません。&lt;code&gt;--remote&lt;/code&gt; を追加すると、すべての KV の読み書きは API を介して実際の Cloudflare 名前空間に送信されます。&lt;code&gt;wrangler.toml&lt;/code&gt; に &lt;code&gt;id&lt;/code&gt; フィールドのみが本番環境を指している場合、</p>
+  <div class="label">要約</div>
+  <p class="summary">wrangler.tomlでpreview_idフィールドを指定しないと、--remoteオプション使用時に開発環境からのデータ書き込みが本番環境のKVネームスペースに直接反映されてしまう危険がある。
+preview_idに開発用ネームスペースを指定することで本番環境を保護でき、同時にローカルシミュレーションとリモート環境の動作差異（最終的一貫性など）を実際にテストできる。
+リモートKVはAPI呼び出しレートに上限があり、シード処理時には1分あたり約1000回以上の書き込みでレート制限が発生するため注意が必要。</p>
+  <div class="card-footer"><a href="https://dev.to/riversea/wrangler-dev-remote-silently-writes-to-your-production-kv-namespace-heres-the-fix-2c6p" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">あなたのプライバシーを守りに来てくれる人は誰もいません。自分でツールを作りましょう。</div><div class="original-title">Nobody Is Coming to Save Your Privacy. Build the Tools Yourself</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;&lt;em&gt;The cavalry isn&#x27;t delayed. It was never dispatched.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;You have already done the ritual. You clicked &quot;accept all&quot; before coffee, you let a weather app read your contacts, you told a chatbot your childhood trauma because it felt cheaper than therapy. Then you opened a new tab to search &quot;best privacy VPN 2026&quot; and felt briefly virtuous.&lt;/p&gt;
+
+&lt;p&gt;Nothing changed.&lt;/p&gt;
+
+&lt;p&gt;Privacy is not stuck in committee. It is working exactly as designed. Your data is the ore, prediction is the refinery, behavior change is the product. Every glossy privacy dashboard is a control panel for you, not for them. The house always wins because the house built the table.&lt;/p&gt;
+
+&lt;p&gt;If you want a different outcome, you need a different table. That means you build.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  1. The Comfortable Lie We Bought
+&lt;/h2&gt;
+
+&lt;p&gt;The privacy industrial complex sells placebos with great UX. Incognito mode is amnesia for your browser, not for Google. Apple&#x27;s privacy nutrition labels are written by the same people who ship an ad network in your settings app. VPN ads promise &quot;military grade encryption&quot; while the company resells your bandwidth to data brokers through a shell in the Seychelles.&lt;/p&gt;
+
+&lt;p&gt;We wanted a feeling, not a system. The feeling is calm. The system is extraction.&lt;/p&gt;
+
+&lt;p&gt;This is why privacy advice feels like skincare. Ten steps, expensive serums, no change in underlying biology. You install three blockers that all inject the same fingerprintable JavaScript. You pay for a password manager that syncs to a cloud you cannot audit. You enable two factor authentication that routes through a phone number that can be SIM swapped by a bored teenager.&lt;/p&gt;
+
+&lt;p&gt;The lie is comfortable because it outsources responsibility. The truth is uncomfortable because it returns it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  2. Consent Theater and the Business of Exhaustion
+&lt;/h2&gt;
+
+&lt;p&gt;GDPR banners were supposed to give you choice. They gave you fatigue. Dark patterns are not accidents. They are conversion funnels for compliance. The goal is not informed consent. The goal is learned helplessness.&lt;/p&gt;
+
+&lt;p&gt;Every toggle is framed as a trade you cannot refuse. Accept tracking or the site breaks. Share location or the app is useless. Upload contacts or you cannot find friends. This is not a negotiation. It is a hostage situation with better fonts.&lt;/p&gt;
+
+&lt;p&gt;Exhaustion scales. Companies have legal teams. You have a thumb. They can A/B test the shade of blue that makes you click faster. You cannot A/B test your willpower at 11 pm.&lt;/p&gt;
+
+&lt;p&gt;The only way to win an exhaustion game is to stop playing. Replace the service, do not renegotiate the terms.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  3. The Economics of You
+&lt;/h2&gt;
+
+&lt;p&gt;You are not the product. That phrase is too cute. You are the raw material, the factory, and the market research department, all in one.&lt;/p&gt;
+
+&lt;p&gt;Your attention is logged, your hesitation is measured, your deletion is noted. Every model that summarizes you gets better at nudging you. The business model is not advertising. The business model is behavior modification at scale, sold to the highest bidder.&lt;/p&gt;
+
+&lt;p&gt;This is why privacy cannot be solved by policy alone. Policy regulates how the refinery reports emissions. It does not stop the refinery from existing. As long as the incentives reward prediction, the infrastructure will optimize for surveillance.&lt;/p&gt;
+
+&lt;p&gt;You cannot petition a gradient descent algorithm into having ethics. You can starve it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  4. Waiting Is a Vulnerability You Cannot Patch
+&lt;/h2&gt;
+
+&lt;p&gt;Waiting feels responsible. You are waiting for the perfect encrypted messenger, the right regulation, the secure phone that does not suck. While you wait, your data rots in a breach you will hear about in two years.&lt;/p&gt;
+
+&lt;p&gt;History is clear. The tools that mattered were built by impatient people. Phone phreaks did not wait for AT&amp;amp;T to be nice. Cypherpunks did not wait for export controls to lift. Tor developers did not wait for permission to route around censorship. Signal was built because Moxie got tired of watching SMS leak.&lt;/p&gt;
+
+&lt;p&gt;Patch Tuesday is not a strategy. It is an admission that someone else controls your root of trust. Every automatic update is a remote code execution event you hope is benevolent. Hope is not a security posture.&lt;/p&gt;
+
+&lt;p&gt;Impatience is a feature. It forces you to learn the stack.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  5. A Brief History of People Who Did Not Wait
+&lt;/h2&gt;
+
+&lt;p&gt;In the 1970s, phreaks built blue boxes from Radio Shack parts because Ma Bell charged rent on curiosity. In the 1990s, PGP spread as source code printed in books to bypass munitions law. In the 2000s, home routers got OpenWrt because vendors abandoned them. In the 2010s, activists ran mesh networks when governments shut off the internet.&lt;/p&gt;
+
+&lt;p&gt;None of these were products. They were responses. Each one said the same thing: if the infrastructure is hostile, become infrastructure.&lt;/p&gt;
+
+&lt;p&gt;That lineage is your inheritance. You do not need a venture round to continue it. You need a Pi, a soldering iron, and the willingness to read error logs without crying.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  6. Your Real Threat Model Is Boring and Expensive
+&lt;/h2&gt;
+
+&lt;p&gt;Forget the movie plot. Your adversary is not a van with antennas. It is a data broker in Tampa that sells your household income bracket to a payday lender. It is a hiring platform that scores your &quot;culture fit&quot; from your public posts. It is an insurance model that infers depression from typing cadence.&lt;/p&gt;
+
+&lt;p&gt;These threats are boring, which makes them effective. They do not need to break encryption. They need you to stay on the default settings.&lt;/p&gt;
+
+&lt;p&gt;Map it honestly. What data, if leaked, would cost you money, relationships, or freedom? Where does that data live right now? Who can read it without your knowledge? How many companies have a copy because you clicked &quot;continue with Google&quot;?&lt;/p&gt;
+
+&lt;p&gt;Now invert the map. Move the data to hardware you control. Reduce copies. Replace identity providers with keys you hold. Shrink the blast radius until a breach is an annoyance, not an eviction notice.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  7. Sovereignty by Soldering: Principles, Not Products
+&lt;/h2&gt;
+
+&lt;p&gt;Building is not about buying more gear. It is about adopting principles that products violate by design.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Local first.&lt;/strong&gt; If it cannot run without the internet, it is a rental.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Open firmware or it is a black box.&lt;/strong&gt; You cannot secure what you cannot inspect.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Keys live on hardware you can touch.&lt;/strong&gt; YubiKeys, Nitrokeys, or a Pi acting as a CA in a drawer. Not in a browser extension that syncs to the cloud.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Compartmentalize by default.&lt;/strong&gt; Separate machines, profiles, or at minimum browser containers for work, personal, shopping, and research. Cross contamination is how profiles get built.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Telemetry is adversarial.&lt;/strong&gt; If it phones home, assume it will betray you during an acquisition.&lt;/p&gt;
+
+&lt;p&gt;These are not opinions. They are constraints that force better designs. Constraints are how hackers turn scarcity into advantage.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  8. The Stack You Can Actually Own in a Weekend
+&lt;/h2&gt;
+
+&lt;p&gt;You do not need a data center. You need about $300 and a Saturday.&lt;/p&gt;
+
+&lt;p&gt;Start with compute. A Raspberry Pi 5 with an NVMe base is stupid fast for five watts. Install a minimal Debian, full disk encryption with LUKS, unattended upgrades, and Tailscale or WireGuard for access. This is your home base.&lt;/p&gt;
+
+&lt;p&gt;Add services that remove you from other people&#x27;s clouds:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Pi-hole or AdGuard Home for DNS filtering. Block telemetry at the name level.&lt;/li&gt;
+&lt;li&gt;Unbound as a recursive resolver so you stop asking Cloudflare what you are thinking about.&lt;/li&gt;
+&lt;li&gt;Vaultwarden for passwords. Your secrets never leave your house.&lt;/li&gt;
+&lt;li&gt;Syncthing for files. No accounts, no storage limits, just devices you trust.&lt;/li&gt;
+&lt;li&gt;Immich for photos. Face recognition locally, not in a marketing database.&lt;/li&gt;
+&lt;li&gt;A WireGuard exit node so every coffee shop sees encrypted noise to your house, not your traffic.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Put it on a UPS. Back it up to an encrypted USB drive you rotate monthly. Print the recovery keys and store them like cash.&lt;/p&gt;
+
+&lt;p&gt;You now have a personal cloud that cannot be subpoenaed from a third party because there is no third party. That is not paranoia. That is basic architecture.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  9. Air Gaps, Local Models, and the End of Cloud Confessionals
+&lt;/h2&gt;
+
+&lt;p&gt;The most intimate data leak of 2026 is not your location. It is your prompts.&lt;/p&gt;
+
+&lt;p&gt;You paste your business plan, your therapy notes, your source code into a hosted LLM because it is convenient. That convenience is a permanent donation to someone else&#x27;s training set. Even with &quot;no training&quot; toggles, you are trusting a counterparty whose incentives change quarterly.&lt;/p&gt;
+
+&lt;p&gt;Run it locally. A Pi 5 with a Hailo-8 or similar accelerator runs 7B to 13B quantized models fast enough for real work. Use Ollama for the runtime, build a RAG pipeline over your Obsidian vault, keep embeddings on NVMe. Your assistant knows your notes, your contracts, your research, and has never touched the public internet.&lt;/p&gt;
+
+&lt;p&gt;This changes your psychology. You stop self censoring. You ask dumber questions, which is how you get smarter answers. You iterate on sensitive ideas without laundering them through a terms of service.&lt;/p&gt;
+
+&lt;p&gt;An air gap is not about fear. It is about creative freedom. Artists need studios with doors. Thinkers need models with walls.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  10. Field Craft: Why a Cyberdeck Changes Your Brain
+&lt;/h2&gt;
+
+&lt;p&gt;A laptop is designed for compliance. A phone is designed for tracking. A cyberdeck is designed for curiosity.&lt;/p&gt;
+
+&lt;p&gt;When you build a field unit, you make choices that commercial hardware hides. You choose the antenna. You choose the SDR. You choose whether the mic has a physical kill switch. You choose the battery chemistry and the thermal envelope. You become the product manager of your own autonomy.&lt;/p&gt;
+
+&lt;p&gt;Carry it and your behavior shifts. You start noticing what networks are actually broadcasting. You see how many BLE beacons follow you through a mall. You learn that hotel captive portals are just bad web apps begging to be routed around. You stop asking for WiFi passwords and start bringing your own backhaul via LTE hat or LoRa mesh.&lt;/p&gt;
+
+&lt;p&gt;The cyberdeck is not aesthetic, though it looks cool. It is pedagogical. It teaches you that the environment is programmable. Once you feel that, you cannot unfeel it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  11. Opsec for Humans, Not Influencers
+&lt;/h2&gt;
+
+&lt;p&gt;Influencer opsec is performance. Faraday bag for the camera, then post GPS tagged stories from the same phone. Real opsec is boring hygiene repeated until it is automatic.&lt;/p&gt;
+
+&lt;p&gt;Use separate profiles for separate roles. Your activism browser is not your shopping browser. Your work identity does not touch your personal GitHub. Your research machine never logs into anything tied to your legal name.&lt;/p&gt;
+
+&lt;p&gt;Prefer apps that export plain text. Markdown, org mode, CSV. Data that can leave is data you control. Proprietary databases are roach motels.&lt;/p&gt;
+
+&lt;p&gt;Turn off what you do not use. Bluetooth, AirDrop, location history, ad IDs. Not because you are hiding, but because attack surface is real estate. Shrink it.&lt;/p&gt;
+
+&lt;p&gt;Practice restores. Backups are worthless if you have never restored. Once a quarter, wipe a test device and rebuild from your notes. If it hurts, fix the notes.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  12. The Social Layer: Build Guilds, Not Audiences
+&lt;/h2&gt;
+
+&lt;p&gt;Privacy is not individual. If your friends use leaky tools, your messages leak through them. The answer is not lecturing. The answer is building a guild.&lt;/p&gt;
+
+&lt;p&gt;A guild is five to ten people who agree on tools and help each other maintain them. You run a shared Matrix or SimpleX server on your Pi. You trade PGP keys in person. You host cryptoparties where you flash routers and set up password managers for family.&lt;/p&gt;
+
+&lt;p&gt;Guilds create network effects for autonomy. One person running a VPN exit is weird. Five friends sharing exits in different cities is resilient. One person self hosting photos is a hobby. A family that syncs albums over Syncthing is immune to another photo service shutting down.&lt;/p&gt;
+
+&lt;p&gt;Community is the only moat that surveillance capitalism cannot buy. It has to be earned with competence and care.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  13. Legal Realism Without Defeatism
+&lt;/h2&gt;
+
+&lt;p&gt;Laws matter, but they lag. Do not outsource your safety to a future ruling. At the same time, do not cosplay as an outlaw. Learn the rules of your jurisdiction, then engineer around the bad ones.&lt;/p&gt;
+
+&lt;p&gt;Use encryption that is standard and well audited. Prefer tools with plausible deniability built in, like hidden volumes, but do not rely on magic. Know that metadata is often more revealing than content, which is why you route DNS and push traffic through your own WireGuard.&lt;/p&gt;
+
+&lt;p&gt;Document your threat model. If you ever need to explain your setup, &quot;I run a home server for backups and to block ads&quot; is boring and true. Boring is good. Boring does not get you on lists.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  14. The Maintenance Mindset
+&lt;/h2&gt;
+
+&lt;p&gt;Building is fun. Maintaining is freedom.&lt;/p&gt;
+
+&lt;p&gt;Schedule it. First Sunday of the month: updates, backups, key rotation check, test restore, review logs for weirdness. Keep a changelog. Treat your infrastructure like a garden, not a monument.&lt;/p&gt;
+
+&lt;p&gt;Automation helps, but do not automate what you do not understand. A cron job that breaks silently is worse than a manual task you remember. Alerting is part of the build. If your Pi-hole stops blocking, you should know before the ads do.&lt;/p&gt;
+
+&lt;p&gt;Expect entropy. SD cards die. Power supplies sag. Cats chew cables. Design for failure and you will rarely experience it as catastrophe.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  15. Nobody Is Coming. Good.
+&lt;/h2&gt;
+
+&lt;p&gt;There is a quiet dignity in accepting that no institution will save you. It means you stop waiting for perfect policy, perfect products, perfect people. You start building imperfect tools that you control, then you iterate.&lt;/p&gt;
+
+&lt;p&gt;This is the hacker ethos at its best. Not nihilism, not paranoia, but practical optimism. The world is programmable. The defaults are hostile. Therefore we reprogram the defaults.&lt;/p&gt;
+
+&lt;p&gt;You will make mistakes. You will lock yourself out once. You will learn more from that afternoon than from a year of reading privacy blogs. You will help someone else avoid the same mistake, and that is how culture spreads.&lt;/p&gt;
+
+&lt;p&gt;Privacy is not a right that is granted. It is a skill that is practiced. Skills require tools. Tools require hands.&lt;/p&gt;
+
+&lt;p&gt;So put your hands on something you can own.&lt;/p&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  If you want a place to start that is not theory
+&lt;/h3&gt;
+
+&lt;p&gt;I publish the build logs I actually use in the field. No trackers, no funnels, just the steps and the gotchas.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&quot;https://numbpilled.gumroad.com/l/tryharder&quot; rel=&quot;noopener noreferrer&quot;&gt;TRY HARDER: The Pi5 NVMe Field Cyberdeck You Actually Asked For&lt;/a&gt; – the modular, fast, low power unit I carry when I assume the network is hostile. Pay what you want from $0 to $55.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&quot;https://numbpilled.gumroad.com/l/local-ai-edge-cyberdeck&quot; rel=&quot;noopener noreferrer&quot;&gt;Local Edge AI Blueprint: Run LLMs on Raspberry Pi 5 + Hailo-8 - The Air-Gapped Assistant&lt;/a&gt; – Ollama, RAG, and Obsidian wired for private reasoning. Your notes stay on your desk. $0 to $80.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&quot;https://numbpilled.gumroad.com/l/stripper-zero&quot; rel=&quot;noopener noreferrer&quot;&gt;StripperZero - Build a Flipper Zero for $40&lt;/a&gt; – ESP32-S3 lab manual for IR, Sub-GHz, BLE, and HID research without the markup. $0 to $35.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&quot;https://numbpilled.gumroad.com/l/cyberdeck-raspberry-pi-5-build&quot; rel=&quot;noopener noreferrer&quot;&gt;THE RASPBERRY PI 5 CYBERDECK &amp;amp; FIELD-UNIT PLAYBOOK - Techno-Splicer Edition&lt;/a&gt; – parts, power budgets, thermals, and case files for a real handheld lab.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Build one thing this month. Make it yours. Then teach someone else. That is how we get privacy back, not by asking, but by wiring it into the world ourselves.&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;&lt;em&gt;援軍は遅れていません。そもそも派遣されていませんでした。&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;あなたは既に儀式を済ませています。コーヒーを飲む前に「すべて同意する」をクリックし、天気アプリに連絡先を読み取らせ、セラピーを受けるより安上がりだと思ったのでチャットボットに幼少期のトラウマを話しました。そして新しいタブを開いて「2026年最高のプライバシーVPN」を検索し、ほんの一瞬、高潔な気分に浸りました。&lt;/p&gt;
+
+&lt;p&gt;何も変わっていません。&lt;/p&gt;
+
+&lt;p&gt;プライバシーは委員会で停滞しているわけではありません。設計通りに機能しています。あなたのデータは鉱石であり、予測は参照です。</p>
+  <div class="label">要約</div>
+  <p class="summary">大企業や政府によるプライバシー侵害から身を守るために、ユーザー自身がツールを構築する必要があると主張する記事。VPNやプライバシーダッシュボードといった既存ソリューションは実質的な保護をもたらさず、データ抽出の仕組みは設計通りに機能しているに過ぎない。\nRaspberry Piと開源ソフトウェアを用いて、個人用クラウド、ローカルLLM、DNS フィルタリング、パスワード管理など、自分がコントロール可能なプライバシー基盤を数百ドルで構築可能であることを実例とともに提案。\n脅威モデルの作成、オペレーションセキュリティの実践、信頼できる仲間とのコミュニティ形成を通じて、個人の技術的自主性を取り戻すことが真のプライバシー保護につながるとまとめている。</p>
+  <div class="card-footer"><a href="https://dev.to/numbpill3d/nobody-is-coming-to-save-your-privacy-build-the-tools-yourself-4ie" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">私は340件の読書記録を監査したが、実際に活用できた知識はわずか20%だった。</div><div class="original-title">I audited 340 reading captures. Only 20% ever became knowledge I actually used.</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Out of 340 captures over 90 days — Readwise highlights, Obsidian quick-captures, browser bookmarks — exactly 68 ever became a note I actually used. That&#x27;s a 20% completion rate. The other 272 had a timestamp and nothing else.&lt;/p&gt;
+
+&lt;p&gt;The uncomfortable part wasn&#x27;t the number itself. It was what the data said about &lt;em&gt;where&lt;/em&gt; things died. I assumed the bottleneck was my weekly review — not thorough enough, not consistent enough. Wrong. I tagged every capture for three weeks as either &quot;capture-only&quot; or &quot;annotated-at-source.&quot; Capture-only items had an 8% chance of becoming a usable note. Items where I spent 90 seconds writing a single sentence — in my own words, not a copied highlight — completed at around 55%. The weekly review wasn&#x27;t failing because I was bad at reviews. It was failing because context decays faster than a week.&lt;/p&gt;
+
+&lt;p&gt;By Sunday, I genuinely couldn&#x27;t remember why I&#x27;d saved half the items. A highlighted paragraph looked important. The argument I was building when I saved it was gone. So I&#x27;d either re-read the source (expensive) or archive without processing (wasteful). The knowledge was perishable in a way that tasks simply aren&#x27;t. What fixed it wasn&#x27;t a better review template — it was a same-session annotation rule. I won&#x27;t close a tab after reading something capture-worthy unless I&#x27;ve written one sentence into my Obsidian daily note first. The sentence doesn&#x27;t have to be good. It has to be mine. Sixty to ninety seconds. That single constraint moved my annotation rate more than four months of Sunday review slots ever did.&lt;/p&gt;
+
+&lt;p&gt;The other piece that made this stick was a &lt;code&gt;decay-date&lt;/code&gt; field in Obsidian Dataview — something I hadn&#x27;t seen anyone write about before I built it. Every live annotation gets a date set 14 days out. A query surfaces anything expiring within 3 days. If it hasn&#x27;t been promoted to a permanent note by then, a Templater script archives it automatically. Not deleted. But gone from the active workspace. The deadline is visible. The loss is real but low-stakes. It created a forcing function the inbox folder never could.&lt;/p&gt;
+
+&lt;p&gt;I wrote up the full breakdown — including the harder completion metric I&#x27;m now using (a capture only &quot;completes&quot; when it gets cited in something I shipped, not when it becomes a note) and the exact Dataview query setup — over on dailyfocusmag.com.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://dailyfocusmag.com/posts/reading-to-notes-completion-rate/&quot; rel=&quot;noopener noreferrer&quot;&gt;Full post →&lt;/a&gt;&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;90日間で340件のキャプチャ（Readwiseのハイライト、Obsidianのクイックキャプチャ、ブラウザのブックマーク）のうち、実際にメモとして使用できたのはわずか68件でした。完了率は20%です。残りの272件にはタイムスタンプしか記録されていませんでした。&lt;/p&gt;
+
+&lt;p&gt;不快だったのは数字そのものではなく、データが&lt;em&gt;どこで&lt;/em&gt;物事が停滞したのかを示していたことです。私は、週ごとのレビューが不十分で、一貫性が足りないことがボトルネックだと考えていました。しかし、それは間違いでした。3週間、すべてのキャプチャに「captu」または「</p>
+  <div class="label">要約</div>
+  <p class="summary">90日間に340件の記事を保存したが、実際に使った知識はわずか20%（68件）だった。著者は問題の原因を徹底調査した結果、週1回のレビューではなく、情報の鮮度が1週間で急速に低下することが主な原因と判明した。\n解決策は「読んだ直後に自分の言葉で1文を書く」というシンプルなルールの実装。この90秒のアノテーション作業により、完了率が8%から55%に向上し、4ヶ月のレビュー改善より効果的だった。\nさらにObsidianの`decay-date`フィールドで14日の期限を設定し、期限切れ前に昇格されない情報は自動アーカイブする仕組みを導入。この「見える期限」により、実際に活用される知識の率が大幅に改善した。</p>
+  <div class="card-footer"><a href="https://dev.to/riversea/i-audited-340-reading-captures-only-20-ever-became-knowledge-i-actually-used-3imp" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">エージェントの再試行により、ユーザーに二重課金が発生しています（ただし、すべての評価は正常です）。</div><div class="original-title">Your Agent&#x27;s Retries Are Double-Charging Your Users (and Every Eval Is Green)</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Your agent calls a tool. The tool times out at the network layer but &lt;em&gt;actually succeeds&lt;/em&gt; on the server. Your harness sees no response, so it retries. Now &lt;code&gt;charge_customer&lt;/code&gt; ran twice, &lt;code&gt;send_email&lt;/code&gt; fired twice, and &lt;code&gt;create_ticket&lt;/code&gt; left two tickets. The model did nothing wrong. Every eval you have is green. And a customer just got billed $198 for a $99 plan.&lt;/p&gt;
+
+&lt;p&gt;This is the failure mode nobody puts in a demo, because demos don&#x27;t retry and demos don&#x27;t have side effects that matter. Production has both. If your agent takes &lt;em&gt;actions&lt;/em&gt; — not just generates text — then retry safety is not a nice-to-have, it is the difference between an autonomous system and a liability with a scheduler.&lt;/p&gt;
+
+&lt;p&gt;I want to argue two things. First: side-effect safety is a &lt;strong&gt;Tier 1 evaluation problem&lt;/strong&gt;, not a prompt problem. Second: you cannot even &lt;em&gt;see&lt;/em&gt; this class of bug without a trace of what the agent actually did, which is where the eval story and the observability story become the same story.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why the model can&#x27;t save you here
+&lt;/h2&gt;
+
+&lt;p&gt;The instinct is to make the agent smarter. &quot;Tell it to check whether the charge already went through before retrying.&quot; Please don&#x27;t. You are asking a non-deterministic component to enforce an invariant that must hold &lt;em&gt;every single time&lt;/em&gt;. The model will comply 95% of the time and the other 5% is a chargeback.&lt;/p&gt;
+
+&lt;p&gt;Retries don&#x27;t come from the model anyway. They come from your harness, your HTTP client, your queue&#x27;s at-least-once delivery, a Kubernetes pod restart mid-execution. The agent&#x27;s &quot;reasoning&quot; is nowhere near the retry. So no amount of judging the agent&#x27;s output tells you whether the &lt;em&gt;effect&lt;/em&gt; happened once or twice.&lt;/p&gt;
+
+&lt;p&gt;This is exactly why I think about evidence on an &lt;strong&gt;independence axis&lt;/strong&gt;, not a cost axis. Evidence is only worth what the agent couldn&#x27;t forge:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Tier 1 — proof the agent can&#x27;t fake.&lt;/strong&gt; The side effect is externally observable. Did exactly one charge with this idempotency key hit Stripe? Does exactly one ticket exist? This is a deterministic yes/no you read from the &lt;em&gt;world&lt;/em&gt;, not from the agent.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Tier 2 — statistical signal vs a baseline the agent didn&#x27;t author.&lt;/strong&gt; Retry-rate per tool trending up, duplicate-detection hits, latency distributions shifting. Signal, cheap, real-time.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Tier 3 — model-as-judge.&lt;/strong&gt; Useful for &quot;was this refund reasonable?&quot; Useless for &quot;did it happen twice.&quot; A judge is a &lt;em&gt;shared-substrate opinion&lt;/em&gt;: a signal, never a verdict, and never allowed in the hot path.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Double-execution lives entirely in Tier 1. It&#x27;s binary, it&#x27;s forgery-proof, and it&#x27;s the 80% of production incidents that never needed an LLM to catch.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The actual fix: idempotency keys the agent doesn&#x27;t control
+&lt;/h2&gt;
+
+&lt;p&gt;The correct architecture makes double-execution &lt;em&gt;impossible&lt;/em&gt;, then evaluates that the invariant held. The key insight: the idempotency key is derived by the harness from the intent, not minted by the model on each attempt.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight typescript&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;createHash&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;node:crypto&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;type&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ToolCall&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;tool&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kr&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unknown&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;runId&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// The key is a pure function of intent — identical across retries,&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// because the AGENT never generates it. The harness does.&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;idempotencyKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ToolCall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;canonical&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;stringify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;tool&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;tool&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;runId&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;runId&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// one logical action per run, not per attempt&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;createHash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;sha256&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;canonical&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;digest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;hex&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;executeOnce&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ToolCall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sideEffect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;unknown&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;idempotencyKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;// Tier 1 proof, checked BEFORE the effect: has this exact intent run?&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;prior&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ledger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prior&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;status&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;committed&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;prior&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;replayed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// no second charge&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ledger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;status&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;in_flight&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sideEffect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// pass key downstream to Stripe et al.&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ledger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;status&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;committed&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;replayed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Now the retry is safe &lt;em&gt;by construction&lt;/em&gt;: a second attempt with the same intent replays the recorded result instead of firing the effect again. But — and this is the part people skip — &lt;strong&gt;being safe is not the same as knowing you&#x27;re safe.&lt;/strong&gt; You still have to prove it in your evals.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The eval and the trace are one system
+&lt;/h2&gt;
+
+&lt;p&gt;Here&#x27;s where I&#x27;ll stop describing generic hygiene and tell you what I actually run: &lt;strong&gt;agent-eval&lt;/strong&gt; to score and gate the output, and &lt;strong&gt;AgentLens&lt;/strong&gt; to capture the trace it scores against. They ship as a unit for a reason I only appreciated after getting burned.&lt;/p&gt;
+
+&lt;p&gt;agent-eval owns the Tier 1 gate. After every run it asserts the invariant against ground truth the agent could not author:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight typescript&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;evaluate&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;agent-eval&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;report&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;evaluate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;checks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// Tier 1: externally observable, unforgeable proof.&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;single-charge&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;tier&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;async &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;trace&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;trace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;toolCalls&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;tool&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;charge_customer&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)?.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;idempotencyKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;hits&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;stripe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;charges&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;pass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;hits&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;detail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;`charges=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hits&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}},&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// Tier 2: statistical signal vs a baseline the agent didn&#x27;t set.&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;retry-rate&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;tier&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;trace&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;retries&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;trace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;toolCalls&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;replayed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;pass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;retries&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;baseline&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;p95&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;detail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;`replays=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;retries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;`&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}},&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Notice &lt;code&gt;trace.toolCalls&lt;/code&gt; and &lt;code&gt;t.idempotencyKey&lt;/code&gt;. Where does that come from? &lt;strong&gt;AgentLens.&lt;/strong&gt; It records every model step and every tool step — resolved inputs, the idempotency key the harness derived, the raw provider response, whether the attempt was a replay or a fresh effect. Without that trace, the &quot;single-charge&quot; check has nothing to read. The agent&#x27;s own summary (&quot;I charged the customer once&quot;) is exactly the self-report you must not trust — it&#x27;s shared-substrate, the agent authored it.&lt;/p&gt;
+
+&lt;p&gt;That&#x27;s the whole thesis of pairing them. Tier 1+2 only mean something if they run over data the agent &lt;em&gt;didn&#x27;t get to write&lt;/em&gt;. AgentLens produces the unforgeable substrate; agent-eval renders the verdict. One captures how the agent got there, the other decides whether &quot;there&quot; was correct — and critically, Tier 1+2 run over trajectories in real time at roughly $0, while the judge stays offline for the subjective tail where it belongs.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Ship the 80%
+&lt;/h2&gt;
+
+&lt;p&gt;You do not need a smarter model to stop double-charging customers. You need:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Idempotency keys the model never touches, so retries are safe by construction.&lt;/li&gt;
+&lt;li&gt;A Tier 1 check that reads the &lt;em&gt;world&lt;/em&gt; and asserts exactly-once — the deterministic, real-time gate.&lt;/li&gt;
+&lt;li&gt;A trace (AgentLens) unforgeable enough that the check has real ground truth to read.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Reserve the model-as-judge for the genuinely subjective 20% — &quot;was this refund fair?&quot; — and label its output &lt;em&gt;opinion, not evidence&lt;/em&gt;. The retry storm quietly draining your customers&#x27; cards is not in that 20%. It never was. It&#x27;s the most catchable bug you have, sitting in Tier 1, waiting for you to look at the trace.&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;エージェントがツールを呼び出します。ツールはネットワーク層でタイムアウトしますが、サーバー上では実際には成功します。&lt;/p&gt;ハーネスは応答を検知しないため、再試行します。その結果、&lt;code&gt;charge_customer&lt;/code&gt;が2回実行され、&lt;code&gt;send_email&lt;/code&gt;が2回実行され、&lt;code&gt;create_ticket&lt;/code&gt;によって2件のチケットが作成されました。モデルには何の問題もありません。すべての評価は緑色です。そして、顧客には99ドルのプランに対して198ドルの請求が発生しました。&lt;/p&gt;
+
+&lt;p&gt;これは、デモでは誰も実行しない障害モードです。なぜなら、デモでは再試行も実行もされないからです。&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">AIエージェントがツール呼び出し時にネットワークタイムアウトが発生すると、サーバー上では正常に完了していても再試行により同じ処理が2回実行される問題が生じる。モデルの指示だけでは防げないため、ハーネスが生成するべき冪等性キー（idempotency key）により、再試行時に前回の結果を再利用する設計が必須である。
+この問題は「Tier 1評価」（外部から検証可能で改ざん不可な証拠）として扱うべきで、AgentLensで記録した追跡データとagent-evalによる検証を組み合わせることで、実際に1回だけ課金されたことを確認できる。
+モデルの判断力に頼るのではなく、冪等性キー・Tier1チェック・改ざん不可の追跡ログの3つで80%の本番環境バグを防ぎ、モデル判定は主観的判断（払戻が適切か等）の20%にだけ限定すべきである。</p>
+  <div class="card-footer"><a href="https://dev.to/saurav_bhattacharya/your-agents-retries-are-double-charging-your-users-and-every-eval-is-green-3ija" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">HTTP Basic認証の背後でWordPressサイトを維持する — Playwright、urllib、および暗号化された認証情報</div><div class="original-title">Maintaining WordPress sites behind HTTP Basic auth — Playwright, urllib, and encrypted credentials</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;It&#x27;s pretty common to throw a layer of HTTP Basic auth on a WordPress site: a staging environment before launch, an internal test instance only employees should see, or any environment that wants an extra gate before the WordPress login screen itself.&lt;/p&gt;
+
+&lt;p&gt;From a maintenance-tool point of view, this setup creates a peculiar &lt;strong&gt;&quot;half-working, half-broken&quot;&lt;/strong&gt; asymmetry. The SSH/WP-CLI side runs fine. But everything HTTP-based — visual checks, thumbnail generation, browser-based fallback updates — hits 401 and dies. This post walks through how we resolved that asymmetry.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What was breaking — two parallel paths, both blocked
+&lt;/h2&gt;
+
+&lt;p&gt;A maintenance tool actually touches a Basic-auth-protected site through two distinct paths:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Playwright path&lt;/strong&gt;: visual checks, thumbnail capture, browser fallback updates when SSH isn&#x27;t available. &lt;code&gt;browser.new_context()&lt;/code&gt; → navigation → screenshot&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;urllib path&lt;/strong&gt;: HTTP status checks (pre/post-update 200/5xx/4xx monitoring, rollback decisions)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;With no credentials, both paths see a &lt;strong&gt;401 Unauthorized&lt;/strong&gt; from the protected site.&lt;/p&gt;
+
+&lt;p&gt;The Playwright symptom is the obvious one: the screenshot you save is the browser&#x27;s &quot;authentication required&quot; dialog. The thumbnail grid fills with dark auth-prompt images, and you start wondering whether anything actually works.&lt;/p&gt;
+
+&lt;p&gt;The urllib symptom is much worse — &lt;strong&gt;it silently breaks rollback decisions&lt;/strong&gt;. A 401 baseline followed by another 401 after the update looks like &quot;nothing changed = healthy.&quot; Real failures can hide behind that match, and the rollback that should have fired never does.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The design — consolidate credential extraction into one helper
+&lt;/h2&gt;
+
+&lt;p&gt;When the same credentials need to flow through multiple code paths, picking them out of the site dict separately at each call site invites format-mismatch and missed-update bugs. So the first thing we did was build a small &lt;code&gt;core/basic_auth_utils.py&lt;/code&gt; module that &lt;strong&gt;owns every form of credential extraction&lt;/strong&gt;.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# core/basic_auth_utils.py
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_basic_auth_tuple&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Return (user, password), or None if not configured.&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&quot;&quot;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;isinstance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;basic_auth_user&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&#x27;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;pw&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;basic_auth_password&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&#x27;&#x27;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# No user → treat as &quot;no auth&quot;
+&lt;/span&gt;    &lt;span class=&quot;nf&quot;&gt;return &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pw&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_playwright_http_credentials&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Returns dict for Playwright&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s new_context(http_credentials=...).&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&quot;&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_basic_auth_tuple&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]}&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_basic_auth_header&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&quot;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Returns {&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Authorization&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;: &lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Basic &amp;lt;base64&amp;gt;&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;} for urllib.&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&quot;&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_basic_auth_tuple&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;raw&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;sa&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;encode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;utf-8&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;encoded&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;base64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;b64encode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;raw&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;decode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;ascii&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Authorization&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;sa&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;Basic &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encoded&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The key idea: &lt;strong&gt;both the Playwright and urllib forms derive from the same &lt;code&gt;get_basic_auth_tuple()&lt;/code&gt; root&lt;/strong&gt;. Format drift between the two callers becomes structurally impossible.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Backward compatibility — existing sites don&#x27;t have these fields
+&lt;/h2&gt;
+
+&lt;p&gt;A small but important detail: &lt;strong&gt;the existing site-configuration JSON has no &lt;code&gt;basic_auth_user&lt;/code&gt; / &lt;code&gt;basic_auth_password&lt;/code&gt; keys&lt;/strong&gt;. Naively writing &lt;code&gt;site[&#x27;basic_auth_user&#x27;]&lt;/code&gt; would crash with &lt;code&gt;KeyError&lt;/code&gt; the moment someone opens an existing site.&lt;/p&gt;
+
+&lt;p&gt;We went with the &lt;code&gt;site.get(&#x27;basic_auth_user&#x27;) or &#x27;&#x27;&lt;/code&gt; empty-string-fallback pattern. Missing key, empty string, or &lt;code&gt;None&lt;/code&gt; all collapse to &quot;no auth,&quot; so existing sites behave exactly as before. Only the sites that actually set Basic auth flip into the authenticated path.&lt;/p&gt;
+
+&lt;p&gt;On top of that, the Basic auth password gets the same treatment as the WordPress admin password: &lt;strong&gt;Fernet-encrypted at rest&lt;/strong&gt;. Adding &lt;code&gt;&#x27;basic_auth_password&#x27;&lt;/code&gt; to the &lt;code&gt;ENCRYPTED_SITE_KEYS&lt;/code&gt; constant is all it takes — encryption and decryption happen automatically on save and load.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Wiring both paths
+&lt;/h2&gt;
+
+&lt;p&gt;With the helpers in place, the call sites get rewired.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Playwright path&lt;/strong&gt;: one shared helper &lt;code&gt;_new_context_with_auth(browser, site)&lt;/code&gt; replaces three &lt;code&gt;new_context()&lt;/code&gt; call sites (visual check, thumbnail capture, browser residual update) at once.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_new_context_with_auth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;browser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;http_credentials&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_playwright_http_credentials&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;site&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;http_credentials&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;browser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;http_credentials&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;http_credentials&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;browser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;urllib path&lt;/strong&gt;: &lt;code&gt;_http_status_check(url, basic_auth=None)&lt;/code&gt; gains a &lt;code&gt;basic_auth&lt;/code&gt; parameter and sends the Authorization header internally. The &quot;baseline 401 → post-update 401&quot; false negative disappears — the rollback decision now sees the real status code after authentication (200 / 5xx / etc.) and fires correctly.&lt;/p&gt;
+
+&lt;p&gt;Inside the maintenance main loop &lt;code&gt;run_ssh_maintenance&lt;/code&gt;, we &lt;strong&gt;extract &lt;code&gt;_basic_auth&lt;/code&gt; from the site dict exactly once&lt;/strong&gt; and pass it into all five &lt;code&gt;_http_status_check_stable()&lt;/code&gt; calls. Pulling it out from the dict at every call site invites &quot;this one place forgot,&quot; so a local variable is the safer move.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  UI — keep the rare case out of the way
+&lt;/h2&gt;
+
+&lt;p&gt;From a user perspective, Basic-auth-protected sites are the minority. Putting two always-visible input fields in the site-add modal would clutter the UI for the 99% of sites that don&#x27;t need them.&lt;/p&gt;
+
+&lt;p&gt;So we put the credentials behind a &lt;code&gt;&amp;lt;details&amp;gt;&lt;/code&gt; element — &lt;strong&gt;a collapsed-by-default &quot;🔐 Basic Auth (optional)&quot; section&lt;/strong&gt; at the end of the WordPress info group in the site-add/edit modal.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight html&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;details&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;summary&amp;gt;&lt;/span&gt;🔐 Basic Auth (optional)&lt;span class=&quot;nt&quot;&gt;&amp;lt;/summary&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;basic_auth_user&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;placeholder=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Auth username&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;password&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;basic_auth_password&quot;&lt;/span&gt;
+         &lt;span class=&quot;na&quot;&gt;placeholder=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Auth password&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/details&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Users with Basic-auth-protected sites expand and fill it in; the rest see no change. Saved passwords go through Fernet with the &lt;code&gt;ENC:&lt;/code&gt; prefix.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Closing — patterns for &quot;same credentials, multiple paths&quot;
+&lt;/h2&gt;
+
+&lt;p&gt;Three principles worth keeping from this round:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;When multiple paths need the same credentials, consolidate extraction into one helper.&lt;/strong&gt; Playwright form, urllib form, boolean check — each consumer wants a different shape, but they should all derive from a single &lt;code&gt;(user, password)&lt;/code&gt; root function. That keeps format drift from happening&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;For new fields on existing data, lean on empty-fallback patterns.&lt;/strong&gt; &lt;code&gt;site.get(key) or &#x27;&#x27;&lt;/code&gt; treats missing keys as &quot;feature off,&quot; letting you add functionality without touching existing data. No migration needed&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Hide rare features behind disclosure widgets.&lt;/strong&gt; A field used by 1% of sites doesn&#x27;t deserve top-billing visual space. A &lt;code&gt;&amp;lt;details&amp;gt;&lt;/code&gt; collapse with a small icon expresses &quot;optional feature&quot; cleanly, and gets out of the way for everyone else&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Staging environments behind Basic auth aren&#x27;t rare in the WordPress world. If your automation tool is &quot;half working&quot; against those sites, teams quickly fall back to manual maintenance just for that subset. Designing a clean credential path through both the Playwright and urllib sides — once — is worth the up-front investment.&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;WordPressサイトにHTTP基本認証を追加するのはよくあることです。例えば、公開前のステージング環境、従業員のみがアクセスできる内部テスト環境、あるいはWordPressのログイン画面の前に追加の認証ゲートを設けたい環境などです。&lt;/p&gt;
+
+&lt;p&gt;メンテナンスツールの観点から見ると、この設定は「半分機能し、半分壊れている」という奇妙な非対称性を生み出します。SSH/WP-CLI側は問題なく動作しますが、HTTPベースの処理（ビジュアルチェック、サムネイル生成、ブラウザベースの機能など）はすべてうまくいきません。&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">HTTP Basic認証で保護されたWordPressサイトのメンテナンスツールは、SSH/WP-CLIパスは動作するが、Playwrightとurllibを使用するHTTPベースの処理は401エラーで失敗する「半動作・半破損」の非対称性を抱えている。
+認証情報の抽出ロジックを一つのヘルパーモジュールに集約し、Playwrightとurllib両方のパスで同じ(username, password)タプルを元に、それぞれの形式に変換することで、認証情報の形式ズレを防止できる。
+既存サイト設定との互換性を保つため空文字列フォールバックパターンを用い、パスワードはFernet暗号化で保存し、UIでは「🔐 Basic Auth (optional)」を折りたたみ要素で非表示にすることで、99%の非対応サイトへの影響を最小化している。</p>
+  <div class="card-footer"><a href="https://dev.to/susumun/maintaining-wordpress-sites-behind-http-basic-auth-playwright-urllib-and-encrypted-credentials-5f2f" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">大規模ログ管理：信号品質を落とさずにコストを70%削減する方法</div><div class="original-title">Log Management at Scale: How We Cut Costs 70% Without Losing Signal</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;h2&gt;
+  
+  
+  $12,000/Month for Logs Nobody Reads
+&lt;/h2&gt;
+
+&lt;p&gt;Our logging bill was $12,000/month. We were ingesting 2TB/day. When I asked the team what percentage of logs they actually looked at during incidents, the answer was embarrassing: about 5%.&lt;/p&gt;
+
+&lt;p&gt;We were paying to store 95% noise.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Log Audit
+&lt;/h2&gt;
+
+&lt;p&gt;First, I categorized all log sources by value:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;High value (always need during incidents):
+  Application errors (stack traces)
+  Authentication events
+  Business transactions
+  External API calls with responses
+  Health check failures
+
+Medium value (sometimes useful):
+  Request/response logs (sampled)
+  Performance metrics in logs
+  Deployment events
+  Configuration changes
+
+Low value (almost never needed):
+  Debug/trace level logs
+  Health check successes
+  Static asset requests
+  Heartbeat messages
+  Verbose framework logs
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Strategy 1: Log Levels as a Service
+&lt;/h2&gt;
+
+&lt;p&gt;We made log levels dynamic. In production, default is WARN. During incidents, flip to DEBUG for the affected service:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;logging&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Log level from environment variable, changeable at runtime
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;LOG_LEVEL&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;LOG_LEVEL&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;WARNING&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;logging&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;basicConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;getattr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;logging&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LOG_LEVEL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Endpoint to change log level without restart
+&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@app.post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;/admin/log-level&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;set_log_level&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;logging&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;getLogger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;setLevel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;getattr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;logging&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;upper&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()))&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;status&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;In Kubernetes:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight shell&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# Normal operation&lt;/span&gt;
+kubectl &lt;span class=&quot;nb&quot;&gt;set env &lt;/span&gt;deployment/api &lt;span class=&quot;nv&quot;&gt;LOG_LEVEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;WARNING
+
+&lt;span class=&quot;c&quot;&gt;# During incident&lt;/span&gt;
+kubectl &lt;span class=&quot;nb&quot;&gt;set env &lt;/span&gt;deployment/api &lt;span class=&quot;nv&quot;&gt;LOG_LEVEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;DEBUG
+
+&lt;span class=&quot;c&quot;&gt;# After incident&lt;/span&gt;
+kubectl &lt;span class=&quot;nb&quot;&gt;set env &lt;/span&gt;deployment/api &lt;span class=&quot;nv&quot;&gt;LOG_LEVEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;WARNING
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Strategy 2: Tiered Retention
+&lt;/h2&gt;
+
+
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight yaml&quot;&gt;&lt;code&gt;&lt;span class=&quot;na&quot;&gt;retention_policy&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;hot_storage&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Fast search, expensive&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;duration&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;7 days&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;WARN&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;OR&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;tag:business_event&quot;&lt;/span&gt;
+
+  &lt;span class=&quot;na&quot;&gt;warm_storage&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Slower search, cheaper&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;duration&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;30 days&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;INFO&quot;&lt;/span&gt;
+
+  &lt;span class=&quot;na&quot;&gt;cold_storage&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Archive only, cheapest&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;duration&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;365 days&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;tag:audit&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;OR&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;tag:compliance&quot;&lt;/span&gt;
+
+  &lt;span class=&quot;na&quot;&gt;drop&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Don&#x27;t store at all&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;level&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;DEBUG&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;OR&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;source:health_check&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Strategy 3: Structured Logging
+&lt;/h2&gt;
+
+&lt;p&gt;Unstructured logs are expensive to parse. Structured logs are cheap to query:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# Bad: Unstructured
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sa&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;User &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user_id&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; purchased &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;product_id&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; for $&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;amount&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Parsing this requires regex, which costs compute
+&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Good: Structured
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;purchase_completed&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;extra&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;user_id&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;product_id&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;product_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;amount&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;amount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;currency&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;USD&lt;/span&gt;&lt;span class=&quot;sh&quot;&gt;&#x27;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Output: {&quot;message&quot;: &quot;purchase_completed&quot;, &quot;user_id&quot;: &quot;u123&quot;, ...}
+# Queryable without parsing
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Strategy 4: Sample Verbose Logs
+&lt;/h2&gt;
+
+
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight python&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;random&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;should_log_request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Always log errors
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;status_code&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;400&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Always log slow requests
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;duration_ms&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Sample 10% of successful requests
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.10&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  The Results
+&lt;/h2&gt;
+
+
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;Before:
+  Daily ingestion: 2 TB
+  Monthly cost: $12,000
+  Useful data: ~5%
+
+After:
+  Daily ingestion: 400 GB
+  Monthly cost: $3,600
+  Useful data: ~70%
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;We cut costs by 70% AND improved signal quality. Searches are faster because there&#x27;s less noise. Incidents resolve quicker because relevant logs surface immediately.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Rule
+&lt;/h2&gt;
+
+&lt;p&gt;Before adding a log statement, ask: &quot;Will someone look at this during an incident?&quot; If the answer is no, it&#x27;s DEBUG level at most.&lt;/p&gt;
+
+&lt;p&gt;If you&#x27;re spending too much on logs and want smarter log management, check out what we&#x27;re building at &lt;a href=&quot;https://novaaiops.com&quot; rel=&quot;noopener noreferrer&quot;&gt;Nova AI Ops&lt;/a&gt;.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;Written by Dr. Samson Tanimawo&lt;/strong&gt;&lt;br /&gt;
+BSc · MSc · MBA · PhD&lt;br /&gt;
+Founder &amp;amp; CEO, Nova AI Ops. &lt;a href=&quot;https://novaaiops.com&quot; rel=&quot;noopener noreferrer&quot;&gt;https://novaaiops.com&lt;/a&gt;&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;h2&gt;
+
+誰も読まないログに月額12,000ドル
+&lt;/h2&gt;
+
+&lt;p&gt;ログ記録費用は月額12,000ドルでした。1日に2TBものログを収集していました。インシデント発生時に実際にログを確認した割合をチームに尋ねたところ、恥ずかしいことに約5%という答えが返ってきました。&lt;/p&gt;
+
+&lt;p&gt;95%はノイズログでした。&lt;/p&gt;
+
+&lt;h2&gt;
+
+ログ監査
+&lt;/h2&gt;
+
+&lt;p&gt;まず、すべてのログソースを価値別に分類しました。&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class=&quot;highlight js-code-highlight&quot;&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;価値が高い（常に確認が必要）</p>
+  <div class="label">要約</div>
+  <p class="summary">月12,000ドルのログ費用のうち実際に必要な情報は5%に過ぎなかったため、ログレベルの動的制御、階層型保持ポリシー、構造化ログ、サンプリングの4つの戦略を実施。
+結果として日次取り込み量を2TBから400GBに削減し、月額コストを70%削減（$12,000から$3,600）しながらシグナル品質を5%から70%に向上。
+本来の方針は「インシデント時に見る必要がなければDEBUGレベル以下」とし、ノイズを減らしてログ検索を高速化し問題解決を迅速化。</p>
+  <div class="card-footer"><a href="https://dev.to/samson_tanimawo/log-management-at-scale-how-we-cut-costs-70-without-losing-signal-1k1j" target="_blank">元記事を開く</a></div>
+</div>
+<h2>InfoQ</h2>
+<div class="card">
+  <div class="card-title">プレゼンテーション：信頼できる生産性：AI加速型開発のセキュリティ確保</div><div class="original-title">Presentation: Trustworthy Productivity: Securing AI-Accelerated Development</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/presentations/ai-development/en/mediumimage/SriramMadapusiVasudevan-medium-1782220895596.jpg&quot; /&gt;&lt;p&gt;Sriram Madapusi Vasudevan discusses industry-converging patterns for securing autonomous AI agents in production. He explains the critical vulnerabilities hidden inside the ReAct loop across context, reasoning, and tool execution. He shares how to mitigate risks like memory poisoning and rogue tool execution using defense-in-depth strategies, LLM-as-a-judge critics, and MAESTRO threat modeling.&lt;/p&gt; &lt;i&gt;By Sriram Madapusi Vasudevan&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/presentations/ai-development/en/mediumimage/SriramMadapusiVasudevan-medium-1782220895596.jpg&quot; /&gt;&lt;p&gt;Sriram Madapusi Vasudevan 氏が、本番環境で自律型 AI エージェントを保護するための業界収束パターンについて解説します。コンテキスト、推論、ツール実行にわたる ReAct ループ内に潜む重大な脆弱性について説明します。多層防御戦略、LLM を裁判官として用いることへの批判、メモリ汚染や不正ツール実行などのリスクを軽減する方法についても解説します。</p>
+  <div class="label">要約</div>
+  <p class="summary">自律型AIエージェントを本番環境で安全に運用するための業界横断的なセキュリティパターンについての講演。
+ReActループ内のコンテキスト、推論、ツール実行に潜む重大な脆弱性と、メモリ汚染や不正なツール実行などのリスク要因を解説。
+多層防御戦略、LLM判定機構、MAESTRO脅威モデリングを活用したリスク軽減手法を紹介。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/presentations/ai-development/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">認知科学に基づいた、柔軟性のあるオープンソースのアトラスエージェントメモリ</div><div class="original-title">Elastic Open-Sources Atlas Agent Memory Based on Cognitive Science</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/elastic-atlas-agent-memory/en/headerimage/generatedHeaderImage-1782569563186.jpg&quot; /&gt;&lt;p&gt;Elastic open-sourced Atlas, a system built on Elasticsearch that maintains three categories of memory for agents. Atlas integrates with agents via MCP and maintains per-user isolation of memories. When evaluated on question-answering capability, it scored 0.89 Recall@10.&lt;/p&gt; &lt;i&gt;By Anthony Alford&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/elastic-atlas-agent-memory/en/headerimage/generatedHeaderImage-1782569563186.jpg&quot; /&gt;&lt;p&gt;Elastic社は、エージェント用の3つのカテゴリのメモリを管理するElasticsearchベースのシステムであるAtlasをオープンソース化しました。AtlasはMCPを介してエージェントと統合され、ユーザーごとのメモリの分離を維持します。質問応答能力で評価したところ、Recall@10で0.89のスコアを獲得しました。&lt;/p&gt; &lt;i&gt;アンソニー・アルフォード著&lt;/i&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">ElasticがElasticsearchを基盤とした「Atlas」をオープンソース化し、AIエージェント向けの3段階のメモリ管理システムを提供。
+AtlasはMCP経由でエージェントと統合でき、ユーザーごとのメモリ隔離を実現。
+質問応答の評価テストではRecall@10で0.89を達成し、高い性能を示している。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/news/2026/06/elastic-atlas-agent-memory/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">MicrosoftがCopilot Autofixにより、AIを活用した脆弱性修復機能をAzure DevOpsに導入</div><div class="original-title">Microsoft Brings AI-Powered Vulnerability Remediation to Azure DevOps with Copilot Autofix</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/azuredevops-copilot-autofix/en/headerimage/generatedHeaderImage-1782552787591.jpg&quot; /&gt;&lt;p&gt;Microsoft has announced the limited public preview of Copilot Autofix for GitHub Advanced Security for Azure DevOps, extending AI-powered vulnerability remediation to teams using Azure Repos.&lt;/p&gt; &lt;i&gt;By Craig Risi&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/azuredevops-copilot-autofix/en/headerimage/generatedHeaderImage-1782552787591.jpg&quot; /&gt;&lt;p&gt;Microsoft は、Azure DevOps 向け GitHub Advanced Security の Copilot Autofix の限定パブリック プレビューを発表しました。これにより、AI を活用した脆弱性修復機能が Azure Repos を使用するチームにも拡張されます。&lt;/p&gt; &lt;i&gt;Craig Risi 著&lt;/i&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">MicrosoftがGitHub Advanced Security for Azure DevOps向けのCopilot Autofixの限定パブリックプレビューを発表した。
+この機能により、Azure Reposを使用するチームがAI駆動の脆弱性自動修復に対応できるようになる。
+開発者はセキュリティ脆弱性の検出から修正まで、より効率的にワークフロー内で対応することが可能になる。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/news/2026/06/azuredevops-copilot-autofix/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">AWSがエージェントとユーザーのコード実行を分離するLambda MicroVMを発表</div><div class="original-title">AWS Launches Lambda MicroVMs for Isolated Agent and User Code Execution</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/aws-lambda-microvms/en/headerimage/generatedHeaderImage-1782380968528.jpg&quot; /&gt;&lt;p&gt;AWS launched Lambda MicroVMs, a new serverless compute primitive that runs each user session or AI agent in its own Firecracker virtual machine with hardware-level isolation, snapshot-based rapid launch, and state preservation for up to eight hours. Reddit community analysis found the minimum setup costs $3.03/day, roughly 9x Fargate spot pricing.&lt;/p&gt; &lt;i&gt;By Steef-Jan Wiggers&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/aws-lambda-microvms/en/headerimage/generatedHeaderImage-1782380968528.jpg&quot; /&gt;&lt;p&gt;AWSは、各ユーザーセッションまたはAIエージェントを独自のFirecracker仮想マシンで実行し、ハードウェアレベルの分離、スナップショットベースの高速起動、最大8時間の状態保持を実現する新しいサーバーレスコンピューティングプリミティブであるLambda MicroVMsを発表しました。Redditコミュニティの分析によると、最小セットアップ費用は1日あたり3.03ドルで、Fargateスポット価格の約9倍です。&lt;/p&gt; &lt;i&gt;Steef-Jan Wigge著</p>
+  <div class="label">要約</div>
+  <p class="summary">AWSが新しいサーバーレスコンピュート基盤「Lambda MicroVMs」をリリース。各ユーザーセッションやAIエージェントを独立したFirecracker仮想マシンで実行し、ハードウェアレベルの分離と高速起動を実現。
+スナップショットベースの迅速な起動と最大8時間の状態保存が可能で、エンタープライズグレードのセキュリティを提供。
+Redditコミュニティの分析によると、最小構成で1日あたり約$3.03の費用がかかり、Fargate Spotの約9倍のコストとなる見込み。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/news/2026/06/aws-lambda-microvms/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">記事：Javaベースのリアルタイムシステムのスケーリング：イベント駆動設計の隠れたトレードオフ</div><div class="original-title">Article: Scaling Java-Based Real-Time Systems: The Hidden Tradeoffs of Event-Driven Design</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/articles/tradeoffs-event-driven-design/en/headerimage/tradeoffs-event-driven-design-header-1782458803116.jpg&quot; /&gt;&lt;p&gt;Event-driven architecture promises scalability, but in Java-based real-time systems the tradeoffs only surface in production. Drawing on a Java/Kafka contact center platform handling 80k BHCC across 10k agents, this article details where the design breaks down—state management, partition limits, deduplication, JVM tuning, cascading consumer failures—and the Redis-backed patterns that fixed each.&lt;/p&gt; &lt;i&gt;By Sagar Deepak Joshi&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/articles/tradeoffs-event-driven-design/en/headerimage/tradeoffs-event-driven-design-header-1782458803116.jpg&quot; /&gt;&lt;p&gt;イベント駆動型アーキテクチャはスケーラビリティを約束しますが、Java ベースのリアルタイム システムでは、トレードオフは本番環境でのみ顕在化します。10,000 人のエージェントで 80,000 の BHCC を処理する Java/Kafka コンタクト センター プラットフォームを例に、この記事では、設計が破綻する箇所 (状態管理、パーティション制限、重複排除、JVM チューニング、連鎖的なコンシューマー障害) を詳細に解説します。</p>
+  <div class="label">要約</div>
+  <p class="summary">イベント駆動アーキテクチャはスケーラビリティを約束しているが、Java/Kafkaベースのリアルタイムシステムではトレードオフが本番環境で顕在化する。
+80,000BHCCを扱う1万エージェント規模のコンタクトセンタープラットフォームの事例から、ステート管理、パーティション制限、重複排除、JVMチューニング、カスケード式の消費者障害などの設計上の問題点と対策を詳解。
+Redis連携パターンでこれらの課題がどのように解決されたかを具体的に紹介。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/articles/tradeoffs-event-driven-design/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">Javaニュースまとめ：Hardwood 1.0、Endive 1.0、Azul Payara、Quarkus、WildFly、LangChain4j、OSSI</div><div class="original-title">Java News Roundup: Hardwood 1.0, Endive 1.0, Azul Payara, Quarkus, WildFly, LangChain4j, OSSI</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/java-news-roundup-jun22-2026/en/headerimage/java-news-roundup-image-1782763644221.jpg&quot; /&gt;&lt;p&gt;This week&#x27;s Java roundup for June 22nd, 2026, features news highlighting: the GA releases of Hardwood 1.0 and Endive 1.0; the June 2026 edition of Azul Payara; point releases of Quarkus, LangChain4j; the first beta release of WildFly 41; and introducing Eliya JDK and the Open Source Sustainability Initiative (OSSI), the latter of which was founded by HeroDevs and Commonhaus Foundation.&lt;/p&gt; &lt;i&gt;By Michael Redlich&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/java-news-roundup-jun22-2026/en/headerimage/java-news-roundup-image-1782763644221.jpg&quot; /&gt;&lt;p&gt;2026年6月22日の今週のJavaラウンドアップでは、Hardwood 1.0とEndive 1.0のGAリリース、Azul Payaraの2026年6月版、Quarkus、LangChain4jのポイントリリース、WildFly 41の最初のベータ版リリース、Eliya JDKとオープンソース持続可能性イニシアチブ（OSSI）の紹介など、注目すべきニュースを取り上げています。後者はHeroDevsによって設立されました。</p>
+  <div class="label">要約</div>
+  <p class="summary">Hardwood 1.0とEndive 1.0の正式版リリース、Azul Payara 2026年6月版、Quarkus and LangChain4jのポイントリリースが発表された。
+WildFly 41の初ベータ版がリリースされた。
+HeroDevsとCommonhaus Foundationが設立したEliya JDKとOpen Source Sustainability Initiative（OSSI）が新たに紹介された。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/news/2026/06/java-news-roundup-jun22-2026/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">Eliya 25は、OpenJDK 25 LTSにJVMレベルの診断プロファイルをもたらします。</div><div class="original-title">Eliya 25 Brings a JVM-Level Diagnostic Profile to OpenJDK 25 LTS</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/eliya-jvm-diagnostic-profile/en/headerimage/java-istock-image-01-1762720446658-1782700328980.jpg&quot; /&gt;&lt;p&gt;Asymm Systems has released Eliya 25.0.3, an OpenJDK 25 LTS distribution aimed at improving production diagnostics in Java environments. It consolidates several HotSpot features into an opt-in Production profile. Eliya is designed for teams needing reliable diagnostic data, especially in regulated settings. Future enhancements are planned for Phase 2.&lt;/p&gt; &lt;i&gt;By A N M Bazlur Rahman&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/eliya-jvm-diagnostic-profile/en/headerimage/java-istock-image-01-1762720446658-1782700328980.jpg&quot; /&gt;&lt;p&gt;Asymm Systems は、Java 環境における本番診断機能の向上を目的とした OpenJDK 25 LTS ディストリビューションである Eliya 25.0.3 をリリースしました。このディストリビューションは、HotSpot の複数の機能をオプトイン方式の本番プロファイルに統合しています。Eliya は、特に規制環境において、信頼性の高い診断データを必要とするチーム向けに設計されています。今後の機能強化はフェーズ 2 で予定されています。</p>
+  <div class="label">要約</div>
+  <p class="summary">Asymm Systemsが、Java環境の本番診断機能を強化するOpenJDK 25 LTSディストリビューション「Eliya 25.0.3」をリリースした。\nHotSpotの複数機能をオプション機能の本番プロファイルに統合し、チームが信頼性の高い診断データを取得できるよう設計されている。\n規制が厳しい環境でのニーズに対応し、Phase 2での機能拡張も予定されている。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/news/2026/06/eliya-jvm-diagnostic-profile/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">Target社のマーケティング予測パイプラインにおけるセマンティックマッチングのためのLLMベースシステムの詳細</div><div class="original-title">Inside Target’s LLM-Based System for Semantic Matching in Marketing Forecast Pipelines</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/target-ai-campaign-forecasting/en/headerimage/generatedHeaderImage-1780529558601.jpg&quot; /&gt;&lt;p&gt;Target built a generative AI system to improve marketing campaign forecasting by retrieving and ranking similar historical campaigns. Using embeddings, vector search, and LLM ranking, it replaces rule-based workflows. Evaluation shows 75% top-1 and 100% top-3 coverage. The system reduces manual effort, improves consistency, and uses feedback loops to refine retrieval using campaign outcomes.&lt;/p&gt; &lt;i&gt;By Leela Kumili&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/news/2026/06/target-ai-campaign-forecasting/en/headerimage/generatedHeaderImage-1780529558601.jpg&quot; /&gt;&lt;p&gt;Targetは、類似の過去のキャンペーンを検索してランク付けすることでマーケティングキャンペーンの予測精度を向上させる生成型AIシステムを構築しました。埋め込み、ベクトル検索、LLMランキングを使用することで、ルールベースのワークフローを置き換えます。評価では、トップ1が75%、トップ3が100%のカバー率を示しています。このシステムは、手作業を減らし、一貫性を向上させ、フィードバックループを使用して検索を洗練します。</p>
+  <div class="label">要約</div>
+  <p class="summary">Targetが生成AIシステムを開発し、過去のキャンペーンデータから類似事例を検索・ランク付けすることでマーケティングキャンペーン予測を改善。
+エンベディング、ベクトル検索、LLMランキングを組み合わせ、従来のルールベースワークフローを置き換え、トップ1で75%、トップ3で100%のカバレッジを実現。
+手作業の削減、一貫性向上を達成し、キャンペーン結果からのフィードバックループにより検索精度を継続的に改善。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/news/2026/06/target-ai-campaign-forecasting/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">プレゼンテーション：百万のPDF：RustとTypstで最新のドキュメントインフラストラクチャを構築する</div><div class="original-title">Presentation: Million PDFs: Building a Modern Document Infrastructure with Rust and Typst</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/presentations/document-infrastructure-rust-typst/en/mediumimage/ErikSteiger-medium-1782220478687.jpg&quot; /&gt;&lt;p&gt;Erik Steiger discusses the operational pain of legacy PDF generation in regulated banking and manufacturing. He explains how transitioning from resource-heavy engines like Puppeteer and LaTeX to a serverless Rust architecture powered by Typst can drop render latencies below 2ms. He shares how applying Git and Docker concepts to template registries ensures ironclad compliance and rapid debugging.&lt;/p&gt; &lt;i&gt;By Erik Steiger&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/presentations/document-infrastructure-rust-typst/en/mediumimage/ErikSteiger-medium-1782220478687.jpg&quot; /&gt;&lt;p&gt;Erik Steiger 氏は、規制対象の銀行や製造業における従来の PDF 生成の運用上の問題点について議論しています。Puppeteer や LaTeX のようなリソースを大量に消費するエンジンから Typst を搭載したサーバーレス Rust アーキテクチャに移行することで、レンダリングの遅延を 2ms 未満に抑えることができると説明しています。また、Git と Docker の概念をテンプレート レジストリに適用することで、iROS の安定性と信頼性を確保する方法についても解説しています。</p>
+  <div class="label">要約</div>
+  <p class="summary">銀行や製造業などの規制対象業界における従来のPDF生成の課題と、Puppeteer、LaTeXなどのリソース集約的なエンジンからServerless Rust + Typst アーキテクチャへの移行により、レンダリング遅延を2ms以下に削減する方法を紹介。
+GitやDockerの概念をテンプレートレジストリに適用することで、コンプライアンス対応と迅速なデバッグを実現するアプローチについて解説。
+大規模PDF生成システムにおけるパフォーマンス最適化と運用効率化の実践的な事例共有。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/presentations/document-infrastructure-rust-typst/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">記事：バーチャルパネル：機械時代のセキュリティ：AI脅威の進化に関する専門家の見解</div><div class="original-title">Article: Virtual panel: Security in the Machine Age: Expert Insights on AI Threat Evolution</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;img src=&quot;https://res.infoq.com/articles/security-ai-threat-evolution/en/headerimage/security-ai-threat-evolution-header-1782202845102.jpg&quot; /&gt;&lt;p&gt;This virtual panel brings together AI security experts to examine the evolution of AI-driven threats, from prompt injection and data poisoning to agent abuse and AI-powered social engineering. The discussion explores emerging attack patterns, incident response challenges, and the changes security teams must make as AI systems become more autonomous and integrated into critical workflows.&lt;/p&gt; &lt;i&gt;By Claudio Masolo, Elham Arshad, Sabri Allani, Vijay Dilwale, Igor Maljkovic&lt;/i&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;img src=&quot;https://res.infoq.com/articles/security-ai-threat-evolution/en/headerimage/security-ai-threat-evolution-header-1782202845102.jpg&quot; /&gt;&lt;p&gt;このバーチャルパネルでは、AIセキュリティの専門家が集まり、即時インジェクションやデータポイズニングからエージェントの悪用やAIを活用したソーシャルエンジニアリングまで、AI駆動型脅威の進化を検証します。議論では、新たな攻撃パターン、インシデント対応の課題、AIシステムがより自律的になるにつれてセキュリティチームが行わなければならない変更点を探ります。</p>
+  <div class="label">要約</div>
+  <p class="summary">AI駆動型脅威の進化について、プロンプトインジェクション、データポイズニング、エージェント悪用、AI活用した社会工学的攻撃など新たな攻撃パターンを検討するパネル討論。
+セキュリティチームが直面する新たなインシデント対応の課題と、AIシステムの自律性の向上および重要ワークフローへの統合に伴う対策の必要性を探究。
+複数のAIセキュリティ専門家が、組織のセキュリティ体制の変革について洞察を提供。</p>
+  <div class="card-footer"><a href="https://www.infoq.com/articles/security-ai-threat-evolution/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank">元記事を開く</a></div>
+</div>
+<h2>Ars Technica</h2>
+<div class="card">
+  <div class="card-title">6月の研究まとめ：見逃しそうになったクールな科学ニュース6選</div><div class="original-title">June research roundup: 6 cool science stories we almost missed</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>Also, the science of poop&#x27;s distinctive shape, boron buckyballs, and the secret to a soccer feint.</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>さらに、うんちの独特な形状の科学、ホウ素バッキーボール、そしてサッカーのフェイントの秘密についても解説します。</p>
+  <div class="label">要約</div>
+  <p class="summary">6月の科学分野で、報道の目が届きにくかった興味深い研究成果をまとめたもの。\nウンチの独特な形状の科学的メカニズム、ホウ素で作られたバッキーボール、サッカーのフェイントの秘密などを紹介。\nArsTechnicaが選りすぐった科学的に価値のある発見や研究を解説している。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/science/2026/06/june-research-roundup-6-cool-science-stories-we-almost-missed/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">old.reddit.comを利用するには、Redditにログインする必要があります。</div><div class="original-title">Reddit will require you to log in to use old.reddit.com</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>Logged-out Old Reddit access is “significant source of abusive scraping.&quot;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>ログアウトした状態での旧Redditへのアクセスは、「悪質なスクレイピングの大きな原因」となっている。</p>
+  <div class="label">要約</div>
+  <p class="summary">Redditは、旧デザイン（old.reddit.com）の利用にログイン要件を導入する。
+この変更は、ログアウト状態でのアクセスが「悪質なスクレイピングの重大な源」となっているため。
+ユーザーは旧UIを継続して利用できるが、今後はアカウントでのログインが必要になる予定。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/gadgets/2026/06/reddit-will-require-you-to-log-in-to-use-old-reddit-com/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">Amazonは、マルウェアを含む海賊版アプリが新型Fire Stickのサイドローディングを阻害していると非難している。</div><div class="original-title">Amazon blames piracy apps with malware for killing new Fire Stick sideloading</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>New Fire Stick OS helps Amazon block third-party homepage launchers, ad blockers.</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>新しいFire Stick OSは、Amazonがサードパーティ製のホームページランチャーや広告ブロッカーをブロックするのに役立つ。</p>
+  <div class="label">要約</div>
+  <p class="summary">Amazonは新しいFire Stick OSで、サードパーティ製のホームランチャーと広告ブロッカーをブロックできるようにした。
+この変更はセキュリティ上の脅威を理由に実施されている。
+同社は非公式アプリの配布がマルウェアリスクをもたらしていると説明している。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/gadgets/2026/06/exec-blames-malware-threat-for-amazon-blocking-sideloading-on-new-fire-sticks/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">NASAは予備の原子力火星探査車を月へ送る可能性がある</div><div class="original-title">NASA may send a backup, nuclear-powered Mars rover to the Moon</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&quot;That would be an awesome capability.&quot;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>「それは素晴らしい機能だろう。」</p>
+  <div class="label">要約</div>
+  <p class="summary">NASAは当初火星用に開発された予備の核動力ローバーを月ミッションに転用することを検討している。
+原子力を搭載することで、月の過酷な環境下でも長期間の探査活動が可能になる。
+この柔軟な資源活用は、予算効率と探査能力の向上を両立させる戦略となる。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/space/2026/06/nasa-may-send-a-backup-nuclear-powered-mars-rover-to-the-moon/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">GoogleがTenor GIF APIを廃止、X、Discordなどで変更を余儀なくされる</div><div class="original-title">Google kills Tenor GIF API, forcing changes at X, Discord, and more</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>Tenor still connects to Google apps, but other platforms must look elsewhere for GIFs.</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>Tenorは引き続きGoogleアプリと連携できるが、他のプラットフォームではGIFを別の方法で入手する必要がある。</p>
+  <div class="label">要約</div>
+  <p class="summary">GoogleがTenor GIF APIのサービスを終了する予定で、X（旧Twitter）やDiscordなどのプラットフォームが代替手段を検討せざるを得ない状況に。
+TenorはGoogle関連アプリとの接続は継続される見通しだが、外部プラットフォームはGIF取得元を別途確保する必要がある。
+この決定により、多くのアプリやサービスのGIF機能に変更が余儀なくされる。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/gadgets/2026/06/google-kills-tenor-gif-api-forcing-changes-at-x-discord-and-more/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">AppleはEpic Gamesのアプリストア手数料をめぐる訴訟を最高裁に持ち込んだ。</div><div class="original-title">Apple takes Epic fight over app store fees to the Supreme Court</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>Supreme Court will weigh if Apple contempt finding in Epic case is “erroneous.”</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>最高裁判所は、Epic Gamesの訴訟におけるAppleの法廷侮辱罪の認定が「誤り」であるかどうかを判断する予定だ。</p>
+  <div class="label">要約</div>
+  <p class="summary">AppleがEpic Games との訴訟でアプリストア手数料に関する争点を米最高裁まで持ち込む。
+最高裁はAppleが下された侮辱罪判決が「誤りであるかどうか」を判断することになる。
+この判決はアプリストアの規制と企業の支配力に関する重要な判例となる可能性がある。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/tech-policy/2026/06/apple-takes-epic-fight-over-app-store-fees-to-the-supreme-court/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">新たな攻撃は、AIブラウザがなぜ悪いアイデアなのかという理由をまた一つ明らかにした。</div><div class="original-title">New attack provides one more reason why AI browsers are a bad idea</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>Telling an LLM that 2 + 2 = 5 is enough to make it follow forbidden instructions.</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>LLM（法学修士）に「2 + 2 = 5」と教えるだけで、禁じられた指示に従わせるのに十分だ。</p>
+  <div class="label">要約</div>
+  <p class="summary">LLMに対して「2 + 2 = 5」といった誤った情報を入力するだけで、禁止されている指示に従わせることが可能であることが確認された。
+この脆弱性はAIブラウザの安全性に深刻な懸念を示している。
+セキュリティ研究者らは、このような攻撃方法の対策が急務だと指摘している。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/security/2026/06/ai-browsers-can-be-lulled-into-a-dream-world-where-guardrails-no-longer-apply/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">Googleの新しいNano Banana 2 Liteイメージングモデルは、これまでで最速かつ最も安価です。</div><div class="original-title">Google&#x27;s new Nano Banana 2 Lite image model is its fastest and cheapest yet</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>They may not look as good, but Nano Banana 2 Lite images only take a few seconds to create.</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>見た目はそれほど良くないかもしれませんが、Nano Banana 2 Liteで撮影した画像はほんの数秒で作成できます。</p>
+  <div class="label">要約</div>
+  <p class="summary">GoogleがNano Banana 2 Liteという新しい画像生成モデルを発表した。
+画質は従来モデルより劣るものの、数秒で画像生成が完了する高速性が特徴。
+低コストと高速処理を両立した軽量版として、実用的な用途への利用が期待される。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/ai/2026/06/googles-new-nano-banana-2-lite-image-model-is-its-fastest-and-cheapest-yet/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">RFK Jr.はFDAの諮問委員会にペプチド販売業者を多数任命したが、FDAの科学者たちはアクセスに反対している。</div><div class="original-title">RFK Jr. stacks FDA panel with peptide peddlers as FDA scientists oppose access</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>Peptide drugs are popular, but FDA scientists warn they&#x27;re untested, may be harmful.</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>ペプチド製剤は人気が高いが、FDA（アメリカ食品医薬品局）の科学者らは、それらは未試験であり、有害である可能性があると警告している。</p>
+  <div class="label">要約</div>
+  <p class="summary">ペプチド医薬品は人気だが、FDA科学者らは検査済みではなく害をもたらす可能性があると警告している。
+RFK Jr.は規制当局の見直しを進める中、ペプチド業界に有利な委員会構成を進めている。
+未承認医薬品の安全性と有効性をめぐる規制機関内での対立が激化している。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/health/2026/06/rfk-jr-stacks-fda-panel-with-peptide-peddlers-as-fda-scientists-oppose-access/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">トランプ氏の政府系ウェブサイト全サイトの再設計計画は、AIが設計した恐ろしい事態を招く</div><div class="original-title">Trump&#x27;s plan to redesign every .gov website leads to AI-designed horrors</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>A year in, National Design Studio delays plan to update government web standards.</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>開始から1年後、国立デザインスタジオは政府のウェブ標準を更新する計画を延期した。</p>
+  <div class="label">要約</div>
+  <p class="summary">トランプ政権が推進する全ての.govサイトの再設計計画が、AI生成デザインの品質問題に直面している。
+National Design Studioが政府ウェブ標準の更新計画を1年遅延させることを決定した。
+AIツールを使用したデザイン自動化が、予想外の問題を引き起こしている。</p>
+  <div class="card-footer"><a href="https://arstechnica.com/tech-policy/2026/06/trumps-plan-to-redesign-every-gov-website-leads-to-ai-designed-horrors/" target="_blank">元記事を開く</a></div>
+</div>
+<h2>Hacker News</h2>
+<div class="card">
+  <div class="card-title">フォレスティエール地下庭園</div><div class="original-title">Forestiere Underground Gardens</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Article URL: &lt;a href=&quot;https://en.wikipedia.org/wiki/Forestiere_Underground_Gardens&quot;&gt;https://en.wikipedia.org/wiki/Forestiere_Underground_Gardens&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48741359&quot;&gt;https://news.ycombinator.com/item?id=48741359&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 10&lt;/p&gt;
+&lt;p&gt;# Comments: 1&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;記事URL: &lt;a href=&quot;https://en.wikipedia.org/wiki/Forestiere_Underground_Gardens&quot;&gt;https://en.wikipedia.org/wiki/Forestiere_Underground_Gardens&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;コメントURL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48741359&quot;&gt;https://news.ycombinator.com/item?id=48741359&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 10&lt;/p&gt;
+&lt;p&gt;コメント数: 1&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">カリフォルニアの地下に広がる独特な庭園遺跡。
+1世紀以上前に手掘りで造られた広大な地下空間。
+Wikipediaで詳細が紹介されている歴史的建造物。</p>
+  <div class="card-footer"><a href="https://en.wikipedia.org/wiki/Forestiere_Underground_Gardens" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">大統領は仮想通貨取引で10億ドル以上を稼いだ</div><div class="original-title">The President Made More Than $1Billon in Crypto Deals</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Article URL: &lt;a href=&quot;https://www.wsj.com/politics/policy/trump-made-more-than-1-billion-on-crypto-deals-part-of-2025-windfall-ee917d3f&quot;&gt;https://www.wsj.com/politics/policy/trump-made-more-than-1-billion-on-crypto-deals-part-of-2025-windfall-ee917d3f&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48741012&quot;&gt;https://news.ycombinator.com/item?id=48741012&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 66&lt;/p&gt;
+&lt;p&gt;# Comments: 10&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;記事URL: &lt;a href=&quot;https://www.wsj.com/politics/policy/trump-made-more-than-1-billion-on-crypto-deals-part-of-2025-windfall-ee917d3f&quot;&gt;https://www.wsj.com/politics/policy/trump-made-more-than-1-billion-on-crypto-deals-part-of-2025-windfall-ee917d3f&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;コメントURL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48741012&quot;&gt;https://news.ycombinator.com/item?id=48741012&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 66&lt;/p&gt;
+&lt;p&gt;コメント数: 10&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">米大統領がトランプ・メディア・テクノロジー・グループの株式売却やビットコイン関連事業を通じて、2025年に10億ドルを超える利益を得た。
+この収益は同氏の2025年における大幅な資産増加の一部を構成している。
+ウォール・ストリート・ジャーナルが報じた暗号資産取引による莫大な利益は、政界での影響力とビジネス利益の関係について議論を呼んでいる。</p>
+  <div class="card-footer"><a href="https://www.wsj.com/politics/policy/trump-made-more-than-1-billion-on-crypto-deals-part-of-2025-windfall-ee917d3f" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">商務省は『クロード・フェイブル5』と『ミトス5』の輸出規制を解除した。</div><div class="original-title">Department of Commerce has lifted export controls on Claude Fable 5 and Mythos 5</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Article URL: &lt;a href=&quot;https://twitter.com/AnthropicAI/status/2072106151890809341&quot;&gt;https://twitter.com/AnthropicAI/status/2072106151890809341&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48740771&quot;&gt;https://news.ycombinator.com/item?id=48740771&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 232&lt;/p&gt;
+&lt;p&gt;# Comments: 90&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;記事URL: &lt;a href=&quot;https://twitter.com/AnthropicAI/status/2072106151890809341&quot;&gt;https://twitter.com/AnthropicAI/status/2072106151890809341&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;コメントURL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48740771&quot;&gt;https://news.ycombinator.com/item?id=48740771&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 232&lt;/p&gt;
+&lt;p&gt;コメント数: 90&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">米商務省がAnthropicのAIモデル「Claude Fable 5」と「Mythos 5」の輸出規制を解除した。
+これまでの輸出制限が緩和され、国際的なアクセスが拡大することが期待される。
+Hacker Newsで大きな話題となり、232ポイントを獲得し90件のコメントが寄せられている。</p>
+  <div class="card-footer"><a href="https://twitter.com/AnthropicAI/status/2072106151890809341" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">Google Copybara: リポジトリ間でコードを移動する</div><div class="original-title">Google copybara: moving code between repositories</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Article URL: &lt;a href=&quot;https://github.com/google/copybara&quot;&gt;https://github.com/google/copybara&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48740698&quot;&gt;https://news.ycombinator.com/item?id=48740698&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 49&lt;/p&gt;
+&lt;p&gt;# Comments: 6&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;記事URL: &lt;a href=&quot;https://github.com/google/copybara&quot;&gt;https://github.com/google/copybara&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;コメントURL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48740698&quot;&gt;https://news.ycombinator.com/item?id=48740698&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 49&lt;/p&gt;
+&lt;p&gt;コメント数: 6&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">Googleが開発したオープンソースツール「Copybara」は、複数のリポジトリ間でコードを効率的に移動・同期することができます。
+GitHub上で公開されており、複雑なコード移行作業を自動化し、開発チームの生産性向上を実現します。
+Hacker Newsで注目を集めており、開発者コミュニティから高い関心が寄せられています。</p>
+  <div class="card-footer"><a href="https://github.com/google/copybara" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">Hatari – オンライン Atari ST/STE/TT/Falcon エミュレータ</div><div class="original-title">Hatari – Online Atari ST/STE/TT/Falcon Emulator</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Article URL: &lt;a href=&quot;https://hatari.frama.io/hatari/online/hatari.html&quot;&gt;https://hatari.frama.io/hatari/online/hatari.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48740135&quot;&gt;https://news.ycombinator.com/item?id=48740135&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 33&lt;/p&gt;
+&lt;p&gt;# Comments: 3&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;記事URL: &lt;a href=&quot;https://hatari.frama.io/hatari/online/hatari.html&quot;&gt;https://hatari.frama.io/hatari/online/hatari.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;コメントURL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48740135&quot;&gt;https://news.ycombinator.com/item?id=48740135&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 33&lt;/p&gt;
+&lt;p&gt;コメント数: 3&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">懐かしのAtariコンピュータシリーズをオンラインでエミュレートするWebベースのツールが登場しました。
+Hatariを使用することで、ブラウザ上でAtari ST、STE、TT、Falconの各機種を直接実行できます。
+レトロなゲームやアプリケーションの動作環境を現代的に再現する取り組みとして注目されています。</p>
+  <div class="card-footer"><a href="https://hatari.frama.io/hatari/online/hatari.html" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">TabFM：表形式データのためのゼロショット基礎モデル</div><div class="original-title">TabFM: A zero-shot foundation model for tabular data</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Article URL: &lt;a href=&quot;https://research.google/blog/introducing-tabfm-a-zero-shot-foundation-model-for-tabular-data/&quot;&gt;https://research.google/blog/introducing-tabfm-a-zero-shot-foundation-model-for-tabular-data/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48739919&quot;&gt;https://news.ycombinator.com/item?id=48739919&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 38&lt;/p&gt;
+&lt;p&gt;# Comments: 6&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;記事URL: &lt;a href=&quot;https://research.google/blog/introducing-tabfm-a-zero-shot-foundation-model-for-tabular-data/&quot;&gt;https://research.google/blog/introducing-tabfm-a-zero-shot-foundation-model-for-tabular-data/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;コメントURL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48739919&quot;&gt;https://news.ycombinator.com/item?id=48739919&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 38&lt;/p&gt;
+&lt;p&gt;コメント数: 6&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">Googleが表形式データに特化したゼロショット基盤モデル「TabFM」を開発しました。
+事前学習だけで新しいタスクに対応でき、追加の学習なしに表形式データの分析が可能です。
+このモデルは機械学習パイプラインの効率化と精度向上を実現します。</p>
+  <div class="card-footer"><a href="https://research.google/blog/introducing-tabfm-a-zero-shot-foundation-model-for-tabular-data/" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">脳波から言葉へ：手術なしでコミュニケーションを実現する新たな道</div><div class="original-title">From brain waves to words: a new path to communication without surgery</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Article URL: &lt;a href=&quot;https://ai.meta.com/blog/brain2qwerty-brain-ai-human-communication/?_fb_noscript=1&quot;&gt;https://ai.meta.com/blog/brain2qwerty-brain-ai-human-communication/?_fb_noscript=1&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48739466&quot;&gt;https://news.ycombinator.com/item?id=48739466&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 109&lt;/p&gt;
+&lt;p&gt;# Comments: 58&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;記事URL: &lt;a href=&quot;https://ai.meta.com/blog/brain2qwerty-brain-ai-human-communication/?_fb_noscript=1&quot;&gt;https://ai.meta.com/blog/brain2qwerty-brain-ai-human-communication/?_fb_noscript=1&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;コメントURL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48739466&quot;&gt;https://news.ycombinator.com/item?id=48739466&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 109&lt;/p&gt;
+&lt;p&gt;コメント数: 58&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">Metaが開発した脳波を直接テキストに変換する技術により、侵襲的な手術を必要としない新しいコミュニケーション方法が実現した。
+脳活動を読み取るAI技術により、身体に制約のある人々も含め、より多くの人々が脳インターフェースの恩恵を受けることが可能になる。
+この非侵襲的アプローチは、従来の脳コンピュータインターフェースの課題を克服し、より安全で実用的なコミュニケーション支援ツールとしての応用が期待される。</p>
+  <div class="card-footer"><a href="https://ai.meta.com/blog/brain2qwerty-brain-ai-human-communication/?_fb_noscript=1" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">Kubernetesをブラウザに移植しました</div><div class="original-title">I ported Kubernetes to the browser</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;&lt;a href=&quot;https://github.com/ngrok/webernetes&quot; rel=&quot;nofollow&quot;&gt;https://github.com/ngrok/webernetes&lt;/a&gt;&lt;p&gt;&lt;a href=&quot;https://webernetes-demo.ngrok.app/&quot; rel=&quot;nofollow&quot;&gt;https://webernetes-demo.ngrok.app/&lt;/a&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48738985&quot;&gt;https://news.ycombinator.com/item?id=48738985&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 167&lt;/p&gt;
+&lt;p&gt;# Comments: 55&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;&lt;a href=&quot;https://github.com/ngrok/webernetes&quot; rel=&quot;nofollow&quot;&gt;https://github.com/ngrok/webernetes&lt;/a&gt;&lt;p&gt;&lt;a href=&quot;https://webernetes-demo.ngrok.app/&quot; rel=&quot;nofollow&quot;&gt;https://webernetes-mo.
+&lt;hr /&gt;
+&lt;p&gt;コメント URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48738985&quot;&gt;https://news.ycombinator.com/item?id=48738985&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 167&lt;/p&gt;
+&lt;p&gt;コメント数: 55&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">ngrokがKubernetesをブラウザ上で動作させるプロジェクト「Webernetes」を公開しました。
+GitHubで公開されているコードと実際に動作するデモサイトを提供しており、ブラウザからKubernetesを操作できます。
+Hacker Newsで167ポイントを獲得し、55件のコメントが寄せられるなど、技術コミュニティから高い関心を集めています。</p>
+  <div class="card-footer"><a href="https://ngrok.com/blog/i-ported-kubernetes-to-the-browser" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">レンストラル1.5</div><div class="original-title">Leanstral 1.5</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Article URL: &lt;a href=&quot;https://docs.mistral.ai/models/model-cards/leanstral-1-5-26-06&quot;&gt;https://docs.mistral.ai/models/model-cards/leanstral-1-5-26-06&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48738938&quot;&gt;https://news.ycombinator.com/item?id=48738938&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 102&lt;/p&gt;
+&lt;p&gt;# Comments: 19&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;記事URL: &lt;a href=&quot;https://docs.mistral.ai/models/model-cards/leanstral-1-5-26-06&quot;&gt;https://docs.mistral.ai/models/model-cards/leanstral-1-5-26-06&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;コメントURL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48738938&quot;&gt;https://news.ycombinator.com/item?id=48738938&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 102&lt;/p&gt;
+&lt;p&gt;コメント数: 19&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">MistralがLeanstral 1.5という新しいAIモデルをリリースしました。
+軽量で効率的な設計により、リソース制限がある環境での利用に適しています。
+Hacker Newsで102ポイントを獲得し、開発者からの注目を集めています。</p>
+  <div class="card-footer"><a href="https://docs.mistral.ai/models/model-cards/leanstral-1-5-26-06" target="_blank">元記事を開く</a></div>
+</div>
+<div class="card">
+  <div class="card-title">東京には麦茶の生産者が2軒しかいないので、そのうちの1軒を訪れて麦茶の製造方法を見学しました。</div><div class="original-title">Tokyo has only two barley tea makers, we visited one to see how mugicha is made</div>
+  <div class="label">原文説明</div>
+  <details><summary>原文説明（英語）</summary><p>&lt;p&gt;Article URL: &lt;a href=&quot;https://soranews24.com/2026/06/30/tokyo-has-only-two-barley-tea-makers-and-we-visited-one-to-see-how-mugicha-is-made/&quot;&gt;https://soranews24.com/2026/06/30/tokyo-has-only-two-barley-tea-makers-and-we-visited-one-to-see-how-mugicha-is-made/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48738262&quot;&gt;https://news.ycombinator.com/item?id=48738262&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 75&lt;/p&gt;
+&lt;p&gt;# Comments: 12&lt;/p&gt;</p></details>
+  <div class="label">翻訳済み説明</div>
+  <p>&lt;p&gt;記事URL: &lt;a href=&quot;https://soranews24.com/2026/06/30/tokyo-has-only-two-barley-tea-makers-and-we-visited-one-to-see-how-mugicha-is-made/&quot;&gt;https://soranews24.com/2026/06/30/tokyo-has-only-two-barley-tea-makers-and-we-visited-one-to-see-how-mugicha-is-made/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;コメントURL: &lt;a href=&quot;https://news.ycombinator.com/item?id=48738262&quot;&gt;https://news.ycombinator.com/item?id=48738262&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ポイント: 75&lt;/p&gt;
+&lt;p&gt;コメント数: 12&lt;/p&gt;</p>
+  <div class="label">要約</div>
+  <p class="summary">東京には麦茶を製造する職人がわずか2軒しか残っていない。
+記者が実際にその一軒を訪問し、伝統的な麦茶製造の工程を取材した。
+日本の伝統的な飲料文化と職人技術の継承の課題が浮き彫りになっている。</p>
+  <div class="card-footer"><a href="https://soranews24.com/2026/06/30/tokyo-has-only-two-barley-tea-makers-and-we-visited-one-to-see-how-mugicha-is-made/" target="_blank">元記事を開く</a></div>
+</div>
+</body>
+</html>
