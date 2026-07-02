@@ -5,6 +5,122 @@
     <description>Ars Technica 日本語翻訳フィード</description>
     <link>https://arstechnica.com</link>
     <item>
+      <title>[翻訳] T-Mobileが訴訟の中、数万台の仮想マシンをVMwareから移行</title>
+      <description>T-MobileはBroadcomに対し、VMwareの永続ライセンスの継続的なサポートを要望している。
+BroadcomによるVMwareの買収後、ライセンス政策の変更が顧客企業に影響を与えている。
+大規模なインフラを保有する企業では、代替プラットフォームへの移行検討が加速している。</description>
+      <link>https://arstechnica.com/information-technology/2026/07/t-mobile-moving-tens-of-thousands-of-virtual-machines-off-vmware-amid-lawsuit/</link>
+      <pubDate>Wed, 01 Jul 2026 21:21:21 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/information-technology/2026/07/t-mobile-moving-tens-of-thousands-of-virtual-machines-off-vmware-amid-lawsuit/</guid>
+    </item>
+    <item>
+      <title>[翻訳] NASA長官、打ち上げ失敗後のBlue Originの進捗を称賛</title>
+      <description>NASA長官はBlue Originが打ち上げ失敗から回復する過程での進展を高く評価した。\nNASAは2027年までの時間的余裕があり、現段階では懸念していないとの立場を示している。\nBlue Originは課題克服に向けて着実に進展しており、月面着陸計画は予定通り進むと期待されている。</description>
+      <link>https://arstechnica.com/space/2026/07/nasa-chief-praises-progress-blue-origin-is-making-after-launch-failure/</link>
+      <pubDate>Wed, 01 Jul 2026 19:57:36 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/space/2026/07/nasa-chief-praises-progress-blue-origin-is-making-after-launch-failure/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 電気料金の高騰で米国の家庭用蓄電池設置が過去最高を記録</title>
+      <description>米国の家庭用蓄電池の設置数が記録的な高さに達し、電力網に新たな可能性をもたらしている。
+電力網の安定性向上とエネルギー管理の効率化が期待される中、AI データセンターの電力需要にも注目が集まっている。
+電気料金の上昇が、消費者の蓄電池導入を促進する主な要因となっている。</description>
+      <link>https://arstechnica.com/science/2026/07/us-home-battery-installations-hit-record-high-in-early-2026/</link>
+      <pubDate>Wed, 01 Jul 2026 19:11:15 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/science/2026/07/us-home-battery-installations-hit-record-high-in-early-2026/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 遺骨清掃にスーパーワームが甲虫に代わる可能性、最適な比率が判明</title>
+      <description>遺骨清掃用の幼虫として、従来のコクヌストモドキなどの甲虫に代わってスーパーワーム（ジャイアントミールワーム）の活用が検討されている。\n研究では、試料1グラムあたり幼虫10～15グラムという最適な比率を発見し、骨へのダメージを防ぎながら清掃時間を最小化できることが確認された。\nこの発見は、法医学や博物館などで遺骨の処理に用いられるクリーニング技術の改善につながる可能性がある。</description>
+      <link>https://arstechnica.com/science/2026/07/museums-could-use-ravenous-superworms-to-clean-skeletons/</link>
+      <pubDate>Wed, 01 Jul 2026 18:59:21 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/science/2026/07/museums-could-use-ravenous-superworms-to-clean-skeletons/</guid>
+    </item>
+    <item>
+      <title>[翻訳] ソニーがPlayStation物理メディアの廃止とデジタルストア縮小を同時発表</title>
+      <description>ソニーがPlayStationの光ディスク対応の段階的廃止とデジタルストアの一部サービス終了を発表。
+ゲーマーから「物理メディアの終焉」と「デジタル所有の不安定性」に対する懸念の声が上がっている。
+クラウドゲーミングとサブスクリプションモデルへの業界全体のシフトが加速する中、消費者の権利についての議論が高まっている。</description>
+      <link>https://arstechnica.com/gaming/2026/07/sony-will-stop-making-physical-copies-of-playstation-games-in-2028/</link>
+      <pubDate>Wed, 01 Jul 2026 18:41:49 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/gaming/2026/07/sony-will-stop-making-physical-copies-of-playstation-games-in-2028/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 米国で買えなくなる優れたEV、ボルボ EX30 クロスカントリー</title>
+      <description>ボルボの小型EV「EX30 クロスカントリー」は米国市場から消える運命にある。
+関税と反中国政策により、米国での販売が不可能になった。
+優れた製品であるにもかかわらず、政策的な障害によって市場から撤退することになる。</description>
+      <link>https://arstechnica.com/cars/2026/07/the-volvo-ex30-cross-country-review-a-victim-of-geopolitics/</link>
+      <pubDate>Wed, 01 Jul 2026 18:24:04 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/cars/2026/07/the-volvo-ex30-cross-country-review-a-victim-of-geopolitics/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 最新の『オデッセイ』予告編で、イサカの王が神々に立ち向かう</title>
+      <description>ゲーム『The Odyssey』の最終予告編が公開され、主人公が神々の理解不可能な言葉に抗う姿が描かれている。
+プレイヤーは古代ギリシャ神話の世界で、神々の支配に逆らう冒険を体験することになる。
+この作品は古典文学とゲームプレイを融合させた新たなアプローチを示している。</description>
+      <link>https://arstechnica.com/culture/2026/07/ithacas-king-defies-the-gods-in-final-the-odyssey-trailer/</link>
+      <pubDate>Wed, 01 Jul 2026 16:58:30 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/culture/2026/07/ithacas-king-defies-the-gods-in-final-the-odyssey-trailer/</guid>
+    </item>
+    <item>
+      <title>[翻訳] Anthropic、トランプ政権の安全性テスト要求を受けて高度なAIモデルを世界公開</title>
+      <description>Anthropicの高度なAIモデル「Fable」と「Mythos」に対する米国の規制が解除された。
+トランプ政権との安全性テストに関わる対話を経て、これらのモデルのグローバル展開が実現した。
+同社のAIモデルは世界中のユーザーが利用可能になる見通し。</description>
+      <link>https://arstechnica.com/tech-policy/2026/07/after-spooking-trump-into-safety-testing-anthropic-ai-models-get-global-release/</link>
+      <pubDate>Wed, 01 Jul 2026 16:44:18 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/tech-policy/2026/07/after-spooking-trump-into-safety-testing-anthropic-ai-models-get-global-release/</guid>
+    </item>
+    <item>
+      <title>[翻訳] NASAの監察官がボーイング製Starliners認証の10年遅延を指摘</title>
+      <description>NASAの監察官がボーイング製Starlinersの認証が2027年までに遅延する可能性があると指摘。
+当初のボーイングのスケジュールから10年の遅れが生じる見込み。
+Starlinersの有人飛行認証プログラムが大幅に後ろ倒しされる状況が明らかに。</description>
+      <link>https://arstechnica.com/space/2026/07/nasa-inspector-general-suggests-boeings-starliner-will-now-be-a-decade-late/</link>
+      <pubDate>Wed, 01 Jul 2026 16:11:39 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/space/2026/07/nasa-inspector-general-suggests-boeings-starliner-will-now-be-a-decade-late/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 50年前のバイキング探査機のロボットアームの謎：その後どうなった？</title>
+      <description>50年前に火星探査で使用されたバイキング探査機のロボットアームの行方について、歴史的な謎を辿る。
+当時の宇宙探査技術の貴重な遺産がどのように保存・管理されてきたのかを追跡。
+現代の宇宙ミッションにおける遺産管理の重要性を浮き彫りにする興味深い事例。</description>
+      <link>https://arstechnica.com/space/2026/07/50-years-on-will-the-mars-lander-arm-that-opened-the-air-and-space-raise-its-hand/</link>
+      <pubDate>Wed, 01 Jul 2026 15:20:34 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/space/2026/07/50-years-on-will-the-mars-lander-arm-that-opened-the-air-and-space-raise-its-hand/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 英国がParamount によるWarner Bros. Discovery 買収に介入する可能性</title>
+      <description>Paramount によるWarner Bros. Discovery の買収について、英国の規制当局が介入する可能性が高まっている。
+米国司法省は6月に譲歩を求めずに買収を承認したが、英国では追加的な審査が予想されている。
+大型メディア企業の合併に対する各国の規制姿勢の違いが浮き彫りになっている。</description>
+      <link>https://arstechnica.com/tech-policy/2026/07/uk-likely-to-intervene-in-paramount-takeover-of-warner-bros-discovery/</link>
+      <pubDate>Wed, 01 Jul 2026 13:24:39 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/tech-policy/2026/07/uk-likely-to-intervene-in-paramount-takeover-of-warner-bros-discovery/</guid>
+    </item>
+    <item>
+      <title>[翻訳] トランプ大統領の警告後も、科学者がタイレノールと自閉症の関連性を再度否定</title>
+      <description>トランプ前大統領の警告をきっかけに、妊娠中のタイレノール使用が減少した。
+複数の科学的研究により、タイレノール（アセトアミノフェン）と自閉症の間に因果関係は認められていない。
+専門家は、根拠のない情報に基づく医学的判断が、妊婦の治療選択肢を制限する懸念を示している。</description>
+      <link>https://arstechnica.com/health/2026/07/trump-and-rfk-jr-still-wrong-about-tylenol-and-autism-another-study-finds/</link>
+      <pubDate>Wed, 01 Jul 2026 11:01:38 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/health/2026/07/trump-and-rfk-jr-still-wrong-about-tylenol-and-autism-another-study-finds/</guid>
+    </item>
+    <item>
       <title>[翻訳] 6月の科学ニュース：見落としそうだった興味深い研究成果</title>
       <description>6月の科学分野で、報道の目が届きにくかった興味深い研究成果をまとめたもの。\nウンチの独特な形状の科学的メカニズム、ホウ素で作られたバッキーボール、サッカーのフェイントの秘密などを紹介。\nArsTechnicaが選りすぐった科学的に価値のある発見や研究を解説している。</description>
       <link>https://arstechnica.com/science/2026/06/june-research-roundup-6-cool-science-stories-we-almost-missed/</link>

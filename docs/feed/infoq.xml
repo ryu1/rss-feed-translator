@@ -5,6 +5,44 @@
     <description>InfoQ 日本語翻訳フィード</description>
     <link>https://www.infoq.com</link>
     <item>
+      <title>[翻訳] Instacartが設定駆動型マルチテナントプラットフォームで個人化マーケティングをスケール化</title>
+      <description>Instacartが個人化マーケティングシステムをStorefront Proを用いた設定駆動型マルチテナント架構で再設計した。
+従来の小売業者ごとの実装を統一された実行エンジンに置き換え、スケーラブルな個人化と1分以内の高速な設定展開を実現。
+複数の小売ブランドにわたり99.9%の配信成功率を統一キャンペーンプラットフォームで達成した。</description>
+      <link>https://www.infoq.com/news/2026/07/instacart-multi-tenant-marketing/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Wed, 01 Jul 2026 14:05:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/instacart-multi-tenant-marketing/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] グラフRAG：ナレッジグラフを活用したインテリジェントな検索ワークフローの構築</title>
+      <description>GraphRAGのアーキテクチャ進化と、高度なAIワークフローにおけるデータ基盤の重要性について解説されています。
+従来のベクトルRAGがグローバルコンテキスト、多段階推論、出所追跡に対応できない限界を指摘し、その課題解決方法を提示しています。
+セマンティックに構造化されたナレッジグラフを構築し、オーケストレーションロジックをデータレイヤーに移行するエンタープライズ戦略が共有されています。</description>
+      <link>https://www.infoq.com/presentations/graph-rag-llm/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Wed, 01 Jul 2026 14:01:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/presentations/graph-rag-llm/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] HeroUI v3がリリース：Tailwind CSS v4をベースにしたReact/React Native向けコンポーネントライブラリが全面刷新</title>
+      <description>HeroUI v3は大規模な再設計を経たReactコンポーネントライブラリで、75個以上のコンポーネント（新規21個を含む）を提供し、37個のコンポーネントを備えた新しいReact Nativeライブラリも登場しました。\nReact AriaとTailwind CSS v4をベースに構築され、アクセシビリティとカスタマイズ性の向上に注力しています。\n前バージョンからのマイグレーションが必要となります。</description>
+      <link>https://www.infoq.com/news/2026/07/heroui-v3-rewrite/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Wed, 01 Jul 2026 12:16:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/heroui-v3-rewrite/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] 本番AI運用の課題: スケーラブルなインフラストラクチャの構築</title>
+      <description>本番環境でAIシステムを信頼性高く大規模運用するための現実的な課題について、パネリストらが解説しています。
+モデル構築は解決済みだが、常に圧力を受ける本番データベースの保守が大きな課題となっています。
+スケーラビリティと壊滅的な障害の分岐点となるアーキテクチャ設計の決定と、エンジニアリングリーダーが今見直すべき点について討論しています。</description>
+      <link>https://www.infoq.com/presentations/ai-infrastructure-scaling-architecture/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Wed, 01 Jul 2026 11:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/presentations/ai-infrastructure-scaling-architecture/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
       <title>[翻訳] 信頼できる生産性の実現：AI駆動開発のセキュリティ確保</title>
       <description>自律型AIエージェントを本番環境で安全に運用するための業界横断的なセキュリティパターンについての講演。
 ReActループ内のコンテキスト、推論、ツール実行に潜む重大な脆弱性と、メモリ汚染や不正なツール実行などのリスク要因を解説。
