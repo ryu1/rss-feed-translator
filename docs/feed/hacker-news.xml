@@ -5,6 +5,61 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] CursorBench 3.1</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://cursor.com/evals"&gt;https://cursor.com/evals&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48756840"&gt;https://news.ycombinator.com/item?id=48756840&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 13&lt;/p&gt;
+&lt;p&gt;# Comments: 3&lt;/p&gt;</description>
+      <link>https://cursor.com/evals</link>
+      <pubDate>Thu, 02 Jul 2026 05:19:34 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48756840</guid>
+    </item>
+    <item>
+      <title>[翻訳] Kimi K2.7 Code is generally available in GitHub Copilot</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://github.blog/changelog/2026-07-01-kimi-k2-7-is-now-available-in-github-copilot/"&gt;https://github.blog/changelog/2026-07-01-kimi-k2-7-is-now-available-in-github-copilot/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48756602"&gt;https://news.ycombinator.com/item?id=48756602&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 25&lt;/p&gt;
+&lt;p&gt;# Comments: 9&lt;/p&gt;</description>
+      <link>https://github.blog/changelog/2026-07-01-kimi-k2-7-is-now-available-in-github-copilot/</link>
+      <pubDate>Thu, 02 Jul 2026 04:32:41 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48756602</guid>
+    </item>
+    <item>
+      <title>[翻訳] A new Android malware from Google</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://f-droid.org/2026/07/01/adv-malware.html"&gt;https://f-droid.org/2026/07/01/adv-malware.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48755965"&gt;https://news.ycombinator.com/item?id=48755965&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 48&lt;/p&gt;
+&lt;p&gt;# Comments: 8&lt;/p&gt;</description>
+      <link>https://f-droid.org/2026/07/01/adv-malware.html</link>
+      <pubDate>Thu, 02 Jul 2026 03:00:15 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48755965</guid>
+    </item>
+    <item>
+      <title>[翻訳] Senior SWE-Bench: open-source benchmark that assesses agents as senior engineers</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://senior-swe-bench.snorkel.ai/"&gt;https://senior-swe-bench.snorkel.ai/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48755928"&gt;https://news.ycombinator.com/item?id=48755928&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 56&lt;/p&gt;
+&lt;p&gt;# Comments: 37&lt;/p&gt;</description>
+      <link>https://senior-swe-bench.snorkel.ai/</link>
+      <pubDate>Thu, 02 Jul 2026 02:55:16 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48755928</guid>
+    </item>
+    <item>
+      <title>[翻訳] Bring back crappy forums</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://tedium.co/2026/07/01/online-web-forums-retrospective/"&gt;https://tedium.co/2026/07/01/online-web-forums-retrospective/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48755731"&gt;https://news.ycombinator.com/item?id=48755731&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 153&lt;/p&gt;
+&lt;p&gt;# Comments: 97&lt;/p&gt;</description>
+      <link>https://tedium.co/2026/07/01/online-web-forums-retrospective/</link>
+      <pubDate>Thu, 02 Jul 2026 02:30:16 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48755731</guid>
+    </item>
+    <item>
       <title>[翻訳] 分散システムにおけるフォールバック処理の回避戦略</title>
       <description>分散システムの設計において、フォールバック機構に過度に依存することの問題点と課題について解説。
 システムの信頼性を高めるため、事前の適切な設計と冗長性の確保が重要であることを強調。
@@ -151,6 +206,17 @@ Hacker Newsでは83ポイント、135件のコメントを集め、家庭用ロ�
       <pubDate>Wed, 01 Jul 2026 18:12:18 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48750989</guid>
+    </item>
+    <item>
+      <title>[翻訳] Learn Vim motions with an ice-cream van</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://thisismodest.com/vimscoops/"&gt;https://thisismodest.com/vimscoops/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48750803"&gt;https://news.ycombinator.com/item?id=48750803&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 36&lt;/p&gt;
+&lt;p&gt;# Comments: 3&lt;/p&gt;</description>
+      <link>https://thisismodest.com/vimscoops/</link>
+      <pubDate>Wed, 01 Jul 2026 18:00:07 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48750803</guid>
     </item>
     <item>
       <title>[翻訳] グラフィックスプログラマーになるために学ぶべきこと</title>
