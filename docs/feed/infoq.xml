@@ -5,6 +5,46 @@
     <description>InfoQ 日本語翻訳フィード</description>
     <link>https://www.infoq.com</link>
     <item>
+      <title>[翻訳] SwiftUI、新しいDocumentプロトコルとパフォーマンス向上機能を追加</title>
+      <description>WWDC 2026で発表された最新SwiftUIは、ディスクアクセスとスナップショットベースの更新を効率化する新しいDocumentプロトコルを導入。
+リスト、グリッド、セクションのアイテム並び替え機能やスワイプアクション、AsyncImageのキャッシング改善など、プレゼンテーション機能が拡張。
+Observable型のレイジー状態初期化によるパフォーマンス向上により、開発効率とアプリケーション性能が大幅に改善。</description>
+      <link>https://www.infoq.com/news/2026/07/swiftui-wwdc26/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Thu, 02 Jul 2026 16:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/swiftui-wwdc26/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] プラットフォーム開発をプロジェクト型からプロダクト型へ転換</title>
+      <description>企業がプラットフォームの利用が単一チームを超えて拡大したため、プロジェクト思考からプロダクト思考へシフトした。
+従来の課題は単発の納品、プロダクトビジョンの欠如、フィードバックループの弱さだった。
+セルフサービス型でAPI駆動の多機能インフラに移行し、所有権の明確化と抽象化の向上を実現した。</description>
+      <link>https://www.infoq.com/news/2026/07/platform-projects-products/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Thu, 02 Jul 2026 11:27:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/platform-projects-products/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] AppleがPrivate Cloud ComputをGoogle Cloudに初展開、NVIDIA Blackwell GPUを活用</title>
+      <description>AppleがGoogle CloudでPrivate Cloud Computを初めて運用開始。NVIDIA Blackwell GPU、Intel TDX、GoogleのTitan チップを組み合わせて利用。
+Appleは独立したハードウェアレジャーとデュアルベンダー認証ルートで、セキュリティと透明性を確保。
+AWSとAzureは現在のところこのプロジェクトに参加していない。</description>
+      <link>https://www.infoq.com/news/2026/07/apple-pcc-google-cloud/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Thu, 02 Jul 2026 10:04:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/apple-pcc-google-cloud/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Netflixが実践するサービスレベル優先度付き負荷制御による信頼性向上</title>
+      <description>Netflixが極度のトラフィック急増に対応するためのアーキテクチャを紹介し、Envoyサイドカープロキシに組み込まれた優先度付き負荷制御の仕組みについて解説。
+ユーザーが開始したリクエストが非クリティカルなトラフィックから容量を奪える仕組みと、リトライストーム軽減策を実装。
+継続的なカオスロードテスト、設定生成、自動化プラットフォーム戦略についても共有。</description>
+      <link>https://www.infoq.com/presentations/service-level-prioritized-load-shedding/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Thu, 02 Jul 2026 09:20:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/presentations/service-level-prioritized-load-shedding/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
       <title>[翻訳] Instacartが設定駆動型マルチテナントプラットフォームで個人化マーケティングをスケール化</title>
       <description>Instacartが個人化マーケティングシステムをStorefront Proを用いた設定駆動型マルチテナント架構で再設計した。
 従来の小売業者ごとの実装を統一された実行エンジンに置き換え、スケーラブルな個人化と1分以内の高速な設定展開を実現。

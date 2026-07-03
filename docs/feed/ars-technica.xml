@@ -5,6 +5,132 @@
     <description>Ars Technica 日本語翻訳フィード</description>
     <link>https://arstechnica.com</link>
     <item>
+      <title>[翻訳] 新種マルウェア「PamStealer」、macOS向けの典型的な脅威とは一線を画す</title>
+      <description>新発見されたPamStealerは、従来のmacOSマルウェアとは異なる特徴を持つ。
+この発見は、Mac向け情報窃取マルウェアの開発に注がれている努力の増加を浮き彫りにしている。
+セキュリティ研究者の間で、macOSプラットフォームへの脅威が高まっていることへの関心が高まっている。</description>
+      <link>https://arstechnica.com/security/2026/07/new-pamstealer-macos-malware-uses-clever-tradecraft-to-remain-stealthy/</link>
+      <pubDate>Thu, 02 Jul 2026 19:38:57 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/security/2026/07/new-pamstealer-macos-malware-uses-clever-tradecraft-to-remain-stealthy/</guid>
+    </item>
+    <item>
+      <title>[翻訳] FAA、静かな超音速旅客機なら米国都市上空の飛行を認める方針</title>
+      <description>米国の新規制では、ソニックブームを発生させない静かな超音速飛行が合法化される見通し。
+従来の超音速機は音爆発により地上に影響を与えるため、都市上空での飛行が禁止されていた。
+この変更により、低騒音技術を備えた超音速旅客機の実用化への道が開ける可能性がある。</description>
+      <link>https://arstechnica.com/gadgets/2026/07/faa-proposal-supersonic-airliners-can-fly-over-us-cities-if-theyre-quiet/</link>
+      <pubDate>Thu, 02 Jul 2026 17:29:37 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/gadgets/2026/07/faa-proposal-supersonic-airliners-can-fly-over-us-cities-if-theyre-quiet/</guid>
+    </item>
+    <item>
+      <title>[翻訳] NASAが必要とする大型ロケットはいつ完成するのか？Ars Liveでの議論</title>
+      <description>NASAが開発を進める大型ロケットの完成時期は依然として不透明な状況にある。
+専門家でさえ、ロケット完成の具体的な予定日を提示し、それを達成できた例がほとんど見当たらない。
+ロケット開発プロジェクトの遅延が常態化しており、現実的なタイムラインの予測が困難になっている。</description>
+      <link>https://arstechnica.com/space/2026/07/ars-live-recap-when-are-the-big-rockets-nasa-desperately-needs-going-to-be-ready/</link>
+      <pubDate>Thu, 02 Jul 2026 16:46:47 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/space/2026/07/ars-live-recap-when-are-the-big-rockets-nasa-desperately-needs-going-to-be-ready/</guid>
+    </item>
+    <item>
+      <title>[翻訳] Plexが5年間有効な会員パスを250ドルで提供開始</title>
+      <description>動画ストリーミングサービスのPlexが、5年間有効な新しい会員パスを250ドルで提供開始した。
+同社は顧客に対して最新機能へのアクセスと継続的な支払いを促すことで、ビジネスモデルの変更を進めている。
+長期パスの導入により、ユーザーの関与度向上と収益の安定化を狙った戦略と見られている。</description>
+      <link>https://arstechnica.com/gadgets/2026/07/250-used-to-get-you-a-lifetime-plex-pass-now-you-get-a-five-year-subscription/</link>
+      <pubDate>Thu, 02 Jul 2026 16:35:59 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/gadgets/2026/07/250-used-to-get-you-a-lifetime-plex-pass-now-you-get-a-five-year-subscription/</guid>
+    </item>
+    <item>
+      <title>[翻訳] ウガンダでマールブルグウイルスの感染を確認、エボラ流行が継続中とアフリカCDC</title>
+      <description>アフリカ疾病予防管理センター（CDC）がウガンダでマールブルグウイルスの感染事例を確認した。
+初期報告では追加の感染者がいる可能性があるが、感染の拡大は局所的と考えられている。
+これはアフリカ地域で同時進行しているエボラウイルスの流行に加えての新たな脅威となっている。</description>
+      <link>https://arstechnica.com/health/2026/07/africa-cdc-confirms-marburg-case-in-uganda-as-ebola-outbreak-rages/</link>
+      <pubDate>Thu, 02 Jul 2026 16:30:37 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/health/2026/07/africa-cdc-confirms-marburg-case-in-uganda-as-ebola-outbreak-rages/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 人工細胞が数回の細胞分裂に成功</title>
+      <description>研究者らが人工細胞で複数回の細胞分裂を実現した。
+成功には大量の追加物質を必要とする課題がある。
+数回程度の分裂が限界となっている現状だ。</description>
+      <link>https://arstechnica.com/science/2026/07/artificial-cell-manages-a-few-rounds-of-cell-division/</link>
+      <pubDate>Thu, 02 Jul 2026 16:21:23 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/science/2026/07/artificial-cell-manages-a-few-rounds-of-cell-division/</guid>
+    </item>
+    <item>
+      <title>[翻訳] Googleが欧州の独禁法違反判決に敗訴、47億ドルの罰金支払いが確定</title>
+      <description>GoogleはEUの長期的な上訴に敗北し、47億ドルの罰金支払いが確定した。
+EUはAndroidにSearchとChromeをバンドルして販売する独占行為を問題視していた。
+本判決によりGoogleは独占的な慣行の改善を迫られることになる。</description>
+      <link>https://arstechnica.com/gadgets/2026/07/google-loses-long-running-appeal-of-record-eu-fine-will-have-to-cough-up-4-7-billion/</link>
+      <pubDate>Thu, 02 Jul 2026 16:15:41 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/gadgets/2026/07/google-loses-long-running-appeal-of-record-eu-fine-will-have-to-cough-up-4-7-billion/</guid>
+    </item>
+    <item>
+      <title>[翻訳] トランプ大統領、OpenAIから米国への5%株式保有権を取得—サンダース議員の目標を大幅に下回る</title>
+      <description>トランプ政権はOpenAIに対して米国に5%の株式保有権を提供させることに合意した。
+サム・アルトマンCEOはトランプ政権と積極的な交渉を進めているとされている。
+この取引はサンダース議員が当初提案していた保有率より大幅に低い水準となっている。</description>
+      <link>https://arstechnica.com/tech-policy/2026/07/openai-floats-giving-us-5-stake-to-win-over-ai-haters/</link>
+      <pubDate>Thu, 02 Jul 2026 15:12:25 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/tech-policy/2026/07/openai-floats-giving-us-5-stake-to-win-over-ai-haters/</guid>
+    </item>
+    <item>
+      <title>[翻訳] マスク氏のX、米国民のプライバシーに「深刻なリスク」と権利擁護団体がFTCに警告</title>
+      <description>エロン・マスク氏がXに対する監視を終了させようとしている動きに対し、FTC（米連邦取引委員会）は拒否するよう促されている。\nAI技術の悪用への懸念が背景にあり、プライバシー権擁護団体がFTCに対して警告を発している。\nこの問題は米国民のプライバシー保護と企業の自由度のバランスに関わる重要な案件となっている。</description>
+      <link>https://arstechnica.com/tech-policy/2026/07/musks-x-poses-serious-risk-to-americans-privacy-advocates-warn-ftc/</link>
+      <pubDate>Thu, 02 Jul 2026 14:39:17 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/tech-policy/2026/07/musks-x-poses-serious-risk-to-americans-privacy-advocates-warn-ftc/</guid>
+    </item>
+    <item>
+      <title>[翻訳] テスラ、2026年第2四半期の売上が25%増加</title>
+      <description>テスラが2026年第2四半期の売上を前年同期比25%増やし、配車台数が生産台数を上回った。
+配車台数が生産台数を超えたことで、テスラが保有していた在庫を売却できたことを示唆している。
+同社は在庫調整を進める中で、安定した需要を確保できていることが明らかになった。</description>
+      <link>https://arstechnica.com/cars/2026/07/tesla-sales-increase-by-25-in-q2-2026/</link>
+      <pubDate>Thu, 02 Jul 2026 14:11:07 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/cars/2026/07/tesla-sales-increase-by-25-in-q2-2026/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 人工股関節が劣化し重度の金属中毒に、医師が衝撃の発見</title>
+      <description>女性の人工股関節が劣化し、体内に金属が溶け出して重度の中毒症状を引き起こした。
+医師が患部を検査したところ、灰色の液体と金属化した壊死組織が発見された。
+人工関節の耐久性と安全性に関する重大な懸念が浮上している。</description>
+      <link>https://arstechnica.com/health/2026/07/womans-puzzling-decline-turns-out-to-be-cobalt-poisoning-from-hip-replacement/</link>
+      <pubDate>Thu, 02 Jul 2026 14:04:28 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/health/2026/07/womans-puzzling-decline-turns-out-to-be-cobalt-poisoning-from-hip-replacement/</guid>
+    </item>
+    <item>
+      <title>[翻訳] GoogleのAI拡大で2025年の電力使用量が37%増加</title>
+      <description>GoogleはAI向けデータセンター拡充に伴い、2025年の電力消費量が前年比37%増加した。
+クラウド業界全体でAI需要が急速に拡大する中、エネルギー消費の増加が課題となっている。
+Googleは再生可能エネルギーの導入拡大でカーボンニュートラルを目指しながら、電力需要の急増に対応している。</description>
+      <link>https://arstechnica.com/ai/2026/07/googles-ai-buildout-drove-37-increase-in-electricity-use-in-2025/</link>
+      <pubDate>Thu, 02 Jul 2026 11:15:49 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/ai/2026/07/googles-ai-buildout-drove-37-increase-in-electricity-use-in-2025/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 科学の未来のために声を上げよう：政治化される科学規制への対抗</title>
+      <description>科学の政治化を進める危険な規制が進行中であり、今が意見表明の時である。\n一般市民のコメントや声は科学政策の決定に大きな影響を与える可能性がある。\n科学の独立性と信頼性を守るために、多くの人々の積極的な参加が求められている。</description>
+      <link>https://arstechnica.com/science/2026/07/editorial-the-most-important-thing-you-can-do-to-protect-science/</link>
+      <pubDate>Thu, 02 Jul 2026 10:00:27 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/science/2026/07/editorial-the-most-important-thing-you-can-do-to-protect-science/</guid>
+    </item>
+    <item>
       <title>[翻訳] T-Mobileが訴訟の中、数万台の仮想マシンをVMwareから移行</title>
       <description>T-MobileはBroadcomに対し、VMwareの永続ライセンスの継続的なサポートを要望している。
 BroadcomによるVMwareの買収後、ライセンス政策の変更が顧客企業に影響を与えている。
