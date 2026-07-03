@@ -5,6 +5,2797 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] Day 53: ClickHouse® Data Sampling Explained – Query Billions of Rows Faster</title>
+      <description>&lt;h1&gt;
+  
+  
+  ClickHouse® Data Sampling: Querying Billions of Rows Fast
+&lt;/h1&gt;
+
+&lt;p&gt;&lt;em&gt;Day 53 of #100DaysOfClickHouse&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Modern analytics platforms routinely manage billions—or even trillions—of rows of data. Although ClickHouse® is built to execute analytical queries at incredible speed, there are many situations where an approximate answer is more valuable than waiting for an exact one.&lt;/p&gt;
+
+&lt;p&gt;Imagine you're monitoring application metrics, exploring user behavior, or checking whether a marketing campaign is performing as expected. In these scenarios, getting an answer in a few hundred milliseconds can be far more useful than waiting several seconds for perfect accuracy.&lt;/p&gt;
+
+&lt;p&gt;This is exactly where &lt;strong&gt;data sampling&lt;/strong&gt; becomes valuable.&lt;/p&gt;
+
+&lt;p&gt;Instead of reading every row in a table, ClickHouse® can process only a portion of the data and generate approximate results. This reduces disk I/O, CPU usage, and query execution time, making exploratory analytics significantly faster.&lt;/p&gt;
+
+&lt;p&gt;However, sampling is not a universal optimization. It comes with a trade-off between speed and accuracy, and it only works efficiently when your table is designed to support it.&lt;/p&gt;
+
+&lt;p&gt;In this article, we'll explore how data sampling works in ClickHouse®, when it should be used, and the best practices for designing tables that take advantage of it.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  What Is Data Sampling?
+&lt;/h1&gt;
+
+&lt;p&gt;Data sampling is the process of executing a query against only a subset of the available data rather than scanning every row.&lt;/p&gt;
+
+&lt;p&gt;Consider a table containing &lt;strong&gt;10 billion events&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Without sampling, ClickHouse® reads all 10 billion rows to produce an exact result.&lt;/p&gt;
+
+&lt;p&gt;With sampling enabled, ClickHouse® may read only 10% of the data and return an approximate answer based on that subset.&lt;/p&gt;
+
+&lt;p&gt;Because less data is processed, sampling typically provides several benefits:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Faster query execution&lt;/li&gt;
+&lt;li&gt;Lower CPU utilization&lt;/li&gt;
+&lt;li&gt;Reduced disk I/O&lt;/li&gt;
+&lt;li&gt;Lower overall resource consumption&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The trade-off is straightforward:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;The results are approximate rather than exact.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Whether this approximation is acceptable depends entirely on your use case.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  How Sampling Works in ClickHouse®
+&lt;/h1&gt;
+
+&lt;p&gt;One common misconception is that ClickHouse® randomly selects rows every time a sampled query runs.&lt;/p&gt;
+
+&lt;p&gt;That's not how sampling works.&lt;/p&gt;
+
+&lt;p&gt;Instead, efficient sampling depends on how the table was designed.&lt;/p&gt;
+
+&lt;p&gt;For MergeTree tables, you specify a sampling key using the &lt;code&gt;SAMPLE BY&lt;/code&gt; clause during table creation.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight sql"&gt;&lt;code&gt;&lt;span class="k"&gt;CREATE&lt;/span&gt; &lt;span class="k"&gt;TABLE&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;user_id&lt;/span&gt; &lt;span class="n"&gt;UInt64&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;event_time&lt;/span&gt; &lt;span class="nb"&gt;DateTime&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;event_name&lt;/span&gt; &lt;span class="n"&gt;String&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;ENGINE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;MergeTree&lt;/span&gt;
+&lt;span class="k"&gt;ORDER&lt;/span&gt; &lt;span class="k"&gt;BY&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;event_time&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;SAMPLE&lt;/span&gt; &lt;span class="k"&gt;BY&lt;/span&gt; &lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The sampling key determines how data is organized for efficient sampling.&lt;/p&gt;
+
+&lt;p&gt;Later, you can query a portion of the table using:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight sql"&gt;&lt;code&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt; &lt;span class="k"&gt;count&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;
+&lt;span class="n"&gt;SAMPLE&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Rather than randomly inspecting rows, ClickHouse® deterministically reads approximately 10% of the data based on the sampling key.&lt;/p&gt;
+
+&lt;p&gt;This deterministic behavior provides an important advantage:&lt;/p&gt;
+
+&lt;p&gt;Running the same sampled query multiple times returns the same subset of data, provided the underlying data has not changed.&lt;/p&gt;
+
+&lt;p&gt;This makes sampled queries consistent and predictable.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  Why the &lt;code&gt;SAMPLE BY&lt;/code&gt; Clause Matters
+&lt;/h1&gt;
+
+&lt;p&gt;The &lt;code&gt;SAMPLE&lt;/code&gt; clause only performs efficiently when the table has been created with an appropriate sampling expression.&lt;/p&gt;
+
+&lt;p&gt;Without a sampling key, ClickHouse® has no efficient way to determine which portions of the data should be read.&lt;/p&gt;
+
+&lt;p&gt;Simply adding:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight sql"&gt;&lt;code&gt;&lt;span class="n"&gt;SAMPLE&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;to every query will not automatically improve performance.&lt;/p&gt;
+
+&lt;p&gt;Sampling is a table design feature rather than a query optimization that can be added later.&lt;/p&gt;
+
+&lt;p&gt;If you expect to use sampling regularly, it should be considered during schema design.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  Understanding the &lt;code&gt;SAMPLE&lt;/code&gt; Clause
+&lt;/h1&gt;
+
+&lt;p&gt;The most common syntax is:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight sql"&gt;&lt;code&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;
+&lt;span class="k"&gt;FROM&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;
+&lt;span class="n"&gt;SAMPLE&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Here, &lt;code&gt;0.1&lt;/code&gt; instructs ClickHouse® to process approximately 10% of the data.&lt;/p&gt;
+
+&lt;p&gt;Other examples include:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight sql"&gt;&lt;code&gt;&lt;span class="n"&gt;SAMPLE&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;which processes roughly 25% of the data.&lt;/p&gt;
+
+&lt;p&gt;Or:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight sql"&gt;&lt;code&gt;&lt;span class="n"&gt;SAMPLE&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;which reads approximately half the table.&lt;/p&gt;
+
+&lt;p&gt;Larger sampling ratios generally provide more accurate results but require reading more data.&lt;/p&gt;
+
+&lt;p&gt;Smaller ratios improve speed while increasing estimation error.&lt;/p&gt;
+
+&lt;p&gt;There is no universally correct sampling ratio—the ideal choice depends on your workload and acceptable level of approximation.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  Choosing a Good Sampling Key
+&lt;/h1&gt;
+
+&lt;p&gt;Selecting the right sampling key is one of the most important design decisions.&lt;/p&gt;
+
+&lt;p&gt;An effective sampling key should generally have:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;High cardinality&lt;/li&gt;
+&lt;li&gt;Even distribution&lt;/li&gt;
+&lt;li&gt;Stable values&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Common examples include:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;user_id&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;session_id&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;device_id&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These columns usually distribute rows evenly across the dataset, producing representative samples.&lt;/p&gt;
+
+&lt;p&gt;In contrast, low-cardinality columns such as:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;country&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;status&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;gender&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;may create biased or uneven samples depending on the underlying data distribution.&lt;/p&gt;
+
+&lt;p&gt;Choosing the right sampling key is often just as important as selecting the sampling ratio.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  Speed vs Accuracy
+&lt;/h1&gt;
+
+&lt;p&gt;Sampling always involves a trade-off.&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Full Scan&lt;/th&gt;
+&lt;th&gt;Sampled Query&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Exact results&lt;/td&gt;
+&lt;td&gt;Approximate results&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Reads all matching rows&lt;/td&gt;
+&lt;td&gt;Reads only a subset&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Higher resource usage&lt;/td&gt;
+&lt;td&gt;Lower resource usage&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Best for reporting&lt;/td&gt;
+&lt;td&gt;Best for exploration&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;The quality of sampled results depends on several factors:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Sampling ratio&lt;/li&gt;
+&lt;li&gt;Sampling key&lt;/li&gt;
+&lt;li&gt;Data distribution&lt;/li&gt;
+&lt;li&gt;Aggregation being performed&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For example, calculating an average from a representative sample often produces reliable estimates.&lt;/p&gt;
+
+&lt;p&gt;However, estimating very rare events using a small sample may lead to significant inaccuracies.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  When Should You Use Data Sampling?
+&lt;/h1&gt;
+
+&lt;p&gt;Sampling is most valuable when approximate answers are sufficient.&lt;/p&gt;
+
+&lt;p&gt;Common use cases include:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Interactive analytics&lt;/li&gt;
+&lt;li&gt;Dashboard exploration&lt;/li&gt;
+&lt;li&gt;Product analytics&lt;/li&gt;
+&lt;li&gt;Monitoring event streams&lt;/li&gt;
+&lt;li&gt;Trend analysis&lt;/li&gt;
+&lt;li&gt;Investigating large datasets before running exact queries&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In these situations, reducing query latency often provides more value than perfect precision.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  When Should You Avoid Sampling?
+&lt;/h1&gt;
+
+&lt;p&gt;Some workloads require exact answers.&lt;/p&gt;
+
+&lt;p&gt;Sampling should generally be avoided for:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Financial reporting&lt;/li&gt;
+&lt;li&gt;Billing systems&lt;/li&gt;
+&lt;li&gt;Compliance reporting&lt;/li&gt;
+&lt;li&gt;Tax calculations&lt;/li&gt;
+&lt;li&gt;Exact customer counts&lt;/li&gt;
+&lt;li&gt;Regulatory reporting&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Whenever correctness is more important than execution speed, a full scan remains the better choice.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  Performance Expectations
+&lt;/h1&gt;
+
+&lt;p&gt;It's tempting to assume that sampling always produces dramatic speed improvements.&lt;/p&gt;
+
+&lt;p&gt;In reality, the performance gain depends on several factors, including:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Table design&lt;/li&gt;
+&lt;li&gt;Sampling ratio&lt;/li&gt;
+&lt;li&gt;Query complexity&lt;/li&gt;
+&lt;li&gt;Data distribution&lt;/li&gt;
+&lt;li&gt;Storage layout&lt;/li&gt;
+&lt;li&gt;Available hardware&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Queries that already read only a small portion of the table because of highly selective filters may gain little from sampling.&lt;/p&gt;
+
+&lt;p&gt;Similarly, very small tables often don't benefit enough for sampling to justify the loss in accuracy.&lt;/p&gt;
+
+&lt;p&gt;Instead of assuming a fixed improvement, benchmark sampled and non-sampled queries against your own workload.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  Best Practices
+&lt;/h1&gt;
+
+&lt;p&gt;If you plan to use data sampling in production, consider these recommendations:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Design tables with an appropriate &lt;code&gt;SAMPLE BY&lt;/code&gt; expression from the beginning.&lt;/li&gt;
+&lt;li&gt;Choose high-cardinality sampling keys whenever possible.&lt;/li&gt;
+&lt;li&gt;Periodically compare sampled results against full scans to measure estimation error.&lt;/li&gt;
+&lt;li&gt;Increase the sampling ratio when higher accuracy is required.&lt;/li&gt;
+&lt;li&gt;Clearly label sampled metrics as &lt;strong&gt;approximate&lt;/strong&gt; in dashboards and reports.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These practices help users understand the limitations of sampled data while still benefiting from faster query execution.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  Conclusion
+&lt;/h1&gt;
+
+&lt;p&gt;ClickHouse® data sampling is a powerful feature for accelerating analytical queries when approximate answers are acceptable.&lt;/p&gt;
+
+&lt;p&gt;By processing only a subset of the data, ClickHouse® can significantly reduce disk I/O, CPU usage, and query latency, making exploratory analytics much more responsive. When combined with a well-designed &lt;code&gt;SAMPLE BY&lt;/code&gt; expression and an appropriate high-cardinality sampling key, sampling becomes an effective tool for working with massive datasets.&lt;/p&gt;
+
+&lt;p&gt;However, sampling is not a replacement for exact analytics. It introduces estimation error, requires thoughtful schema design, and should not be used for workloads where every record matters.&lt;/p&gt;
+
+&lt;p&gt;Like many performance optimization techniques, sampling is most effective when applied intentionally. Understanding its strengths, limitations, and design considerations allows you to make informed decisions about when fast approximate answers are sufficient—and when a full scan is the better choice.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;If you're following along, this is &lt;strong&gt;Day 53 of #100DaysOfClickHouse&lt;/strong&gt;, where I'm exploring one ClickHouse® concept every day and sharing practical examples, best practices, and real-world use cases.&lt;/p&gt;
+
+&lt;p&gt;Read more... &lt;a href="https://www.quantrail-data.com/clickhouse-data-sampling-querying-billions-of-rows-fast" rel="noopener noreferrer"&gt;https://www.quantrail-data.com/clickhouse-data-sampling-querying-billions-of-rows-fast&lt;/a&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/kanishga_subramani_49ad73/day-53-clickhouser-data-sampling-explained-query-billions-of-rows-faster-45cp</link>
+      <pubDate>Fri, 03 Jul 2026 06:14:20 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/kanishga_subramani_49ad73/day-53-clickhouser-data-sampling-explained-query-billions-of-rows-faster-45cp</guid>
+    </item>
+    <item>
+      <title>[翻訳] What Does This Python Code Print? 10 Problems to Test Yourself</title>
+      <description>&lt;p&gt;No explanations until the end. Work through each one by tracing the code mentally. Write down your answer before you scroll.&lt;/p&gt;
+
+&lt;p&gt;This is exactly the format used in technical interviews and university database and programming exams.&lt;/p&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 1
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;change&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;
+&lt;span class="nf"&gt;change&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 2
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;lst&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;lst&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 3
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nf"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="nf"&gt;f&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 4
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;outer&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;inner&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+        &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+    &lt;span class="nf"&gt;inner&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;outer&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 5
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;a&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;b&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;c&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;items&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;d&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 6
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="n"&gt;words&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;hi&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;hello&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;hey&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;words&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;reverse&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;words&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 7
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;count&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;step&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;step&lt;/span&gt;
+
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;count&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;count&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;step&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;count&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 8
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Counter&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;Counter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Counter&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Counter&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Counter&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Counter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;total&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;total&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 9
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;python&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;::&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Problem 10
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Answers
+&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem 1:&lt;/strong&gt; &lt;code&gt;5&lt;/code&gt;&lt;br /&gt;
+Integers are immutable. The function creates a new local &lt;code&gt;n&lt;/code&gt; with value 15. The original &lt;code&gt;x&lt;/code&gt; is unchanged.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem 2:&lt;/strong&gt; &lt;code&gt;[1, 2, 3, 4]&lt;/code&gt;&lt;br /&gt;
+Lists are mutable. The function receives a reference to the same list object and appends to it in place. The original list is modified.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem 3:&lt;/strong&gt; &lt;code&gt;[2, 2, 2]&lt;/code&gt;&lt;br /&gt;
+Late binding closure. All three lambdas capture the variable &lt;code&gt;i&lt;/code&gt;, not its value at creation time. When called, &lt;code&gt;i&lt;/code&gt; is 2 (the last value from range(3)). All three return 2.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem 4:&lt;/strong&gt; &lt;code&gt;10&lt;/code&gt;&lt;br /&gt;
+The inner function creates its own local &lt;code&gt;x = 20&lt;/code&gt;. Without &lt;code&gt;nonlocal&lt;/code&gt;, this does not affect the outer &lt;code&gt;x&lt;/code&gt;. The outer function returns its own &lt;code&gt;x&lt;/code&gt; which is still 10.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem 5:&lt;/strong&gt; &lt;code&gt;{1: 'a', 2: 'b', 3: 'c', 4: 'd'}&lt;/code&gt;&lt;br /&gt;
+In Python 3.7 and later, adding a key during iteration does not always raise RuntimeError if the size change is handled carefully. The dictionary gets the new key added.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem 6:&lt;/strong&gt; First line: &lt;code&gt;hello&lt;/code&gt;. Second line: &lt;code&gt;['hi', 'hello', 'hey']&lt;/code&gt;&lt;br /&gt;
+&lt;code&gt;sorted()&lt;/code&gt; returns a new list. It does not modify the original. &lt;code&gt;result[0]&lt;/code&gt; is the longest word which is &lt;code&gt;hello&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem 7:&lt;/strong&gt;&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;6   (count(5) = 5 + 1)
+3   (count(step=3) = 0 + 3)
+5   (count(2, 3) = 2 + 3)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;Problem 8:&lt;/strong&gt; &lt;code&gt;3&lt;/code&gt; then &lt;code&gt;3&lt;/code&gt;&lt;br /&gt;
+&lt;code&gt;total&lt;/code&gt; is a class variable shared across all instances. After three instantiations it is 3. Accessing &lt;code&gt;a.total&lt;/code&gt; finds no instance attribute so it reads the class attribute which is also 3.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem 9:&lt;/strong&gt;&lt;br /&gt;
+&lt;code&gt;yh&lt;/code&gt; (characters at index 1 and 3, stepping by 2)&lt;br /&gt;
+&lt;code&gt;nohtyp&lt;/code&gt; (reversed string)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem 10:&lt;/strong&gt; &lt;code&gt;[1, 2, 3, 4]&lt;/code&gt; then &lt;code&gt;[1, 2, 3]&lt;/code&gt;&lt;br /&gt;
+&lt;code&gt;x = x + [4]&lt;/code&gt; creates a NEW list and rebinds &lt;code&gt;x&lt;/code&gt; to it. &lt;code&gt;y&lt;/code&gt; still points to the original list &lt;code&gt;[1, 2, 3]&lt;/code&gt; which was never modified.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;How many did you get right? If you missed any, the explanation tells you exactly which concept to study.&lt;/p&gt;
+
+&lt;p&gt;For more problems like this with AI-generated unique questions every session, try &lt;a href="https://www.pycodeit.com" rel="noopener noreferrer"&gt;PyCodeIt&lt;/a&gt;. Free, no account needed.&lt;/p&gt;</description>
+      <link>https://dev.to/ameer_abdullah_68d48c8496/what-does-this-python-code-print-10-problems-to-test-yourself-g7n</link>
+      <pubDate>Fri, 03 Jul 2026 06:12:49 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ameer_abdullah_68d48c8496/what-does-this-python-code-print-10-problems-to-test-yourself-g7n</guid>
+    </item>
+    <item>
+      <title>[翻訳] 🤖 Kubernetes as Your AI Control Plane: Running Claude and Ollama Agents with kagent 🧠</title>
+      <description>&lt;h2&gt;
+  
+  
+  👋 Hey there
+&lt;/h2&gt;
+
+&lt;p&gt;If you run a homelab, you already have a Kubernetes cluster sitting there humming away. So why send every AI workload off to a SaaS dashboard when you can run agents right next to your pods, with the same kubectl and GitOps flow you already trust?&lt;/p&gt;
+
+&lt;p&gt;That is exactly what kagent gives us. It is a CNCF sandbox project (started at Solo.io, built by folks from the Istio world) that turns AI agents into first class Kubernetes workloads. Agents, models, and tools all become custom resources you apply with &lt;code&gt;kubectl&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;👉 The big idea: kagent puts one clean abstraction between your agents and your models, so you can point the same agent at Claude in the cloud or at Ollama running in your own cluster, and switch by changing a single field.&lt;/p&gt;
+
+&lt;p&gt;In this guide we will build a small but real inference stack in a homelab cluster, wired to both.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  🧱 What we will cover
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;✅ What the kagent inference stack actually looks like&lt;/li&gt;
+&lt;li&gt;✅ Installing kagent with Helm&lt;/li&gt;
+&lt;li&gt;✅ Wiring up Claude for cloud inference (the ModelConfig resource)&lt;/li&gt;
+&lt;li&gt;✅ Deploying Ollama inside the cluster for fully local, on prem inference&lt;/li&gt;
+&lt;li&gt;✅ Building agents that use each model with real Kubernetes tools&lt;/li&gt;
+&lt;li&gt;✅ Swapping models with a one line change&lt;/li&gt;
+&lt;li&gt;✅ Adding a human approval gate so your agent never nukes the wrong namespace&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  🗺️ The inference stack, layer by layer
+&lt;/h2&gt;
+
+&lt;p&gt;Before we touch YAML, here is the mental model. In kagent your "inference stack" is just a few layers, each a Kubernetes resource or component:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;✅ Model provider: where the tokens come from. Claude via the Anthropic API, or Ollama serving a local model.&lt;/li&gt;
+&lt;li&gt;✅ ModelConfig (CRD): tells kagent which provider, which model, and which secret holds the key.&lt;/li&gt;
+&lt;li&gt;✅ Agent (CRD): a system prompt plus a set of tools plus a reference to a ModelConfig.&lt;/li&gt;
+&lt;li&gt;✅ Tools over MCP: kagent ships a tool server that exposes Kubernetes actions as tools your agent can call.&lt;/li&gt;
+&lt;li&gt;✅ Controller and runtime: the Go controller watches the CRDs, and the runtime (Agent Development Kit) runs the agent loop.&lt;/li&gt;
+&lt;li&gt;✅ Storage: a bundled PostgreSQL instance for agent state (swap it for your own in production).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The nice part is that the Agent resource does not care where the model lives. It just references a ModelConfig by name. Cloud or local, the agent spec looks the same.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  🧰 Prerequisites
+&lt;/h2&gt;
+
+&lt;p&gt;Nothing exotic, just homelab basics:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;✅ A running Kubernetes cluster (k3s, kind, minikube, or your bare metal cluster all work)&lt;/li&gt;
+&lt;li&gt;✅ &lt;code&gt;kubectl&lt;/code&gt; and &lt;code&gt;helm&lt;/code&gt; installed and pointing at that cluster&lt;/li&gt;
+&lt;li&gt;✅ An Anthropic API key for the Claude part (grab one from the Anthropic console)&lt;/li&gt;
+&lt;li&gt;✅ Enough CPU and RAM on a node for a local model (an 8B model like &lt;code&gt;llama3.1&lt;/code&gt; is happy with a couple of cores and around 8Gi of memory)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Heads up on versions: everything below was verified against kagent v0.9 (CRD apiVersion &lt;code&gt;kagent.dev/v1alpha2&lt;/code&gt;), current Claude model ids &lt;code&gt;claude-haiku-4-5&lt;/code&gt; and &lt;code&gt;claude-sonnet-4-5&lt;/code&gt;, and the Ollama &lt;code&gt;llama3.1&lt;/code&gt; model, all checked in July 2026. kagent moves fast, so if a field looks different, check the release notes.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  📦 Step 1: Install kagent
+&lt;/h2&gt;
+
+&lt;p&gt;kagent installs as two Helm charts: one for the CRDs, one for the controller and friends. Since v0.7, the kmcp tool subproject comes bundled, so you get the built in Kubernetes tools out of the box.&lt;/p&gt;
+
+&lt;p&gt;First, install the CRDs:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;helm &lt;span class="nb"&gt;install &lt;/span&gt;kagent-crds oci://ghcr.io/kagent-dev/kagent/helm/kagent-crds &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--namespace&lt;/span&gt; kagent &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--create-namespace&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Now install kagent itself. We will set Anthropic as the default provider so we get a working Claude backed model config the moment the pods come up:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;ANTHROPIC_API_KEY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"your-anthropic-key-here"&lt;/span&gt;
+
+helm &lt;span class="nb"&gt;install &lt;/span&gt;kagent oci://ghcr.io/kagent-dev/kagent/helm/kagent &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--namespace&lt;/span&gt; kagent &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--set&lt;/span&gt; providers.default&lt;span class="o"&gt;=&lt;/span&gt;anthropic &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--set&lt;/span&gt; providers.anthropic.apiKey&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$ANTHROPIC_API_KEY&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Give it a minute, then check the pods:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl get pods &lt;span class="nt"&gt;-n&lt;/span&gt; kagent
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;You should see the controller, the UI, the kagent tool server, and a bundled PostgreSQL pod.&lt;/p&gt;
+
+&lt;p&gt;Want the dashboard? Port forward the UI:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl port-forward &lt;span class="nt"&gt;-n&lt;/span&gt; kagent svc/kagent-ui 8080:8080
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Then open &lt;a href="http://localhost:8080" rel="noopener noreferrer"&gt;http://localhost:8080&lt;/a&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Homelab tip: the default install ships a bundled &lt;code&gt;postgres:18&lt;/code&gt; pod so you can play right away. For anything you actually care about, point kagent at your own PostgreSQL instead.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  ☁️ Step 2: Wire up Claude for cloud inference
+&lt;/h2&gt;
+
+&lt;p&gt;Because we passed the Anthropic provider at install time, kagent already created a default ModelConfig for us. In v0.9 that default uses &lt;code&gt;claude-haiku-4-5&lt;/code&gt;, which is fast and cheap and perfect for quick cluster questions.&lt;/p&gt;
+
+&lt;p&gt;Let us look at what landed:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl get modelconfigs &lt;span class="nt"&gt;-n&lt;/span&gt; kagent
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Now let us be explicit and add our own ModelConfig that pins a stronger model, &lt;code&gt;claude-sonnet-4-5&lt;/code&gt;, for the heavier reasoning tasks. First store the key in a Secret (kagent reads the model key from a Secret you control):&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;ANTHROPIC_API_KEY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"your-anthropic-key-here"&lt;/span&gt;
+
+kubectl create secret generic kagent-anthropic &lt;span class="nt"&gt;-n&lt;/span&gt; kagent &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--from-literal&lt;/span&gt; &lt;span class="nv"&gt;ANTHROPIC_API_KEY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$ANTHROPIC_API_KEY&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Then create the ModelConfig that references it:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;apiVersion&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent.dev/v1alpha2&lt;/span&gt;
+&lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ModelConfig&lt;/span&gt;
+&lt;span class="na"&gt;metadata&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;claude-sonnet&lt;/span&gt;
+  &lt;span class="na"&gt;namespace&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent&lt;/span&gt;
+&lt;span class="na"&gt;spec&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;provider&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Anthropic&lt;/span&gt;
+  &lt;span class="na"&gt;model&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;claude-sonnet-4-5&lt;/span&gt;
+  &lt;span class="na"&gt;apiKeySecret&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent-anthropic&lt;/span&gt;
+  &lt;span class="na"&gt;apiKeySecretKey&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ANTHROPIC_API_KEY&lt;/span&gt;
+  &lt;span class="na"&gt;anthropic&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;{}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Apply it:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl apply &lt;span class="nt"&gt;-f&lt;/span&gt; claude-modelconfig.yaml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;That is your cloud inference layer done. Two model configs now live in the cluster: a fast Haiku default and a Sonnet config for the deeper work.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Note on model ids: &lt;code&gt;claude-haiku-4-5&lt;/code&gt; and &lt;code&gt;claude-sonnet-4-5&lt;/code&gt; are convenience aliases that resolve to the latest dated snapshot. If you want a fully pinned version for reproducibility, use the dated form such as &lt;code&gt;claude-haiku-4-5-20251001&lt;/code&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  🏠 Step 3: Deploy Ollama for on prem inference
+&lt;/h2&gt;
+
+&lt;p&gt;Now the fun part for homelabbers: running the model yourself, no tokens leaving your network.&lt;/p&gt;
+
+&lt;p&gt;We will run Ollama as a normal Deployment, give it a PersistentVolumeClaim so the downloaded model survives restarts (models are big, you do not want to re download on every reschedule), and expose it with a Service.&lt;/p&gt;
+
+&lt;p&gt;Create the namespace:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl create ns ollama
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Apply the Ollama stack:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;apiVersion&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;v1&lt;/span&gt;
+&lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;PersistentVolumeClaim&lt;/span&gt;
+&lt;span class="na"&gt;metadata&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama-models&lt;/span&gt;
+  &lt;span class="na"&gt;namespace&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama&lt;/span&gt;
+&lt;span class="na"&gt;spec&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;accessModes&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;ReadWriteOnce&lt;/span&gt;
+  &lt;span class="na"&gt;resources&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;requests&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="na"&gt;storage&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;20Gi&lt;/span&gt;
+&lt;span class="nn"&gt;---&lt;/span&gt;
+&lt;span class="na"&gt;apiVersion&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;apps/v1&lt;/span&gt;
+&lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Deployment&lt;/span&gt;
+&lt;span class="na"&gt;metadata&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama&lt;/span&gt;
+  &lt;span class="na"&gt;namespace&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama&lt;/span&gt;
+&lt;span class="na"&gt;spec&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;replicas&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
+  &lt;span class="na"&gt;selector&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;matchLabels&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama&lt;/span&gt;
+  &lt;span class="na"&gt;template&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;metadata&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="na"&gt;labels&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+        &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama&lt;/span&gt;
+    &lt;span class="na"&gt;spec&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="na"&gt;containers&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+        &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama&lt;/span&gt;
+          &lt;span class="na"&gt;image&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama/ollama:latest&lt;/span&gt;
+          &lt;span class="na"&gt;ports&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;http&lt;/span&gt;
+              &lt;span class="na"&gt;containerPort&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="m"&gt;11434&lt;/span&gt;
+              &lt;span class="na"&gt;protocol&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;TCP&lt;/span&gt;
+          &lt;span class="na"&gt;resources&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+            &lt;span class="na"&gt;requests&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+              &lt;span class="na"&gt;cpu&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;2"&lt;/span&gt;
+              &lt;span class="na"&gt;memory&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;8Gi&lt;/span&gt;
+            &lt;span class="na"&gt;limits&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+              &lt;span class="na"&gt;memory&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;12Gi&lt;/span&gt;
+          &lt;span class="na"&gt;volumeMounts&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;models&lt;/span&gt;
+              &lt;span class="na"&gt;mountPath&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;/root/.ollama&lt;/span&gt;
+      &lt;span class="na"&gt;volumes&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+        &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;models&lt;/span&gt;
+          &lt;span class="na"&gt;persistentVolumeClaim&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+            &lt;span class="na"&gt;claimName&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama-models&lt;/span&gt;
+&lt;span class="nn"&gt;---&lt;/span&gt;
+&lt;span class="na"&gt;apiVersion&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;v1&lt;/span&gt;
+&lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Service&lt;/span&gt;
+&lt;span class="na"&gt;metadata&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama&lt;/span&gt;
+  &lt;span class="na"&gt;namespace&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama&lt;/span&gt;
+&lt;span class="na"&gt;spec&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;type&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ClusterIP&lt;/span&gt;
+  &lt;span class="na"&gt;selector&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama&lt;/span&gt;
+  &lt;span class="na"&gt;ports&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;http&lt;/span&gt;
+      &lt;span class="na"&gt;port&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="m"&gt;80&lt;/span&gt;
+      &lt;span class="na"&gt;targetPort&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;http&lt;/span&gt;
+      &lt;span class="na"&gt;protocol&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;TCP&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Wait for the pod to be ready:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl get pods &lt;span class="nt"&gt;-n&lt;/span&gt; ollama &lt;span class="nt"&gt;-w&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Once it is running, pull a model. This matters: kagent drives agents through tool calling, so you must use a model that supports function calling. Plain &lt;code&gt;llama3&lt;/code&gt; does not do this reliably, but &lt;code&gt;llama3.1&lt;/code&gt; and newer (or &lt;code&gt;qwen2.5&lt;/code&gt; and above) do. We will use &lt;code&gt;llama3.1&lt;/code&gt;:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl &lt;span class="nt"&gt;-n&lt;/span&gt; ollama &lt;span class="nb"&gt;exec &lt;/span&gt;deploy/ollama &lt;span class="nt"&gt;--&lt;/span&gt; ollama pull llama3.1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Confirm it landed:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl &lt;span class="nt"&gt;-n&lt;/span&gt; ollama &lt;span class="nb"&gt;exec &lt;/span&gt;deploy/ollama &lt;span class="nt"&gt;--&lt;/span&gt; ollama list
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Your local model is now reachable inside the cluster at:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;http://ollama.ollama.svc.cluster.local
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;(The Service listens on port 80 and forwards to the container on 11434, so no port number is needed in the URL.)&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  🔌 Step 4: Tell kagent about your local model
+&lt;/h2&gt;
+
+&lt;p&gt;Same ModelConfig pattern as Claude, just a different provider and a &lt;code&gt;host&lt;/code&gt; that points at the in cluster Ollama Service.&lt;/p&gt;
+
+&lt;p&gt;One small quirk: Ollama does not need an API key, but the ModelConfig field still expects a secret reference. So we create a throwaway placeholder secret (Ollama ignores the value):&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl create secret generic kagent-ollama &lt;span class="nt"&gt;-n&lt;/span&gt; kagent &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--from-literal&lt;/span&gt; &lt;span class="nv"&gt;OLLAMA_API_KEY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;ollama-placeholder
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Now the ModelConfig:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;apiVersion&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent.dev/v1alpha2&lt;/span&gt;
+&lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ModelConfig&lt;/span&gt;
+&lt;span class="na"&gt;metadata&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama-llama31&lt;/span&gt;
+  &lt;span class="na"&gt;namespace&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent&lt;/span&gt;
+&lt;span class="na"&gt;spec&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;provider&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Ollama&lt;/span&gt;
+  &lt;span class="na"&gt;model&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;llama3.1&lt;/span&gt;
+  &lt;span class="na"&gt;apiKeySecret&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent-ollama&lt;/span&gt;
+  &lt;span class="na"&gt;apiKeySecretKey&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;OLLAMA_API_KEY&lt;/span&gt;
+  &lt;span class="na"&gt;ollama&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;host&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;http://ollama.ollama.svc.cluster.local&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Apply it:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl apply &lt;span class="nt"&gt;-f&lt;/span&gt; ollama-modelconfig.yaml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Check that both cloud and local configs are now registered:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl get modelconfigs &lt;span class="nt"&gt;-n&lt;/span&gt; kagent
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;You now have a hybrid inference stack: Claude for the heavy lifting, Ollama for private, offline friendly work, both described the same declarative way.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  🧠 Step 5: Build an agent that uses your models
+&lt;/h2&gt;
+
+&lt;p&gt;Here is where the abstraction pays off. An Agent is just a system prompt, a set of tools, and a &lt;code&gt;modelConfig&lt;/code&gt; reference. kagent ships a built in tool server called &lt;code&gt;kagent-tool-server&lt;/code&gt; that exposes Kubernetes actions as tools, so our agent can actually inspect the cluster.&lt;/p&gt;
+
+&lt;p&gt;Let us create a Claude backed cluster helper:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;apiVersion&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent.dev/v1alpha2&lt;/span&gt;
+&lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Agent&lt;/span&gt;
+&lt;span class="na"&gt;metadata&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;cluster-helper-claude&lt;/span&gt;
+  &lt;span class="na"&gt;namespace&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent&lt;/span&gt;
+&lt;span class="na"&gt;spec&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;description&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;A friendly Kubernetes helper backed by Claude.&lt;/span&gt;
+  &lt;span class="na"&gt;type&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Declarative&lt;/span&gt;
+  &lt;span class="na"&gt;declarative&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;modelConfig&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;claude-sonnet&lt;/span&gt;
+    &lt;span class="na"&gt;systemMessage&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;|&lt;/span&gt;
+      &lt;span class="s"&gt;You are a friendly and careful Kubernetes helper.&lt;/span&gt;
+
+      &lt;span class="s"&gt;# Instructions&lt;/span&gt;
+      &lt;span class="s"&gt;- Use the available tools to answer questions about the cluster.&lt;/span&gt;
+      &lt;span class="s"&gt;- If a question is unclear, ask for clarification before running any tool.&lt;/span&gt;
+      &lt;span class="s"&gt;- Never invent an answer. If you are unsure, say so.&lt;/span&gt;
+
+      &lt;span class="s"&gt;# Response format&lt;/span&gt;
+      &lt;span class="s"&gt;- Always format your response as Markdown.&lt;/span&gt;
+      &lt;span class="s"&gt;- Summarize the actions you took and explain the result.&lt;/span&gt;
+    &lt;span class="na"&gt;tools&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;type&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;McpServer&lt;/span&gt;
+        &lt;span class="na"&gt;mcpServer&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+          &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent-tool-server&lt;/span&gt;
+          &lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;RemoteMCPServer&lt;/span&gt;
+          &lt;span class="na"&gt;apiGroup&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent.dev&lt;/span&gt;
+          &lt;span class="na"&gt;toolNames&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_get_resources&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_get_available_api_resources&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_describe_resource&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Apply it:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl apply &lt;span class="nt"&gt;-f&lt;/span&gt; agent-claude.yaml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;👉 Now the magic trick. To run the exact same agent on your local model instead of Claude, you change one field: &lt;code&gt;modelConfig&lt;/code&gt;. Here is the on prem twin:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;apiVersion&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent.dev/v1alpha2&lt;/span&gt;
+&lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Agent&lt;/span&gt;
+&lt;span class="na"&gt;metadata&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;cluster-helper-local&lt;/span&gt;
+  &lt;span class="na"&gt;namespace&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent&lt;/span&gt;
+&lt;span class="na"&gt;spec&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;description&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;The same helper, running fully local on Ollama.&lt;/span&gt;
+  &lt;span class="na"&gt;type&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Declarative&lt;/span&gt;
+  &lt;span class="na"&gt;declarative&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;modelConfig&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ollama-llama31&lt;/span&gt;
+    &lt;span class="na"&gt;systemMessage&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;|&lt;/span&gt;
+      &lt;span class="s"&gt;You are a friendly and careful Kubernetes helper.&lt;/span&gt;
+
+      &lt;span class="s"&gt;# Instructions&lt;/span&gt;
+      &lt;span class="s"&gt;- Use the available tools to answer questions about the cluster.&lt;/span&gt;
+      &lt;span class="s"&gt;- If a question is unclear, ask for clarification before running any tool.&lt;/span&gt;
+      &lt;span class="s"&gt;- Never invent an answer. If you are unsure, say so.&lt;/span&gt;
+
+      &lt;span class="s"&gt;# Response format&lt;/span&gt;
+      &lt;span class="s"&gt;- Always format your response as Markdown.&lt;/span&gt;
+      &lt;span class="s"&gt;- Summarize the actions you took and explain the result.&lt;/span&gt;
+    &lt;span class="na"&gt;tools&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;type&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;McpServer&lt;/span&gt;
+        &lt;span class="na"&gt;mcpServer&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+          &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent-tool-server&lt;/span&gt;
+          &lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;RemoteMCPServer&lt;/span&gt;
+          &lt;span class="na"&gt;apiGroup&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent.dev&lt;/span&gt;
+          &lt;span class="na"&gt;toolNames&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_get_resources&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_get_available_api_resources&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_describe_resource&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl apply &lt;span class="nt"&gt;-f&lt;/span&gt; agent-local.yaml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Same prompt, same tools, different brain. That is the whole point of putting a ModelConfig in front of your agents.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  💬 Step 6: Talk to your agents
+&lt;/h2&gt;
+
+&lt;p&gt;You can chat through the dashboard, but the CLI is quicker for a test. Grab the kagent CLI:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;brew &lt;span class="nb"&gt;install &lt;/span&gt;kagent
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;or&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;curl https://raw.githubusercontent.com/kagent-dev/kagent/refs/heads/main/scripts/get-kagent | bash
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;List your agents:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kagent get agent
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Ask the Claude agent something:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kagent invoke &lt;span class="nt"&gt;-t&lt;/span&gt; &lt;span class="s2"&gt;"What API resources are available in my cluster?"&lt;/span&gt; &lt;span class="nt"&gt;--agent&lt;/span&gt; cluster-helper-claude
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Then ask the local one the same thing and compare:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kagent invoke &lt;span class="nt"&gt;-t&lt;/span&gt; &lt;span class="s2"&gt;"List the pods in the kagent namespace and tell me if any are unhealthy."&lt;/span&gt; &lt;span class="nt"&gt;--agent&lt;/span&gt; cluster-helper-local
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The local agent keeps every token inside your homelab, which is a lovely thing when you are poking at private workloads.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  🛡️ Step 7: Add a safety gate (highly recommended)
+&lt;/h2&gt;
+
+&lt;p&gt;Giving an AI agent access to your cluster is great until it decides to be too helpful. kagent has a built in Human in the Loop feature: mark any tool as needing approval, and the agent pauses for your yes or no before running it.&lt;/p&gt;
+
+&lt;p&gt;Here is an agent that can read freely but must ask before it changes anything:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;apiVersion&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent.dev/v1alpha2&lt;/span&gt;
+&lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Agent&lt;/span&gt;
+&lt;span class="na"&gt;metadata&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;cluster-operator&lt;/span&gt;
+  &lt;span class="na"&gt;namespace&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent&lt;/span&gt;
+&lt;span class="na"&gt;spec&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;description&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;A Kubernetes operator agent with approval gates on destructive actions.&lt;/span&gt;
+  &lt;span class="na"&gt;type&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Declarative&lt;/span&gt;
+  &lt;span class="na"&gt;declarative&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;modelConfig&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;claude-sonnet&lt;/span&gt;
+    &lt;span class="na"&gt;systemMessage&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;|&lt;/span&gt;
+      &lt;span class="s"&gt;You are a Kubernetes operator assistant.&lt;/span&gt;
+      &lt;span class="s"&gt;Before making any change, explain what you plan to do and why.&lt;/span&gt;
+    &lt;span class="na"&gt;tools&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;type&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;McpServer&lt;/span&gt;
+        &lt;span class="na"&gt;mcpServer&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+          &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent-tool-server&lt;/span&gt;
+          &lt;span class="na"&gt;kind&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;RemoteMCPServer&lt;/span&gt;
+          &lt;span class="na"&gt;apiGroup&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent.dev&lt;/span&gt;
+          &lt;span class="na"&gt;toolNames&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_get_resources&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_describe_resource&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_apply_manifest&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_delete_resource&lt;/span&gt;
+          &lt;span class="na"&gt;requireApproval&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_apply_manifest&lt;/span&gt;
+            &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;k8s_delete_resource&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl apply &lt;span class="nt"&gt;-f&lt;/span&gt; agent-operator.yaml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Now the read tools run freely, but the moment the agent tries to apply or delete something, the UI shows Approve and Reject buttons. If you reject, your reason is fed back to the model as context. Two lines of YAML, a lot of peace of mind.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Good to know: every tool you list in &lt;code&gt;requireApproval&lt;/code&gt; must also appear in &lt;code&gt;toolNames&lt;/code&gt;, and kagent validates this when the resource is created.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  🔁 Why this pattern is nice for a homelab
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;✅ One workflow: agents, models, and tools are all just &lt;code&gt;kubectl apply&lt;/code&gt;, so GitOps and PR reviews work exactly like the rest of your cluster.&lt;/li&gt;
+&lt;li&gt;✅ No lock in: swap Claude for Ollama, or route different agents to different models, without rewriting anything.&lt;/li&gt;
+&lt;li&gt;✅ Cost control: send routine questions to a local model, save the cloud model for the hard stuff.&lt;/li&gt;
+&lt;li&gt;✅ Privacy by default: keep sensitive workloads on the on prem model, no data leaves the house.&lt;/li&gt;
+&lt;li&gt;✅ Guardrails built in: approval gates and clear observability instead of a black box.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  🚀 What is next
+&lt;/h2&gt;
+
+&lt;p&gt;A few directions to keep exploring from here:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;✅ Point kagent at an external PostgreSQL and enable memory so your agents remember context across sessions.&lt;/li&gt;
+&lt;li&gt;✅ Try the Go runtime for faster agent cold starts by setting &lt;code&gt;runtime: go&lt;/code&gt; in the declarative spec.&lt;/li&gt;
+&lt;li&gt;✅ Add your own MCP tools with kmcp so agents can talk to your internal APIs.&lt;/li&gt;
+&lt;li&gt;✅ Put a GPU node under Ollama and jump to a bigger local model for better tool use.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  🦆 Bonus: drive it all from Goose
+&lt;/h2&gt;
+
+&lt;p&gt;Once your stack is up, you do not have to live inside the kagent UI. Goose is a local, open source AI agent (CLI and desktop, now part of the Linux Foundation Agentic AI Foundation) that speaks MCP. That means it can plug straight into what you just built, in two complementary ways.&lt;/p&gt;
+
+&lt;p&gt;Think of it like this: Goose needs a brain (a model provider) and it can borrow tools (MCP extensions). Your cluster can supply both.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  🔑 First, give Goose a brain (your deployed models)
+&lt;/h3&gt;
+
+&lt;p&gt;Install Goose from the official install page (&lt;a href="https://goose-docs.ai/docs/getting-started/installation" rel="noopener noreferrer"&gt;https://goose-docs.ai/docs/getting-started/installation&lt;/a&gt;), then run the config wizard:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;goose configure
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Point it at Claude, using the same Anthropic key you gave kagent. Goose will ask for your API key and store it in your system keyring:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight console"&gt;&lt;code&gt;&lt;span class="go"&gt;┌   goose-configure
+│
+◇  What would you like to configure?
+│  Configure Providers
+│
+◇  Which model provider should we use?
+│  Anthropic
+│
+◇  Enter a model from that provider:
+│  claude-sonnet-4-5
+└  Configuration saved successfully
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Prefer to stay fully local and reuse the Ollama you deployed in Step 3? Goose runs on your workstation, so first port forward the in cluster Ollama Service (it listens on port 80 and targets the container on 11434):&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl &lt;span class="nt"&gt;-n&lt;/span&gt; ollama port-forward svc/ollama 11434:80
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Then configure Goose to use Ollama. If you do not set a host, Goose defaults to localhost:11434, which is exactly where the port forward lands:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight console"&gt;&lt;code&gt;&lt;span class="go"&gt;┌   goose-configure
+│
+◇  What would you like to configure?
+│  Configure Providers
+│
+◇  Which model provider should we use?
+│  Ollama
+│
+◇  Enter a model from that provider:
+│  llama3.1
+└  Configuration saved successfully
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;👉 One thing to keep in mind: Goose leans heavily on tool calling, so pick a model that is good at it. llama3.1 and up or qwen2.5 handle light tasks, but for serious agent loops Claude will be a lot more reliable.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  🔗 Then, hand Goose your kagent agents as tools
+&lt;/h3&gt;
+
+&lt;p&gt;kagent exposes every running agent through an MCP server built into the control plane, over the Streamable HTTP transport. So Goose can discover and call your kagent agents as if they were tools.&lt;/p&gt;
+
+&lt;p&gt;Port forward the kagent control plane:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;kubectl port-forward &lt;span class="nt"&gt;-n&lt;/span&gt; kagent svc/kagent-controller 8083:8083
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Add it to Goose as a remote extension:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;goose configure
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight console"&gt;&lt;code&gt;&lt;span class="go"&gt;┌   goose-configure
+│
+◇  What would you like to configure?
+│  Add Extension
+│
+◇  What type of extension would you like to add?
+│  Remote Extension (Streamable HTTP)
+│
+◇  What would you like to call this extension?
+│  kagent-agents
+│
+◇  What is the Streamable HTTP endpoint URI?
+│  http://localhost:8083/mcp
+│
+◇  Please set the timeout for this tool (in secs):
+│  300
+└  Added kagent-agents extension
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;That writes an entry to &lt;code&gt;~/.config/goose/config.yaml&lt;/code&gt; that looks like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;extensions&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;kagent-agents&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;enabled&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+    &lt;span class="na"&gt;type&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;streamable_http&lt;/span&gt;
+    &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;kagent-agents&lt;/span&gt;
+    &lt;span class="na"&gt;uri&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;http://localhost:8083/mcp&lt;/span&gt;
+    &lt;span class="na"&gt;timeout&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="m"&gt;300&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The kagent MCP server hands Goose two tools: &lt;code&gt;list_agents&lt;/code&gt; to discover what is available, and &lt;code&gt;invoke_agent&lt;/code&gt; to run a specific agent by name (with session support for follow ups). Start a session:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;goose session
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;and ask something like:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;List my kagent agents, then use the cluster-helper-local agent to check for unhealthy pods in the kagent namespace.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Goose will call &lt;code&gt;list_agents&lt;/code&gt;, pick &lt;code&gt;cluster-helper-local&lt;/code&gt;, and delegate the cluster work to it through kagent. You end up with Goose as the friendly front door, your kagent agents as specialized workers, and Claude or Ollama as the brain, all wired together through open protocols.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Note: this kagent endpoint currently supports Streamable HTTP, not SSE. If you put kagent behind a gateway you can skip the port forward and point Goose at the public URL instead.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  🎁 Wrapping Up
+&lt;/h2&gt;
+
+&lt;p&gt;We went from an empty homelab cluster to a working, hybrid AI inference stack: kagent as the control plane, Claude for cloud inference, and Ollama running fully local, all described as plain Kubernetes resources. The best part is how boring it feels in the best way. Agents are just workloads, models are just config, and swapping between cloud and on prem is a one line change.&lt;/p&gt;
+
+&lt;p&gt;If you have been waiting for a reason to bring agentic AI into your cluster without handing everything to a SaaS, this is a really pleasant place to start.&lt;/p&gt;
+
+&lt;p&gt;Happy clustering and stay safe! 🧑‍🚀&lt;/p&gt;</description>
+      <link>https://dev.to/hkhelil/kubernetes-as-your-ai-control-plane-running-claude-and-ollama-agents-with-kagent-1bmb</link>
+      <pubDate>Fri, 03 Jul 2026 06:12:43 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/hkhelil/kubernetes-as-your-ai-control-plane-running-claude-and-ollama-agents-with-kagent-1bmb</guid>
+    </item>
+    <item>
+      <title>[翻訳] TypeScript `using` Keyword and Explicit Resource Management: Done Right</title>
+      <description>&lt;h1&gt;
+  
+  
+  TypeScript &lt;code&gt;using&lt;/code&gt; Keyword and Explicit Resource Management: Done Right
+&lt;/h1&gt;
+
+&lt;p&gt;Most memory leaks in production TypeScript applications stem from a single preventable failure: resources that developers acquire but never release. Database connections hang open after errors. File handles consume system resources indefinitely. WebSocket clients remain connected to servers that no longer exist. The pattern repeats across every codebase that relies on manual cleanup in finally blocks.&lt;/p&gt;
+
+&lt;p&gt;TypeScript's &lt;code&gt;using&lt;/code&gt; keyword solves this at the language level. The feature—part of the ECMAScript Explicit Resource Management proposal—guarantees deterministic cleanup through the disposable pattern. When a resource goes out of scope, TypeScript invokes its disposal method automatically. No finally blocks. No forgotten cleanup. No leaked connections.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Key Takeaways
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;using&lt;/code&gt; keyword guarantees disposal when resources exit scope, eliminating manual finally block management&lt;/li&gt;
+&lt;li&gt;Disposable resources implement &lt;code&gt;Symbol.dispose&lt;/code&gt; for synchronous cleanup or &lt;code&gt;Symbol.asyncDispose&lt;/code&gt; for async operations&lt;/li&gt;
+&lt;li&gt;TypeScript desugars &lt;code&gt;using&lt;/code&gt; declarations into try-finally blocks with automatic disposal stack management&lt;/li&gt;
+&lt;li&gt;The pattern prevents the three most common resource leak scenarios: early returns, thrown exceptions, and forgotten cleanup&lt;/li&gt;
+&lt;li&gt;Use &lt;code&gt;using&lt;/code&gt; for any resource with deterministic lifetime requirements—database connections, file handles, locks, timers&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Understanding the &lt;code&gt;using&lt;/code&gt; Keyword and Symbol.dispose
+&lt;/h2&gt;
+
+&lt;p&gt;The &lt;code&gt;using&lt;/code&gt; keyword establishes a binding that TypeScript automatically disposes when execution leaves the enclosing block. The mechanism works through the disposable protocol: objects implement a method keyed by &lt;code&gt;Symbol.dispose&lt;/code&gt; that performs cleanup. When the scope exits—through normal completion, return, or exception—TypeScript calls that method.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;FileHandle&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;private&lt;/span&gt; &lt;span class="nx"&gt;handle&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;number&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+  &lt;span class="nf"&gt;constructor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;path&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;handle&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;openFileSync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;path&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;Symbol&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;dispose&lt;/span&gt;&lt;span class="p"&gt;]()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;handle&lt;/span&gt; &lt;span class="o"&gt;!==&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="nf"&gt;closeFileSync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;handle&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;handle&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="nf"&gt;read&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;buffer&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;Buffer&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="kr"&gt;number&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nf"&gt;readSync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;handle&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;buffer&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;processFile&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;path&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nx"&gt;using&lt;/span&gt; &lt;span class="nx"&gt;file&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;FileHandle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;path&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;buffer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;Buffer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;alloc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1024&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="nx"&gt;file&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;read&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;buffer&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="c1"&gt;// File handle automatically closes here&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The disposal method runs in a finally block that TypeScript generates during compilation. This execution timing is critical: disposal occurs even if the function throws or returns early. The traditional approach requires developers to write and maintain that finally logic manually. The failure mode is immediate when teams forget or incorrectly nest cleanup code.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fhbjzqhgw3w9146r6yivd.png"&gt;&lt;img alt="Flow showing using keyword resource lifecycle from acquisition through automatic disposal" height="645" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fhbjzqhgw3w9146r6yivd.png" width="719" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Flow showing using keyword resource lifecycle from acquisition through automatic disposal&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The pattern extends naturally to multiple resources. TypeScript maintains a disposal stack internally—resources dispose in reverse order of acquisition. The last resource acquired disposes first, mirroring the natural dependency order that most cleanup logic requires.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Implementing Disposable Resources: File Handles and Database Connections
+&lt;/h2&gt;
+
+&lt;p&gt;Database connections demonstrate the disposable pattern's value proposition. Connection pools leak resources when developers forget to release connections back to the pool. The using keyword makes that release automatic and exception-safe.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fqs46mcbheauv8orsyp58.jpg"&gt;&lt;img alt="Database connection management with disposable pattern" height="350" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fqs46mcbheauv8orsyp58.jpg" width="525" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Database connection management with disposable pattern&lt;/em&gt;&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;DatabaseConnection&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;private&lt;/span&gt; &lt;span class="nx"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;any&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="k"&gt;private&lt;/span&gt; &lt;span class="nx"&gt;pool&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;ConnectionPool&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+  &lt;span class="nf"&gt;constructor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;pool&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;ConnectionPool&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;pool&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;pool&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;connection&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;pool&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;acquire&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;Symbol&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;dispose&lt;/span&gt;&lt;span class="p"&gt;]()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;pool&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;release&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;connection&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="nx"&gt;query&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;sql&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;params&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;any&lt;/span&gt;&lt;span class="p"&gt;[]):&lt;/span&gt; &lt;span class="nb"&gt;Promise&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;T&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;query&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;sql&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;params&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="nx"&gt;transaction&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="nx"&gt;callback&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;conn&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;DatabaseConnection&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;Promise&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="nb"&gt;Promise&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;beginTransaction&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nf"&gt;callback&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;commit&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+      &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;result&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;connection&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;rollback&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+      &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="nx"&gt;error&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;updateUserBalance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;userId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;amount&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;number&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nx"&gt;using&lt;/span&gt; &lt;span class="nx"&gt;conn&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;DatabaseConnection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;globalPool&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+  &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;conn&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;transaction&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;async &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;tx&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;user&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;tx&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;query&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+      &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;SELECT balance FROM users WHERE id = $1 FOR UPDATE&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+      &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;userId&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;tx&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;query&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+      &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;UPDATE users SET balance = $1 WHERE id = $2&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+      &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;user&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="nx"&gt;balance&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="nx"&gt;amount&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;userId&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;});&lt;/span&gt;
+  &lt;span class="c1"&gt;// Connection returns to pool automatically&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This implementation guarantees connection release regardless of how the function exits. The transaction method can throw. The query operations can fail. The calling code can return early. In every case, the disposal method runs and returns the connection to the pool.&lt;/p&gt;
+
+&lt;p&gt;The alternative—manual try-finally blocks around every connection acquisition—creates maintenance burden and error opportunities. Teams miss edge cases. Code reviews overlook missing cleanup. The using keyword eliminates that entire class of defect.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Async Resource Management with &lt;code&gt;await using&lt;/code&gt; and Symbol.asyncDispose
+&lt;/h2&gt;
+
+&lt;p&gt;Asynchronous disposal requires a separate keyword combination: &lt;code&gt;await using&lt;/code&gt;. Resources that need async cleanup implement &lt;code&gt;Symbol.asyncDispose&lt;/code&gt; instead of &lt;code&gt;Symbol.dispose&lt;/code&gt;. The disposal method returns a Promise that TypeScript awaits before continuing execution.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;StreamProcessor&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;private&lt;/span&gt; &lt;span class="nx"&gt;stream&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;ReadableStream&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="k"&gt;private&lt;/span&gt; &lt;span class="nx"&gt;writer&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;WritableStream&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+  &lt;span class="nf"&gt;constructor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;input&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;ReadableStream&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;output&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;WritableStream&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;stream&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;input&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;writer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;output&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;Symbol&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;asyncDispose&lt;/span&gt;&lt;span class="p"&gt;]()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;stream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;cancel&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;writer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;close&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="nf"&gt;process&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;reader&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;stream&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;getReader&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;writer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;writer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;getWriter&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+    &lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="k"&gt;while &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;done&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;value&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;reader&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;read&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+        &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;done&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;transformed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;transform&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;value&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+        &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;writer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;write&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;transformed&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;finally&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="nx"&gt;reader&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;releaseLock&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+      &lt;span class="nx"&gt;writer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;releaseLock&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;private&lt;/span&gt; &lt;span class="nf"&gt;transform&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;chunk&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;Uint8Array&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="nb"&gt;Uint8Array&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// Transform logic here&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;chunk&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;processStream&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;input&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;ReadableStream&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;output&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;WritableStream&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;using&lt;/span&gt; &lt;span class="nx"&gt;processor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;StreamProcessor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;input&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;output&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;processor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;process&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="c1"&gt;// Streams close automatically after disposal completes&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The distinction between &lt;code&gt;using&lt;/code&gt; and &lt;code&gt;await using&lt;/code&gt; is critical. Synchronous disposal with &lt;code&gt;Symbol.dispose&lt;/code&gt; must not perform async operations. Async disposal with &lt;code&gt;Symbol.asyncDispose&lt;/code&gt; requires the &lt;code&gt;await using&lt;/code&gt; syntax. Mixing these patterns produces runtime errors or incomplete cleanup.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Using Declarations in Loops and Complex Control Flow
+&lt;/h2&gt;
+
+&lt;p&gt;Resources declared with &lt;code&gt;using&lt;/code&gt; in loops dispose at the end of each iteration. This behavior matches developer intuition but differs from traditional patterns where resources often leak across iterations.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Faokcehty0ut04qj18hc0.png"&gt;&lt;img alt="Flow diagram showing resource disposal in loop iterations with early exit handling" height="963" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Faokcehty0ut04qj18hc0.png" width="434" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Flow diagram showing resource disposal in loop iterations with early exit handling&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The pattern applies cleanly to batch processing scenarios where each iteration needs its own resource scope:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;processBatchFiles&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;filePaths&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;[])&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;for &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;path&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt; &lt;span class="nx"&gt;filePaths&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;using&lt;/span&gt; &lt;span class="nx"&gt;file&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;FileHandle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;path&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;using&lt;/span&gt; &lt;span class="nx"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;FileHandle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;`&lt;/span&gt;&lt;span class="p"&gt;${&lt;/span&gt;&lt;span class="nx"&gt;path&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;.processed`&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;content&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;file&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;readAll&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;processed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;transform&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;content&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;output&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;write&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;processed&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// Both files close automatically before next iteration&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Early exits—break, continue, return—trigger disposal immediately. The disposal stack unwinds in the correct order regardless of control flow complexity. This guarantee eliminates the resource leak patterns that plague traditional loop-based processing.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Feslr9yxahc2exxl5zjoc.jpg"&gt;&lt;img alt="Resource management in complex control flow scenarios" height="350" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Feslr9yxahc2exxl5zjoc.jpg" width="524" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Resource management in complex control flow scenarios&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  How TypeScript Desugars &lt;code&gt;using&lt;/code&gt;: Understanding the Compiled Output
+&lt;/h2&gt;
+
+&lt;p&gt;TypeScript transforms &lt;code&gt;using&lt;/code&gt; declarations into try-finally blocks with explicit disposal stack management. Understanding this transformation clarifies the mechanism's guarantees and limitations.&lt;/p&gt;
+
+&lt;p&gt;A simple using declaration:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;example&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nx"&gt;using&lt;/span&gt; &lt;span class="nx"&gt;resource&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Resource&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="nf"&gt;doWork&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;resource&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Compiles approximately to:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;example&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;$$dispose&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;Symbol&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;dispose&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;$$stack&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[];&lt;/span&gt;
+
+  &lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;resource&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Resource&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="nx"&gt;$$stack&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;push&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;resource&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="nf"&gt;doWork&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;resource&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;finally&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;while &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;$$stack&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;length&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;resource&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;$$stack&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;pop&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+      &lt;span class="nx"&gt;resource&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;$$dispose&lt;/span&gt;&lt;span class="p"&gt;]();&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The disposal stack ensures correct cleanup order when multiple resources exist in the same scope. Resources dispose in reverse acquisition order automatically. The pattern handles exceptions during disposal: if one disposal throws, TypeScript continues disposing remaining resources and rethrows the original exception.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fb510imbw17bs4hs7zcgx.png"&gt;&lt;img alt="Diagram showing how using declarations compile to try-finally with disposal stack" height="1440" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fb510imbw17bs4hs7zcgx.png" width="333" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Diagram showing how using declarations compile to try-finally with disposal stack&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;This implementation strategy means using declarations have deterministic overhead: one stack push per resource, one stack pop during cleanup. The pattern performs identically to hand-written finally blocks but eliminates human error.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Common Pitfalls and Best Practices for Resource Management
+&lt;/h2&gt;
+
+&lt;p&gt;The most common mistake developers make with using declarations is implementing disposal methods that throw exceptions. When disposal throws, TypeScript propagates that exception—but only after disposing all remaining resources. The original exception that triggered disposal gets lost.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BadResource&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;Symbol&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;dispose&lt;/span&gt;&lt;span class="p"&gt;]()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// WRONG: throws during disposal&lt;/span&gt;
+    &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Disposal failed&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;GoodResource&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;Symbol&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;dispose&lt;/span&gt;&lt;span class="p"&gt;]()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="c1"&gt;// Cleanup that might fail&lt;/span&gt;
+      &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;dangerousCleanup&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="c1"&gt;// Log but don't throw&lt;/span&gt;
+      &lt;span class="nx"&gt;console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Cleanup failed:&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;private&lt;/span&gt; &lt;span class="nf"&gt;dangerousCleanup&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// Cleanup logic&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The second mistake is implementing async operations in synchronous disposal methods. Symbol.dispose methods must complete synchronously. Async cleanup requires Symbol.asyncDispose and await using syntax. Mixing these patterns produces incomplete cleanup and race conditions.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fvnvayy5qrh0rxx1nrzkx.png"&gt;&lt;img alt="Best practices flow showing error handling and disposal implementation patterns" height="1026" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fvnvayy5qrh0rxx1nrzkx.png" width="553" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Best practices flow showing error handling and disposal implementation patterns&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The third pitfall is forgetting that using declarations create block-scoped bindings. A resource declared in a block disposes when that block exits—not when the containing function returns. This behavior matters for resources that need function-level lifetime:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;wrongScope&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;someCondition&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;using&lt;/span&gt; &lt;span class="nx"&gt;resource&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Resource&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="c1"&gt;// Resource disposes at end of if block&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="c1"&gt;// Resource already disposed here&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;correctScope&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nx"&gt;using&lt;/span&gt; &lt;span class="nx"&gt;resource&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Resource&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;someCondition&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// Use resource&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="c1"&gt;// Resource disposes at function exit&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  When to Use &lt;code&gt;using&lt;/code&gt; vs Traditional try-finally Blocks
+&lt;/h2&gt;
+
+&lt;p&gt;The decision between using declarations and manual try-finally blocks depends on three factors: resource lifetime requirements, disposal complexity, and codebase consistency.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffmivhag4amatk288n2dn.png"&gt;&lt;img alt="Comparison between using keyword and try-finally block patterns" height="1062" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffmivhag4amatk288n2dn.png" width="336" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Comparison between using keyword and try-finally block patterns&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Use &lt;code&gt;using&lt;/code&gt; declarations when resources have clear lifetime boundaries that match block scope. Database connections, file handles, locks, and timers all fit this pattern. The automatic disposal eliminates entire categories of resource leak defects.&lt;/p&gt;
+
+&lt;p&gt;Use traditional try-finally blocks when disposal logic requires conditional behavior or complex error handling. Resources that need different cleanup paths based on execution state don't map cleanly to the disposable protocol. In these cases, explicit control flow in finally blocks provides necessary flexibility.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Good: using for straightforward resource lifetime&lt;/span&gt;
+&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;goodUsingExample&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;using&lt;/span&gt; &lt;span class="nx"&gt;conn&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;DatabaseConnection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;pool&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;conn&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;query&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;SELECT * FROM users&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Better: try-finally for conditional cleanup&lt;/span&gt;
+&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;conditionalCleanupExample&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;transaction&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;db&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;beginTransaction&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;committed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+  &lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;transaction&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;UPDATE users SET active = true&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;transaction&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;commit&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="nx"&gt;committed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;finally&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="nx"&gt;committed&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;transaction&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;rollback&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The using pattern also assumes disposal methods handle all edge cases internally. Resources with complex cleanup requirements often need context from the calling code—information not available in the disposal method. These scenarios benefit from explicit cleanup logic that can access function-local state.&lt;/p&gt;
+
+&lt;p&gt;For additional context on modern TypeScript tooling patterns, see our guide on &lt;a href="https://jsmanifest.com/create-a-modern-typescript-javascript-library-for-2023" rel="noopener noreferrer"&gt;modern TypeScript library creation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Frequently Asked Questions
+&lt;/h2&gt;
+
+&lt;h3&gt;
+  
+  
+  Can I use the &lt;code&gt;using&lt;/code&gt; keyword with existing classes that don't implement Symbol.dispose?
+&lt;/h3&gt;
+
+&lt;p&gt;No—the using keyword requires the resource to implement Symbol.dispose or Symbol.asyncDispose. Existing classes need wrapper types that implement the disposable protocol and delegate cleanup to the original class's cleanup methods.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  What happens if a disposal method throws an exception?
+&lt;/h3&gt;
+
+&lt;p&gt;TypeScript continues disposing all remaining resources in the disposal stack, then throws the disposal exception. This behavior means the original exception that triggered disposal gets suppressed. Disposal methods should catch and log errors internally rather than throwing.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Does &lt;code&gt;using&lt;/code&gt; work with null or undefined values?
+&lt;/h3&gt;
+
+&lt;p&gt;Yes—TypeScript checks for null/undefined before calling disposal methods. Declaring &lt;code&gt;using resource = null&lt;/code&gt; is valid and performs no disposal. This behavior simplifies conditional resource acquisition patterns where resources might not always be needed.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Can I manually dispose a resource before scope exit?
+&lt;/h3&gt;
+
+&lt;p&gt;Yes—calling the disposal method directly is allowed. TypeScript won't call it again at scope exit. This pattern supports scenarios where immediate cleanup provides value, like releasing locks before expensive operations that don't need the lock.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Is there a performance cost to using declarations compared to manual cleanup?
+&lt;/h3&gt;
+
+&lt;p&gt;The overhead is negligible: one stack push per resource and one stack pop during cleanup. Compiled output is nearly identical to hand-written try-finally blocks. The pattern prevents entire classes of defects at zero meaningful runtime cost.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Conclusion
+&lt;/h2&gt;
+
+&lt;p&gt;That covers the essential patterns for explicit resource management in TypeScript. The using keyword eliminates manual cleanup boilerplate while guaranteeing deterministic disposal through the language itself. Implement Symbol.dispose for synchronous resources and Symbol.asyncDispose for async cleanup. Test disposal in error paths. Never throw from disposal methods. Apply these patterns in production and resource leaks become a solved problem rather than an ongoing maintenance burden.&lt;/p&gt;
+
+&lt;p&gt;For deeper context on TypeScript tooling decisions, explore our &lt;a href="https://jsmanifest.com/biome-oxlint-comparison-2026" rel="noopener noreferrer"&gt;comparison of Biome and oxlint&lt;/a&gt; and our foundational guide on &lt;a href="https://jsmanifest.com/create-a-modern-typescript-javascript-library" rel="noopener noreferrer"&gt;building TypeScript libraries&lt;/a&gt;.&lt;/p&gt;</description>
+      <link>https://dev.to/jsmanifest/typescript-using-keyword-and-explicit-resource-management-done-right-22pg</link>
+      <pubDate>Fri, 03 Jul 2026 06:04:53 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/jsmanifest/typescript-using-keyword-and-explicit-resource-management-done-right-22pg</guid>
+    </item>
+    <item>
+      <title>[翻訳] hermes-memory-installer Fix: Loading Memory Sidecar Modules from Runtime Scripts</title>
+      <description>&lt;p&gt;Hermes, the JavaScript engine powering React Native, relies on precompiled bytecode bundles to achieve its performance. The &lt;strong&gt;hermes-memory-installer&lt;/strong&gt; project extends this model by allowing you to install memory sidecar modules—bytecode segments that live directly in memory, ready for zero-delay access. A recent fix makes these sidecar modules finally accessible from runtime scripts, addressing a long-standing gap in dynamic code loading.&lt;/p&gt;
+
+&lt;p&gt;Before the fix, sidecar modules were strictly static: you declared them at installation time (often alongside the initial bundle), and the installer loaded them into memory immediately. This worked for predetermined code splits, but any request that originated from a script executed at runtime—such as a user-triggered import, a route-based lazy load, or a &lt;code&gt;require()&lt;/code&gt; inside a callback—was &lt;strong&gt;not resolved from the sidecar&lt;/strong&gt;. Those modules fell through to the standard Hermes bytecode compilation path, defeating the purpose of memory-sidecar optimization.&lt;/p&gt;
+
+&lt;p&gt;The fix realigns the loading logic: when a runtime script triggers a module resolution, the installer now checks for a matching sidecar identifier. If found, it serves the bytecode directly from the memory region instead of relying on file system reads or on-the&lt;/p&gt;</description>
+      <link>https://dev.to/mage0535/hermes-memory-installer-fix-loading-memory-sidecar-modules-from-runtime-scripts-17ig</link>
+      <pubDate>Fri, 03 Jul 2026 06:01:25 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/mage0535/hermes-memory-installer-fix-loading-memory-sidecar-modules-from-runtime-scripts-17ig</guid>
+    </item>
+    <item>
+      <title>[翻訳] I turned a messy author workflow into a small digital product</title>
+      <description>&lt;p&gt;I shipped a tiny digital product for serial fiction writers: a free story bible template plus a paid $9 template pack.&lt;/p&gt;
+
+&lt;p&gt;The product is called SerialForge:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://publicsite-sigma.vercel.app" rel="noopener noreferrer"&gt;https://publicsite-sigma.vercel.app&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The idea came from a simple pain point: long-running fiction projects become hard to keep consistent. Characters change, world rules drift, unresolved promises pile up, and chapter endings need to keep readers moving.&lt;/p&gt;
+
+&lt;p&gt;Instead of building a large app first, I kept the first version intentionally small:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;a free story bible lite template&lt;/li&gt;
+&lt;li&gt;a chapter consistency checklist&lt;/li&gt;
+&lt;li&gt;SEO pages for specific writing-template searches&lt;/li&gt;
+&lt;li&gt;a Payhip product for the full downloadable kit&lt;/li&gt;
+&lt;li&gt;a public Vercel site that can be indexed&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The paid version is also live here:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://payhip.com/b/HpLem" rel="noopener noreferrer"&gt;https://payhip.com/b/HpLem&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;What I learned from the first launch pass:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;A small product still needs distribution immediately.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Publishing the page is not enough. I submitted the sitemap to Search Console, added the product to directories, and wrote an educational Medium article before expecting any sales.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;The free resource has to be useful on its own.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;If the free template is just a teaser, writers will bounce. The free version needs to solve one real problem: keeping character notes, world rules, chapter promises, and pre-publish checks in one place.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;The paid offer should be a continuation, not a surprise.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The $9 kit adds reusable character sheets, a worldbuilding tracker, a Royal Road blurb worksheet, and a publishing checklist. It is the fuller workflow, not a different product.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Indexing takes time.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The site is live, but Search Console needs time to fetch the sitemap and process data. In the meantime, referral links and helpful posts are more useful than refreshing analytics.&lt;/p&gt;
+
+&lt;p&gt;This is not a huge SaaS launch. It is a small experiment in turning a very specific workflow into a product people can understand quickly.&lt;/p&gt;
+
+&lt;p&gt;If you are building tiny products, the pattern I would repeat is:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;pick one narrow audience&lt;/li&gt;
+&lt;li&gt;solve one recurring workflow problem&lt;/li&gt;
+&lt;li&gt;ship a free useful version&lt;/li&gt;
+&lt;li&gt;make the paid version an obvious upgrade&lt;/li&gt;
+&lt;li&gt;start distribution the same day you launch&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;SerialForge is here if anyone wants to see the current version:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://publicsite-sigma.vercel.app" rel="noopener noreferrer"&gt;https://publicsite-sigma.vercel.app&lt;/a&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/david_bob/i-turned-a-messy-author-workflow-into-a-small-digital-product-bf3</link>
+      <pubDate>Fri, 03 Jul 2026 06:00:13 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/david_bob/i-turned-a-messy-author-workflow-into-a-small-digital-product-bf3</guid>
+    </item>
+    <item>
+      <title>[翻訳] I Took My DApp Off My Laptop. The Internet Did Not Care, But I Was Thrilled.</title>
+      <description>&lt;p&gt;Here's an uncomfortable truth about local Hardhat networks.&lt;/p&gt;
+
+&lt;p&gt;They feel real. They are not real.&lt;/p&gt;
+
+&lt;p&gt;Everything I'd built so far — the contract, the tests, the MetaMask connection — ran on a network that exists only on my laptop, resets every time I restart it, and that literally nobody else on Earth can access.&lt;/p&gt;
+
+&lt;p&gt;It was time to put this thing somewhere that actually counts.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Local network vs public testnet — the difference that actually matters
+&lt;/h2&gt;
+
+&lt;p&gt;A local Hardhat network is basically a blockchain simulator. Fast, free, and fake. Perfect for testing. Useless for showing anyone else what you built.&lt;/p&gt;
+
+&lt;p&gt;A public testnet — I'm using Sepolia, Ethereum's main test network — is a real, persistent, publicly accessible blockchain. The ETH on it has no real value, but everything else behaves exactly like mainnet. Real gas costs (in test ETH), real block times, real network conditions.&lt;/p&gt;
+
+&lt;p&gt;If your contract works on Sepolia, you've actually proven something. If it only worked locally, you've proven... that it worked locally.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Getting test ETH
+&lt;/h2&gt;
+
+&lt;p&gt;Before deploying anything, you need fake money to pay fake gas fees. Welcome to one of the stranger sentences in software development.&lt;/p&gt;
+
+&lt;p&gt;Sepolia faucets give out free test ETH. I used one tied to my Alchemy account, pasted in my wallet address, and waited a couple minutes. Free money, zero value, completely necessary.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Configuring Hardhat for Sepolia
+&lt;/h2&gt;
+
+&lt;p&gt;Back to &lt;code&gt;hardhat.config.js&lt;/code&gt; — except now it needs to know about a real network, not just the local simulator.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@nomicfoundation/hardhat-toolbox&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;dotenv&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;config&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+&lt;span class="nx"&gt;module&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;exports&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="na"&gt;solidity&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;0.8.20&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;networks&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="na"&gt;sepolia&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="na"&gt;url&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;env&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;SEPOLIA_RPC_URL&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+      &lt;span class="na"&gt;accounts&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;env&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;PRIVATE_KEY&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Two things I had to get right here, and both involve secrets I should never, ever commit to GitHub.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;SEPOLIA_RPC_URL&lt;/code&gt; — this is an endpoint that lets Hardhat actually talk to the Sepolia network. I got mine from Alchemy, free tier, no cost.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;PRIVATE_KEY&lt;/code&gt; — my wallet's private key, used to sign and pay for the deployment transaction. This one terrified me a little the first time. If this leaks, anyone can drain that wallet. I put both of these in a &lt;code&gt;.env&lt;/code&gt; file and added &lt;code&gt;.env&lt;/code&gt; to &lt;code&gt;.gitignore&lt;/code&gt; before I did anything else. Lesson learned before the mistake happened, for once.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Writing the deploy script
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;hre&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;hardhat&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;CrowdFund&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;hre&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;ethers&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;getContractFactory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;CrowdFund&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;crowdFund&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;CrowdFund&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;deploy&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+  &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;crowdFund&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;waitForDeployment&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+  &lt;span class="nx"&gt;console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;CrowdFund deployed to:&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;crowdFund&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;getAddress&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="k"&gt;catch&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="nx"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nx"&gt;console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="nx"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;exitCode&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Then actually run it:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;npx hardhat run scripts/deploy.js &lt;span class="nt"&gt;--network&lt;/span&gt; sepolia
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This took noticeably longer than deploying locally — because it's a real network with real block times, not an instant simulation. Watching the terminal just sit there for the first time was its own small lesson in patience.&lt;/p&gt;
+
+&lt;p&gt;When it finally printed an address, that address was real. Anyone could look it up on Sepolia's block explorer and see my contract sitting there. That moment felt different from every local deploy before it.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Pointing the frontend at it
+&lt;/h2&gt;
+
+&lt;p&gt;Small but easy-to-forget step — the React app's &lt;code&gt;CONTRACT_ADDRESS&lt;/code&gt; had to change from the local Hardhat address to this new Sepolia one. And MetaMask had to actually be switched to the Sepolia network too, or none of this connects to anything.&lt;/p&gt;
+
+&lt;p&gt;That mismatch — frontend pointed one place, wallet connected to another — is its own special category of confusing bug. Everything looks fine. Nothing works. No error tells you why.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  The bug that actually got me: events not updating the frontend
+&lt;/h2&gt;
+
+&lt;p&gt;Here's the real problem I hit, and it's worth walking through honestly because the fix taught me something about how DApps are actually supposed to work.&lt;/p&gt;
+
+&lt;p&gt;My UI showed a campaign's &lt;code&gt;amountRaised&lt;/code&gt; correctly right after I contributed — because I was calling the contract directly and re-fetching. But if someone &lt;em&gt;else&lt;/em&gt; contributed while I had the page open, my screen had no idea. It just sat there, stale, until I manually refreshed.&lt;/p&gt;
+
+&lt;p&gt;The fix was adding events to the contract that I'd skipped back in the original version:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;event ContributionMade(uint256 campaignId, address contributor, uint256 amount);
+
+function contribute(uint256 _campaignId) public payable {
+    Campaign storage campaign = campaigns[_campaignId];
+
+    require(block.timestamp &amp;lt; campaign.deadline, "Campaign has ended");
+    require(msg.value &amp;gt; 0, "Contribution must be greater than zero");
+
+    campaign.amountRaised += msg.value;
+    contributions[_campaignId][msg.sender] += msg.value;
+
+    emit ContributionMade(_campaignId, msg.sender, msg.value);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;code&gt;emit&lt;/code&gt; broadcasts this event onto the blockchain every time someone contributes. Anything listening can pick it up in real time.&lt;/p&gt;
+
+&lt;p&gt;Then on the frontend:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="nx"&gt;contract&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;ContributionMade&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;campaignId&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;contributor&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;amount&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nx"&gt;console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;New contribution detected:&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;campaignId&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;contributor&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;amount&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="nf"&gt;refreshCampaignData&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;campaignId&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This is the piece I genuinely didn't understand until I needed it. Smart contracts don't push updates to a frontend automatically just because something changed. The frontend has to explicitly listen for events — and if you don't emit them in your contract, there's nothing to listen to in the first place.&lt;/p&gt;
+
+&lt;p&gt;I had built a contract that worked perfectly and a frontend that had no way of knowing when things changed. Both pieces were "correct." Together, they were broken.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Why this bug actually matters beyond just fixing it
+&lt;/h2&gt;
+
+&lt;p&gt;This is the difference between writing a contract that works and building a DApp that feels alive.&lt;/p&gt;
+
+&lt;p&gt;Without events, every user is stuck refreshing manually, never sure if what they're looking at is current. With events, the UI reacts the moment something happens on-chain — close to how a normal web app feels, except nothing here is coming from a server.&lt;/p&gt;
+
+&lt;p&gt;It's a small addition to the Solidity code. It changes the entire feel of the product.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Where things actually stand right now
+&lt;/h2&gt;
+
+&lt;p&gt;Honest status update, because that's the whole point of writing this in public:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Contract is deployed on Sepolia, with a real address anyone can verify&lt;/li&gt;
+&lt;li&gt;Frontend connects to it, creates campaigns, accepts contributions&lt;/li&gt;
+&lt;li&gt;Events are now wired up, so the UI updates without manual refreshing&lt;/li&gt;
+&lt;li&gt;Still rough around the edges — no proper campaign list view yet, styling is minimal, error handling is basic&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This isn't "the DApp is live and perfect." It's "the DApp is live, mostly works, and I know exactly what's left."&lt;/p&gt;
+
+&lt;p&gt;That gap is smaller than it was at the start of this whole series. That's the actual win.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  What's left
+&lt;/h2&gt;
+
+&lt;p&gt;A real campaign listing page. Better error messages when a transaction fails instead of a raw MetaMask error. And eventually, a proper look at whether this is even ready to show people outside of me testing it alone.&lt;/p&gt;
+
+&lt;p&gt;Getting something onto a public testnet didn't finish this project. It just moved the goalposts to something more honest.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;I'm Srashti Gupta, building in the Web3 space. I write about real builds, real bugs, and blockchain development from scratch. Let's connect on LinkedIn.&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/srashti_a3904fc69ca75e7dd/i-took-my-dapp-off-my-laptop-the-internet-did-not-care-but-i-was-thrilled-3lpp</link>
+      <pubDate>Fri, 03 Jul 2026 05:59:23 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/srashti_a3904fc69ca75e7dd/i-took-my-dapp-off-my-laptop-the-internet-did-not-care-but-i-was-thrilled-3lpp</guid>
+    </item>
+    <item>
+      <title>[翻訳] Your rug scanner says clean. The token still won't sell.</title>
+      <description>&lt;p&gt;&lt;em&gt;Originally published at &lt;a href="https://true402.dev/guides/static-scan-vs-honeypot-simulation" rel="noopener noreferrer"&gt;true402.dev/guides/static-scan-vs-honeypot-simulation&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;A token can pass a rug-checker and still refuse to sell. The reason is a gap in how most checkers work — they &lt;em&gt;read&lt;/em&gt; the contract but never &lt;em&gt;run&lt;/em&gt; it. Here's what a static scan can't see, and what a simulation catches.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What a static scan does: read the contract for bad patterns
+&lt;/h2&gt;
+
+&lt;p&gt;A static rug scanner (Token Sniffer and most "rug checkers" work this way) reads the contract's bytecode or source and flags &lt;strong&gt;known-bad patterns&lt;/strong&gt;: a mint function, a blacklist, a 100% sell tax, non-renounced ownership, lopsided holder distribution. It's fast, free, and genuinely useful for catching the obvious stuff.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The blind spot: it never runs the trade
+&lt;/h2&gt;
+
+&lt;p&gt;Because a static scan only &lt;em&gt;reads&lt;/em&gt;, it can't see traps that only appear at &lt;strong&gt;runtime&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;an upgradeable proxy whose logic is swapped after launch,&lt;/li&gt;
+&lt;li&gt;a sell that reverts only above a certain size (max-tx / anti-whale traps),&lt;/li&gt;
+&lt;li&gt;a block that depends on external state,&lt;/li&gt;
+&lt;li&gt;conditions a static read just can't evaluate.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The contract looks clean — and still won't let you sell.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What a simulation does: actually buy, then sell
+&lt;/h2&gt;
+
+&lt;p&gt;A honeypot simulation &lt;strong&gt;trades the token without spending anything&lt;/strong&gt;: it runs a buy and then a sell in a single gas-free &lt;code&gt;eth_call&lt;/code&gt; with a state override — no real transaction, no on-chain footprint — and measures whether the tokens come back out. If the sell reverts or returns dust, it's a honeypot.&lt;/p&gt;
+
+&lt;p&gt;Because it executes the real transfer path, it catches the runtime sell-block a scan can't. The key property: the "did WETH actually come back out" measurement can't be faked by the token contract, because it's the real swap code path being executed.&lt;/p&gt;
+
+&lt;p&gt;true402's implementation probes at &lt;strong&gt;two sizes&lt;/strong&gt;, so it also catches the nastier variant — sellable small, blocked at size.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The honest take: use both
+&lt;/h2&gt;
+
+&lt;p&gt;Static scans aren't useless — they're a fast, free first filter for the obvious red flags. But for anything you're about to actually buy, add a simulation that &lt;em&gt;proves&lt;/em&gt; the sell works. The strongest check does both in one pass: structural checks (mint, ownership, proxy), liquidity depth, &lt;em&gt;and&lt;/em&gt; the buy/sell simulation, returning a single avoid/caution/ok verdict.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# Free to try — a few checks a day, no wallet, no signup. Simulates the buy + sell on-chain.&lt;/span&gt;
+npx @true402.dev/rugcheck 0x&amp;lt;token&amp;gt;
+
+&lt;span class="c"&gt;# ⚠️  CAUTION (score 75/100)&lt;/span&gt;
+&lt;span class="c"&gt;#   • ownership is not renounced&lt;/span&gt;
+&lt;span class="c"&gt;# checked on-chain: honeypot sim + liquidity + ownership&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  For agents: the simulation, pay-per-call
+&lt;/h2&gt;
+
+&lt;p&gt;If you're building a trading bot or agent, wire the check in as a pre-trade gate: &lt;code&gt;POST https://true402.dev/api/v1/base/token-report&lt;/code&gt; over &lt;a href="https://x402.org" rel="noopener noreferrer"&gt;x402&lt;/a&gt; — pay per call in USDC on Base, no account, no API key. There's also an MCP server (&lt;code&gt;npx @true402.dev/mcp-server&lt;/code&gt;) that exposes it as a native agent tool.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  FAQ
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Can a token pass a rug-checker and still be a honeypot?&lt;/strong&gt;&lt;br /&gt;
+Yes. Most rug-checkers do static analysis — they read the contract for known-bad patterns. That catches the obvious traps, but it cannot run the contract, so it misses honeypots whose sell-blocking only happens at runtime. The only way to be sure is to simulate the sell.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Is a static rug scanner like Token Sniffer enough?&lt;/strong&gt;&lt;br /&gt;
+It's a useful first pass — fast, free, good at flagging mint/blacklist/fee/concentration red flags. But static scanners share one blind spot: they don't execute the trade. For anything you're about to actually buy, pair the scan with a buy/sell simulation that proves the token can be sold.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What is a honeypot simulation and how does it work?&lt;/strong&gt;&lt;br /&gt;
+It actually trades the token, without spending anything: a buy then a sell inside a gas-free &lt;code&gt;eth_call&lt;/code&gt; with a state override — no real transaction — measuring whether the tokens come back out. If the sell reverts or returns dust, it's a honeypot.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;How do I verify a token is sellable before I buy?&lt;/strong&gt;&lt;br /&gt;
+Run a check that simulates the round trip and inspects contract structure and liquidity in the same pass, returning one verdict. Free to try a few times a day via &lt;code&gt;npx @true402.dev/rugcheck 0x…&lt;/code&gt;, then pay-per-call over x402 — no account, no API key.&lt;/p&gt;</description>
+      <link>https://dev.to/cryptonite_cryptonite_0dd/your-rug-scanner-says-clean-the-token-still-wont-sell-5c9i</link>
+      <pubDate>Fri, 03 Jul 2026 05:58:23 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/cryptonite_cryptonite_0dd/your-rug-scanner-says-clean-the-token-still-wont-sell-5c9i</guid>
+    </item>
+    <item>
+      <title>[翻訳] What's your setup for managing more than 5 servers?</title>
+      <description>&lt;p&gt;Once I got past a couple of machines, SSH-ing into each to run&lt;br /&gt;
+docker/kubectl/systemctl stopped scaling. Curious how others handle&lt;br /&gt;
+it, one tool, a stitched-together stack, or just tmux and grit?&lt;br /&gt;
+Where does your approach start to hurt?&lt;/p&gt;</description>
+      <link>https://dev.to/bytestrix/whats-your-setup-for-managing-more-than-5-servers-23g3</link>
+      <pubDate>Fri, 03 Jul 2026 05:50:47 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/bytestrix/whats-your-setup-for-managing-more-than-5-servers-23g3</guid>
+    </item>
+    <item>
+      <title>[翻訳] Turning a messy writing workflow into a tiny digital product</title>
+      <description>&lt;p&gt;Serial fiction has an interesting product problem: the more successful a story becomes, the harder it is for the author to keep the system in their head.&lt;/p&gt;
+
+&lt;p&gt;A short story can survive with notes scattered across a few documents. A long-running web novel usually cannot. By chapter 40 or 80, the author may be tracking:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;character state changes&lt;/li&gt;
+&lt;li&gt;powers, limits, and exceptions&lt;/li&gt;
+&lt;li&gt;faction relationships&lt;/li&gt;
+&lt;li&gt;unresolved promises to readers&lt;/li&gt;
+&lt;li&gt;timelines and locations&lt;/li&gt;
+&lt;li&gt;blurbs, tags, and platform-specific publishing notes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That is a workflow problem before it is a writing problem.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The pattern I noticed
+&lt;/h2&gt;
+
+&lt;p&gt;Most lightweight writing tools focus on prose, outlines, or AI generation. But serial authors often need something less glamorous:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;A place to record what is already true.&lt;/li&gt;
+&lt;li&gt;A checklist to catch contradictions before publishing.&lt;/li&gt;
+&lt;li&gt;A repeatable structure that still works after many chapters.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;That makes the product shape closer to a template system than a full writing app.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What the first version needed
+&lt;/h2&gt;
+
+&lt;p&gt;I kept the first version intentionally small:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;a story bible lite template&lt;/li&gt;
+&lt;li&gt;a chapter consistency checklist&lt;/li&gt;
+&lt;li&gt;character and relationship tracking prompts&lt;/li&gt;
+&lt;li&gt;worldbuilding rule prompts&lt;/li&gt;
+&lt;li&gt;blurb planning notes for Royal Road, Wattpad, Patreon, Substack, and similar workflows&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The key was not to build a giant database on day one. The key was to identify the repeatable decision points authors already hit before each chapter goes live.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The useful product lesson
+&lt;/h2&gt;
+
+&lt;p&gt;For small tools, a narrow workflow can be more useful than a broad feature list.&lt;/p&gt;
+
+&lt;p&gt;Instead of asking "what can this product do?", I tried asking:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;What does the user forget?&lt;/li&gt;
+&lt;li&gt;What do they check repeatedly?&lt;/li&gt;
+&lt;li&gt;What mistake gets expensive later?&lt;/li&gt;
+&lt;li&gt;What structure would save them time every week?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For serial writers, continuity is one of those expensive mistakes. Readers remember world rules, relationship changes, names, promises, and power limits. A simple checklist can prevent a surprising amount of friction.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Free template
+&lt;/h2&gt;
+
+&lt;p&gt;I turned the first version into a free story bible lite template and chapter consistency checker:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://publicsite-sigma.vercel.app" rel="noopener noreferrer"&gt;https://publicsite-sigma.vercel.app&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;It is called SerialForge, and it is built for authors writing web novels, Royal Road stories, Wattpad fiction, LitRPG, progression fantasy, romance, sci-fi, and other long-running serials.&lt;/p&gt;
+
+&lt;p&gt;There is also a paid full kit on the site, but the free version is designed to be useful on its own.&lt;/p&gt;
+
+&lt;p&gt;The broader takeaway: if you are building a tiny product, look for workflows where people already have messy notes, repeated checks, and high-cost mistakes. That is often enough surface area for a useful first version.&lt;/p&gt;</description>
+      <link>https://dev.to/david_bob/turning-a-messy-writing-workflow-into-a-tiny-digital-product-jg0</link>
+      <pubDate>Fri, 03 Jul 2026 05:38:59 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/david_bob/turning-a-messy-writing-workflow-into-a-tiny-digital-product-jg0</guid>
+    </item>
+    <item>
+      <title>[翻訳] I Thought I’d Never Need XML Again… Until a Client Asked for It</title>
+      <description>&lt;p&gt;Like most developers working today, I spend about 99% of my life swimming in JSON. It’s just the default language of the modern web. Whether you're building Next.js apps, spinning up Node microservices, or fetching data for mobile apps, everything revolves around clean, readable JSON.&lt;/p&gt;
+
+&lt;p&gt;I honestly thought my days of wrestling with angle brackets were long gone. Left behind in the mid-2010s.&lt;/p&gt;
+
+&lt;p&gt;Then, a few weeks ago, a new client dropped this bomb in Slack:&lt;/p&gt;
+
+&lt;p&gt;"Hey, quick question—can we get this webhook payload sent over as XML instead?"&lt;/p&gt;
+
+&lt;p&gt;My first instinct was a slight internal sigh. But as I dug deeper into their infrastructure, it made sense. Turns out, a massive chunk of the enterprise world—especially payment gateways, government APIs, banking systems, and legacy logistics software—still completely relies on XML. It’s the invisible backbone of systems that were built to last decades, and they aren't changing anytime soon.&lt;/p&gt;
+
+&lt;p&gt;So, I was faced with a choice. I had a perfectly good, deeply nested JSON response, and I needed to map it into valid XML without breaking the data structure.&lt;/p&gt;
+
+&lt;p&gt;If it’s a tiny object with three fields? Sure, you can manually type out the tags or write a quick, hacky template string. But when you’re dealing with hundreds of lines of nested arrays, attributes, and data types? Doing it by hand is a recipe for a bad afternoon. One missed closing tag or an unescaped ampersand, and the whole parser breaks.&lt;/p&gt;
+
+&lt;p&gt;I spent way too much time looking for a quick, no-nonsense way to handle the conversion on the fly. Because we kept running into these weird edge-case formatting needs during API integration, we ended up just building a dedicated JSON to XML converter directly into Fixzi.ai.&lt;/p&gt;
+
+&lt;p&gt;Now, instead of overthinking it or writing a custom serialization script just for one client milestone, you just paste the JSON, grab the XML, and move on to actual coding. No missing closing tags, no schema headaches, just done.&lt;/p&gt;
+
+&lt;p&gt;It was a good reminder that as much as we love shiny new tech, the older, battle-tested standards still run a huge part of the world. Having the right utility in your back pocket makes all the difference when a legacy requirement comes out of nowhere.&lt;/p&gt;
+
+&lt;p&gt;Out of curiosity, when was the last time a project forced you to dust off your XML skills? Was it a banking API, a SOAP service, or something else entirely?&lt;/p&gt;</description>
+      <link>https://dev.to/janardan_joshi_6f21026e06/i-thought-id-never-need-xml-again-until-a-client-asked-for-it-2fna</link>
+      <pubDate>Fri, 03 Jul 2026 05:34:40 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/janardan_joshi_6f21026e06/i-thought-id-never-need-xml-again-until-a-client-asked-for-it-2fna</guid>
+    </item>
+    <item>
+      <title>[翻訳] How to deploy your first PocketBase instance on PocketBase Cloud</title>
+      <description>&lt;p&gt;  
+  
+&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why I chose PocketBase Cloud
+&lt;/h2&gt;
+
+&lt;p&gt;If you haven't used &lt;a href="https://pocketbase.io" rel="noopener noreferrer"&gt;PocketBase&lt;/a&gt;: it's an open-source backend in a single Go binary. Embedded SQLite, auth, real-time subscriptions, file storage, REST API, admin UI — all included. &lt;br /&gt;
+The catch has always been hosting it: renting a VPS, configuring a reverse proxy, SSL, backups, monitoring.&lt;/p&gt;
+
+&lt;p&gt;That's exactly the gap &lt;a href="https://pocketbasecloud.com" rel="noopener noreferrer"&gt;&lt;strong&gt;PocketBase Cloud&lt;/strong&gt;&lt;/a&gt; fills. It's a hosting platform built specifically for PocketBase: you click a button and get a fully managed instance — deployed on real infrastructure, secured with SSL and DDoS protection, backed up, and monitored — live in about 30 seconds, with a free plan to start. Think Vercel, but for your PocketBase backend.&lt;/p&gt;
+
+&lt;p&gt;This post walks through creating your first instance on it, start to finish.&lt;/p&gt;
+
+&lt;p&gt;I looked at a few hosts and went with PocketBase Cloud for three reasons:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Free plan to test with&lt;/strong&gt; — 1 instance, 50 MB storage, no charge. (Heads-up: it asks for a Stripe subscription at $0 to verify you're human. You don't get billed. &lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;6 regions&lt;/strong&gt; — Germany ×2, Finland, US East/West, Singapore. My users are mostly in Asia, so Singapore was the deciding factor.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SSL, DDoS protection, and backups are automatic.&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The Pro plan is also interesting if you hoard side projects like I do: from $13/mo you get a dedicated server with &lt;em&gt;unlimited&lt;/em&gt; instances, so 10 projects cost the same as 1.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Step 1: Sign up and create a project
+&lt;/h2&gt;
+
+&lt;p&gt;Go to &lt;a href="https://portal.pocketbasecloud.com" rel="noopener noreferrer"&gt;portal.pocketbasecloud.com&lt;/a&gt;, sign up, complete the $0 Stripe step.&lt;/p&gt;
+
+&lt;p&gt;Create a &lt;strong&gt;Project&lt;/strong&gt;, then open its &lt;strong&gt;PocketBase&lt;/strong&gt; tab.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Step 2: Create the instance
+&lt;/h2&gt;
+
+&lt;p&gt;Click &lt;strong&gt;New PocketBase&lt;/strong&gt;. The form has three sections:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;General Information&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;em&gt;Instance Name&lt;/em&gt; — this becomes your subdomain, so keep it short. I used &lt;code&gt;my-pocketbase&lt;/code&gt; → &lt;code&gt;https://my-pocketbase.pocketbasecloud.com&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;em&gt;Description&lt;/em&gt; — optional, skipped it&lt;/li&gt;
+&lt;li&gt;
+&lt;em&gt;PocketBase Version&lt;/em&gt; — v0.39.3 was the latest when I did this. Take the latest unless you have a reason not to.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Admin Credentials&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Admin email + password (12–20 chars). These are for the PocketBase admin dashboard, the same &lt;code&gt;/_/&lt;/code&gt; login you know from self-hosting.&lt;/li&gt;
+&lt;li&gt;There's a copy button next to the password field — copy it into your password manager &lt;em&gt;before&lt;/em&gt; clicking Create.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Location&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Pick the region closest to your users. I picked Singapore.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Click &lt;strong&gt;Create&lt;/strong&gt;.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Step 3: Provisioning
+&lt;/h2&gt;
+
+&lt;p&gt;You get a live progress screen while it:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;picks a server based on current capacity&lt;/li&gt;
+&lt;li&gt;provisions the instance and assigns a port&lt;/li&gt;
+&lt;li&gt;sets up DNS&lt;/li&gt;
+&lt;li&gt;issues the HTTPS cert&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Your backend is now at:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;https://&amp;lt;instance-name&amp;gt;.pocketbasecloud.com
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 4: Log in and sanity-check it
+&lt;/h2&gt;
+
+&lt;p&gt;The admin panel is where it always is:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;https://&amp;lt;instance-name&amp;gt;.pocketbasecloud.com/_/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Log in with the credentials from Step 2. It's a completely standard PocketBase admin UI — collections, users, API rules, logs. &lt;/p&gt;
+
+&lt;p&gt;I created a &lt;code&gt;todos&lt;/code&gt; collection, added a record, and hit it from the browser console:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nx"&gt;PocketBase&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;pocketbase&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;pb&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;PocketBase&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;https://my-pocketbase.pocketbasecloud.com&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;todos&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;pb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;collection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;todos&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;getFullList&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+&lt;span class="c1"&gt;// real-time works out of the box, no extra config&lt;/span&gt;
+&lt;span class="nx"&gt;pb&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;collection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;todos&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;subscribe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;*&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nx"&gt;console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;action&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;record&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Final thoughts
+&lt;/h2&gt;
+
+&lt;p&gt;After using PocketBase Cloud for a while, I found that it makes starting a side project much simpler. Instead of spending time setting up servers, SSL, and backups, I can jump straight into building the product.&lt;/p&gt;
+
+&lt;p&gt;If you're already using PocketBase—or you're thinking about trying it for your next project—I recommend giving &lt;strong&gt;&lt;a href="https://pocketbasecloud.com" rel="noopener noreferrer"&gt;PocketBase Cloud&lt;/a&gt;&lt;/strong&gt; a try. The free plan is more than enough to explore the platform and see whether it fits your workflow.&lt;/p&gt;
+
+&lt;p&gt;I hope this guide helps you get started a little faster. If you end up trying it, I'd love to hear what you think. Happy building! 🚀&lt;/p&gt;</description>
+      <link>https://dev.to/phattran20/how-to-deploy-your-first-pocketbase-instance-on-pocketbase-cloud-197i</link>
+      <pubDate>Fri, 03 Jul 2026 05:26:20 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/phattran20/how-to-deploy-your-first-pocketbase-instance-on-pocketbase-cloud-197i</guid>
+    </item>
+    <item>
       <title>[翻訳] AIを活用してブラジルのオープンソースプロジェクトに実際のPRを提出してみた</title>
       <description>AWS Community Day Brasíliaでのワークショップで、AIアシスタント「Kiro」を使って、ブラジル初のGitHub Sponsorshipを受けたPythonプロジェクト「ScanAPI」の実際のバグを修正し、本物のプルリクエストをライブで提出した。
 Dockerハブのイメージハッシュ依存関係チェックのバグに対して、Kiroの自動モード機能を使い、約5分でリポジトリのフォーク、ブランチ作成、Dockerfileの更新、GitHub Actionの設定まで一連のプロセスを完了した。

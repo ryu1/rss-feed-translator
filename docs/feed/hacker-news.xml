@@ -5,6 +5,61 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] The Free Market Lie: Why Switzerland Has 25 Gbit Internet and America Doesn't</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://stefan.schueller.net/posts/the-free-market-lie/"&gt;https://stefan.schueller.net/posts/the-free-market-lie/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48770647"&gt;https://news.ycombinator.com/item?id=48770647&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 281&lt;/p&gt;
+&lt;p&gt;# Comments: 166&lt;/p&gt;</description>
+      <link>https://stefan.schueller.net/posts/the-free-market-lie/</link>
+      <pubDate>Fri, 03 Jul 2026 04:16:17 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48770647</guid>
+    </item>
+    <item>
+      <title>[翻訳] Every AI Visibility Tool Is Lying to You</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://canonry.ai/blog/ai-visibility-tools-are-lying"&gt;https://canonry.ai/blog/ai-visibility-tools-are-lying&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48770575"&gt;https://news.ycombinator.com/item?id=48770575&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 12&lt;/p&gt;
+&lt;p&gt;# Comments: 1&lt;/p&gt;</description>
+      <link>https://canonry.ai/blog/ai-visibility-tools-are-lying</link>
+      <pubDate>Fri, 03 Jul 2026 04:06:01 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48770575</guid>
+    </item>
+    <item>
+      <title>[翻訳] 14× faster embeddings: how we rebuilt the ONNX path in Manticore</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://manticoresearch.com/blog/onnx-embeddings-speedup/"&gt;https://manticoresearch.com/blog/onnx-embeddings-speedup/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48770477"&gt;https://news.ycombinator.com/item?id=48770477&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 15&lt;/p&gt;
+&lt;p&gt;# Comments: 1&lt;/p&gt;</description>
+      <link>https://manticoresearch.com/blog/onnx-embeddings-speedup/</link>
+      <pubDate>Fri, 03 Jul 2026 03:49:47 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48770477</guid>
+    </item>
+    <item>
+      <title>[翻訳] The Safari MCP server for web developers</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://webkit.org/blog/18136/introducing-the-safari-mcp-server-for-web-developers/"&gt;https://webkit.org/blog/18136/introducing-the-safari-mcp-server-for-web-developers/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48769639"&gt;https://news.ycombinator.com/item?id=48769639&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 24&lt;/p&gt;
+&lt;p&gt;# Comments: 0&lt;/p&gt;</description>
+      <link>https://webkit.org/blog/18136/introducing-the-safari-mcp-server-for-web-developers/</link>
+      <pubDate>Fri, 03 Jul 2026 01:37:11 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48769639</guid>
+    </item>
+    <item>
+      <title>[翻訳] CarPlay Is Additive</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://www.caseyliss.com/2026/7/2/carplay-is-additive-you-dolts"&gt;https://www.caseyliss.com/2026/7/2/carplay-is-additive-you-dolts&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48769397"&gt;https://news.ycombinator.com/item?id=48769397&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 183&lt;/p&gt;
+&lt;p&gt;# Comments: 224&lt;/p&gt;</description>
+      <link>https://www.caseyliss.com/2026/7/2/carplay-is-additive-you-dolts</link>
+      <pubDate>Fri, 03 Jul 2026 01:02:45 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48769397</guid>
+    </item>
+    <item>
       <title>[翻訳] GitHubの公開リポジトリがCD-ROMで入手可能に</title>
       <description>GitHubが公開リポジトリをCD-ROMメディアで提供するサービスを発表しました。
 ユーザーは自分の公開リポジトリをCD-ROMの形式で取得できるようになります。
