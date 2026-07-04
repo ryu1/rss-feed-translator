@@ -5,6 +5,50 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] David Beazley – Programming Courses</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://www.dabeaz.com/courses.html"&gt;https://www.dabeaz.com/courses.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48782918"&gt;https://news.ycombinator.com/item?id=48782918&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 5&lt;/p&gt;
+&lt;p&gt;# Comments: 0&lt;/p&gt;</description>
+      <link>https://www.dabeaz.com/courses.html</link>
+      <pubDate>Sat, 04 Jul 2026 05:43:01 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48782918</guid>
+    </item>
+    <item>
+      <title>[翻訳] Agentic coding notes from Galapagos Island</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://danluu.com/ai-coding/#appendix-agentic-loops-and-writing-this-post"&gt;https://danluu.com/ai-coding/#appendix-agentic-loops-and-writing-this-post&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48782671"&gt;https://news.ycombinator.com/item?id=48782671&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 39&lt;/p&gt;
+&lt;p&gt;# Comments: 17&lt;/p&gt;</description>
+      <link>https://danluu.com/ai-coding/#appendix-agentic-loops-and-writing-this-post</link>
+      <pubDate>Sat, 04 Jul 2026 04:37:15 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48782671</guid>
+    </item>
+    <item>
+      <title>[翻訳] Maybe you should learn something</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://www.marginalia.nu/log/a_135_learn/"&gt;https://www.marginalia.nu/log/a_135_learn/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48782435"&gt;https://news.ycombinator.com/item?id=48782435&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 20&lt;/p&gt;
+&lt;p&gt;# Comments: 7&lt;/p&gt;</description>
+      <link>https://www.marginalia.nu/log/a_135_learn/</link>
+      <pubDate>Sat, 04 Jul 2026 03:36:03 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48782435</guid>
+    </item>
+    <item>
+      <title>[翻訳] Synthesis is harder than analysis</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://surfingcomplexity.blog/2026/07/03/synthesis-is-harder-than-analysis/"&gt;https://surfingcomplexity.blog/2026/07/03/synthesis-is-harder-than-analysis/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48782219"&gt;https://news.ycombinator.com/item?id=48782219&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 39&lt;/p&gt;
+&lt;p&gt;# Comments: 8&lt;/p&gt;</description>
+      <link>https://surfingcomplexity.blog/2026/07/03/synthesis-is-harder-than-analysis/</link>
+      <pubDate>Sat, 04 Jul 2026 02:45:24 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48782219</guid>
+    </item>
+    <item>
       <title>[翻訳] CueBench for Developersが公開：コーディングエージェントの性能を測定できるツール</title>
       <description>開発者向けのベンチマークツール「CueBench for Developers」がリリースされた。
 このツールを使用することで、AIコーディングエージェントがどの程度効果的に機能しているかを評価・スコア化できる。
@@ -25,6 +69,17 @@ Hacker Newsで話題になっており、詳細はapp.cuebench.devで確認可�
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48781688</guid>
     </item>
     <item>
+      <title>[翻訳] Soatok's Informal Guide to Threat Models</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://soatok.blog/2026/06/30/soatoks-informal-guide-to-threat-models/"&gt;https://soatok.blog/2026/06/30/soatoks-informal-guide-to-threat-models/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48781597"&gt;https://news.ycombinator.com/item?id=48781597&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 59&lt;/p&gt;
+&lt;p&gt;# Comments: 8&lt;/p&gt;</description>
+      <link>https://soatok.blog/2026/06/30/soatoks-informal-guide-to-threat-models/</link>
+      <pubDate>Sat, 04 Jul 2026 00:35:49 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48781597</guid>
+    </item>
+    <item>
       <title>[翻訳] 渡り鳥の驚くべき航行メカニズムが解明される</title>
       <description>科学者たちが、渡り性スズメ目の野鳥が長距離移動時に使用する航行システムを発見しました。
 このシステムにより、鳥類が季節ごとの正確な渡りを実現しているメカニズムが明らかになりました。
@@ -33,6 +88,17 @@ Hacker Newsで話題になっており、詳細はapp.cuebench.devで確認可�
       <pubDate>Fri, 03 Jul 2026 23:36:46 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48781274</guid>
+    </item>
+    <item>
+      <title>[翻訳] Odin, Wikipedia and engagement farming</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://katamari64.se/posts/2026/odin-wikipedia/"&gt;https://katamari64.se/posts/2026/odin-wikipedia/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48781196"&gt;https://news.ycombinator.com/item?id=48781196&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 99&lt;/p&gt;
+&lt;p&gt;# Comments: 115&lt;/p&gt;</description>
+      <link>https://katamari64.se/posts/2026/odin-wikipedia/</link>
+      <pubDate>Fri, 03 Jul 2026 23:24:35 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48781196</guid>
     </item>
     <item>
       <title>[翻訳] 脳の思考と視覚を司る神経回路の仕組み</title>

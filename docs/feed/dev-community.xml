@@ -5,6 +5,2075 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] TypeScript Branded Types vs. Nominal Types: Which Pattern Should You Use in 2026</title>
+      <description>&lt;h1&gt;
+  
+  
+  TypeScript Branded Types vs. Nominal Types: Which Pattern Should You Use in 2026
+&lt;/h1&gt;
+
+&lt;p&gt;Most type safety failures in TypeScript stem from treating all strings as interchangeable. The structural type system that makes TypeScript flexible also creates subtle bugs when developers pass a &lt;code&gt;UserId&lt;/code&gt; where a &lt;code&gt;PostId&lt;/code&gt; was expected. Both are strings at runtime, and TypeScript's compiler sees them as compatible.&lt;/p&gt;
+
+&lt;p&gt;This compatibility becomes expensive in production. When an engineer accidentally passes an email address to a function expecting a username, the compiler stays silent. The bug surfaces only when users report authentication failures or data corruption. Teams that rely purely on structural typing pay this cost repeatedly.&lt;/p&gt;
+
+&lt;p&gt;Branded types solve this by adding phantom properties that exist only at compile time. They transform primitives into distinct types without runtime overhead. The pattern has matured significantly since 2023, and production codebases now demonstrate clear advantages over both structural typing and runtime validation alone.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Key Takeaways
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Branded types prevent primitive type confusion at compile time with zero runtime cost&lt;/li&gt;
+&lt;li&gt;The unique symbol pattern creates true nominal typing behavior in TypeScript's structural system&lt;/li&gt;
+&lt;li&gt;Combining brands with validation functions provides both type safety and runtime guarantees&lt;/li&gt;
+&lt;li&gt;Branded types excel for domain identifiers, measurements, and validated strings&lt;/li&gt;
+&lt;li&gt;Choose branded types when preventing accidental type substitution matters more than implementation flexibility&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Understanding Branded Types: Adding Identity to Primitives
+&lt;/h2&gt;
+
+&lt;p&gt;Branded types attach compile-time metadata to primitives through intersection with phantom properties. A &lt;code&gt;UserId&lt;/code&gt; becomes structurally distinct from a plain string even though both compile to identical JavaScript.&lt;/p&gt;
+
+&lt;p&gt;The technique exploits TypeScript's structural typing: if two types have different shapes, the compiler treats them as incompatible. Adding a property that exists only in the type system creates this distinction without affecting runtime behavior.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F3npo1ba36yo1y1ft22ya.png"&gt;&lt;img alt="Diagram showing how branded types layer phantom properties onto primitives" height="516" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F3npo1ba36yo1y1ft22ya.png" width="540" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Diagram showing how branded types layer phantom properties onto primitives&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The core pattern uses a unique symbol as the brand. Unique symbols guarantee that no two brands collide even if they have identical names. This prevents accidental compatibility between types that happen to use the same property name.&lt;/p&gt;
+
+&lt;p&gt;Most teams implement branded types through a generic utility that accepts the primitive type and a brand identifier. The utility returns an intersection type combining the primitive with an object containing the unique symbol property. This standardizes the pattern across the codebase.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1gqk291xxsrnim6zpfrb.jpg"&gt;&lt;img alt="TypeScript branded types diagram showing type relationships" height="350" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1gqk291xxsrnim6zpfrb.jpg" width="524" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;TypeScript branded types diagram showing type relationships&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Implementing Branded Types: The Unique Symbol Pattern
+&lt;/h2&gt;
+
+&lt;p&gt;The canonical implementation uses a generic &lt;code&gt;Brand&lt;/code&gt; type that accepts the underlying primitive and a label. The label becomes the unique symbol that distinguishes one brand from another.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;Brand&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;T&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;Label&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;T&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;readonly&lt;/span&gt; &lt;span class="na"&gt;__brand&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;Label&lt;/span&gt; &lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Create distinct branded types&lt;/span&gt;
+&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;UserId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;Brand&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;UserId&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;PostId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;Brand&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;PostId&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;Email&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;Brand&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Email&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Factory functions that cast primitives to branded types&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;createUserId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="nx"&gt;UserId&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;id&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nx"&gt;UserId&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;createPostId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="nx"&gt;PostId&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;id&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nx"&gt;PostId&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;createEmail&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;email&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="nx"&gt;Email&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;email&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nx"&gt;Email&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// These assignments fail at compile time&lt;/span&gt;
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;updateUser&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;userId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;UserId&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="k"&gt;void&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// Implementation&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;postId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;createPostId&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;post_123&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;// Error: Argument of type 'PostId' is not assignable to parameter of type 'UserId'&lt;/span&gt;
+&lt;span class="nf"&gt;updateUser&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;postId&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The &lt;code&gt;as&lt;/code&gt; assertion in the factory functions represents a deliberate type boundary. Developers must explicitly call &lt;code&gt;createUserId&lt;/code&gt; to obtain a &lt;code&gt;UserId&lt;/code&gt;. This forces consideration of the type transformation at the boundary between unvalidated and validated data.&lt;/p&gt;
+
+&lt;p&gt;Some teams prefer a slightly different pattern that makes the brand property a unique symbol type rather than a string literal. This approach creates even stronger guarantees against accidental compatibility.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kr"&gt;declare&lt;/span&gt; &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;userIdBrand&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;unique&lt;/span&gt; &lt;span class="nx"&gt;symbol&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kr"&gt;declare&lt;/span&gt; &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;postIdBrand&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;unique&lt;/span&gt; &lt;span class="nx"&gt;symbol&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;UserId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;readonly&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;userIdBrand&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt; &lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;PostId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;readonly&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;postIdBrand&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt; &lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="c1"&gt;// These types are now completely incompatible&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;userId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;UserId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;user_123&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nx"&gt;UserId&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;postId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;PostId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;userId&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Error: Type 'UserId' is not assignable to type 'PostId'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The &lt;code&gt;declare&lt;/code&gt; keyword tells TypeScript about these symbols without generating JavaScript. The symbols exist only in the type system. At runtime, a &lt;code&gt;UserId&lt;/code&gt; remains a plain string with no additional properties.&lt;/p&gt;
+
+&lt;p&gt;This distinction matters for performance. Branded types add zero runtime overhead because they compile away completely. Teams that previously used wrapper classes for type safety can eliminate allocation costs by switching to brands. For more information on type-level patterns, see our guide on &lt;a href="https://jsmanifest.com/10-typescript-utility-types-bulletproof-code" rel="noopener noreferrer"&gt;TypeScript utility types&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Nominal Types vs Branded Types: The Real Difference
+&lt;/h2&gt;
+
+&lt;p&gt;Nominal typing systems treat types as distinct based on their declaration rather than their structure. In languages like Java or C#, two classes with identical properties remain incompatible because they have different names. TypeScript lacks true nominal typing but brands simulate it.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fwxbimhpc9k3mwvig0cat.png"&gt;&lt;img alt="Comparison between structural typing and branded types behavior" height="820" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fwxbimhpc9k3mwvig0cat.png" width="636" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Comparison between structural typing and branded types behavior&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The practical difference shows up immediately when refactoring. With structural typing, renaming a type alias from &lt;code&gt;UserId&lt;/code&gt; to &lt;code&gt;AccountId&lt;/code&gt; has no effect on assignability. Any function accepting the old name still accepts the new one because the underlying structure remained unchanged.&lt;/p&gt;
+
+&lt;p&gt;Branded types behave differently. Changing the brand label creates a new, incompatible type. Code that previously compiled now fails with clear errors at every call site where the old type was used. This makes large-scale refactoring safer because the compiler identifies every location requiring updates.&lt;/p&gt;
+
+&lt;p&gt;True nominal typing would require language-level support that TypeScript deliberately avoids. The structural system enables TypeScript's gradual typing strategy and its compatibility with JavaScript. Brands provide nominal-like behavior within these constraints.&lt;/p&gt;
+
+&lt;p&gt;The tradeoff is explicitness. Teams must write factory functions and use them consistently. A developer can still bypass the type system with &lt;code&gt;as&lt;/code&gt; assertions, though this becomes obvious in code review. Languages with built-in nominal types enforce the distinction at a lower level where circumvention is harder.&lt;/p&gt;
+
+&lt;p&gt;Most production codebases find branded types sufficient. The compile-time guarantees prevent the majority of type confusion bugs without requiring runtime checks. Teams that need stronger guarantees combine brands with validation, which brings both compile-time and runtime safety.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Building Type-Safe Domain Models with Branded Types
+&lt;/h2&gt;
+
+&lt;p&gt;Domain models benefit immediately from branded types. An e-commerce system might deal with SKUs, order IDs, customer IDs, and inventory counts. All are strings or numbers structurally, but they represent fundamentally different concepts.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4h5kq9ojq0lze1a3695n.png"&gt;&lt;img alt="Flow showing how branded types enforce domain model invariants" height="865" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4h5kq9ojq0lze1a3695n.png" width="677" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Flow showing how branded types enforce domain model invariants&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Consider an inventory management system where product codes follow specific formats. A pharmaceutical inventory requires NDC codes, SKUs, and lot numbers—all strings, but mixing them causes regulatory violations.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;NDCCode&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;Brand&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;NDCCode&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;SKU&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;Brand&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;SKU&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;LotNumber&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;Brand&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;LotNumber&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="kr"&gt;interface&lt;/span&gt; &lt;span class="nx"&gt;Product&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;ndc&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;NDCCode&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nl"&gt;sku&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;SKU&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nl"&gt;currentLot&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;LotNumber&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kr"&gt;interface&lt;/span&gt; &lt;span class="nx"&gt;InventoryTransaction&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;sku&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;SKU&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nl"&gt;lot&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;LotNumber&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nl"&gt;quantity&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;number&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;recordTransaction&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;transaction&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;InventoryTransaction&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="k"&gt;void&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// The compiler prevents passing an NDCCode where a SKU is expected&lt;/span&gt;
+  &lt;span class="c1"&gt;// This distinction is critical for regulatory compliance&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;findProductByNDC&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;ndc&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;NDCCode&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="nx"&gt;Product&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="kc"&gt;undefined&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// Database lookup using NDC&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="kc"&gt;undefined&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;product&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;Product&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="na"&gt;ndc&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;12345-678-90&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nx"&gt;NDCCode&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;sku&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;PHR-001&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nx"&gt;SKU&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;currentLot&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;LOT2024A&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nx"&gt;LotNumber&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Compile error: cannot pass NDC where SKU expected&lt;/span&gt;
+&lt;span class="c1"&gt;// recordTransaction({ sku: product.ndc, lot: product.currentLot, quantity: 10 });&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Correct usage with explicit type&lt;/span&gt;
+&lt;span class="nf"&gt;recordTransaction&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt; &lt;span class="na"&gt;sku&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;product&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;sku&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;lot&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;product&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;currentLot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;quantity&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt; &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This pattern scales to complex domain models. Financial systems use branded types for account numbers, routing codes, and transaction IDs. Healthcare applications brand patient IDs, provider IDs, and medication codes. The compiler enforces domain rules that documentation alone cannot guarantee.&lt;/p&gt;
+
+&lt;p&gt;The failure mode without brands is silent data corruption. A function that accidentally queries by SKU when it should query by NDC returns incorrect results with no warning. Users discover the bug only when inventory counts diverge from physical stock. Branded types make this mistake a compile error. For related validation patterns, see &lt;a href="https://jsmanifest.com/typescript-form-validators-custom" rel="noopener noreferrer"&gt;TypeScript form validators&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fojqxii258g2blixlqmka.jpg"&gt;&lt;img alt="Code example showing branded types in a domain model" height="350" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fojqxii258g2blixlqmka.jpg" width="525" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Code example showing branded types in a domain model&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Advanced Patterns: Combining Brands with Validation
+&lt;/h2&gt;
+
+&lt;p&gt;Factory functions that create branded types should validate inputs before casting. This combines compile-time type safety with runtime correctness guarantees. The validation ensures that only well-formed values receive the brand.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;Email&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;Brand&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Email&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;PhoneNumber&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;Brand&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;PhoneNumber&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Validation result type&lt;/span&gt;
+&lt;span class="kd"&gt;type&lt;/span&gt; &lt;span class="nx"&gt;ValidationResult&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; 
+  &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;success&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nl"&gt;value&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;T&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;success&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nl"&gt;error&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt; &lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;validateEmail&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;input&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="nx"&gt;ValidationResult&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;Email&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;emailRegex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sr"&gt;/^&lt;/span&gt;&lt;span class="se"&gt;[^\s&lt;/span&gt;&lt;span class="sr"&gt;@&lt;/span&gt;&lt;span class="se"&gt;]&lt;/span&gt;&lt;span class="sr"&gt;+@&lt;/span&gt;&lt;span class="se"&gt;[^\s&lt;/span&gt;&lt;span class="sr"&gt;@&lt;/span&gt;&lt;span class="se"&gt;]&lt;/span&gt;&lt;span class="sr"&gt;+&lt;/span&gt;&lt;span class="se"&gt;\.[^\s&lt;/span&gt;&lt;span class="sr"&gt;@&lt;/span&gt;&lt;span class="se"&gt;]&lt;/span&gt;&lt;span class="sr"&gt;+$/&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="nx"&gt;emailRegex&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;test&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;input&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;success&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;error&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Invalid email format&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt; &lt;span class="p"&gt;};&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;success&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;value&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;input&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nx"&gt;Email&lt;/span&gt; &lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;validatePhoneNumber&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;input&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="nx"&gt;ValidationResult&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nx"&gt;PhoneNumber&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// Remove common formatting characters&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;cleaned&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;input&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;replace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sr"&gt;/&lt;/span&gt;&lt;span class="se"&gt;[\s\-\(\)\.]&lt;/span&gt;&lt;span class="sr"&gt;/g&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;""&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="sr"&gt;/^&lt;/span&gt;&lt;span class="se"&gt;\d{10}&lt;/span&gt;&lt;span class="sr"&gt;$/&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;test&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;cleaned&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;success&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;error&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Phone number must be 10 digits&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt; &lt;span class="p"&gt;};&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;success&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;value&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;cleaned&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nx"&gt;PhoneNumber&lt;/span&gt; &lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Usage in application code&lt;/span&gt;
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;registerUser&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;email&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;phone&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;emailResult&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;validateEmail&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;email&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;phoneResult&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;validatePhoneNumber&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;phone&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="nx"&gt;emailResult&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;success&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;emailResult&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="nx"&gt;phoneResult&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;success&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;phoneResult&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+
+  &lt;span class="c1"&gt;// Now we have validated branded types&lt;/span&gt;
+  &lt;span class="nf"&gt;saveUser&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+    &lt;span class="na"&gt;email&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;emailResult&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="na"&gt;phone&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;phoneResult&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;saveUser&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;data&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nl"&gt;email&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;Email&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nl"&gt;phone&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;PhoneNumber&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// This function only accepts validated, branded types&lt;/span&gt;
+  &lt;span class="c1"&gt;// The compiler prevents passing raw strings&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The &lt;code&gt;ValidationResult&lt;/code&gt; type makes success and failure explicit in the type system. Functions that work with branded types can require them in their signatures, forcing callers to validate inputs first. This pushes validation to system boundaries where external data enters.&lt;/p&gt;
+
+&lt;p&gt;Some teams use a functional approach with parser combinators or validation libraries like Zod. The library handles validation logic while the application code focuses on typed domain models. The brand serves as proof that validation succeeded.&lt;/p&gt;
+
+&lt;p&gt;This pattern works particularly well for API boundaries. Request handlers validate incoming data and produce branded types. Internal functions accept only branded types in their signatures. A developer cannot accidentally bypass validation because the type system prevents passing unbranded values. For more on type-safe patterns, see the &lt;a href="https://jsmanifest.com/typescript-satisfies-operator-advanced-patterns" rel="noopener noreferrer"&gt;satisfies operator guide&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  When to Choose Branded Types Over Runtime Validation
+&lt;/h2&gt;
+
+&lt;p&gt;The decision between branded types and runtime validation is not binary—production systems need both. The question is where each technique provides the most value relative to its cost.&lt;/p&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdrnv9kza3cw6506uilko.png"&gt;&lt;img alt="Decision tree for choosing branded types versus runtime validation" height="883" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdrnv9kza3cw6506uilko.png" width="786" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Decision tree for choosing branded types versus runtime validation&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Branded types excel when preventing accidental type substitution matters more than verifying data correctness. If the codebase already has runtime validation at API boundaries, adding brands provides an additional layer of safety during refactoring. The compiler catches bugs that would otherwise require integration tests to discover.&lt;/p&gt;
+
+&lt;p&gt;Runtime validation is mandatory for external data. User input, API responses, and database results must be validated regardless of TypeScript types. Brands cannot verify that a string actually contains a valid email address—they only prevent mixing one validated string type with another.&lt;/p&gt;
+
+&lt;p&gt;The optimal pattern combines both: validate at boundaries and brand the results. Functions deep in the application accept branded types, which proves that validation already occurred. This eliminates redundant validation in internal code while maintaining safety.&lt;/p&gt;
+
+&lt;p&gt;Teams should add brands when they experience these specific problems:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Mixing IDs from different entity types causes data corruption&lt;/li&gt;
+&lt;li&gt;Primitive types make refactoring error-prone because the compiler cannot identify breaking changes&lt;/li&gt;
+&lt;li&gt;Code review frequently catches bugs where strings or numbers were used in wrong contexts&lt;/li&gt;
+&lt;li&gt;Tests spend significant effort verifying that functions receive correct primitive types&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Brands become less valuable when types are already structurally distinct. A function accepting &lt;code&gt;{ id: string; name: string }&lt;/code&gt; cannot accidentally receive &lt;code&gt;{ id: string; price: number }&lt;/code&gt; because the compiler already enforces the difference. Adding brands to these structured types provides minimal benefit.&lt;/p&gt;
+
+&lt;p&gt;The maintenance cost is low once established. Teams write the generic &lt;code&gt;Brand&lt;/code&gt; type once and reuse it throughout the codebase. Factory functions follow a standard pattern. The main investment is cultural: engineers must use factory functions consistently rather than casting primitives directly.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Frequently Asked Questions
+&lt;/h2&gt;
+
+&lt;h3&gt;
+  
+  
+  Do branded types have any runtime performance impact?
+&lt;/h3&gt;
+
+&lt;p&gt;Branded types compile away completely and produce identical JavaScript to unbranded types. There is zero runtime overhead in terms of memory allocation, property access, or type checking. The type information exists only during compilation.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Can branded types be serialized to JSON safely?
+&lt;/h3&gt;
+
+&lt;p&gt;Yes, branded types serialize as their underlying primitives because the brand property exists only in TypeScript's type system. A &lt;code&gt;UserId&lt;/code&gt; serializes as a plain string. When deserializing, use validation functions to recreate the branded type rather than casting directly.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  How do branded types work with third-party libraries?
+&lt;/h3&gt;
+
+&lt;p&gt;Third-party libraries that accept primitives work seamlessly with branded types because TypeScript allows widening from branded to primitive. When calling library functions, the branded type is treated as its underlying primitive. When receiving data from libraries, validate and brand it at the boundary.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Should every primitive in a codebase be branded?
+&lt;/h3&gt;
+
+&lt;p&gt;No, brand primitives only when type confusion creates real problems. Over-branding increases verbosity without proportional benefit. Focus on domain identifiers, measurements with units, and cases where mixing types causes bugs. Generic strings for display text rarely need brands.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Can branded types replace input validation libraries like Zod?
+&lt;/h3&gt;
+
+&lt;p&gt;Branded types and validation libraries serve complementary purposes. Validation libraries verify data correctness at runtime; brands prevent type confusion at compile time. Production systems need both: validate external data with libraries and brand the validated results for use in application code.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Production Patterns: Branded Types in 2026
+&lt;/h2&gt;
+
+&lt;p&gt;Branded types have evolved from a niche pattern to a standard technique in TypeScript codebases that prioritize type safety. The approach provides nominal-like typing without runtime cost and integrates cleanly with existing validation patterns.&lt;/p&gt;
+
+&lt;p&gt;The distinction between branded types and true nominal types matters less in practice than the safety they provide. Most teams find that brands prevent the specific class of bugs—primitive type confusion—that structural typing allows. Combined with validation at system boundaries, branded types create a defense-in-depth strategy where both the compiler and runtime checks protect data integrity.&lt;/p&gt;
+
+&lt;p&gt;Implementation requires discipline but minimal code. Establish the generic &lt;code&gt;Brand&lt;/code&gt; utility early, write validation functions that return branded types, and enforce their use in code review. The pattern scales from small applications to large monorepos because the type system does the heavy lifting.&lt;/p&gt;
+
+&lt;p&gt;That covers the essential patterns for branded types versus nominal typing. Apply these in production and the difference will be immediate—fewer type-related bugs, safer refactoring, and clearer domain models. The compiler becomes a stronger ally in maintaining correctness as codebases grow.&lt;/p&gt;</description>
+      <link>https://dev.to/jsmanifest/typescript-branded-types-vs-nominal-types-which-pattern-should-you-use-in-2026-13d1</link>
+      <pubDate>Sat, 04 Jul 2026 06:03:59 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/jsmanifest/typescript-branded-types-vs-nominal-types-which-pattern-should-you-use-in-2026-13d1</guid>
+    </item>
+    <item>
+      <title>[翻訳] Software Isn't a List of Tasks—It's a Network of Dependencies</title>
+      <description>&lt;p&gt;If you've worked on a software team long enough, you've probably experienced this.&lt;/p&gt;
+
+&lt;p&gt;Sprint planning goes well. The team breaks down a feature into tasks, estimates each one, assigns owners, and everyone leaves the meeting feeling confident.&lt;/p&gt;
+
+&lt;p&gt;A few days later, reality hits.&lt;/p&gt;
+
+&lt;p&gt;A backend change requires a database migration nobody considered.&lt;/p&gt;
+
+&lt;p&gt;The frontend team is blocked because an API isn't ready.&lt;/p&gt;
+
+&lt;p&gt;QA discovers edge cases that require additional implementation.&lt;/p&gt;
+
+&lt;p&gt;Another developer is waiting on work from someone in a different team.&lt;/p&gt;
+
+&lt;p&gt;Suddenly, the original sprint plan no longer reflects reality.&lt;/p&gt;
+
+&lt;p&gt;Sound familiar?&lt;/p&gt;
+
+&lt;p&gt;For a long time, I thought this was simply part of software development. But after seeing the same problems across multiple projects, I started wondering:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What if we're trying to manage software using the wrong model?&lt;/strong&gt;&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  The Problem Isn't Estimation
+&lt;/h2&gt;
+
+&lt;p&gt;One of the biggest discussions in Agile teams is estimation.&lt;/p&gt;
+
+&lt;p&gt;Should we estimate using story points?&lt;/p&gt;
+
+&lt;p&gt;Hours?&lt;/p&gt;
+
+&lt;p&gt;Planning Poker?&lt;/p&gt;
+
+&lt;p&gt;Velocity?&lt;/p&gt;
+
+&lt;p&gt;Yet, no matter which method we choose, estimates are often wrong.&lt;/p&gt;
+
+&lt;p&gt;Not because developers can't estimate.&lt;/p&gt;
+
+&lt;p&gt;But because &lt;strong&gt;you can't estimate work that you don't know exists yet.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Every project contains unknowns.&lt;/p&gt;
+
+&lt;p&gt;As development progresses, new requirements appear.&lt;/p&gt;
+
+&lt;p&gt;Hidden dependencies are discovered.&lt;/p&gt;
+
+&lt;p&gt;Technical limitations surface.&lt;/p&gt;
+
+&lt;p&gt;Someone realizes another service also needs changes.&lt;/p&gt;
+
+&lt;p&gt;A task that looked like "three days" suddenly becomes "two weeks."&lt;/p&gt;
+
+&lt;p&gt;The estimate didn't fail.&lt;/p&gt;
+
+&lt;p&gt;Our understanding of the work changed.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  We Plan Tasks Instead of Understanding Features
+&lt;/h2&gt;
+
+&lt;p&gt;Today's project management tools are excellent at tracking tasks.&lt;/p&gt;
+
+&lt;p&gt;A typical feature might look like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Login Feature
+
+• Backend API
+• Frontend UI
+• Database
+• Testing
+• Documentation
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This answers one question:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;What needs to be done?&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;But software development is rarely about individual tasks.&lt;/p&gt;
+
+&lt;p&gt;It's about how those tasks interact.&lt;/p&gt;
+
+&lt;p&gt;Questions like these are much harder to answer:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Which task is blocking mine?&lt;/li&gt;
+&lt;li&gt;If my task is delayed, who else is affected?&lt;/li&gt;
+&lt;li&gt;Which developer depends on another developer?&lt;/li&gt;
+&lt;li&gt;How many teams are involved in this feature?&lt;/li&gt;
+&lt;li&gt;Are we actually close to finishing?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;To answer those questions, we usually have to search through Jira tickets, comments, Slack conversations, and meetings.&lt;/p&gt;
+
+&lt;p&gt;The information exists.&lt;/p&gt;
+
+&lt;p&gt;It's just scattered.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Software Is a Network
+&lt;/h2&gt;
+
+&lt;p&gt;A feature isn't a checklist.&lt;/p&gt;
+
+&lt;p&gt;It's a network.&lt;/p&gt;
+
+&lt;p&gt;Take something as simple as a login feature.&lt;/p&gt;
+
+&lt;p&gt;It might involve:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;UI&lt;/li&gt;
+&lt;li&gt;Backend API&lt;/li&gt;
+&lt;li&gt;Authentication&lt;/li&gt;
+&lt;li&gt;Database&lt;/li&gt;
+&lt;li&gt;Session Management&lt;/li&gt;
+&lt;li&gt;Security&lt;/li&gt;
+&lt;li&gt;Monitoring&lt;/li&gt;
+&lt;li&gt;Testing&lt;/li&gt;
+&lt;li&gt;Deployment&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;None of these exist independently.&lt;/p&gt;
+
+&lt;p&gt;They depend on each other.&lt;/p&gt;
+
+&lt;p&gt;Instead of looking like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Login Feature
+
+□ Backend
+□ Frontend
+□ Database
+□ Tests
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;It actually looks more like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;            Feature Map
+
+             Feature
+          /     |      \
+       API     UI     Database
+        |       |         |
+     Auth    Forms     Migration
+        \      |        /
+          Integration Tests
+                 |
+             Deployment
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This tells a completely different story.&lt;/p&gt;
+
+&lt;p&gt;Instead of seeing isolated tasks, we see relationships.&lt;/p&gt;
+
+&lt;p&gt;And relationships are what determine whether a project moves forward or becomes blocked.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Hidden Dependencies Cost More Than Bad Estimates
+&lt;/h2&gt;
+
+&lt;p&gt;Most sprint failures aren't caused by someone estimating four days instead of five.&lt;/p&gt;
+
+&lt;p&gt;They're caused by discovering work too late.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;"We forgot the migration."&lt;/p&gt;
+
+&lt;p&gt;"The mobile app also needs changes."&lt;/p&gt;
+
+&lt;p&gt;"Ops needs monitoring before deployment."&lt;/p&gt;
+
+&lt;p&gt;"This API change affects another team."&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;These aren't estimation errors.&lt;/p&gt;
+
+&lt;p&gt;They're visibility problems.&lt;/p&gt;
+
+&lt;p&gt;If these dependencies had been visible from the beginning, the plan would have been completely different.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  A Missing Layer: Feature Maps
+&lt;/h2&gt;
+
+&lt;p&gt;I believe we're missing something between &lt;strong&gt;planning&lt;/strong&gt; and &lt;strong&gt;implementation&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Instead of representing a feature as a list of tickets, what if we represented it as a dependency graph?&lt;/p&gt;
+
+&lt;p&gt;I call this idea &lt;strong&gt;Feature Maps&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Each node represents a piece of work.&lt;/p&gt;
+
+&lt;p&gt;Each connection represents a dependency.&lt;/p&gt;
+
+&lt;p&gt;Every node knows:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Who owns it&lt;/li&gt;
+&lt;li&gt;What it depends on&lt;/li&gt;
+&lt;li&gt;What it blocks&lt;/li&gt;
+&lt;li&gt;Its current status&lt;/li&gt;
+&lt;li&gt;Its progress&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Instead of opening twenty Jira tickets to understand a feature, the relationships become immediately visible.&lt;/p&gt;
+
+&lt;p&gt;The map becomes the feature.&lt;/p&gt;
+
+&lt;p&gt;The tickets become implementation details.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  "Done" Should Mean More Than Closed Tickets
+&lt;/h2&gt;
+
+&lt;p&gt;One thing I've noticed is that teams often say a feature is &lt;strong&gt;90% done&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;But what does that actually mean?&lt;/p&gt;
+
+&lt;p&gt;Imagine instead that completion is structural.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Login Feature
+
+✅ UI
+✅ Backend
+✅ Database
+✅ Authentication
+✅ Testing
+❌ Monitoring
+❌ Documentation
+❌ Deployment
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The feature isn't complete until every required component is complete.&lt;/p&gt;
+
+&lt;p&gt;No assumptions.&lt;/p&gt;
+
+&lt;p&gt;No forgotten tasks.&lt;/p&gt;
+
+&lt;p&gt;No surprises before release.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Better Planning Starts With Better Visibility
+&lt;/h2&gt;
+
+&lt;p&gt;This idea isn't about replacing Agile.&lt;/p&gt;
+
+&lt;p&gt;Agile helps teams organize work.&lt;/p&gt;
+
+&lt;p&gt;Issue trackers help teams execute work.&lt;/p&gt;
+
+&lt;p&gt;But neither gives us a complete picture of how the work connects.&lt;/p&gt;
+
+&lt;p&gt;When developers understand the full network of dependencies, something interesting happens.&lt;/p&gt;
+
+&lt;p&gt;Missing work is discovered earlier.&lt;/p&gt;
+
+&lt;p&gt;Blocked tasks become obvious.&lt;/p&gt;
+
+&lt;p&gt;Communication becomes easier.&lt;/p&gt;
+
+&lt;p&gt;Estimates naturally improve—not because people became better at guessing, but because the team has a better understanding of the problem they're solving.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Looking Forward
+&lt;/h2&gt;
+
+&lt;p&gt;As software systems become larger, our planning tools haven't evolved much.&lt;/p&gt;
+
+&lt;p&gt;We still represent complex systems as flat lists of tickets.&lt;/p&gt;
+
+&lt;p&gt;But software isn't a list.&lt;/p&gt;
+
+&lt;p&gt;It's a living network of services, people, teams, and dependencies.&lt;/p&gt;
+
+&lt;p&gt;Maybe the next evolution of project management isn't another estimation technique.&lt;/p&gt;
+
+&lt;p&gt;Maybe it's changing how we visualize work.&lt;/p&gt;
+
+&lt;p&gt;Maybe before asking &lt;strong&gt;"How long will this take?"&lt;/strong&gt;, we should first ask:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;"Do we actually understand everything this feature depends on?"&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;I'd love to hear your thoughts.&lt;/p&gt;
+
+&lt;p&gt;Do you think today's tools give enough visibility into dependencies, or is there room for a different way of planning software?&lt;/p&gt;
+
+&lt;p&gt;example:&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  A Real-World Example
+&lt;/h2&gt;
+
+&lt;p&gt;Let's imagine a team is building a new &lt;strong&gt;User Authentication&lt;/strong&gt; feature.&lt;/p&gt;
+
+&lt;p&gt;During sprint planning, the work is broken down into Jira tasks like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;AUTH-101 - Create Login API          (Bob)
+AUTH-102 - Build Login UI            (Carol)
+AUTH-103 - Database Migration        (Alice)
+AUTH-104 - JWT Authentication        (Bob)
+AUTH-105 - QA Testing                (David)
+AUTH-106 - Deployment                (Emma)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Everything looks organized.&lt;/p&gt;
+
+&lt;p&gt;Each task has an owner.&lt;/p&gt;
+
+&lt;p&gt;Each task has an estimate.&lt;/p&gt;
+
+&lt;p&gt;The sprint begins.&lt;/p&gt;
+
+&lt;p&gt;Three days later, reality starts to diverge from the plan.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Carol (Frontend) can't finish because the Login API isn't ready.&lt;/li&gt;
+&lt;li&gt;Bob discovers the API requires changes to the database schema.&lt;/li&gt;
+&lt;li&gt;Alice realizes the migration is more complex than expected.&lt;/li&gt;
+&lt;li&gt;David (QA) is waiting for both the frontend and backend.&lt;/li&gt;
+&lt;li&gt;Emma (DevOps) can't deploy until QA is complete.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Everyone starts asking questions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;"What's blocking the API?"&lt;/li&gt;
+&lt;li&gt;"Can I start my work yet?"&lt;/li&gt;
+&lt;li&gt;"Who's waiting on me?"&lt;/li&gt;
+&lt;li&gt;"How much of this feature is actually finished?"&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The answers exist—but they're scattered across Jira comments, Slack messages, stand-up meetings, and people's memory.&lt;/p&gt;
+
+&lt;p&gt;The project isn't missing information.&lt;/p&gt;
+
+&lt;p&gt;It's missing visibility.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  The Same Feature as a Feature Map
+&lt;/h3&gt;
+
+&lt;p&gt;Now imagine the feature is represented as a living dependency graph instead of a flat list of tickets.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;             Authentication Feature
+                       │
+        ┌──────────────┬──────────────┐
+        │              │              │
+ Database         Backend API     Frontend UI
+(Alice)             (Bob)          (Carol)
+    │                  │              │
+ Migration       JWT Authentication   │
+        └──────────────┼──────────────┘
+                       │
+                    QA Testing
+                     (David)
+                       │
+                   Deployment
+                     (Emma)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;At a glance, everyone understands how the work is connected.&lt;/p&gt;
+
+&lt;p&gt;Carol knows she's waiting for Bob.&lt;/p&gt;
+
+&lt;p&gt;Bob knows he's blocked by Alice.&lt;/p&gt;
+
+&lt;p&gt;David knows QA cannot begin until both frontend and backend are complete.&lt;/p&gt;
+
+&lt;p&gt;Emma immediately sees why deployment hasn't started.&lt;/p&gt;
+
+&lt;p&gt;No searching through dozens of tickets.&lt;/p&gt;
+
+&lt;p&gt;No asking the same questions during every stand-up.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  The Project Changes...
+&lt;/h3&gt;
+
+&lt;p&gt;Now imagine Bob discovers something unexpected.&lt;/p&gt;
+
+&lt;p&gt;The authentication service also requires a &lt;strong&gt;Token Refresh Service&lt;/strong&gt; that wasn't identified during planning.&lt;/p&gt;
+
+&lt;p&gt;Instead of creating another disconnected ticket, Bob adds it directly to the Feature Map.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;                 Backend API
+                      │
+              JWT Authentication
+                      │
+            Token Refresh Service   🆕
+                      │
+                Session Manager
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Immediately, the entire team can see:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;A new task has appeared.&lt;/li&gt;
+&lt;li&gt;Bob owns it.&lt;/li&gt;
+&lt;li&gt;It blocks frontend integration.&lt;/li&gt;
+&lt;li&gt;QA will also be delayed.&lt;/li&gt;
+&lt;li&gt;The feature isn't as close to completion as everyone thought.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The team's understanding evolves the moment the project evolves.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Status Isn't Enough
+&lt;/h3&gt;
+
+&lt;p&gt;Most project management tools track only one thing:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;In Progress&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;But "In Progress" doesn't tell the team very much.&lt;/p&gt;
+
+&lt;p&gt;Instead, every node in the Feature Map could expose its &lt;strong&gt;health&lt;/strong&gt;.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Task:
+Database Migration
+
+Owner:
+Alice
+
+Status:
+In Progress
+
+Health:
+🟡 At Risk
+
+Reason:
+Unexpected schema conflicts with production data.
+
+Blocks:
+Backend API
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Or:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Task:
+Backend API
+
+Owner:
+Bob
+
+Status:
+Blocked
+
+Reason:
+Waiting for Database Migration.
+
+Blocks:
+Frontend UI
+QA Testing
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Or:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Task:
+Frontend UI
+
+Owner:
+Carol
+
+Status:
+Ready
+
+Health:
+🟢 Healthy
+
+Waiting For:
+Backend API
+
+Progress:
+80%
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Now the conversation during the daily stand-up changes.&lt;/p&gt;
+
+&lt;p&gt;Instead of saying:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;"I'm still working on AUTH-102."&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The update becomes:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;"The Backend API is now blocked by a database issue. This affects Frontend, QA, and Deployment. I also discovered a new Token Refresh task that needs to be completed before authentication is finished."&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;That's much more valuable.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  The Missing Piece Isn't Better Estimation
+&lt;/h3&gt;
+
+&lt;p&gt;Software projects don't fail because developers estimate poorly.&lt;/p&gt;
+
+&lt;p&gt;They struggle because our understanding of the project changes every day, while our planning tools remain static.&lt;/p&gt;
+
+&lt;p&gt;A Feature Map becomes a living representation of the project.&lt;/p&gt;
+
+&lt;p&gt;It doesn't just show &lt;strong&gt;what people are working on&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;It shows &lt;strong&gt;how everyone's work is connected&lt;/strong&gt;, &lt;strong&gt;what's blocking progress&lt;/strong&gt;, &lt;strong&gt;where new work has appeared&lt;/strong&gt;, and &lt;strong&gt;how changes affect the entire team&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;In my opinion, that's the missing layer between planning and implementation.&lt;/p&gt;</description>
+      <link>https://dev.to/moein7/software-isnt-a-list-of-tasks-its-a-network-of-dependencies-5h7m</link>
+      <pubDate>Sat, 04 Jul 2026 06:02:40 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/moein7/software-isnt-a-list-of-tasks-its-a-network-of-dependencies-5h7m</guid>
+    </item>
+    <item>
+      <title>[翻訳] Top 10 UI Kits for Chrome Extensions in 2026 (Tested &amp; Ranked) | ExtensionBooster</title>
+      <description>&lt;h1&gt;
+  
+  
+  Top 10 UI Kits for Chrome Extensions in 2026 (Tested &amp;amp; Ranked) | ExtensionBooster
+&lt;/h1&gt;
+
+&lt;p&gt;UI design in Chrome extensions is where most developers struggle. After building several, here's what I've learned about making extensions look good and work well.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What actually works
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Top 10 UI Kits for Chrome Extensions in 2026 (Tested &amp;amp; Ranked) | ExtensionBooster Every “best React UI library” listicle you’ll find ranks the same kits: MUI, Chakra, Mantine, shadcn/ui&lt;/li&gt;
+&lt;li&gt;And if you copy-paste that ranking into a Chrome extension, you’ll hit a wall the listicle never warned you about: your beautiful component library throws a Content Security Policy error and refuses to render&lt;/li&gt;
+&lt;li&gt;Manifest V3 locks down what code can run, your content scripts fight the host page’s CSS, and your popup has to look good at 400 pixels wide&lt;/li&gt;
+&lt;li&gt;Js dashboard can be the worst choice for an extension&lt;/li&gt;
+&lt;/ul&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Here's the thing
+&lt;/h2&gt;
+
+&lt;p&gt;Top 10 UI Kits for Chrome Extensions in 2026 (Tested &amp;amp; Ranked) | ExtensionBooster Every “best React UI library” listicle you’ll find ranks the same kits: MUI, Chakra, Mantine, shadcn/ui. They’re written for normal web apps. And if you copy-paste that ranking into a Chrome extension, you’ll hit a wall the listicle never warned you about: your beautiful component library throws a Content Security Policy error and refuses to render. A browser extension is not a website. Manifest V3 locks down what code can run, your content scripts fight the host page’s CSS, and your popup has to look good at 400 pixels wide. The UI kit that’s perfect for a Next. js dashboard can be the worst choice for an extension. I rebuilt the same extension popup, options page, and content-script overlay across the major UI kits to see which ones survive contact with MV3. Here’s the ranked result, plus the one constraint that decides everything. Why a Chrome Extension UI Is Different (Read This First) Before the list, understand the four constraints that flip the rankings. Skip this and you’ll pick wrong. Manifest V3 Content Security Policy. Extension pages run under a strict default CSP: no remote code, no eval , and tight rules on inline styles. Any library that injects  tags at runtime (the CSS-in-JS approach used by Emotion and styled-components) can trip this unless you wire up a nonce. Worse, some components also set inline style=&amp;amp;quot;&amp;amp;quot; attributes that a nonce doesn’t cover, forcing you to weaken your CSP with style-src-attr &amp;amp;#39;unsafe-inline&amp;amp;#39;. If you care about a clean security posture (and the Chrome Web Store reviewers do, see our extension sandboxing and security guide ), runtime CSS-in-JS is a headache. Shadow DOM style isolation. When you inject UI into a third-party page via a content script , the host page’s CSS bleeds into your widget and your CSS bleeds into theirs. The fix is mounting inside a Shadow DOM root. But this matters for your kit choice: CSS-in-JS libraries inject styles into document. head , not your shadow root, so they break. Pre-compiled CSS (Tailwind output, CSS modules) can be injected as a string straight into the shadow root. Web components define their styles inside the shadow root natively. A toolbar popup is roughly 400 to 600 pixels wide and capped in height. Heavyweight component libraries built for full-page dashboards feel cramped. See our popup UI design best practices for layout patterns. Every kilobyte ships to the user and slows your popup’s first paint. A 300 KB component library is a luxury an extension can rarely afford. Read how to reduce extension bundle size for the full story. They’re why a kit that’s “S-tier for web” can be “avoid” for extensions. TL;DR: The Ranking at a Glance # UI kit Styling approach MV3 CSP safe. shadcn/ui: The Default Winner ui. com | MIT | Radix + Tailwind | React shadcn/ui isn’t a dependency you install, it’s components you copy into your own source tree. That single design decision makes it the best fit for extensions in 2026. The components are built on headless Radix primitives and styled with Tailwind, so they compile to static CSS. No runtime style injection. It just works under MV3 out of the box. Because the code lives in your repo, you tree-shake by definition: you only have the components you actually pasted in. A typical popup setup adds roughly 20 to 50 KB depending on how many components you pull. It crossed ~75,000 GitHub stars and became the default for new Tailwind and React projects, so the ecosystem (blocks, themes, AI tooling) is enormous. If you’re injecting shadcn UI into a host page via a content script, either compile with Tailwind v3 output or inject your compiled CSS through adoptedStyleSheets and use px units. For popup and options pages (not in a shadow root), Tailwind v4 is fine. Verdict: Start here for any React extension. Pair it with WXT and you have a modern, CSP-clean stack in minutes. DaisyUI: The Lightweight Champion daisyui. com | MIT | Tailwind plugin | Any framework DaisyUI is a Tailwind CSS plugin that ships semantic class names ( btn , card , modal ) and zero JavaScript. The entire library, every component and every theme, is about 34 KB of CSS. That’s the smallest footprint on this list, and for a popup where first paint speed is everything, that matters. It’s framework-agnostic because it’s just CSS. Use it with React, Vue, Svelte, or plain HTML in a vanilla extension. For content scripts, you inject those 34 KB into your shadow root as a string and you’re done, no document. -- Works in any extension, no JS runtime --&amp;amp;gt; &amp;amp;lt; button class = &amp;amp;quot;btn btn-primary&amp;amp;quot; &amp;amp;gt;Save&amp;amp;lt;/ button &amp;amp;gt; &amp;amp;lt; div class = &amp;amp;quot;card bg-base-100 shadow-md&amp;amp;quot; &amp;amp;gt;. &amp;amp;lt;/ div &amp;amp;gt; The trade-off: DaisyUI styles components but doesn’t manage ARIA roles or keyboard interaction for you. You supply the behavior (or layer it on with a headless primitive). For accessibility expectations, see our accessible extension guide. Verdict: The best choice when bundle size is your top priority, or when you’re not using React. HeroUI (Formerly NextUI): Polished and Modern heroui. com | MIT | Tailwind v4 | React If you want shadcn-level CSP safety but with a more opinionated, ready-made visual style, HeroUI is the pick. Note the name: NextUI rebranded to HeroUI in January 2025 to signal it’s for the whole React ecosystem, not just Next. The v3 line rebuilt on Tailwind v4 and React Aria Components, dropped Framer Motion for native CSS animations, and slimmed the bundle considerably versus v2. Because the output is compiled Tailwind CSS, it carries the same MV3-safe property as shadcn/ui (and the same Tailwind v4 @property caveat for shadow roots). The React Aria foundation means accessibility is handled properly out of the box, which is a genuine advantage over DaisyUI. npx @heroui/codemod@latest migrate # if you&amp;amp;#39;re moving off NextUI Verdict: Great when you want batteries-included, accessible components and don’t need shadcn’s pixel-level customizability. Radix Primitives + Headless UI: Bring Your Own Styles radix-ui. com | MIT | Headless | React (Headless UI also Vue) Radix Primitives is the unstyled, accessible foundation that shadcn/ui is built on. Headless UI (from the Tailwind team) plays the same role. Neither ships any CSS, which means zero CSP risk by definition: you provide all the styling with Tailwind or CSS modules, and you get rock-solid keyboard nav and focus management for free. You’d reach for these directly when you’re building a bespoke design system and don’t want shadcn’s pre-styled starting point. Each Radix package is small (roughly 4 to 15 KB gzipped) and you install only what you use. Verdict: The power-user choice for custom design systems. For most teams, shadcn/ui (which wraps these) is the faster road.&amp;lt;/p&amp;gt;
+
+&amp;lt;blockquote&amp;gt;
+&amp;lt;p&amp;gt;💡 &amp;lt;strong&amp;gt;Quick tip:&amp;lt;/strong&amp;gt; Keep popup UI minimal — users close it fast if it&amp;amp;#39;s slow to load.&amp;lt;/p&amp;gt;
+&amp;lt;/blockquote&amp;gt;
+
+&amp;lt;hr&amp;gt;
+&amp;lt;h2&amp;gt;
+  &amp;lt;a name="if-you-build-chrome-extensions" href="#if-you-build-chrome-extensions" class="anchor"&amp;gt;
+  &amp;lt;/a&amp;gt;
+  If you build Chrome extensions
+&amp;lt;/h2&amp;gt;
+
+&amp;lt;p&amp;gt;You&amp;amp;#39;ll eventually need tools for icons, screenshots, MV2→MV3 conversion, and bundle analysis.&amp;lt;/p&amp;gt;
+
+&amp;lt;p&amp;gt;&amp;lt;a href="https://extensionbooster.net"&amp;gt;ExtensionBooster&amp;lt;/a&amp;gt; has free versions of all of these — I keep it bookmarked for every extension project.&amp;lt;/p&amp;gt;
+&lt;/p&gt;</description>
+      <link>https://dev.to/extensionbooster/top-10-ui-kits-for-chrome-extensions-in-2026-tested-ranked-extensionbooster-52db</link>
+      <pubDate>Sat, 04 Jul 2026 06:02:38 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/extensionbooster/top-10-ui-kits-for-chrome-extensions-in-2026-tested-ranked-extensionbooster-52db</guid>
+    </item>
+    <item>
+      <title>[翻訳] Knowledge and Memory Management v0.0.2: Portable Knowledge Collection at Scale</title>
+      <description>&lt;p&gt;For developers managing ever-growing information streams from web pages, video transcripts, and technical articles, the challenges of consistent tooling and environment setup often overshadow the actual value of knowledge curation. Version 0.0.2 of the Knowledge-and-Memory-Management project focuses on exactly that friction, delivering a clean release that replaces hardcoded paths with a portable &lt;code&gt;$AGENT_HOME&lt;/code&gt; variable and extends the core collection pipeline. This is not a feature-heavy expansion; it is a pragmatic cleanup and a baseline for scalable knowledge workflows.&lt;/p&gt;
+
+&lt;p&gt;The key architectural change is the elimination of personal path references. Previous configurations might have pointed to &lt;code&gt;/home/user/data&lt;/code&gt; or &lt;code&gt;C:\Users\dev\projects&lt;/code&gt;. In v0.0.2, every directory reference uses &lt;code&gt;$AGENT_HOME&lt;/code&gt;, an environment variable that must be set before instantiation. This makes the entire toolchain moveable—whether you are running it on a laptop, a CI runner, or a production server. The release also streamlines how knowledge is ingested from three primary sources: web, video, and articles.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Knowledge Collection Pipeline
+&lt;/h3&gt;
+
+&lt;p&gt;The collection system is now separated into three composable extractors. Each source type has its own adapter, but they all output a normalized document structure with fields for title, content, timestamps, and source metadata. This uniformity is critical for downstream memory management and retrieval.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Web collection&lt;/strong&gt; uses a headless browser fetch with a configurable CSS selector for main content. It strips navigation, ads, and sidebars, returning clean markdown. The adapter handles JavaScript-heavy sites by default, waiting for &lt;code&gt;load&lt;/code&gt; or a custom selector timeout.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Video collection&lt;/strong&gt; targets video platforms via an API-first approach. For YouTube, it uses the captions or automatic transcripts. It extracts the video description and comments as supplementary context. The output is a plaintext transcript with chapter markers if available.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Article collection&lt;/strong&gt; is designed for RSS feeds and academic papers. It parses metadata (DOI, authors, publication date) separately from the body text. Articles longer than 10,000 characters are split into logical sections with internal anchors for reference.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All collectors respect a global rate-limit and can be chained in a single pipeline. For example, you can fetch a YouTube video, get its transcript, search the comments for related articles, and then fetch each of those articles in a single command.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Memory Management and Portability
+&lt;/h3&gt;
+
+&lt;p&gt;The memory layer stores collected documents as flat files organized by source type and date. The directory structure is strictly relative to &lt;code&gt;$AGENT_HOME&lt;/code&gt;. The release includes a migration script that scans your existing knowledge base and replaces any hardcoded paths with the variable. This script is idempotent and defaults to dry-run mode.&lt;/p&gt;
+
+&lt;p&gt;The configuration is now purely environment-aware. A short example of the YAML configuration file illustrates the portability:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="c1"&gt;# knowledge-config.yml&lt;/span&gt;
+&lt;span class="na"&gt;agent&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;home&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;${AGENT_HOME}&lt;/span&gt;  &lt;span class="c1"&gt;# must be set in environment&lt;/span&gt;
+  &lt;span class="na"&gt;log_level&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;info&lt;/span&gt;
+
+&lt;span class="na"&gt;collectors&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;web&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;enabled&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+    &lt;span class="na"&gt;timeout&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="m"&gt;15&lt;/span&gt;
+    &lt;span class="na"&gt;selectors&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="na"&gt;article&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;main"&lt;/span&gt;
+      &lt;span class="na"&gt;sidebar&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;.ad,&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;nav,&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;footer"&lt;/span&gt;
+    &lt;span class="na"&gt;output&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;${AGENT_HOME}/collections/web"&lt;/span&gt;
+
+  &lt;span class="na"&gt;video&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;enabled&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+    &lt;span class="na"&gt;platforms&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;youtube&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;vimeo&lt;/span&gt;
+    &lt;span class="na"&gt;output&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;${AGENT_HOME}/collections/video"&lt;/span&gt;
+
+  &lt;span class="na"&gt;article&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;enabled&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+    &lt;span class="na"&gt;feeds&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;https://feeds.example.com/tech&lt;/span&gt;
+    &lt;span class="na"&gt;output&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;${AGENT_HOME}/collections/articles"&lt;/span&gt;
+
+&lt;span class="na"&gt;memory&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;store&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;filesystem&lt;/span&gt;
+  &lt;span class="na"&gt;path&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;${AGENT_HOME}/memory"&lt;/span&gt;
+  &lt;span class="na"&gt;clean_interval_hours&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="m"&gt;24&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;No path in this file is specific to one machine. The tool automatically resolves all &lt;code&gt;$AGENT_HOME&lt;/code&gt; references during initialization. If the variable is unset at startup, it exits with a clear error message and a hint to set it via &lt;code&gt;.env&lt;/code&gt; or shell export.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Practical Use
+&lt;/h3&gt;
+
+&lt;p&gt;Experienced developers will appreciate the removal of guesswork. In earlier versions, setting up a new environment meant editing multiple files or copying directories from an old machine. Now you simply &lt;code&gt;export AGENT_HOME=/mnt/portable_knowledge&lt;/code&gt; and run. The collectors also respect &lt;code&gt;AGENT_HOME&lt;/code&gt; for temporary directories, cache, and logs, keeping your system &lt;code&gt;tmp&lt;/code&gt; clean.&lt;/p&gt;
+
+&lt;p&gt;The single code example above is enough to get a full pipeline running. For instance, to fetch and store a web article, you can run:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;knowledge-collect &lt;span class="nt"&gt;--config&lt;/span&gt; knowledge-config.yml &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--source&lt;/span&gt; web &lt;span class="nt"&gt;--url&lt;/span&gt; https://example.com/tech-article
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The tool will fetch the page, extract the main content, and save it to &lt;code&gt;$AGENT_HOME/collections/web/&lt;/code&gt;. If you later move to another machine, the same command works as long as &lt;code&gt;$AGENT_HOME&lt;/code&gt; is set accordingly.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Clean Release Mechanics
+&lt;/h3&gt;
+
+&lt;p&gt;This release does not add any new collectors. Instead, it consolidates the existing ones, fixes race conditions in the video transcript fetcher, and removes deprecated adapters for now-dead knowledge bases. The memory module (the "S" in the original topic, representing storage) now handles deduplication by content hash before writing. This prevents redundant storage when the same article is fetched from two different feeds.&lt;/p&gt;
+
+&lt;p&gt;The entire codebase was audited for hardcoded paths. Every occurrence of &lt;code&gt;/home&lt;/code&gt; or &lt;code&gt;%USERPROFILE%&lt;/code&gt; was replaced with the environment variable at runtime, not at compile time. This means you can mount a knowledge base from an external drive and instantly have all collections active.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Bottom Line
+&lt;/h3&gt;
+
+&lt;p&gt;v0.0.2 is not a revolution; it is a necessary cleanup that makes the tool production-ready for teams. The &lt;code&gt;$AGENT_HOME&lt;/code&gt; portability removes the biggest friction point in setting up knowledge pipelines across systems. The collection pipeline remains straightforward for the three main formats, and the configuration is self-contained. For developers who want a reliable, environment-agnostic knowledge management system, this release is a solid foundation.&lt;/p&gt;</description>
+      <link>https://dev.to/mage0535/knowledge-and-memory-management-v002-portable-knowledge-collection-at-scale-1ni1</link>
+      <pubDate>Sat, 04 Jul 2026 06:01:35 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/mage0535/knowledge-and-memory-management-v002-portable-knowledge-collection-at-scale-1ni1</guid>
+    </item>
+    <item>
+      <title>[翻訳] Building Your First AI Agent in 2026: A Complete Hands-On Guide</title>
+      <description>&lt;h2&gt;
+  
+  
+  Let's Build an Agent Together
+&lt;/h2&gt;
+
+&lt;p&gt;You've read the theory. You understand the concepts. Now it's time to get hands-on with building your first AI agent.&lt;/p&gt;
+
+&lt;p&gt;This guide will walk you through creating a practical agent that can handle real-world tasks. Don't worry—you don't need to be an AI expert to follow along.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What We're Building
+&lt;/h2&gt;
+
+&lt;p&gt;A research assistant agent that can:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Take a topic as input&lt;/li&gt;
+&lt;li&gt;Search for information&lt;/li&gt;
+&lt;li&gt;Synthesize findings&lt;/li&gt;
+&lt;li&gt;Provide well-structured answers&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This agent will use LangChain, one of the most popular frameworks for building agentic AI systems.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Prerequisites
+&lt;/h2&gt;
+
+&lt;p&gt;Before you start, make sure you have:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Python 3.9+&lt;/li&gt;
+&lt;li&gt;An OpenAI API key (or alternative LLM)&lt;/li&gt;
+&lt;li&gt;Basic understanding of Python&lt;/li&gt;
+&lt;li&gt;pip installed on your system&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Step 1: Set Up Your Environment
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# Create a virtual environment&lt;/span&gt;
+python3 &lt;span class="nt"&gt;-m&lt;/span&gt; venv agent_env
+&lt;span class="nb"&gt;source &lt;/span&gt;agent_env/bin/activate  &lt;span class="c"&gt;# On Windows: agent_env\Scripts\activate&lt;/span&gt;
+
+&lt;span class="c"&gt;# Install required packages&lt;/span&gt;
+pip &lt;span class="nb"&gt;install &lt;/span&gt;langchain openai python-dotenv duckduckgo-search
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 2: Create Your First Agent
+&lt;/h2&gt;
+
+&lt;p&gt;Create a file called &lt;code&gt;research_agent.py&lt;/code&gt;:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;langchain.agents&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;initialize_agent&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Tool&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;langchain.agents&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;AgentType&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;langchain.llms&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;OpenAI&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;langchain.utilities&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;DuckDuckGoSearchAPIWrapper&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;dotenv&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;load_dotenv&lt;/span&gt;
+
+&lt;span class="nf"&gt;load_dotenv&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Initialize the search tool
+&lt;/span&gt;&lt;span class="n"&gt;search&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;DuckDuckGoSearchAPIWrapper&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Define tools available to the agent
+&lt;/span&gt;&lt;span class="n"&gt;tools&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="nc"&gt;Tool&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Google Search&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;search&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Useful for searching current information. Input should be a search query.&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+    &lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Initialize the LLM
+&lt;/span&gt;&lt;span class="n"&gt;llm&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;OpenAI&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;api_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;getenv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;OPENAI_API_KEY&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;temperature&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.7&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Create the agent
+&lt;/span&gt;&lt;span class="n"&gt;agent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;initialize_agent&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="n"&gt;llm&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="n"&gt;agent&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;AgentType&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ZERO_SHOT_REACT_DESCRIPTION&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;verbose&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Run the agent
+&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;agent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;What are the latest developments in AI in 2026?&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 3: Understanding Agent Anatomy
+&lt;/h2&gt;
+
+&lt;p&gt;Let me break down what's happening:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Tools&lt;/strong&gt;: These are functions the agent can use. In our example, web search is a tool.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;LLM&lt;/strong&gt;: The language model (brain) that decides which tools to use and how.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Agent Type&lt;/strong&gt;: ZERO_SHOT_REACT means the agent reasons through problems without examples.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Verbose=True&lt;/strong&gt;: Shows you the agent's thinking process.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Step 4: Add Memory
+&lt;/h2&gt;
+
+&lt;p&gt;Agents that remember context are more powerful:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;langchain.memory&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ConversationBufferMemory&lt;/span&gt;
+
+&lt;span class="n"&gt;memory&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;ConversationBufferMemory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;memory_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;chat_history&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;agent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;initialize_agent&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="n"&gt;llm&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="n"&gt;agent&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;AgentType&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CONVERSATIONAL_REACT_DESCRIPTION&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;verbose&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;memory&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;memory&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Now the agent can reference previous conversations
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 5: Create a Multi-Tool Agent
+&lt;/h2&gt;
+
+&lt;p&gt;Real agents use multiple tools:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;langchain.utilities&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;WikipediaAPIWrapper&lt;/span&gt;
+
+&lt;span class="n"&gt;wikipedia&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;WikipediaAPIWrapper&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;tools&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="nc"&gt;Tool&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Google Search&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;search&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Search the web for current information&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+    &lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="nc"&gt;Tool&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Wikipedia&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;wikipedia&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Search Wikipedia for factual information&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+    &lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="nc"&gt;Tool&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Calculator&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;eval&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt;
+        &lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Use for math calculations&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+    &lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;agent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;initialize_agent&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;llm&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;agent&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;AgentType&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CONVERSATIONAL_REACT_DESCRIPTION&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;verbose&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;memory&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;memory&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Common Pitfalls to Avoid
+&lt;/h2&gt;
+
+&lt;h3&gt;
+  
+  
+  1. Vague Tool Descriptions
+&lt;/h3&gt;
+
+&lt;p&gt;Bad: &lt;code&gt;Tool(name="search", func=search, description="search")&lt;/code&gt;&lt;br /&gt;
+Good: &lt;code&gt;Tool(name="Web Search", func=search, description="Search the web for current information about any topic. Input should be a specific query.")&lt;/code&gt;&lt;/p&gt;
+&lt;h3&gt;
+  
+  
+  2. Too Many Tools
+&lt;/h3&gt;
+
+&lt;p&gt;Start with 3-5. More tools confuse the agent.&lt;/p&gt;
+&lt;h3&gt;
+  
+  
+  3. Infinite Loops
+&lt;/h3&gt;
+
+&lt;p&gt;Always set max_iterations to prevent runaway agents:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="n"&gt;agent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_iterations&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h3&gt;
+  
+  
+  4. No Error Handling
+&lt;/h3&gt;
+
+&lt;p&gt;Always wrap agent execution in try-catch:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;agent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_input&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;except&lt;/span&gt; &lt;span class="nb"&gt;Exception&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Agent error: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Making It Production-Ready
+&lt;/h2&gt;
+
+&lt;h3&gt;
+  
+  
+  Add Logging
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;logging&lt;/span&gt;
+
+&lt;span class="n"&gt;logging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;basicConfig&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;level&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;logging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;INFO&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;logger&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;logging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;getLogger&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Agent task: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;task&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Agent result: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h3&gt;
+  
+  
+  Monitor Performance
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;
+
+&lt;span class="n"&gt;start&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;time&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;agent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;duration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;time&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;
+
+&lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Task completed in &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;duration&lt;/span&gt;&lt;span class="si"&gt;:&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;s&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h3&gt;
+  
+  
+  Handle Rate Limiting
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;tenacity&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;retry&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;stop_after_attempt&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;wait_exponential&lt;/span&gt;
+
+&lt;span class="nd"&gt;@retry&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;stop&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nf"&gt;stop_after_attempt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;wait&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nf"&gt;wait_exponential&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;multiplier&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;min&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;max&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;run_agent_safely&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;agent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Next Steps
+&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Expand Tools&lt;/strong&gt;: Add APIs relevant to your use case&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Improve Prompts&lt;/strong&gt;: Experiment with different system prompts&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Test Extensively&lt;/strong&gt;: Try edge cases and error scenarios&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Monitor in Production&lt;/strong&gt;: Track agent decisions and outcomes&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Iterate&lt;/strong&gt;: Improve based on real-world usage&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2&gt;
+  
+  
+  The Future is Agents
+&lt;/h2&gt;
+
+&lt;p&gt;Building agents right now puts you ahead of most developers. As AI continues to evolve, agentic systems will become the standard approach to solving complex problems.&lt;/p&gt;
+
+&lt;p&gt;Start small, iterate fast, and don't be afraid to experiment.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;Have you built an agent? What was your first experience like? Drop your questions in the comments!&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Repository&lt;/strong&gt;: Check out the complete code on GitHub: [link to your repo]&lt;/p&gt;</description>
+      <link>https://dev.to/mzunain/building-your-first-ai-agent-in-2026-a-complete-hands-on-guide-2633</link>
+      <pubDate>Sat, 04 Jul 2026 06:00:00 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/mzunain/building-your-first-ai-agent-in-2026-a-complete-hands-on-guide-2633</guid>
+    </item>
+    <item>
+      <title>[翻訳] 7 MORE VS Code Extensions You Need in 2026 (Part 2) 🚀</title>
+      <description>&lt;p&gt;After the massive response to my first post on VS Code extensions, I had to make a Part 2! Many of you shared some incredible hidden gems in the comments that completely blew my mind.&lt;/p&gt;
+
+&lt;p&gt;Here are 7 MORE VS Code Extensions that will instantly make you a faster, better developer in 2026. 👇&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  1️⃣ Import Cost (Shoutout to the community for this one!)
+&lt;/h3&gt;
+
+&lt;p&gt;If you work with JavaScript or TypeScript, this is an absolute must-have. It calculates the bundle size of imported packages and displays it inline right next to your &lt;code&gt;import&lt;/code&gt; statement. It’s saved me from accidentally importing massive libraries more than once!&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  2️⃣ Auto Rename Tag
+&lt;/h3&gt;
+
+&lt;p&gt;Another community favorite! If you write a lot of HTML or JSX, this extension automatically renames the closing tag when you edit the opening tag. It sounds simple, but it saves hours of tedious typing and prevents mismatched tag errors when refactoring deep component trees.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  3️⃣ GitLens
+&lt;/h3&gt;
+
+&lt;p&gt;If you work on a team, GitLens is practically mandatory. It provides inline "blame" annotations so you can instantly see who wrote a specific line of code and when they wrote it. It also gives you incredible insights into file history right inside the editor.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  4️⃣ REST Client
+&lt;/h3&gt;
+
+&lt;p&gt;Stop switching between VS Code and Postman just to test APIs. This extension lets you write HTTP requests in a plain text file (&lt;code&gt;.http&lt;/code&gt;) and execute them directly inside VS Code. It's incredibly fast for testing endpoints without leaving your workflow.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  5️⃣ Code Spell Checker
+&lt;/h3&gt;
+
+&lt;p&gt;There is nothing more frustrating than a bug caused by a simple typo in a variable name. This extension acts like a standard spell checker but is specifically designed for code (it understands camelCase, snake_case, etc.). &lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  6️⃣ Todo Tree
+&lt;/h3&gt;
+
+&lt;p&gt;If your codebase is littered with &lt;code&gt;// TODO:&lt;/code&gt; and &lt;code&gt;// FIXME:&lt;/code&gt; comments that you always forget about, Todo Tree solves it. It searches your entire workspace for these tags and displays them in a neat, organized tree view in the activity bar so nothing slips through the cracks.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  7️⃣ Better Comments
+&lt;/h3&gt;
+
+&lt;p&gt;Make your comments actually readable! This extension color-codes your comments based on alerts, queries, TODOs, or highlights. It completely transforms a wall of grey text into an organized, scannable document.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;What did I miss this time?&lt;/strong&gt; &lt;br /&gt;
+Drop your favorite obscure extension in the comments and I might have to make a Part 3! 👇&lt;/p&gt;</description>
+      <link>https://dev.to/rahul_agarwal18/7-more-vs-code-extensions-you-need-in-2026-part-2-26ie</link>
+      <pubDate>Sat, 04 Jul 2026 05:53:15 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/rahul_agarwal18/7-more-vs-code-extensions-you-need-in-2026-part-2-26ie</guid>
+    </item>
+    <item>
+      <title>[翻訳] Hybrid Retrieval + RRF: How I Got 100% Retrieval Precision in a Production RAG System</title>
+      <description>&lt;p&gt;Originally published at vivekpatil23.hashnode.dev&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;The Problem With Naive RAG Nobody Talks About&lt;/strong&gt;&lt;br /&gt;
+Most RAG tutorials show you the same pipeline: embed your documents, store vectors, embed the query, fetch the top-k nearest neighbors, pass to LLM. It works well enough in demos.&lt;/p&gt;
+
+&lt;p&gt;In production, it quietly fails in two specific situations:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Situation 1&lt;/strong&gt; — Exact keyword queries. A user asks "What is the ContextQuery API rate limit?" Your semantic search returns chunks about "API usage patterns" and "request throttling behavior" — conceptually related, but the exact phrase "rate limit" is buried or absent. The LLM hallucinates a number because the retrieved chunk doesn't contain one.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Situation 2&lt;/strong&gt; — Short, specific queries. Semantic embeddings excel at capturing meaning but compress specificity. A 3-word query like "Chroma collection schema" gets drowned out by semantically adjacent but contextually wrong chunks.&lt;/p&gt;
+
+&lt;p&gt;These weren't hypothetical failures. They showed up in my evaluation runs on ContextQuery — a production RAG system I built on free-tier infrastructure (NVIDIA NIM embeddings, Chroma Cloud, FastAPI, Next.js 15). My initial retrieval pipeline had a precision ceiling I couldn't break past 72% no matter how I tuned chunk size or overlap.&lt;/p&gt;
+
+&lt;p&gt;The fix was hybrid retrieval using Reciprocal Rank Fusion. Here's exactly how it works and how I implemented it.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What Is Reciprocal Rank Fusion&lt;/strong&gt;&lt;br /&gt;
+RRF is a rank merging algorithm. Instead of picking one retrieval method and hoping it covers all query types, you run multiple retrievers independently, each producing a ranked list of chunks. RRF then merges those ranked lists into a single ranking using this formula:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;RRF_score(chunk) = Σ 1 / (k + rank_in_retriever)&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Where &lt;strong&gt;&lt;em&gt;k&lt;/em&gt;&lt;/strong&gt; is a smoothing constant (typically 60) and &lt;strong&gt;&lt;em&gt;rank_in_retriever&lt;/em&gt;&lt;/strong&gt; is where that chunk appeared in each retriever's results.&lt;/p&gt;
+
+&lt;p&gt;The key insight: a chunk that appears at rank 3 in semantic search AND rank 5 in BM25 gets a higher combined score than a chunk that's rank 1 in only one method. Consensus across retrievers is the signal.&lt;/p&gt;
+
+&lt;p&gt;No neural network. No additional model. Just math on top of your existing retrieval infrastructure.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;The Two Retrievers I Combined&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Retriever 1 — Semantic Search (NVIDIA NIM Embeddings + Chroma Cloud)&lt;/strong&gt;&lt;br /&gt;
+Standard dense retrieval. Query gets embedded via NVIDIA's &lt;strong&gt;&lt;em&gt;nvidia/nv-embedqa-e5-v5&lt;/em&gt;&lt;/strong&gt; model, compared against stored document embeddings in Chroma Cloud using cosine similarity. Returns top-k chunks by vector similarity.&lt;/p&gt;
+
+&lt;p&gt;Strength: captures conceptual meaning, handles paraphrasing well.&lt;br /&gt;
+Weakness: misses exact keyword matches, struggles with short specific queries.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Retriever 2 — BM25 (rank_bm25)&lt;/strong&gt;&lt;br /&gt;
+Classical sparse retrieval. No embeddings. Scores chunks based on term frequency, inverse document frequency, and document length normalization. The same algorithm that powered search engines before neural networks existed.&lt;/p&gt;
+
+&lt;p&gt;Strength: exact keyword matching, short specific queries, named entities.&lt;/p&gt;
+
+&lt;p&gt;Weakness: no semantic understanding, synonym-blind.&lt;br /&gt;
+These two retrievers fail in opposite situations. That's exactly why combining them works.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Implementation&lt;/strong&gt;&lt;br /&gt;
+Here's the core RRF merge function from ContextQuery:&lt;br /&gt;
+python&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;rank_bm25&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;BM25Okapi&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;typing&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Any&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;reciprocal_rank_fusion&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;semantic_results&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="n"&gt;bm25_results&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;60&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
+    &lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;
+    Merge semantic and BM25 ranked lists using RRF.
+    Each result dict must have &lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;id&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt; and &lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;content&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt; keys.
+    &lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;
+    &lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+    &lt;span class="n"&gt;chunk_map&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Score semantic results
+&lt;/span&gt;    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;rank&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;chunk&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nf"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;semantic_results&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;chunk_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;chunk&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;chunk_id&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;chunk_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;rank&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;chunk_map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;chunk_id&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;chunk&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Score BM25 results
+&lt;/span&gt;    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;rank&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;chunk&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nf"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bm25_results&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;chunk_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;chunk&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;chunk_id&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;chunk_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;rank&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;chunk_map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;chunk_id&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;chunk&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Sort by combined RRF score descending
+&lt;/span&gt;    &lt;span class="n"&gt;ranked_ids&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;reverse&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;chunk_map&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;chunk_id&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;chunk_id&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;ranked_ids&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;And the BM25 retriever setup:&lt;br /&gt;
+Python&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;build_bm25_index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;chunks&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;BM25Okapi&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;tokenized&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;chunk&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="nf"&gt;split&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;chunk&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;chunks&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nc"&gt;BM25Okapi&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tokenized&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;bm25_retrieve&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;bm25_index&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;BM25Okapi&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;chunks&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="n"&gt;top_k&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
+    &lt;span class="n"&gt;tokenized_query&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="nf"&gt;split&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;scores&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bm25_index&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;get_scores&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tokenized_query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;top_indices&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="nf"&gt;range&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;reverse&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;
+    &lt;span class="p"&gt;)[:&lt;/span&gt;&lt;span class="n"&gt;top_k&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;chunks&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;top_indices&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The full retrieval call in the FastAPI endpoint:&lt;/p&gt;
+
+&lt;p&gt;python&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;retrieve&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;top_k&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Dict&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
+    &lt;span class="c1"&gt;# Run both retrievers
+&lt;/span&gt;    &lt;span class="n"&gt;semantic_results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nf"&gt;chroma_semantic_search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;top_k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;bm25_results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;bm25_retrieve&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bm25_index&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;all_chunks&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;top_k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Merge with RRF
+&lt;/span&gt;    &lt;span class="n"&gt;fused_results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;reciprocal_rank_fusion&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;semantic_results&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bm25_results&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Return top-k from merged list
+&lt;/span&gt;    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fused_results&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="n"&gt;top_k&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Note I fetch top-10 from each retriever before merging, then cut to top-5 after fusion. This gives RRF enough candidates to actually rerank meaningfully — fetching only top-5 before fusion defeats the purpose.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Evaluation Results&lt;/strong&gt;&lt;br /&gt;
+I evaluated ContextQuery using a 16-question test set covering a range of query types: exact keyword queries, conceptual questions, multi-hop questions, and short specific lookups.&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Metric&lt;/th&gt;
+&lt;th&gt;Semantic Only&lt;/th&gt;
+&lt;th&gt;Hybrid RRF&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Retrieval Precision&lt;/td&gt;
+&lt;td&gt;72%&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;100%&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Answer Faithfulness&lt;/td&gt;
+&lt;td&gt;81%&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;87.5%&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Avg Latency&lt;/td&gt;
+&lt;td&gt;~1800ms&lt;/td&gt;
+&lt;td&gt;~2400ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;Retrieval precision measures whether the correct chunk appeared in the top-5 results. Faithfulness measures whether the LLM's answer was grounded in the retrieved content rather than hallucinated.&lt;/p&gt;
+
+&lt;p&gt;The 600ms latency increase comes from running BM25 in parallel alongside the semantic search. For my use case this was an acceptable tradeoff. For latency-critical applications, you could run BM25 on a separate thread and set a timeout fallback to semantic-only.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What I'd Do Differently&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The 12.5% faithfulness gap isn't a retrieval problem. After investigation, the remaining faithfulness failures came from chunk boundary issues — the answer to a question was split across two chunks and neither chunk alone was sufficient. The fix is smarter chunking (semantic chunking over fixed token windows), not better retrieval. Hybrid RRF solved the retrieval problem completely; chunking strategy is the next frontier.&lt;/p&gt;
+
+&lt;p&gt;k=60 is a reasonable default but not universal. The smoothing constant k controls how much weight rank position gets versus pure presence in results. I used 60 (the standard default) and didn't tune it. If your query distribution is heavily keyword-biased, a smaller k rewards BM25 rank more aggressively. Worth experimenting with if you're not hitting the precision numbers you need.&lt;/p&gt;
+
+&lt;p&gt;BM25 index needs to be rebuilt on document updates. Unlike the Chroma vector store which handles upserts natively, the BM25 index in my implementation is rebuilt from scratch on each document ingestion event. Fine at small scale, will become a bottleneck with large corpora. A production fix is incremental index updates or a dedicated sparse retrieval service.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Stack Summary&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Embeddings: NVIDIA NIM (&lt;strong&gt;&lt;em&gt;nvidia/nv-embedqa-e5-v5&lt;/em&gt;&lt;/strong&gt;)&lt;br /&gt;
+Vector store: Chroma Cloud&lt;br /&gt;
+Sparse retrieval: rank_bm25&lt;br /&gt;
+Backend: FastAPI (async)&lt;br /&gt;
+Frontend: Next.js 15&lt;br /&gt;
+Observability: LangFuse&lt;br /&gt;
+Deployment: Render (backend) + Vercel (frontend)&lt;br /&gt;
+Total infra cost: $0 (all free tier)&lt;/p&gt;
+
+&lt;p&gt;Full source: &lt;a href="https://github.com/vivekpatil200320/contextquery" rel="noopener noreferrer"&gt;https://github.com/vivekpatil200320/contextquery&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Wrapping Up&lt;/strong&gt;&lt;br /&gt;
+Hybrid retrieval isn't a complex idea — it's two retrievers whose failure modes don't overlap, merged with a formula that takes 10 lines to implement. The results in ContextQuery were significant enough that I now treat it as a default starting point rather than an optimisation.&lt;/p&gt;
+
+&lt;p&gt;If you're building a RAG system and hitting a precision ceiling, add BM25 before you touch chunk size, overlap, or embedding models. It's the highest-leverage change in the retrieval stack.&lt;/p&gt;
+
+&lt;p&gt;Building and writing about production AI systems — find more at &lt;a href="https://vivekpatil23.hashnode.dev" rel="noopener noreferrer"&gt;https://vivekpatil23.hashnode.dev&lt;/a&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/vivek_patil_f9a71d5c65994/hybrid-retrieval-rrf-how-i-got-100-retrieval-precision-in-a-production-rag-system-1oga</link>
+      <pubDate>Sat, 04 Jul 2026 05:53:04 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/vivek_patil_f9a71d5c65994/hybrid-retrieval-rrf-how-i-got-100-retrieval-precision-in-a-production-rag-system-1oga</guid>
+    </item>
+    <item>
+      <title>[翻訳] 5 Free Open-Source Alternatives to Premium Software Subscriptions 💸🔥</title>
+      <description>&lt;p&gt;You don't need to pay for premium software subscriptions. Here are 5 Open-Source alternatives to expensive paid tools that are actually &lt;em&gt;better&lt;/em&gt; than the originals.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  1️⃣ Supabase (Alternative to Firebase)
+&lt;/h3&gt;
+
+&lt;p&gt;An incredible open-source Postgres database with auth, edge functions, and real-time subscriptions built right in.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  2️⃣ PostHog (Alternative to Google Analytics / Mixpanel)
+&lt;/h3&gt;
+
+&lt;p&gt;The ultimate product analytics platform. It gives you session replays, feature flags, and funnels—and you can self-host it for complete data privacy.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  3️⃣ Cal.com (Alternative to Calendly)
+&lt;/h3&gt;
+
+&lt;p&gt;Beautifully designed scheduling infrastructure. It's fully open source and highly customizable for developers.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  4️⃣ Appwrite (Alternative to AWS / BaaS)
+&lt;/h3&gt;
+
+&lt;p&gt;Everything you need to build a backend (auth, databases, storage, functions) wrapped into one seamless docker container.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  5️⃣ Penpot (Alternative to Figma)
+&lt;/h3&gt;
+
+&lt;p&gt;The first open-source design and prototyping platform built specifically for cross-domain teams. It speaks CSS and SVG natively.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;Open source is winning! Have you completely switched to any open-source alternatives recently? Let me know below! 👇&lt;/p&gt;</description>
+      <link>https://dev.to/rahul_agarwal18/5-free-open-source-alternatives-to-premium-software-subscriptions-38il</link>
+      <pubDate>Sat, 04 Jul 2026 05:50:11 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/rahul_agarwal18/5-free-open-source-alternatives-to-premium-software-subscriptions-38il</guid>
+    </item>
+    <item>
+      <title>[翻訳] 90% of Developer Portfolios are making this exact same mistake. 🛑</title>
+      <description>&lt;p&gt;I’ve looked at dozens of developer portfolios recently, and almost all of them are making the exact same critical mistake. &lt;/p&gt;
+
+&lt;p&gt;They focus entirely on &lt;em&gt;what&lt;/em&gt; technologies they used, and say absolutely nothing about &lt;em&gt;why&lt;/em&gt; they built it or the &lt;em&gt;impact&lt;/em&gt; it had. &lt;/p&gt;
+
+&lt;p&gt;A project section that says: &lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;"Built a Weather App using React and Tailwind"&lt;/em&gt; &lt;br /&gt;
+is boring. 🥱&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;A project section that says: &lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;"Built a real-time Weather Dashboard in React that caches API requests to reduce load times by 40%, solving the issue of slow refreshes for mobile users"&lt;/em&gt; &lt;br /&gt;
+gets you hired. 💼&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Recruiters and Senior Devs want to see that you can solve actual problems, not just follow a tutorial. They want to know the architecture decisions you made, the bugs you overcame, and why you chose a specific database over another.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;Drop a link to your portfolio in the comments and I’ll give you some honest feedback!&lt;/strong&gt; 👇&lt;/p&gt;</description>
+      <link>https://dev.to/rahul_agarwal18/90-of-developer-portfolios-are-making-this-exact-same-mistake-37ng</link>
+      <pubDate>Sat, 04 Jul 2026 05:49:56 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/rahul_agarwal18/90-of-developer-portfolios-are-making-this-exact-same-mistake-37ng</guid>
+    </item>
+    <item>
+      <title>[翻訳] 5 Chrome Extensions Every Web Developer Should Have Installed 🕸️🔍</title>
+      <description>&lt;p&gt;VS Code extensions are great, but your browser is where the debugging actually happens. Here are 5 Chrome Extensions every Web Developer should have installed.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  🎨 ColorZilla
+&lt;/h3&gt;
+
+&lt;p&gt;Instantly grab the exact hex code of any color on any website. No more inspecting elements just to find a color value.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  📏 VisBug
+&lt;/h3&gt;
+
+&lt;p&gt;An open-source design debugging tool. Let's you tweak spacing, margins, and CSS of live websites visually without having to dig through the DevTools panel.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  🚀 Wappalyzer
+&lt;/h3&gt;
+
+&lt;p&gt;Click one button and instantly see the entire tech stack (Framework, Analytics, UI library, server software) of the website you are currently visiting.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  📱 Responsive Viewer
+&lt;/h3&gt;
+
+&lt;p&gt;See what your web app looks like on multiple screens (iPhone, iPad, Desktop) all at the exact same time. Essential for modern responsive design.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  📝 JSON Viewer Pro
+&lt;/h3&gt;
+
+&lt;p&gt;Stops JSON API responses from looking like a giant wall of unreadable text and formats them beautifully right inside the browser window.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;Am I missing any?&lt;/strong&gt; What Chrome extension can you not live without? 👇&lt;/p&gt;</description>
+      <link>https://dev.to/rahul_agarwal18/5-chrome-extensions-every-web-developer-should-have-installed-3lbg</link>
+      <pubDate>Sat, 04 Jul 2026 05:49:24 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/rahul_agarwal18/5-chrome-extensions-every-web-developer-should-have-installed-3lbg</guid>
+    </item>
+    <item>
+      <title>[翻訳] Stop using the default terminal. You need these 5 CLI tools immediately. ⚡️</title>
+      <description>&lt;p&gt;If you spend more than 10% of your day in the command line, the default terminal is slowing you down. Here are 5 tools you need to install immediately to 10x your speed.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  1️⃣ Zsh + Oh My Zsh
+&lt;/h3&gt;
+
+&lt;p&gt;The absolute standard. Auto-suggestions and themes make navigating directories effortless. If you aren't using this, you are missing out on thousands of community plugins.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  2️⃣ Lazygit
+&lt;/h3&gt;
+
+&lt;p&gt;A simple terminal UI for git commands. No more memorizing complex git flags—just point, click, and push directly from your terminal.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  3️⃣ FZF (Fuzzy Finder)
+&lt;/h3&gt;
+
+&lt;p&gt;Instantly find any file or command in your history by just typing a few letters. It completely eliminates the need to recursively &lt;code&gt;ls&lt;/code&gt; or remember long file paths.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  4️⃣ Zoxide (&lt;code&gt;z&lt;/code&gt;)
+&lt;/h3&gt;
+
+&lt;p&gt;A smarter &lt;code&gt;cd&lt;/code&gt;. It remembers which directories you use most frequently so you can jump to them in one keystroke instead of typing out full absolute paths.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  5️⃣ Bat
+&lt;/h3&gt;
+
+&lt;p&gt;A much better &lt;code&gt;cat&lt;/code&gt; command with syntax highlighting and Git integration built right in. Once you use it to view code files in the terminal, you'll never type &lt;code&gt;cat&lt;/code&gt; again.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;What is your favorite terminal hack?&lt;/strong&gt; Drop it in the comments! 👨‍💻&lt;/p&gt;</description>
+      <link>https://dev.to/rahul_agarwal18/stop-using-the-default-terminal-you-need-these-5-cli-tools-immediately-4ol7</link>
+      <pubDate>Sat, 04 Jul 2026 05:48:41 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/rahul_agarwal18/stop-using-the-default-terminal-you-need-these-5-cli-tools-immediately-4ol7</guid>
+    </item>
+    <item>
+      <title>[翻訳] 5 Hidden AI Developer Tools That Feel Like Cheat Codes in 2026</title>
+      <description>&lt;p&gt;Everyone knows ChatGPT and GitHub Copilot. But here are 5 hidden AI tools for developers that feel like absolute cheat codes in 2026. 🤯👇&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  1️⃣ Cursor IDE
+&lt;/h3&gt;
+
+&lt;p&gt;It’s VS Code on steroids. The AI actually understands your entire codebase and writes multi-file features instantly. Instead of chatting in a separate window, you can just command it to refactor entire components directly inline.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  2️⃣ Console Ninja
+&lt;/h3&gt;
+
+&lt;p&gt;This one is a massive time-saver. It shows your console logs directly next to your code right inside the editor. No more switching back and forth to the browser DevTools just to see what an object looks like or what line triggered an error!&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  3️⃣ v0 by Vercel
+&lt;/h3&gt;
+
+&lt;p&gt;You literally just type what UI you want in plain text, and it generates perfect React and Tailwind code. Need a modern dashboard layout with a sidebar? Type it, and watch the actual code generate in seconds.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  4️⃣ Codeium
+&lt;/h3&gt;
+
+&lt;p&gt;A fantastic, blazing-fast (and completely free!) alternative to Copilot. It offers unlimited autocomplete and a super fast chat window. If you aren't paying for Copilot, you need this installed immediately.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  5️⃣ Phind
+&lt;/h3&gt;
+
+&lt;p&gt;The search engine built specifically for developers. It connects to your codebase and actually gives you working code instead of just giving you a list of StackOverflow links to read through.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;What am I missing?&lt;/strong&gt;&lt;br /&gt;
+Which AI tool has saved you the most time recently? Let me know below in the comments! 👇&lt;/p&gt;</description>
+      <link>https://dev.to/rahul_agarwal18/5-hidden-ai-developer-tools-that-feel-like-cheat-codes-in-2024-5g61</link>
+      <pubDate>Sat, 04 Jul 2026 05:47:56 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/rahul_agarwal18/5-hidden-ai-developer-tools-that-feel-like-cheat-codes-in-2024-5g61</guid>
+    </item>
+    <item>
       <title>[翻訳] Cloudflare Workersで無料のビフォーアフター画像スライダーツールを構築</title>
       <description>ゲームMod紹介用のビフォーアフター画像比較ツール「imgi.co」を開発。ドラッグで画像を比較でき、共有リンク生成、GIF/MP4エクスポート、最大10枚の画像比較に対応。\nCloudflare R2の無償エグレスを活用することで、バンドwidth料金を最小化し、無料ツールの継続運用を実現。Next.js 15、R2、D1を組み合わせたシンプルで低コストなスタック。\nWorkers無料プランの10msというCPU制限を設計段階から考慮し、重い画像エンコーディングをバックグラウンドワーカーに委譲することでエッジでの高速レスポンスを実現。</description>
       <link>https://dev.to/henrik_7c448da6b214e2348b/i-built-a-free-beforeafter-image-slider-on-cloudflare-workers-to-show-off-my-game-mods-2k8</link>
