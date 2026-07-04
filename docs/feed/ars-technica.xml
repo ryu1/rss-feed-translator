@@ -5,6 +5,54 @@
     <description>Ars Technica 日本語翻訳フィード</description>
     <link>https://arstechnica.com</link>
     <item>
+      <title>[翻訳] ロケット業界ニュース：インド新興企業が初打ち上げ間近、SpaceXが歴史的マイルストーン達成</title>
+      <description>NASAがRocket Labと3回の専用打ち上げ契約を締結し、同社のElectronロケットを使用することになった。
+インドの宇宙スタートアップが初めてのロケット打ち上げを目前に控えている。
+SpaceXが商用宇宙輸送における重要な成果を達成した。</description>
+      <link>https://arstechnica.com/space/2026/07/rocket-report-indian-startup-nears-first-launch-spacexs-millenary-milestone/</link>
+      <pubDate>Fri, 03 Jul 2026 13:55:35 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/space/2026/07/rocket-report-indian-startup-nears-first-launch-spacexs-millenary-milestone/</guid>
+    </item>
+    <item>
+      <title>[翻訳] Gen Z のテック企業への怒りに火をつける「ラッダイト祭」の内幕</title>
+      <description>ニューヨークで開催された「Summer of Ludd」フェスティバルは、人々がオフラインで生活する方法を教えている。
+Gen Z世代を中心に、大手テック企業への反発が高まっており、このイベントがその動きを象徴している。
+デジタルデトックスやテクノロジーからの離脱を目指す若者たちの関心が急速に増加している。</description>
+      <link>https://arstechnica.com/culture/2026/07/inside-the-luddite-festival-harnessing-gen-zs-rage-against-big-tech/</link>
+      <pubDate>Fri, 03 Jul 2026 12:00:36 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/culture/2026/07/inside-the-luddite-festival-harnessing-gen-zs-rage-against-big-tech/</guid>
+    </item>
+    <item>
+      <title>[翻訳] 暗闇の中でも見える希望：アメリカの未来への光</title>
+      <description>米国の社会情勢の悪化がいつ頃から始まったのかを特定することは難しい。
+しかし、著者はそれでもなお米国内に希望の兆しが存在していると主張している。
+困難な状況の中でも前向きな変化や可能性を発見できるという、楽観的な視点が示されている。</description>
+      <link>https://arstechnica.com/culture/2026/07/at-250-years-there-are-still-reasons-for-hope-in-america/</link>
+      <pubDate>Fri, 03 Jul 2026 11:30:22 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/culture/2026/07/at-250-years-there-are-still-reasons-for-hope-in-america/</guid>
+    </item>
+    <item>
+      <title>[翻訳] VRで宇宙探訪～星・惑星・天文台を巡る体験</title>
+      <description>VRを通じて星々、系外惑星、そして天文台を訪問するウォークスルー体験が実現した。
+宇宙的なスケールでの探索が仮想空間で可能になり、天文学的な知識を身近に感じられる。
+教育的価値と娯楽性を兼ね備えた新しい宇宙体験の形式として注目を集めている。</description>
+      <link>https://arstechnica.com/culture/2026/07/smithsonian-starstruck-vr-exhibit-lets-you-stroll-through-the-stars/</link>
+      <pubDate>Fri, 03 Jul 2026 11:15:35 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/culture/2026/07/smithsonian-starstruck-vr-exhibit-lets-you-stroll-through-the-stars/</guid>
+    </item>
+    <item>
+      <title>[翻訳] ウィングコマンダーIVが示した映像ゲームの夢と現実</title>
+      <description>クリス・ロバーツが開発した『ウィングコマンダーIV』は、ビデオゲームの中にほぼ映画全編を組み込んだ野心的な作品だった。\nフルモーション動画（FMV）を活用したこのゲームは、ゲーム業界における映像表現の可能性を大きく広げようとしていた。\nしかし、このFMV中心のゲーム作りのトレンドはやがて衰退し、当時の高い期待とは異なる未来へと向かっていった。</description>
+      <link>https://arstechnica.com/gaming/2026/07/wing-commander-iv-and-the-fmv-future-that-never-quite-was/</link>
+      <pubDate>Fri, 03 Jul 2026 11:03:39 +0000</pubDate>
+      <source>Ars Technica</source>
+      <guid isPermaLink="false">https://arstechnica.com/gaming/2026/07/wing-commander-iv-and-the-fmv-future-that-never-quite-was/</guid>
+    </item>
+    <item>
       <title>[翻訳] 新種マルウェア「PamStealer」、macOS向けの典型的な脅威とは一線を画す</title>
       <description>新発見されたPamStealerは、従来のmacOSマルウェアとは異なる特徴を持つ。
 この発見は、Mac向け情報窃取マルウェアの開発に注がれている努力の増加を浮き彫りにしている。

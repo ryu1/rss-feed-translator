@@ -1,15 +1,15 @@
 {
   "https://feeds.arstechnica.com/arstechnica/index": {
-    "last_modified": "Thu, 2 Jul 2026 21:16:14 GMT"
+    "last_modified": "Fri, 3 Jul 2026 15:30:32 GMT"
   },
   "https://hnrss.org/frontpage": {
-    "last_modified": "Fri, 03 Jul 2026 04:16:17 GMT"
+    "last_modified": "Sat, 04 Jul 2026 01:30:49 GMT"
   },
   "https://dev.to/feed": {
-    "etag": "W/\"9b99c91c53be1b3fbafc42f91514f152\""
+    "etag": "W/\"a58b5ac990d1555a56665cc39147838a\""
   },
   "https://feed.infoq.com/": {
-    "etag": "\"1783008481067\"",
-    "last_modified": "Thu, 02 Jul 2026 16:08:01 GMT"
+    "etag": "\"1783098206851\"",
+    "last_modified": "Fri, 03 Jul 2026 17:03:26 GMT"
   }
 }

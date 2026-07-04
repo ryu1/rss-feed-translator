@@ -5,6 +5,76 @@
     <description>InfoQ 日本語翻訳フィード</description>
     <link>https://www.infoq.com</link>
     <item>
+      <title>[翻訳] Cloudflareが統合データプラットフォームを公開、請求業務が全クエリの53%を占める</title>
+      <description>Cloudflareは内部向け統合データプラットフォーム「Town Lake」と、AIアナリティクスエージェント「Skipper」を発表した。
+このプラットフォームは運用、請求、セキュリティ、ビジネスデータへの統一的なアクセスを実現し、約91,000件の請求クエリを処理している。
+Trino、Iceberg、R2、DataHubを活用したレイクハウスアーキテクチャで構築され、自然言語によるアクセスと管理されたクロスシステム分析を可能にしている。</description>
+      <link>https://www.infoq.com/news/2026/07/cloudflare-unified-data-platform/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 03 Jul 2026 14:29:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/cloudflare-unified-data-platform/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Hardwood：依存関係ゼロで高速なJVM向けApache Parquetプロセッシングを実現</title>
+      <description>Gunnar Morling氏が主導するHardwoodプロジェクトがバージョン1.0に到達し、Javaでのパーケットファイル処理を効率化します。
+マルチスレッド処理と外部依存関係ゼロの設計により、Apache Parquet Java実装よりもシンプルで効率的な選択肢を提供します。
+現在は読み込み機能のみをサポートしており、書き込み機能は次のバージョンで実装予定です。</description>
+      <link>https://www.infoq.com/news/2026/07/hardwood-java-parquet/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 03 Jul 2026 12:12:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/hardwood-java-parquet/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] OpenTelemetryがCNCFの最高成熟度レベルに到達</title>
+      <description>Cloud Native Computing Foundation (CNCF)がOpenTelemetryを졸업させ、ファウンデーションの最高成熟度レベルに昇格させた。
+この昇格により、OpenTelemetryは企業での本番環境での使用に対応した製品として正式に認識されることになった。
+これはOpenTelemetryプロジェクトの成熟と信頼性が、業界標準として確立されたことを示している。</description>
+      <link>https://www.infoq.com/news/2026/07/opentelemetry-cncf-maturity/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 03 Jul 2026 12:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/opentelemetry-cncf-maturity/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] ミニブック：エージェンティックAIアーキテクチャ</title>
+      <description>業界の専門家による記事を通じて、今後数年間の業界を支配する新しいソフトウェアアーキテクチャとしてのエージェンティックAIアーキテクチャを確立することを目指しています。
+エージェンティックAIアーキテクチャの各要素と側面をカバーしており、このアーキテクチャが主流に入る際の最新トレンドと開発状況を紹介します。
+InfoQによる最新の業界動向と技術的洞察をまとめた総合的なガイドです。</description>
+      <link>https://www.infoq.com/minibooks/agentic-ai-architecture/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 03 Jul 2026 11:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/minibooks/agentic-ai-architecture/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Oracle、無料枠のAmpere A1コンピュート制限を半減させ、公式発表なし</title>
+      <description>Oracleが公式発表なしに、Always Free Ampere A1の無料枠をCPU 4コアからCPUコア2コアに、メモリ24GBから12GBに削減した。
+サポート担当者の回答が矛盾しており、従量課金アカウントも対象かどうかが不明確な状態が続いている。
+ドキュメントでは全テナントに新制限が適用されると記載されているが、サポートメールでは無料枠アカウントのみと説明されている。</description>
+      <link>https://www.infoq.com/news/2026/07/oracle-cloud-free-tier-limits/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 03 Jul 2026 10:13:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/oracle-cloud-free-tier-limits/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] エンタープライズAIの最適化：実践的な強化学習とAgent RFTの活用</title>
+      <description>OpenAIのAgent RFTプラットフォームを使用し、リアルタイムツール連携とカスタム報酬信号による推論モデルの微調整について紹介。
+強化学習によってコンテキストウィンドウ内の複雑なクレジット割り当て問題を解決する手法を解説。
+エンタープライズ導入事例を通じて、Agent RFTがロングテールトークンループを排除し極めて高い効率性を実現する方法を実証。</description>
+      <link>https://www.infoq.com/presentations/rft-openai-model/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 03 Jul 2026 09:22:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/presentations/rft-openai-model/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Google、マルチプラットフォーム対応のAI生成UI標準「A2UI v0.9」をリリース</title>
+      <description>GoogleがフレームワークにとらわれないAI生成UI標準「A2UI v0.9」をリリースし、AIエージェントが複数プラットフォーム間でUIの意図を宣言できるようになった。
+Python用SDKの新規追加、エラーハンドリングの改善、複数の転送方法など機能が強化され、既存デザインシステムとの整合性が重視されている。
+マイグレーションガイダンスと進化仕様も提供され、開発者がスムーズに導入・移行できる環境が整備されている。</description>
+      <link>https://www.infoq.com/news/2026/07/google-a2ui-genui/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 03 Jul 2026 06:38:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/google-a2ui-genui/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
       <title>[翻訳] SwiftUI、新しいDocumentプロトコルとパフォーマンス向上機能を追加</title>
       <description>WWDC 2026で発表された最新SwiftUIは、ディスクアクセスとスナップショットベースの更新を効率化する新しいDocumentプロトコルを導入。
 リスト、グリッド、セクションのアイテム並び替え機能やスワイプアクション、AsyncImageのキャッシング改善など、プレゼンテーション機能が拡張。

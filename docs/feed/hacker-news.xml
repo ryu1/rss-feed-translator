@@ -5,59 +5,202 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
-      <title>[翻訳] The Free Market Lie: Why Switzerland Has 25 Gbit Internet and America Doesn't</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://stefan.schueller.net/posts/the-free-market-lie/"&gt;https://stefan.schueller.net/posts/the-free-market-lie/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48770647"&gt;https://news.ycombinator.com/item?id=48770647&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 281&lt;/p&gt;
-&lt;p&gt;# Comments: 166&lt;/p&gt;</description>
-      <link>https://stefan.schueller.net/posts/the-free-market-lie/</link>
-      <pubDate>Fri, 03 Jul 2026 04:16:17 +0000</pubDate>
+      <title>[翻訳] CueBench for Developersが公開：コーディングエージェントの性能を測定できるツール</title>
+      <description>開発者向けのベンチマークツール「CueBench for Developers」がリリースされた。
+このツールを使用することで、AIコーディングエージェントがどの程度効果的に機能しているかを評価・スコア化できる。
+Hacker Newsで話題になっており、詳細はapp.cuebench.devで確認可能。</description>
+      <link>https://app.cuebench.dev</link>
+      <pubDate>Sat, 04 Jul 2026 01:30:49 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48770647</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48781865</guid>
     </item>
     <item>
-      <title>[翻訳] Every AI Visibility Tool Is Lying to You</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://canonry.ai/blog/ai-visibility-tools-are-lying"&gt;https://canonry.ai/blog/ai-visibility-tools-are-lying&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48770575"&gt;https://news.ycombinator.com/item?id=48770575&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 12&lt;/p&gt;
-&lt;p&gt;# Comments: 1&lt;/p&gt;</description>
-      <link>https://canonry.ai/blog/ai-visibility-tools-are-lying</link>
-      <pubDate>Fri, 03 Jul 2026 04:06:01 +0000</pubDate>
+      <title>[翻訳] MSI Centerの脆弱性：数秒でシステム権限を奪取される危険性</title>
+      <description>MSI Centerに存在する脆弱性により、攻撃者が数秒でSYSTEM権限（最高権限）を獲得できる問題が報告されている。
+この脆弱性を利用することで、ユーザーのコンピュータが完全に侵害される可能性がある。
+セキュリティ研究者により詳細な技術情報と検証方法が公開されており、MSIユーザーの対応が急務とされている。</description>
+      <link>https://mrbruh.com/msicenter/</link>
+      <pubDate>Sat, 04 Jul 2026 00:57:44 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48770575</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48781688</guid>
     </item>
     <item>
-      <title>[翻訳] 14× faster embeddings: how we rebuilt the ONNX path in Manticore</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://manticoresearch.com/blog/onnx-embeddings-speedup/"&gt;https://manticoresearch.com/blog/onnx-embeddings-speedup/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48770477"&gt;https://news.ycombinator.com/item?id=48770477&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 15&lt;/p&gt;
-&lt;p&gt;# Comments: 1&lt;/p&gt;</description>
-      <link>https://manticoresearch.com/blog/onnx-embeddings-speedup/</link>
-      <pubDate>Fri, 03 Jul 2026 03:49:47 +0000</pubDate>
+      <title>[翻訳] 渡り鳥の驚くべき航行メカニズムが解明される</title>
+      <description>科学者たちが、渡り性スズメ目の野鳥が長距離移動時に使用する航行システムを発見しました。
+このシステムにより、鳥類が季節ごとの正確な渡りを実現しているメカニズムが明らかになりました。
+研究はエクセター大学によるもので、野鳥の生態理解と保全に重要な知見をもたらします。</description>
+      <link>https://news.exeter.ac.uk/faculty-of-environment-science-and-economy/scientists-discover-guidance-system-for-migratory-songbirds/</link>
+      <pubDate>Fri, 03 Jul 2026 23:36:46 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48770477</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48781274</guid>
     </item>
     <item>
-      <title>[翻訳] The Safari MCP server for web developers</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://webkit.org/blog/18136/introducing-the-safari-mcp-server-for-web-developers/"&gt;https://webkit.org/blog/18136/introducing-the-safari-mcp-server-for-web-developers/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48769639"&gt;https://news.ycombinator.com/item?id=48769639&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 24&lt;/p&gt;
-&lt;p&gt;# Comments: 0&lt;/p&gt;</description>
-      <link>https://webkit.org/blog/18136/introducing-the-safari-mcp-server-for-web-developers/</link>
-      <pubDate>Fri, 03 Jul 2026 01:37:11 +0000</pubDate>
+      <title>[翻訳] 脳の思考と視覚を司る神経回路の仕組み</title>
+      <description>脳の思考と視覚機能の連携メカニズムについての研究成果をコロンビア大学エンジニアリング学部が発表。
+神経科学分野における脳の認知機能と視覚処理の相互作用に関する新しい知見を提供。
+Hacker Newsで41ポイント、6件のコメントを獲得している注目トピック。</description>
+      <link>https://www.engineering.columbia.edu/about/news/circuit-lets-your-brain-think-and-see</link>
+      <pubDate>Fri, 03 Jul 2026 22:56:17 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48769639</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780996</guid>
     </item>
     <item>
-      <title>[翻訳] CarPlay Is Additive</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://www.caseyliss.com/2026/7/2/carplay-is-additive-you-dolts"&gt;https://www.caseyliss.com/2026/7/2/carplay-is-additive-you-dolts&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48769397"&gt;https://news.ycombinator.com/item?id=48769397&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 183&lt;/p&gt;
-&lt;p&gt;# Comments: 224&lt;/p&gt;</description>
-      <link>https://www.caseyliss.com/2026/7/2/carplay-is-additive-you-dolts</link>
-      <pubDate>Fri, 03 Jul 2026 01:02:45 +0000</pubDate>
+      <title>[翻訳] アムステルダムが消防署を発明した歴史</title>
+      <description>アムステルダムが近代的な消防組織の起源となった経緯について解説した記事。
+火災対策と都市管理の革新的なアプローチがどのように生まれたかを探る。
+Works in Progressに掲載されたこの記事はHacker Newsで42ポイント、11コメントを獲得。</description>
+      <link>https://worksinprogress.co/issue/how-amsterdam-invented-the-fire-department/</link>
+      <pubDate>Fri, 03 Jul 2026 22:46:18 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48769397</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780913</guid>
+    </item>
+    <item>
+      <title>[翻訳] 巨大な樹木は頂上の枝への水の供給に問題がない</title>
+      <description>研究者らが、巨大な樹木がどのようにして頂部の枝まで水を効率的に輸送しているかを調査した。
+樹木の根から先端までの長距離での水の輸送メカニズムが、従来の物理学的予測よりも優れていることが判明。
+この発見は、樹木がいかに高い背丈を保つことができるかについて、新たな知見を提供する。</description>
+      <link>https://news.exeter.ac.uk/faculty-of-environment-science-and-economy/giant-trees-have-no-trouble-pumping-water-to-top-branches/</link>
+      <pubDate>Fri, 03 Jul 2026 22:40:29 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780870</guid>
+    </item>
+    <item>
+      <title>[翻訳] Steam コントローラーの自動充電システム - パイロットを磁気充電パックに変更するプロジェクト</title>
+      <description>Steam コントローラーの充電ポートをコンピュータビジョンを使用して磁気充電システムに自動変更するプロジェクト。
+GitHub上で公開されており、コミュニティの注目を集めている（Hacker News で 73 ポイント）。
+より便利で安定した充電方式への改善を目指した開発イニシアティブ。</description>
+      <link>https://github.com/FossPrime/Steam-Controller-Auto-Charge</link>
+      <pubDate>Fri, 03 Jul 2026 22:39:50 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780865</guid>
+    </item>
+    <item>
+      <title>[翻訳] 小規模言語モデルにおける分散損失と埋め込み圧縮の相互作用</title>
+      <description>小規模言語モデルでは、埋め込み層の圧縮と分散損失が相互に作用する現象が生じる。
+分散損失がこの圧縮プロセスに対抗する役割を果たし、モデルの性能に影響を与える。
+この研究は小規模LMの最適化と設計改善に向けた新たな知見を提供する。</description>
+      <link>https://chenliu-1996.github.io/projects/LM-Dispersion/</link>
+      <pubDate>Fri, 03 Jul 2026 22:35:47 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780826</guid>
+    </item>
+    <item>
+      <title>[翻訳] GitFut – GitHubの活動を「ワールドカップ選手カード」風に可視化するツール</title>
+      <description>GitHubの統計情報をワールドカップの選手カードのようなデザインで表示するツール。
+ユーザーの開発活動やコントリビューション情報を視覚的で楽しい形式で表現。
+Hacker Newsで話題になり、20ポイント、9件のコメントを獲得。</description>
+      <link>https://gitfut.com</link>
+      <pubDate>Fri, 03 Jul 2026 22:34:16 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780812</guid>
+    </item>
+    <item>
+      <title>[翻訳] Leanstral 1.5：誰もが使える証明支援機能を実装</title>
+      <description>MistralがLeanstral 1.5をリリースし、数学的証明や形式検証のための豊富な機能を提供。
+より多くのユーザーが高度な証明支援ツールにアクセスできるようになることを目指している。
+Hacker Newsで92ポイント、26件のコメントを獲得し、開発者コミュニティから注目を集めている。</description>
+      <link>https://mistral.ai/news/leanstral-1-5/</link>
+      <pubDate>Fri, 03 Jul 2026 22:33:10 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780801</guid>
+    </item>
+    <item>
+      <title>[翻訳] AMD MI355XでGLM5.2が秒速2626トークン処理、Blackwellの半分以下のコストを実現</title>
+      <description>AMD MI355X上でGLM5.2モデルが秒速2626トークンの処理速度を達成。
+NVIDIA Blackwellと比較して2倍以上低い総保有コストで同等またはそれ以上の性能を提供。
+エンタープライズAI推論ワークロードにおけるコスト効率的な選択肢として注目される結果。</description>
+      <link>https://www.wafer.ai/blog/glm52-amd</link>
+      <pubDate>Fri, 03 Jul 2026 21:49:06 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780417</guid>
+    </item>
+    <item>
+      <title>[翻訳] ソフトウェア開発の根本原理を理解する</title>
+      <description>ソフトウェア開発の基礎となる根本的な原理や考え方について解説した記事。
+メンタルモデルを通じて、ソフトウェア設計の本質的なアプローチを探求。
+ハッカーニュースで40ポイントを獲得し、8件のコメントが寄せられている。</description>
+      <link>https://fazamhd.com/mental-models/software/</link>
+      <pubDate>Fri, 03 Jul 2026 21:28:55 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780224</guid>
+    </item>
+    <item>
+      <title>[翻訳] Claude Mythos Previewのリリース時期に深刻な脆弱性が急増</title>
+      <description>Claude Mythos Previewのリリースを前後して、深刻度の高い脆弱性（CVE）の報告が急増していることが報告されている。
+この時期に集中した脆弱性の発見は、新機能のリリースとの相関関係を示唆している可能性がある。
+セキュリティ研究者やコミュニティから、この現象の背景や原因についての関心と議論が集まっている。</description>
+      <link>https://epoch.ai/data-insights/cve-severity-spike</link>
+      <pubDate>Fri, 03 Jul 2026 21:16:16 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48780056</guid>
+    </item>
+    <item>
+      <title>[翻訳] アフリカ大陸でStarlink利用が急速に拡大</title>
+      <description>アフリカの人口増加地域でStarlinkなど衛星インターネットサービスの導入が加速している。
+従来のインフラが不足する地域でも高速通信が可能になり、デジタル格差の解消が進みつつある。
+地域の経済発展や教育、ビジネスの機会拡大に対する期待が高まっている。</description>
+      <link>https://www.economist.com/middle-east-and-africa/2026/07/02/africans-are-turning-to-starlink</link>
+      <pubDate>Fri, 03 Jul 2026 21:08:37 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48779977</guid>
+    </item>
+    <item>
+      <title>[翻訳] Infracost（YC W21）がFinOpsの左シフト実現に向けマーケティングリーダーを採用</title>
+      <description>クラウドインフラのコスト管理プラットフォームを提供するInfracostが、マーケティングリーダーのポジションで採用活動を展開。
+FinOps（Financial Operations）を開発プロセスの早期段階に組み込む「左シフト」の推進を目指している。
+YコンビネーターW21出身のスタートアップが、市場開拓と認知拡大を強化する人材を求めている。</description>
+      <link>https://www.ycombinator.com/companies/infracost/jobs/YTJcFwr-marketing-lead</link>
+      <pubDate>Fri, 03 Jul 2026 21:00:50 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48779906</guid>
+    </item>
+    <item>
+      <title>[翻訳] 応用圏論コース（2018年）</title>
+      <description>UCR（カリフォルニア大学リバーサイド校）で提供されている応用圏論に関する講座。
+圏論の理論的基礎から実践的な応用まで、体系的に学べるコースがオンラインで公開されている。
+Hacker Newsで話題となり、数学とコンピュータサイエンスの交差領域に関心を持つ学習者から注目を集めている。</description>
+      <link>https://math.ucr.edu/home/baez/act_course/index.html</link>
+      <pubDate>Fri, 03 Jul 2026 20:42:00 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48779723</guid>
+    </item>
+    <item>
+      <title>[翻訳] ペガサス・スパイウェアを使用したヨーロッパ議会への諜報活動</title>
+      <description>スパイウェア調査委員会のメンバーが、高度な監視ツール「ペガサス」を使用したハッキング被害に遭った。
+Citizen Labの調査により、ヨーロッパ議会に対する組織的な諜報活動の一部であることが判明している。
+この事件は、各国政府が民主主義機関の監視に対して行ったサイバー攻撃の実例として注目を集めている。</description>
+      <link>https://citizenlab.ca/research/member-of-committee-investigating-spyware-hacked-with-pegasus/</link>
+      <pubDate>Fri, 03 Jul 2026 20:38:26 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48779683</guid>
+    </item>
+    <item>
+      <title>[翻訳] SearXNG：無料のインターネットメタサーチエンジン</title>
+      <description>GitHubで公開されているオープンソースのメタサーチエンジン「SearXNG」に関するニュース。
+Hacker Newsで136ポイント、41件のコメントを獲得し、開発者コミュニティから注目を集めている。
+複数の検索エンジンから結果を集約し、プライバシーを重視した検索体験を提供するプロジェクト。</description>
+      <link>https://github.com/searxng/searxng</link>
+      <pubDate>Fri, 03 Jul 2026 20:15:49 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48779454</guid>
+    </item>
+    <item>
+      <title>[翻訳] FreeBSDがメモリを食い潰す問題</title>
+      <description>FreeBSDでメモリ使用量が予期せず増加する問題についての報告記事。\nユーザーが直面したメモリ枯渇の原因と診断プロセスについて解説。\nHacker Newsで88ポイント、38件のコメントを集めた話題の技術記事。</description>
+      <link>https://crocidb.com/post/freebsd-ate-my-ram/</link>
+      <pubDate>Fri, 03 Jul 2026 19:08:31 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48778757</guid>
+    </item>
+    <item>
+      <title>[翻訳] 国際チェス連盟がクラムニクに対して処分を下す</title>
+      <description>国際チェス連盟（FIDE）の倫理・懲戒委員会がグランドマスターのウラジミール・クラムニクに対する決定を発表した。
+クラムニクは不正行為の疑惑に関連して処分を受けることになった。
+このニュースはHacker Newsで128ポイント、66件のコメントを獲得している。</description>
+      <link>https://www.fide.com/fide-ethics-disciplinary-commission-issues-a-decision-in-case-involving-gm-vladimir-kramnik/</link>
+      <pubDate>Fri, 03 Jul 2026 17:04:08 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48777266</guid>
     </item>
     <item>
       <title>[翻訳] GitHubの公開リポジトリがCD-ROMで入手可能に</title>
