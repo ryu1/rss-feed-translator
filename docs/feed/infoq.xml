@@ -5,6 +5,16 @@
     <description>InfoQ 日本語翻訳フィード</description>
     <link>https://www.infoq.com</link>
     <item>
+      <title>[翻訳] Cycleがヨーロッパ向けコントロールプレーンを導入、主権問題の議論が続く中</title>
+      <description>Cycleがヨーロッパ拠点のコントロールプレーンを新たに導入し、欧州顧客がプラットフォーム管理データとテレメトリをヨーロッパ内に保持できるようにした。
+この新しいサービスは、ヨーロッパの組織向けにコンプライアンス、運用の独立性、対応性の向上を実現することを目的としている。
+データソブリンティティに関する国際的な議論が高まる中での、ヨーロッパ市場への戦略的対応といえる。</description>
+      <link>https://www.infoq.com/news/2026/07/cycle-eu-control-plane/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Sat, 04 Jul 2026 08:15:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/cycle-eu-control-plane/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
       <title>[翻訳] Cloudflareが統合データプラットフォームを公開、請求業務が全クエリの53%を占める</title>
       <description>Cloudflareは内部向け統合データプラットフォーム「Town Lake」と、AIアナリティクスエージェント「Skipper」を発表した。
 このプラットフォームは運用、請求、セキュリティ、ビジネスデータへの統一的なアクセスを実現し、約91,000件の請求クエリを処理している。
