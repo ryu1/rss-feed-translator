@@ -5,6 +5,126 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] JavaScriptの正規表現デバッグにテストマトリックスワークフローを活用する</title>
+      <description>正規表現は単体では正しくても、フラグやUnicode表現、APIの使用方法、共有RegExpオブジェクトの可変状態により実際のアプリケーションで失敗することがある。
+入力、パターン・フラグ、コンシューマーAPI、期待結果・状態の4つの軸をテストマトリックスで検証することで、「別のパターンを試す」という非効率なデバッグから脱却できる。
+Node.js検証スクリプトと厳密なアサーションを組み合わせた実行可能なテストマトリックスを作成し、正規表現の動作を系統的に検証することが重要である。</description>
+      <link>https://dev.to/yip_chipen_dec986ea391232/a-test-matrix-workflow-for-debugging-javascript-regular-expressions-i18</link>
+      <pubDate>Mon, 13 Jul 2026 06:03:18 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/yip_chipen_dec986ea391232/a-test-matrix-workflow-for-debugging-javascript-regular-expressions-i18</guid>
+    </item>
+    <item>
+      <title>[翻訳] Python Persona：あなたのPythonスキルレベルを可視化するアプリ</title>
+      <description>GitHubユーザーのPythonコードを分析し、開発者のプロフィールを可視化するデスクトップアプリ。フレームワークやパッケージ、コードパターンを自動検出し、すべてのデータポイントがGitHubの該当行へリンク。
+Gemini 2.0 Flashを活用したAI学習ロードマップ機能により、学びたいトピックを選ぶと基礎から段階的に学習できる逆依存グラフを生成。
+Snowflakeにすべての分析結果を保存し、複数の開発者コードを比較でき、不足しているパッケージや未使用機能、学ぶべきリポジトリを提案。</description>
+      <link>https://dev.to/sojinsamuel/python-persona-how-strong-of-a-pythonista-are-you-48ga</link>
+      <pubDate>Mon, 13 Jul 2026 06:03:10 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sojinsamuel/python-persona-how-strong-of-a-pythonista-are-you-48ga</guid>
+    </item>
+    <item>
+      <title>[翻訳] 本のサイズのミニPCでデスクトップタワーを置き換えた</title>
+      <description>著者が大型デスクトップをLeaderhub LP5Cというミニpc（約14×12×5cm）に置き換え、セットアップの簡単さと静かさ、省電力性に満足している。
+ブラウザタブ、Slack、VS Code、ターミナルなど日常的な作業を快適に処理でき、デュアルHDMI、WiFi 6、柔軟なストレージなど実用的な機能を備えている。
+ハイエンドな3D rendering や4K動画編集には不向きだが、ほとんどのユーザーの日常業務には十分な性能で、消費電力も旧タワーの1/7以下に削減できた。</description>
+      <link>https://dev.to/p_ww_c73f5439cf53509ab1dc/i-replaced-my-desktop-tower-with-a-box-the-size-of-a-book-4b5g</link>
+      <pubDate>Mon, 13 Jul 2026 06:02:16 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/p_ww_c73f5439cf53509ab1dc/i-replaced-my-desktop-tower-with-a-box-the-size-of-a-book-4b5g</guid>
+    </item>
+    <item>
+      <title>[翻訳] 2026年のCPU上でのLLM実行：4コアXeonサーバーでの実ベンチマーク</title>
+      <description>月額40ドルの4コアCPU・8GBメモリVPSでLlama 3.1 8Bを毎秒3～4トークンで実行可能。llama.cpp + GGUF量子化により、GPU不要でAPI利用を70%削減。
+
+Mistral 7B Q4_K_M量子化モデルが最適で毎秒4.5トークン、スペキュレイティブデコーディングで40%高速化可能。本番環境ではCPU推論とAPI呼び出しのハイブリッド運用が実用的。
+
+テキスト分類・コード生成・バッチ処理など時間制約のないタスク向けの有効な選択肢だが、リアルタイムチャットや高スループット処理には不向き。</description>
+      <link>https://dev.to/manoir_yantai_f22f01340f0/-running-llms-on-cpu-in-2026-real-benchmarks-from-a-4-core-xeon-server-a-4-57c6</link>
+      <pubDate>Mon, 13 Jul 2026 06:00:49 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/manoir_yantai_f22f01340f0/-running-llms-on-cpu-in-2026-real-benchmarks-from-a-4-core-xeon-server-a-4-57c6</guid>
+    </item>
+    <item>
+      <title>[翻訳] GhostLock：15年前のLinuxカーネルに潜んでいたメモリ脆弱性を解明</title>
+      <description>GhostLock（CVE-2023-1228）は2008年にまでさかのぼるLinuxカーネルのスタック領域における解放後使用（UAF）脆弱性で、15年間も発見されずにいた重大なメモリ安全性の問題です。
+この脆弱性はtty_ldisc構造体の参照カウント処理における競合状態を悪用し、レース条件を通じてスタック上の制御フローを改ざんすることで、カーネル権限での任意コード実行が可能でした。
+Linuxは参照カウント処理の修正、スタックカナリアの強化、KASAN導入などで対策し、開発者は参照カウントの厳密な検証とロック機構の実装、セキュリティ解析ツールの活用が重要という教訓が得られました。</description>
+      <link>https://dev.to/tamizuddin/ghostlock-uncovering-the-15-year-old-linux-stack-use-after-free-vulnerability-3ekn</link>
+      <pubDate>Mon, 13 Jul 2026 06:00:37 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/tamizuddin/ghostlock-uncovering-the-15-year-old-linux-stack-use-after-free-vulnerability-3ekn</guid>
+    </item>
+    <item>
+      <title>[翻訳] DevOps教育の課題を解決：実践的な学習環境プラットフォームの構築</title>
+      <description>DevOps講師が直面する問題は、学生が講義直後は理解しても2週間後には実践できなくなることであり、その原因は「知識を得る」と「実際に手を動かして習得する」の間に存在するギャップにある。
+既存のオンライン学習プラットフォーム（クラウドラボ、ブラウザプレイグラウンド）は費用やアクセス制限の問題があり、経済的余裕や環境が限られた学習者には不十分である。
+そこで開発者たちは、ローカル環境で動作し、アカウント登録や料金不要で、壊れた環境を実際に修復して検証する実践型学習ツールの構築に着手している。</description>
+      <link>https://dev.to/aboutmanabi/i-teach-devops-two-weeks-later-they-cant-do-it-so-were-building-the-practice-layer-540g</link>
+      <pubDate>Mon, 13 Jul 2026 06:00:00 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/aboutmanabi/i-teach-devops-two-weeks-later-they-cant-do-it-so-were-building-the-practice-layer-540g</guid>
+    </item>
+    <item>
+      <title>[翻訳] Tyson：スマートフォンを高性能ワイヤレスマイクに変える無料アプリ</title>
+      <description>Flutterで開発された「Tyson」は、2台のスマートフォンを使用して、カメラ用と高品質マイク用に分けることで、300ドル以上の高価な外付けマイク機材なしにスタジオレベルの音声を実現するアプリ。
+屋内・屋外の環境プリセット、ノイズゲート、複数のDSPボイスプロファイルなど、クリエイター向けの実用的な機能を備え、ワイコード転送で撮影デバイス間の自動ファイル同期に対応。
+週末チャレンジで開発されたこのアプリは、AndroidのAPKが配布されており、低レイテンシー音声処理とシンプルなQRペアリングUIにより、個人クリエイターの制作ワークフローの課題を解決することを目指している。</description>
+      <link>https://dev.to/thisisfeekey/tyson-knockout-audio-for-solo-creators-without-the-300-hardware-weekend-challenge-5dj8</link>
+      <pubDate>Mon, 13 Jul 2026 05:38:01 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/thisisfeekey/tyson-knockout-audio-for-solo-creators-without-the-300-hardware-weekend-challenge-5dj8</guid>
+    </item>
+    <item>
+      <title>[翻訳] 朝食前に完成させた、棚上げしていた翻訳アプリ「Horizon」</title>
+      <description>旅行者向けの音声翻訳アプリ「Horizon」を開発。マイクボタンを押すだけで、自動的に言語を判定して翻訳し、相手の言語で音声で返す機能を実装。
+アプリ開発スキルがなくWebのみの開発経験から、Vercelサーバーレス関数とNext.jsを使ってWebアプリとして実現。Geminiで言語判定と翻訳を同時処理し、ElevenLabsで音声合成することで、ユーザーはシンプルなインターフェースで会話可能。
+「ビジネスを始めたいけど失敗続き」という悩みの中で、このアイデアを実際にプロトタイプとして形にすることで、「本当のものを作り上げることを諦めない」ことの大切さを体験。</description>
+      <link>https://dev.to/tammibriggs/building-horizon-turning-a-shelved-app-idea-into-a-live-voice-translator-in-one-weekend-4i7f</link>
+      <pubDate>Mon, 13 Jul 2026 05:31:59 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/tammibriggs/building-horizon-turning-a-shelved-app-idea-into-a-live-voice-translator-in-one-weekend-4i7f</guid>
+    </item>
+    <item>
+      <title>[翻訳] MERN Stack学習145日目：Mongooseユーザーデータスキーマの実装と検証</title>
+      <description>MERN Stackプロジェクト「Sprintix」でMongooseを使用したユーザーデータモデル層の構築を完了し、スキーマの統合パラメータの検証に成功した。
+ユーザーアカウント情報に対する厳密なフィールド検証制約の設定や、メールの一意性チェックなど、セキュアなデータスキーマ設計を実装した。
+MongoDBのODMが空のサブドキュメントを自動削除する挙動を回避するため、minimize:falseオプションを設定し、ショッピングカートなどの動的追跡オブジェクトに対応させた。</description>
+      <link>https://dev.to/ali_hamza_589ec7b3eb6688d/day-145-of-learning-mern-stack-472p</link>
+      <pubDate>Mon, 13 Jul 2026 05:28:03 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ali_hamza_589ec7b3eb6688d/day-145-of-learning-mern-stack-472p</guid>
+    </item>
+    <item>
+      <title>[翻訳] Gemini AIを使った究極のサッカー選手比較アプリ「FutboLeyendas」</title>
+      <description>サッカー史上最高の選手は誰かという議論をAIで決着させるWebアプリ。ReactとViteで構築され、ユーザーが重視する要素（得点力、ワールドカップ、プレースタイル、プレッシャー下での能力）をスライダーで調整できる。
+21人のサッカーレジェンドの実際の統計データと、ユーザーがカスタマイズした重み付けをGoogle Geminiに送信することで、客観的かつ詳細な判定を得られる仕組み。
+ダークテーマの洗練されたUI、リアルタイム属性調整、そしてAIによる中立的な判断が、感情的なサッカー議論を統計と人工知能の力で解決する。</description>
+      <link>https://dev.to/eliezer_josepolidorsola/futboleyendas-el-olimpo-del-futbol-con-gemini-ai-3phn</link>
+      <pubDate>Mon, 13 Jul 2026 05:27:39 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/eliezer_josepolidorsola/futboleyendas-el-olimpo-del-futbol-con-gemini-ai-3phn</guid>
+    </item>
+    <item>
+      <title>[翻訳] Spring PetClinicへのSpecmaticコントラクトテスト統合：シンプルなDELETEテストが教えてくれたテストアーキテクチャの課題</title>
+      <description>Spring PetClinic RESTプロジェクトへのSpecmaticコントラクトテスト導入により、APIのスキーマ違反だけでなく、テストインフラストラクチャ自体の制限が明らかになった経験を共有する記事。
+初期的には221シナリオ中7つのテスト失敗が発生し、POST /visitsの必須フィールド欠落（petId）とDELETEのデータ分離不足という2つの根本原因を特定した。
+DELETEテストの失敗は単なるスキーマ問題ではなく、テスト間でのデータベースリセット機能の欠如という構造的な課題であり、本当のテスト改善にはテストインフラの改革が必要であることを学んだ。</description>
+      <link>https://dev.to/krameshr/-integrating-specmatic-contract-testing-into-spring-petclinic-rest-what-a-simple-delete-test-5he1</link>
+      <pubDate>Mon, 13 Jul 2026 05:24:42 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/krameshr/-integrating-specmatic-contract-testing-into-spring-petclinic-rest-what-a-simple-delete-test-5he1</guid>
+    </item>
+    <item>
+      <title>[翻訳] システム障害への対処方法 - 検出後のアクション戦略を学ぶ</title>
+      <description>障害を検出するだけでは不十分で、その後の適切な対応（ハンドリング）が重要。リトライ、指数バックオフ、フォールバック、キュー、サーキットブレーカー、グレースフルデグラデーション、デッドレターキューという7つのツールと、それぞれの使い分けを実例とともに解説。\n特にリトライは冪等性のない支払い関連の処理では二重課金などの深刻な問題につながるため、失敗の種類に応じた正しいツール選択が必須。\nNode.jsの実装コード例を交えながら、キュー処理による非同期化やサーキットブレーカーによる無駄な呼び出し防止など、本番環境での障害対応の実践的なパターンを紹介。</description>
+      <link>https://dev.to/surajrkhonde/failure-engineering-explained-by-uncle-to-nephew-episode-4-failure-handling-1foe</link>
+      <pubDate>Mon, 13 Jul 2026 05:23:38 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/surajrkhonde/failure-engineering-explained-by-uncle-to-nephew-episode-4-failure-handling-1foe</guid>
+    </item>
+    <item>
       <title>[翻訳] 戦略的なログ出力：デバッグの秘訣</title>
       <description>本番環境でのバグ発生時、多くの開発者は無作為に修正を試みるか、パニックに陥るかのいずれかである。著者は戦略的なログ出力を学ぶことで、この問題を系統的に解決できるようになった。
 戦略的なログ出力とは、単にコードが特定のポイントに到達したことを記録するのではなく、その時点でのデータ状態、実行パス、環境コンテキストを意図的に記録することである。
