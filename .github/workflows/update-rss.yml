@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
       - uses: astral-sh/setup-uv@v7
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --frozen
       - name: Run pipeline
         run: uv run python main.py
         env:
