@@ -5,6 +5,152 @@
     <description>InfoQ 日本語翻訳フィード</description>
     <link>https://www.infoq.com</link>
     <item>
+      <title>[翻訳] Cloudflareが人気のRustライブラリ「hyper」のHTTP/1実装における競合状態のバグを発見</title>
+      <description>CloudflareのチームがRustのHTTP通信ライブラリ「hyper」で、大規模なHTTPレスポンスが200 OKステータスを返しながら無音で切り詰められるバグを発見・修正した。
+このバグは数年間存在していたが、特定のタイミング条件下でのみ発生する稀な問題だった。
+現在は修正され、上流のコードベースにマージされている。</description>
+      <link>https://www.infoq.com/news/2026/07/cloudflare-hyper-bug-fix/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Sun, 12 Jul 2026 06:18:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/cloudflare-hyper-bug-fix/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Cloudflareが自律型ワーカーのデプロイ向けに一時的なアカウント機能を発表</title>
+      <description>CloudflareはAIエージェントが永続アカウントを作成・認証せずにCloudflare Workersを即座にデプロイできる一時アカウント機能を導入した。
+一時アカウントと関連するデプロイメントは、請求されない場合は60分後に自動的に失効する。
+この機能によりAIエージェントのワーカー利用が簡素化され、迅速なテストやデプロイメントが可能になる。</description>
+      <link>https://www.infoq.com/news/2026/07/cloudflare-temp-accounts/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 10 Jul 2026 15:16:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/cloudflare-temp-accounts/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] SlackがAIエージェント活用したUI自動テストを導入、テストの堅牢性を向上</title>
+      <description>SlackエンジニアリングがAI駆動のエージェント型テスト手法を導入し、固定スクリプトではなく意図に基づいてワークフローを実行するアプローチを実現。
+このAIエージェントはランタイム時にUIやシステムの変更に動的に適応し、分散システムにおける脆弱なテストの問題を軽減。
+既存のユニットテスト、統合テスト、E2Eテストといった決定論的なテスト戦略を補完するものとして機能する。</description>
+      <link>https://www.infoq.com/news/2026/07/slack-agentic-e2e-testing-ui/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 10 Jul 2026 13:48:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/slack-agentic-e2e-testing-ui/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] 大規模GPUクラスターにおけるカオスエンジニアリング</title>
+      <description>AIインフラの最前線において、大規模GPUクラスターに対するカオスエンジニアリングの実践方法について解説。
+複雑なトポロジー、RDMAなどのネットワークプロトコル、NUMAのミスアライメント問題に対するエンジニアリングリーダーの対応方法を紹介。
+数百万ドル規模のハードウェア効率を最大化し、堅牢な可観測性ループを構築するための7つの実践的なフォルトインジェクション戦略を提案。</description>
+      <link>https://www.infoq.com/presentations/chaos-engineering-gpu/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 10 Jul 2026 13:42:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/presentations/chaos-engineering-gpu/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Linux Foundation、AI駆動型の脅威からオープンソースソフトウェアを守る新イニシアティブ「Akrites」を発表</title>
+      <description>Linux Foundationが、AI技術を活用したサイバー脅威から重要なオープンソースソフトウェアを守るための業界横断的な新イニシアティブ「Akrites」を立ち上げた。
+この取り組みは、急速に進化するAI駆動型のセキュリティ脅威に対抗するために設計されている。
+オープンソースエコシステムの保護を強化することが目的である。</description>
+      <link>https://www.infoq.com/news/2026/07/akrites-open-source-ai-threats/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 10 Jul 2026 12:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/akrites-open-source-ai-threats/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] GitHub Copilot CLIがタブ機能と設定ファイル不要のセットアップ機能を搭載した新しいターミナルUIで利用可能に</title>
+      <description>GitHubが再設計されたGitHub Copilot CLIのターミナルインターフェースを正式リリースした。
+セッション、Gists、Issues、プルリクエスト用のタブレイアウト、手動での設定ファイル編集を避けるMCPサーバーやスキル、プラグインの設定機能が追加された。
+スクリーンリーダー対応を含む、より清潔でテーマ対応のアクセシブルなUIを実現している。</description>
+      <link>https://www.infoq.com/news/2026/07/copilot-cli-terminal-ga/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 10 Jul 2026 10:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/copilot-cli-terminal-ga/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] マルチリージョンアーキテクチャにおけるトレードオフ：レイテンシーとコストのバランス</title>
+      <description>クラウドリージョンの追加はレイテンシーとコストに複雑な影響を与えるため、単純な計算では対応できない。
+複数のプロジェクト経験から、インフラ決定前にレイテンシー予算を分解し、一貫性とトラフィックプロファイルに基づいてデプロイメントパターンを選択し、リージョン拡張前に最適化することが重要。
+段階的なアプローチにより、新しいリージョン追加前のルーティング最適化だけで35%のレイテンシー削減が達成でき、最終的に60ms以下に抑えることができた。</description>
+      <link>https://www.infoq.com/articles/multi-region-latency-cost-tradeoffs/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 10 Jul 2026 09:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/articles/multi-region-latency-cost-tradeoffs/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] AI時代における全エンジニアのための形式手法：Quintの活用と実践</title>
+      <description>Quint仕様言語を通じて形式手法を誰もが使えるようにする取り組みについて、AIがいかに形式仕様とモデルベーステストの参入障壁を低下させているかを解説。\nAI駆動の時代においても、システムの正しい動作を定義することは人間による本質的な作業であり、その重要性は変わらないことを強調。\n形式手法の民主化とAI技術の融合により、あらゆるエンジニアが高度な検証技術にアクセス可能になる展望を示す。</description>
+      <link>https://www.infoq.com/podcasts/formal-methods-ai-powered-future/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 10 Jul 2026 09:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/podcasts/formal-methods-ai-powered-future/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] DatadogがClaudeとCursorを活用した本番環境システムのテスト駆動型移行</title>
+      <description>Datadogのエンジニアが、AIを使用して本番環境の重要なシステムを進化させ、ストレージバックエンドの制限を克服した事例を共有。
+テスト駆動開発アプローチでClaudeとCursorを活用し、パフォーマンスを大幅に改善することに成功。
+プロジェクトを通じて得られた成功事例と失敗事例、教訓をまとめた内容を紹介。</description>
+      <link>https://www.infoq.com/news/2026/07/datadog-ai-production-migration/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 10 Jul 2026 08:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/datadog-ai-production-migration/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] WordPress 7.0がリリース、AIの基盤機能とモダンな管理画面、新しいデザインツールを搭載</title>
+      <description>WordPress 7.0は2026年5月20日にリリースされ、AI基盤機能、再設計された管理画面、AIクライアントやAbilities API、Command Paletteなどの新機能を搭載。
+PHP要件の引き上げも行われており、特にAI統合機能についてコミュニティからの反応は様々。
+アップグレードの詳細はオフィシャルドキュメントを確認することが推奨されている。</description>
+      <link>https://www.infoq.com/news/2026/07/wordpress-7-ai/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Fri, 10 Jul 2026 06:30:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/wordpress-7-ai/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] Netflixのデータ処理を加速化：オフラインからオンラインへの組織横断的な改革</title>
+      <description>Netflixがクラウドストリーミング基盤のCloudStreamへのアーキテクチャ転換を実施し、データの取得・変換・デプロイメントの反復可能なフレームワークを構築。
+キーバリュー抽象化をステートレスからステートフルに移行することで、大規模なデータを安全に移行。
+ソフトウェアアーキテクトがデータアクセスパターンの活用とプロトタイピングにより、デプロイメント速度を99%高速化した事例を共有。</description>
+      <link>https://www.infoq.com/presentations/netflix-data-offline-online/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Thu, 09 Jul 2026 15:20:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/presentations/netflix-data-offline-online/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] オープンソースがプラットフォーム構築における協働を実現する方法</title>
+      <description>プラットフォームは協働システムであり、プラットフォームチームとアプリケーションチームの相互依存と共有標準が重要である。
+エンジニアはプラットフォームの機能ではなく、予測可能な振る舞いを通じて信頼を構築する。
+エンジニアリングは問題解決への情熱を持つことであり、その情熱を他者と共有することが求められる。</description>
+      <link>https://www.infoq.com/news/2026/07/open-source-platform/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Thu, 09 Jul 2026 11:53:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/open-source-platform/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] OpenAIが18年前のGNU libunwindバグを修正——疫学的アプローチでクラッシュ分析を革新</title>
+      <description>OpenAIはChatGPTのデータインフラで複数の独立したバグを発見。Azureホストのサイレント・ハードウェア破損と、GNU libunwindの18年前の競合状態が1命令のウィンドウで発生していた。\n従来の個別コアダンプ分析から、母集団レベルのクラッシュ分析へのアプローチ転換により、問題の特定に成功した。\n疫学的手法をデバッグに応用することで、複雑な相互作用するバグの根本原因を特定できることが実証された。</description>
+      <link>https://www.infoq.com/news/2026/07/openai-libunwind-core-dumps/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Thu, 09 Jul 2026 10:15:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/openai-libunwind-core-dumps/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] モバイル音声ストリーミングのビート同期再生：仮想チャンクとネイティブ再生の活用</title>
+      <description>React Nativeを使用したiOS/Android向けのリアルタイムビート同期音声再生システムの設計と実装について解説。
+パーソナライゼーション、低遅延、シームレスなナビゲーションを組み合わせたシステムの構築方法を紹介。
+モバイル環境とネットワークの制約を踏まえながらユーザー期待を満たすための設計手法と実験結果を共有。</description>
+      <link>https://www.infoq.com/articles/android-beat-aligned-mobile-audio-streaming/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Thu, 09 Jul 2026 09:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/articles/android-beat-aligned-mobile-audio-streaming/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
+      <title>[翻訳] AlloyDBがプロキシモデルを導入、LLM呼び出しをデータベース内のローカル推論に置き換え</title>
+      <description>GoogleはAlloyDB AI functionsをGA（一般提供）開始し、LLMの出力から軽量なローカルモデルを学習させるプロキシモデルアーキテクチャを搭載した。
+これによりクエリをデータベース速度で実行でき、外部APIへの呼び出しが不要になり、スマートバッチ処理により最大2,400倍のスループット向上を実現。
+プレビュー段階では秒間100,000行の処理が可能だが、ベンチマーク結果は内部テストの限定的な環境にのみ適用される。</description>
+      <link>https://www.infoq.com/news/2026/07/alloydb-ai-proxy-models/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</link>
+      <pubDate>Thu, 09 Jul 2026 08:00:00 +0000</pubDate>
+      <source>InfoQ</source>
+      <guid isPermaLink="false">https://www.infoq.com/news/2026/07/alloydb-ai-proxy-models/?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global</guid>
+    </item>
+    <item>
       <title>[翻訳] Cycleがヨーロッパ向けコントロールプレーンを導入、主権問題の議論が続く中</title>
       <description>Cycleがヨーロッパ拠点のコントロールプレーンを新たに導入し、欧州顧客がプラットフォーム管理データとテレメトリをヨーロッパ内に保持できるようにした。
 この新しいサービスは、ヨーロッパの組織向けにコンプライアンス、運用の独立性、対応性の向上を実現することを目的としている。
