@@ -1,8 +1,4 @@
 feeds:
-  - name: Ars Technica
-    url: https://feeds.arstechnica.com/arstechnica/index
-    output_path: docs/feed/ars-technica.xml
-    link_url: https://arstechnica.com
   - name: Hacker News
     url: https://hnrss.org/frontpage
     output_path: docs/feed/hacker-news.xml
@@ -11,11 +7,6 @@ feeds:
     url: https://dev.to/feed
     output_path: docs/feed/dev-community.xml
     link_url: https://dev.to
-  - name: InfoQ
-    url: https://feed.infoq.com/
-    output_path: docs/feed/infoq.xml
-    link_url: https://www.infoq.com
-
 translator:
   engine: google
   daily_char_limit: 15000  # 省略時は無制限。エンジン問わず1日の翻訳文字数を制限したい場合に設定。

@@ -21,7 +21,7 @@
 
 ---
 
-**RSSフィード**: [Ars Technica](https://ryu1.github.io/rss-feed-translator/feed/ars-technica.xml) · [Hacker News](https://ryu1.github.io/rss-feed-translator/feed/hacker-news.xml) · [DEV Community](https://ryu1.github.io/rss-feed-translator/feed/dev-community.xml) · [InfoQ](https://ryu1.github.io/rss-feed-translator/feed/infoq.xml)
+**RSSフィード**: [Hacker News](https://ryu1.github.io/rss-feed-translator/feed/hacker-news.xml) · [DEV Community](https://ryu1.github.io/rss-feed-translator/feed/dev-community.xml)
 
 **翻訳・要約レポート**: [report.html](https://ryu1.github.io/rss-feed-translator/report.html)
 
