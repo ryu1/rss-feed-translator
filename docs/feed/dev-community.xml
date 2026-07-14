@@ -5,6 +5,2494 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] Managing i18n keys in React without losing your mind (without leaving your IDE)</title>
+      <description>&lt;p&gt;&lt;strong&gt;&lt;code&gt;t('common:user.profile.title')&lt;/code&gt;… and now you just &lt;em&gt;hope&lt;/em&gt; that key actually exists.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;On any serious i18next project, you end up typing keys blind. Does the key exist? In which namespace? What's its value? Is it translated in &lt;em&gt;every&lt;/em&gt; language, or just English? To find out, you open &lt;code&gt;en/common.json&lt;/code&gt;, hit Ctrl+F, scroll, come back. Multiply by 200 keys and 5 locales and it's a daily tax on your focus.&lt;/p&gt;
+
+&lt;p&gt;The real problem isn't i18next. It's that &lt;strong&gt;your keys and your translations live in files your editor treats as dead text.&lt;/strong&gt; A string in the code, a JSON next door, and zero link between the two.&lt;/p&gt;
+
+&lt;p&gt;I've been maintaining and heavily extending a JetBrains plugin (&lt;strong&gt;I18n Support Plus&lt;/strong&gt;) to restore that link. The idea fits in one sentence: &lt;strong&gt;your i18n keys become first-class references in the IDE&lt;/strong&gt;, exactly like code symbols. Here's concretely what that changes.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  1. See a key's status without opening a single file
+&lt;/h2&gt;
+
+&lt;p&gt;The plugin colors each key by its resolution state, right in the code:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;key resolved in &lt;strong&gt;every&lt;/strong&gt; locale,&lt;/li&gt;
+&lt;li&gt;a segment that doesn't exist (&lt;code&gt;user.profil&lt;/code&gt; instead of &lt;code&gt;user.profile&lt;/code&gt;),&lt;/li&gt;
+&lt;li&gt;namespace file not found,&lt;/li&gt;
+&lt;li&gt;key pointing to an object instead of a value,&lt;/li&gt;
+&lt;li&gt;key translated in &lt;strong&gt;some&lt;/strong&gt; locales only (partial translation).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A gutter badge (✅ / ⚠️ / ❌) gives the verdict at a glance. A red key is a bug caught &lt;em&gt;before&lt;/em&gt; the commit, not in QA.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  2. Ctrl+Click → the translation. And back again.
+&lt;/h2&gt;
+
+&lt;p&gt;Ctrl+Click on a key takes you &lt;strong&gt;straight to the value&lt;/strong&gt; in the right JSON/YAML file, even if the key is only partially resolved (it jumps to the deepest resolved node).&lt;/p&gt;
+
+&lt;p&gt;And it works both ways: from a translation entry, you find where it's used in the code. No more "is this key still used anywhere?".&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  3. Autocomplete knows your keys
+&lt;/h2&gt;
+
+&lt;p&gt;As you type &lt;code&gt;t('&lt;/code&gt;, the plugin suggests the project's real keys, &lt;strong&gt;namespaces included&lt;/strong&gt;. You no longer guess, you pick. Suggestions come from all your translation files, not a stale index.&lt;/p&gt;
+
+&lt;p&gt;Both &lt;code&gt;useTranslation('common')&lt;/code&gt; and &lt;code&gt;useTranslation(['common', 'auth'])&lt;/code&gt; are handled: completion knows which namespace you're in. Even &lt;strong&gt;dynamic keys&lt;/strong&gt; like &lt;code&gt;t(`common:role.${role}`)&lt;/code&gt; are resolved through wildcards instead of being flagged as broken.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  4. Read the code with the actual sentences
+&lt;/h2&gt;
+
+&lt;p&gt;Two ways to stop reading cryptic keys:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Inlay hints&lt;/strong&gt;: the translated value shows up in grey right after the key, without touching the file.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Code folding&lt;/strong&gt; (&lt;code&gt;Ctrl+Alt+Shift+T&lt;/code&gt;): replaces the key with its translation inline. Your JSX reads like the real UI.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And on hover (Ctrl+hover), a tooltip shows &lt;strong&gt;all locales side by side&lt;/strong&gt;, missing ones marked &lt;code&gt;—&lt;/code&gt;, with a direct link to the file.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  5. Extract a hardcoded string in one keystroke
+&lt;/h2&gt;
+
+&lt;p&gt;Wrote &lt;code&gt;&amp;lt;h1&amp;gt;User profile&amp;lt;/h1&amp;gt;&lt;/code&gt; hardcoded? &lt;strong&gt;Alt+Enter → Extract i18n key.&lt;/strong&gt; The plugin:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;creates the key in your translation file(s),&lt;/li&gt;
+&lt;li&gt;lets you pick/create the namespace on the fly,&lt;/li&gt;
+&lt;li&gt;replaces the string with the matching &lt;code&gt;t()&lt;/code&gt; call,&lt;/li&gt;
+&lt;li&gt;can insert the key alphabetically (option).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This is the gesture that turns "I'll deal with i18n later" into "it's already done".&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  6. The translation dashboard
+&lt;/h2&gt;
+
+&lt;p&gt;A dedicated tool window pulls it all together:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Tree view&lt;/strong&gt;: the key hierarchy, color-coded nodes (red = missing, orange = empty), double-click to edit.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Table view&lt;/strong&gt;: one column per locale + a &lt;strong&gt;usage&lt;/strong&gt; counter. The &lt;strong&gt;Scan Orphans&lt;/strong&gt; button lists keys no code uses anymore: right-click to delete them.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Keys Synchronizer&lt;/strong&gt;: a key exists in &lt;code&gt;en.json&lt;/code&gt; but not &lt;code&gt;fr.json&lt;/code&gt;? One click propagates it across all locales, with a dialog to fill in the missing values in bulk.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Stats&lt;/strong&gt;: completion rate per locale (total, translated, missing, %).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Two built-in inspections keep the files clean: &lt;strong&gt;empty value&lt;/strong&gt; (flag a key that was created but never translated) and &lt;strong&gt;duplicate value&lt;/strong&gt; (spot copy-paste mistakes within a locale).&lt;/p&gt;
+
+&lt;p&gt;This is where you go from "editing files" to &lt;strong&gt;driving the actual state of your localization&lt;/strong&gt;.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  7. Refactor keys like real code
+&lt;/h2&gt;
+
+&lt;p&gt;i18n refactoring becomes as safe as refactoring code:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Rename&lt;/strong&gt; (&lt;code&gt;Shift+F6&lt;/code&gt;): renames a key across &lt;strong&gt;all&lt;/strong&gt; translation files &lt;strong&gt;and&lt;/strong&gt; every reference in the source at once.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Move to another namespace&lt;/strong&gt; (&lt;code&gt;Ctrl+Alt+Shift+M&lt;/code&gt;): moves a key from one namespace to another atomically. It copies the value into the target file for &lt;strong&gt;every&lt;/strong&gt; locale (creating it if missing, so no locale is dropped), deletes the old entry, and rewrites every code reference with the right &lt;code&gt;ns:&lt;/code&gt; prefix, all in a single undo step.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Sort alphabetically&lt;/strong&gt;: reorders a JSON translation file (recursively), or auto-sorts on every key insertion.&lt;/li&gt;
+&lt;/ul&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  It works with your stack
+&lt;/h2&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Frameworks&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;i18next / react-i18next, vue-i18n, lingui&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Languages&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;JS, TS, JSX, TSX, Vue SFC, PHP&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Formats&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;JSON / JSON5, YAML, PO/POT (gettext), i18next TS config&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;On first launch, a &lt;strong&gt;setup wizard&lt;/strong&gt; auto-detects your framework and scans your &lt;code&gt;locales/&lt;/code&gt;, &lt;code&gt;i18n/&lt;/code&gt;, &lt;code&gt;translations/&lt;/code&gt; folders. Three steps and you're ready.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Wrapping up
+&lt;/h2&gt;
+
+&lt;p&gt;The day-to-day pain of i18n isn't &lt;em&gt;translating&lt;/em&gt;: it's that the IDE draws &lt;strong&gt;no link&lt;/strong&gt; between your keys and your translations. The whole plugin follows from a single idea:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;An i18n key should behave like a code symbol: you resolve it, navigate to it, complete it, rename it, and see its value.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;If you touch i18next/vue-i18n/lingui in a JetBrains IDE, give it a try → &lt;strong&gt;&lt;a href="https://plugins.jetbrains.com/plugin/30971-i18n-support-plus" rel="noopener noreferrer"&gt;I18n Support Plus on the Marketplace&lt;/a&gt;&lt;/strong&gt;. It's free, and the code is on &lt;a href="https://github.com/IBRAHIMDANS/i18nSupportPlus" rel="noopener noreferrer"&gt;GitHub&lt;/a&gt; (a ⭐ helps if it saves you time).&lt;/p&gt;
+
+&lt;p&gt;The real question isn't &lt;em&gt;"which i18n library should I pick?"&lt;/em&gt;. It's:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;"How many times a day do I open a JSON file just to check whether a key exists?"&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;If the answer isn't &lt;em&gt;"never"&lt;/em&gt;, this plugin is for you.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;I build tools that cut the daily friction of front-end work. Let's talk on &lt;a href="https://linkedin.com/in/ibrahimadansoko" rel="noopener noreferrer"&gt;LinkedIn&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/ibrahimdans/managing-i18n-keys-in-react-without-losing-your-mind-without-leaving-your-ide-5fc7</link>
+      <pubDate>Tue, 14 Jul 2026 05:09:10 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ibrahimdans/managing-i18n-keys-in-react-without-losing-your-mind-without-leaving-your-ide-5fc7</guid>
+    </item>
+    <item>
+      <title>[翻訳] Why Your AI Agent Needs an Audit Trail (And How to Build One)</title>
+      <description>&lt;p&gt;The rapid shift from passive conversational chatbots to active operational agents has changed the software engineering landscape. Modern systems powered by Large Language Models (LLMs) do not simply display answers. They actively query databases, execute API calls, manage background workflows, and make critical operational decisions.&lt;/p&gt;
+
+&lt;p&gt;Because autonomous AI agents act non-deterministically, traditional debugging and application monitoring practices fail. When a standard application breaks, a developer can follow a deterministic trace through structured code pathways. But when an autonomous agent behaves unexpectedly, standard flat logs are insufficient. They only capture what happened, failing to capture the underlying reasoning or why the agent chose a specific tool.&lt;/p&gt;
+
+&lt;p&gt;For enterprise environments, maintaining a complete audit trail is a necessity. Organizations must meet strict regulatory standards including the EU AI Act (Article 12 and 14), SOC 2 compliance, ISO 42001, and CCPA Automated Decision-Making Technology rules. Designing a compliant, secure, and privacy-preserving audit trail for autonomous agents requires a completely new logging architecture.&lt;/p&gt;
+
+&lt;p&gt;This guide details the technical requirements for auditing autonomous AI agents and shows how the &lt;a href="https://volidator.com" rel="noopener noreferrer"&gt;Volidator&lt;/a&gt; architecture solves these challenges.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  1. The Architectural Failure of Flat Logs
+&lt;/h2&gt;
+
+&lt;p&gt;Traditional application logging frameworks (such as Winston, Winston-Loki, or Datadog) write sequential, flat strings of plaintext. This model is built on the assumption that software follows linear execution paths.&lt;/p&gt;
+
+&lt;p&gt;Autonomous agents operate in recursive loops. An agent execution begins with a user instruction, but that instruction initiates a cascade of sub-processes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The model evaluates the prompt.&lt;/li&gt;
+&lt;li&gt;The model selects and executes a tool.&lt;/li&gt;
+&lt;li&gt;The model ingests the tool output, updates its internal state, and generates another reasoning path.&lt;/li&gt;
+&lt;li&gt;The model triggers sub-agents to execute secondary tasks.&lt;/li&gt;
+&lt;li&gt;The model evaluates safety guardrails before returning the final response.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you write these events as flat logs, the relationship between them is lost. An auditor looking at a database edit log cannot link it back to the specific LLM reasoning step or tool execution that triggered it. To audit an AI agent, you must trace the complete causality chain.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Tracing Causality with Hierarchical Spans
+&lt;/h2&gt;
+
+&lt;p&gt;To capture the execution tree, logs must use parent-child relationship tokens. Every agent event must carry a trace identifier (traceId), a unique span identifier (spanId), and a parent span identifier (parentSpanId).&lt;/p&gt;
+
+&lt;p&gt;The Volidator SDK constructs these relationships natively, building interactive execution trees that allow compliance auditors to drill down from a high-level user request to the exact prompt, model confidence score, and raw tool output that caused a specific state change.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Resolving Edge Clock Drift with Lamport Clocks
+&lt;/h2&gt;
+
+&lt;p&gt;In distributed, edge-computed agent architectures, logs are ingested asynchronously from various serverless environments. Relying on system clocks (NTP) to order these events is dangerous. Minor clock drift between edge nodes can cause tool responses to be logged with a timestamp prior to the tool call, ruining the audit trail.&lt;/p&gt;
+
+&lt;p&gt;Volidator resolves this by implementing Lamport Logical Clocks. The SDK propagates a logical clock header (x-volidator-clock) across all asynchronous context boundaries. When an event is logged, its clock value is synchronized using a deterministic formula:&lt;/p&gt;
+
+&lt;p&gt;localClock = max(localClock, incomingClock) + 1&lt;/p&gt;
+
+&lt;p&gt;This ensures that the sequential ordering of LLM thinking steps, tool invocations, and database responses remains chronologically consistent, regardless of NTP variations at the edge.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  2. Zero-Knowledge Cryptographic Privacy in Agent Logging
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Auditing AI agents presents a major compliance paradox:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Compliance standards require logs to contain the exact prompts, tools, and outputs to prove safe execution.&lt;/p&gt;
+
+&lt;p&gt;Privacy regulations (such as GDPR, HIPAA, and CCPA) prohibit storing unencrypted customer data, PII, or PHI on third-party telemetry servers.&lt;br /&gt;
+Standard monitoring services store telemetry in plaintext. If an agent ingests a customer prompt containing medical history or financial data, that data is transmitted and stored in plaintext, exposing the organization to major liabilities.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Local Client-Side Encryption
+&lt;/h2&gt;
+
+&lt;p&gt;Volidator solves this conflict using a zero-knowledge architecture. The SDK performs local, symmetric encryption inside your application runtime before transmitting any telemetry.&lt;/p&gt;
+
+&lt;p&gt;Using AES-256-GCM, the SDK encrypts the sensitive fields of the log payload (such as prompts, thoughts, and tool inputs) using a private encryption key stored in your environment. The decryption key never leaves your server. The Volidator database ingestion worker receives only randomized ciphertext, rendering the logging service blind to your proprietary prompts and customer PII.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Non-Reversible Blind Indexing
+&lt;/h2&gt;
+
+&lt;p&gt;To allow search and filter functionality on the dashboard without exposing raw data, Volidator generates non-reversible HMAC-SHA-256 blind indexes locally.&lt;/p&gt;
+
+&lt;p&gt;When you query logs for a specific customer identifier or actor, the SDK hashes the search term using a private key and sends the hash. The dashboard matches this against the blind index stored in the database, enabling quick filtering of encrypted logs without the database ever seeing the unencrypted search criteria.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  The Claim Check Pattern for Large Metadata
+&lt;/h2&gt;
+
+&lt;p&gt;Compliance logs for LLM agents are heavy. A single prompt loop containing retrieved context blocks (RAG payloads) or sandboxed execution outputs can easily exceed 30KB. Storing large payloads directly inside the primary database creates ingestion bottlenecks.&lt;/p&gt;
+
+&lt;p&gt;To handle this, the Volidator SDK executes the Claim Check Pattern. When the serialized, encrypted ciphertext of a log exceeds 30KB, the SDK streams the payload to a secure object storage proxy (built on Cloudflare R2). It then writes a content-addressed SHA-256 hash pointer to the database row with the isClaimCheck parameter enabled.&lt;/p&gt;
+
+&lt;p&gt;During an audit, when a developer opens the Volidator dashboard, the browser client pulls the encrypted chunk using the hash pointer and decries it locally in-browser using the private key residing in the URL hash fragment. This keeps the database fast while preserving absolute zero-knowledge privacy.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  3. Cryptographic Actor Attribution and WebAuthn Attestation
+&lt;/h2&gt;
+
+&lt;p&gt;One of the most complex challenges in auditing autonomous systems is determining accountability. If an agent executes a high-risk operation, was the action triggered by an automated bot or a human supervisor?&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Key Prefix Taxonomy
+&lt;/h2&gt;
+
+&lt;p&gt;To enforce strict accountability at the ingestion layer, Volidator categorizes API keys using prefixes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;val_human_ : Assigned to interactive human operators.&lt;/li&gt;
+&lt;li&gt;val_agent_ : Assigned to autonomous models, scripts, or LLM agents.&lt;/li&gt;
+&lt;li&gt;val_service_ : Assigned to static background cron processes or system daemons.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These prefixes are checked instantaneously at Layer 0 in the ingestion worker.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Automatic Credential Handover Detection
+&lt;/h2&gt;
+
+&lt;p&gt;If an API key belonging to a human caller is used within an autonomous context propagation, or if it executes requests carrying agent rationales, Volidator flags this automatically. The worker sets the credentialHandoverDetected value to true and updates the actor type to agent. This prevents automated scripts from using human credentials to bypass compliance tracking.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Biometric Action Attestation
+&lt;/h2&gt;
+
+&lt;p&gt;For high-risk operations (such as manual overrides or large financial payouts), compliance frameworks like the EU AI Act (Article 14) demand human verification. Volidator implements cryptographic attestation using WebAuthn:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Challenge:&lt;/strong&gt; The SDK generates a rolling 15-minute challenge matching the specific action payload.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Canonicalization:&lt;/strong&gt; To ensure payload consistency, the client and server serialize the JSON payload alphabetically using a zero-dependency canonical serializer, preventing whitespace or key order differences from invalidating the signature.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Biometric Assertion:&lt;/strong&gt; The SDK invokes the browser WebAuthn API (navigator.credentials.get) to sign the composite challenge (sha256(challenge + colon + payloadHash)) inside the user's hardware secure enclave (TouchID, FaceID, or YubiKey).&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Edge Verification:&lt;/strong&gt; The ingestion worker fetches the user's public key from the database, validates the signature, and invalidates the challenge atomically using a database query to prevent replay attacks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;
+  
+  
+  4. Developer Implementation and Framework Auto-Instrumentation
+&lt;/h2&gt;
+
+&lt;p&gt;Volidator integrates directly with modern Node.js and TypeScript agent stacks, minimizing the engineering overhead needed to maintain compliant audit trails.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Context Propagation via AsyncLocalStorage
+&lt;/h2&gt;
+
+&lt;p&gt;Passing trace variables through deep nested functions is tedious and error-prone. The @volidator/node SDK exposes the runInAgentContext wrapper, which uses V8 AsyncLocalStorage to propagate trace, span, and rationale context down the call stack.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Here is how to set up contextual tracing:&lt;/strong&gt;&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="nx"&gt;typescript&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;VolidatorClient&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@volidator/node&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;volidator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;VolidatorClient&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;apiKey&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;env&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;VOLIDATOR_API_KEY&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;encryptionKey&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;env&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;VOLIDATOR_ENCRYPTION_KEY&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;referenceKeys&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;metadata.customer_email&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;metadata.account_id&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="kr"&gt;interface&lt;/span&gt; &lt;span class="nx"&gt;AgentContext&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;runId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nl"&gt;accountId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nl"&gt;email&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;executeAgentWorkflow&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;prompt&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;AgentContext&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;volidator&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;runInAgentContext&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+    &lt;span class="na"&gt;traceId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;runId&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="na"&gt;rationale&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Evaluating user invoice queries and fetching billing records&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="na"&gt;toolName&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;invoiceQuery&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="k"&gt;async &lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// All internal database queries, tool logs, or API executions&lt;/span&gt;
+    &lt;span class="c1"&gt;// inside this block automatically inherit the trace context.&lt;/span&gt;
+    &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nf"&gt;performDatabaseLookup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;ctx&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;accountId&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;performDatabaseLookup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;accountId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// Automatically attaches parent traceId, toolName, and rationale&lt;/span&gt;
+  &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;volidator&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+    &lt;span class="na"&gt;actor&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;billing-agent&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="na"&gt;action&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;database.query&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="na"&gt;target&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;accountId&lt;/span&gt;
+  &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;Native SDK Integration: Vercel AI SDK&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;If you use the Vercel AI SDK to build your agents, Volidator provides auto-instrumentation handlers that hook directly into step lifecycles, logging inputs, outputs, and latencies automatically.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;createVercelAISDKCallback&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@volidator/node/agent-vercel&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;generateText&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;tool&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;ai&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;openai&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@ai-sdk/openai&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;z&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;zod&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;onStepFinish&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;createVercelAISDKCallback&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;volidator&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="na"&gt;actor&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;order-routing-agent&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nf"&gt;generateText&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;model&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;openai&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;gpt-4o&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+  &lt;span class="na"&gt;prompt&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Check inventory for SKU 9920 and update shipment status.&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;tools&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="na"&gt;checkInventory&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;tool&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+      &lt;span class="na"&gt;description&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Retrieve current warehouse inventory levels.&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+      &lt;span class="na"&gt;parameters&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;object&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt; &lt;span class="na"&gt;sku&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;string&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;}),&lt;/span&gt;
+      &lt;span class="na"&gt;execute&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="k"&gt;async &lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt; &lt;span class="nx"&gt;sku&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;({&lt;/span&gt; &lt;span class="na"&gt;status&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;IN_STOCK&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;count&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt;
+    &lt;span class="p"&gt;})&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="nx"&gt;onStepFinish&lt;/span&gt; &lt;span class="c1"&gt;// Logs tool inputs, outputs, and latencies server-blind&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Mapping the Compliance API (VolidatorAgent)
+&lt;/h2&gt;
+
+&lt;p&gt;To align agent actions directly with regulatory requirements, developers use the volidator.agent API. This exposes methods mapped to standard compliance domains:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Log an autonomous decision&lt;/span&gt;
+&lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;volidator&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;agent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;decision&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;actor&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;billing-agent&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;traceId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;t_billing_9901&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;spanId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;span_dec_01&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;decision&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;approve_refund&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;rationale&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Charge was incorrect and fell within auto-approve limits&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;modelId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;gpt-4o&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;confidenceScore&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.94&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="c1"&gt;// Log a safety refusal&lt;/span&gt;
+&lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;volidator&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;agent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;refusal&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;actor&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;customer-bot&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;traceId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;t_billing_9901&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;refusedInstruction&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Access system settings database&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;reason&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Access denied by system security guardrails&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="c1"&gt;// Log a human escalation&lt;/span&gt;
+&lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;volidator&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;agent&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;escalation&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;actor&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;billing-agent&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;traceId&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;t_billing_9901&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;reason&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Refund request exceeds agent authority limit&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;urgency&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;high&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;blockedAction&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;execute_refund_payout&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  5. Forensic Replay Auditing (Flight Data Recorder)
+&lt;/h2&gt;
+
+&lt;p&gt;Non-deterministic behaviors make it difficult to replicate agent failures. If an agent executes an invalid transaction in production, running the same prompt in a test environment may yield a different result due to varying model temperatures, updated vector databases, or dynamic API responses.&lt;/p&gt;
+
+&lt;p&gt;To ensure compliance teams can perform reliable post-mortem analyses, Volidator incorporates a Flight Data Recorder pattern.&lt;/p&gt;
+
+&lt;p&gt;The SDK wraps agent tools in a VCR-style recording proxy. During production execution, this proxy intercepts and logs all external inputs, API responses, database queries, and environment parameters.&lt;/p&gt;
+
+&lt;p&gt;If an incident occurs, auditors do not run the agent live. Instead, they use the Volidator CLI to execute a replay simulation. The CLI loads the recorded VCR responses directly into memory, creating an air-gapped sandbox. The agent executes using the exact inputs, tool responses, and model instructions it saw during the production run, allowing developers to deterministically reconstruct the failure path.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  OpenTelemetry Integration
+&lt;/h2&gt;
+
+&lt;p&gt;Volidator integrates with OpenTelemetry (OTel) pipelines to trace and audit system executions, such as AI agent tool calls, while maintaining end to end encryption security guarantees.&lt;/p&gt;
+
+&lt;p&gt;Context Propagation&lt;br /&gt;
+To enable context propagation across your OpenTelemetry pipelines, import the otel plugin directly:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@volidator/node/otel&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Once imported, any call to volidator.log automatically extracts the traceId and spanId from the active OpenTelemetry context. You can also manually enrich log payloads with active OpenTelemetry context metadata using the enrichWithOtel utility:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;enrichWithOtel&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@volidator/node/otel&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;payload&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;enrichWithOtel&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;action&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;agent.thought&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;actor&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;writer-agent&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;OpenTelemetry Driver Redirect&lt;/p&gt;
+
+&lt;p&gt;For architectures where you prefer to route all events through your active OpenTelemetry collector rather than dispatching HTTP requests directly, you can redirect the Volidator driver. This aggregates your logs directly into active OpenTelemetry spans as span events:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;enableOtelDriverRedirect&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@volidator/node/otel&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="nf"&gt;enableOtelDriverRedirect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;volidator&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;// This log will be recorded as a span event on the active OpenTelemetry span&lt;/span&gt;
+&lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;volidator&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;action&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;user.login.success&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;actor&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;usr_123&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Exporting Spans and Logs to the Volidator Ledger
+&lt;/h2&gt;
+
+&lt;p&gt;To capture OpenTelemetry traces and export them securely back into your Volidator ledger, configure the VolidatorSpanExporter or VolidatorLogExporter inside your OpenTelemetry Tracer Provider setup:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;BasicTracerProvider&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;SimpleSpanProcessor&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@opentelemetry/sdk-trace-base&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;VolidatorSpanExporter&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@volidator/node/otel&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;volidator&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;./volidator-client&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;provider&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;BasicTracerProvider&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="nx"&gt;provider&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;addSpanProcessor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+  &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;SimpleSpanProcessor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;VolidatorSpanExporter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;volidator&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  LangChain.js Integration
+&lt;/h2&gt;
+
+&lt;p&gt;The @volidator/node/agent-langchain plugin provides framework level auto instrumentation for LangChain.js runtimes.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Tool Lifecycle Auditing
+&lt;/h2&gt;
+
+&lt;p&gt;By utilizing the VolidatorLangChainHandler, you hook directly into the LangChain tool execution lifecycle. The callback handler automatically listens to:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;handleToolStart:&lt;/strong&gt; Logs the input arguments and tracks execution start times.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;handleToolEnd:&lt;/strong&gt; Logs successful executions and returns output data.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;handleToolError:&lt;/strong&gt; Captures errors and reports execution failures as anomalies.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This ensures all tool executions are monitored, timed, and logged without manual intervention:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;VolidatorClient&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@volidator/node&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;VolidatorLangChainHandler&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@volidator/node/agent-langchain&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;ChatOpenAI&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@langchain/openai&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;Calculator&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@langchain/community/tools/calculator&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;VolidatorClient&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;apiKey&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;env&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;VOLIDATOR_API_KEY&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;encryptionKey&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;env&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;VOLIDATOR_ENCRYPTION_KEY&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="c1"&gt;// Initialize the callback handler&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;handler&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;VolidatorLangChainHandler&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;client&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="na"&gt;actor&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;research-agent&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;tenant&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;customer_acme&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;ChatOpenAI&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;callbacks&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;handler&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="c1"&gt;// Registers the auditor callback&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;tools&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Calculator&lt;/span&gt;&lt;span class="p"&gt;()];&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Summary
+&lt;/h2&gt;
+
+&lt;p&gt;As organizations transition to autonomous systems, standard system monitoring is no longer sufficient. Flat logging structures discard causality, plaintext telemetry threatens customer privacy, and simple credential checks fail to identify automated actions.&lt;/p&gt;
+
+&lt;p&gt;Ensuring compliance and security for autonomous AI agents requires a dedicated telemetry model. By leveraging a zero-knowledge logging framework like Volidator, developers can encrypt sensitive prompt histories locally, capture hierarchical execution contexts using logical clocks, detect credential delegation automatically, and perform deterministic replay testing. This satisfies strict enterprise compliance standards without compromising performance or data privacy.&lt;/p&gt;</description>
+      <link>https://dev.to/ankreations/why-your-ai-agent-needs-an-audit-trail-and-how-to-build-one-51d6</link>
+      <pubDate>Tue, 14 Jul 2026 05:04:00 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ankreations/why-your-ai-agent-needs-an-audit-trail-and-how-to-build-one-51d6</guid>
+    </item>
+    <item>
+      <title>[翻訳] Before Your Side Projects Multiply Into Chaos: An 8-Category Ledger and a Symlink Tree</title>
+      <description>&lt;p&gt;This is part of my "Claude Code environment" series. Last time I wrote about &lt;a href="https://zenn.dev/bokuwalily/articles/claude-autopilot" rel="noopener noreferrer"&gt;an autopilot that lets Claude Code improve itself autonomously and unattended&lt;/a&gt;. But if the "pile of automation scripts" that showed up there isn't organized, you can't even decide what to hand the autopilot. So this time the topic is &lt;strong&gt;the system I use to classify projects and manage where they live.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Counting the entries in my current ledger &lt;code&gt;~/PROJECTS.md&lt;/code&gt;, there are &lt;strong&gt;over 40&lt;/strong&gt; projects lined up — web apps, Chrome extensions, iOS apps, digital products, client work, AI tooling, PC automation, and OSS evaluations. Before things grew this far, I built a structure of "8 categories + a ledger + a symlink tree." This article is about that design.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The problem: the projects "exist," but I can't tell "where" they are
+&lt;/h2&gt;
+
+&lt;p&gt;Claude Code kept hunting for directories scattered across &lt;code&gt;~/dev/&lt;/code&gt;, &lt;code&gt;~/Projects/&lt;/code&gt;, &lt;code&gt;~/digital-products/&lt;/code&gt;, and &lt;code&gt;~/oss-trial/&lt;/code&gt; with &lt;code&gt;find ~&lt;/code&gt; every single time. It wasn't just the search time — the &lt;strong&gt;state (live/stalled/retired), the production URL, and whether it was monetized&lt;/strong&gt; were all scattered too, so every time I asked "whatever happened to that app?" I had to reconstruct the context from scratch.&lt;/p&gt;
+
+&lt;p&gt;The goal is to consolidate the ledger into a single file so I reach a state where "ask, and the answer comes out immediately."&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  How the 8 categories are drawn
+&lt;/h2&gt;
+
+&lt;p&gt;Here's the definition table straight from &lt;code&gt;~/PROJECTS.md&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Code&lt;/th&gt;
+&lt;th&gt;Definition&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;01-webapp&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Web apps / web games that are deployed and used&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;02-chrome-ext&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Chrome extensions (MV3) + their dedicated backend API&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;03-ios-app&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;iOS native / delivery wrappers&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;04-digital-product&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;note monetization, digital products, content for sale&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;05-client-work&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Contract / commissioned work / company repos (third-party owner remote = push with care)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;06-claude-tooling&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Infrastructure, skills, and integrations that act on Claude / the AI agent itself&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;07-pc-automation&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;PC automation, scrapers, CLI scripts&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;08-oss-eval&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Evaluation, experimentation, and sandboxing of external OSS&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;Adding categories dilutes their meaning, so I only create a new one "when something genuinely fits none of the eight."&lt;/p&gt;
+
+&lt;p&gt;The decision is made by &lt;strong&gt;how it's delivered, not by its name.&lt;/strong&gt; For example, &lt;code&gt;autolike-license-server&lt;/code&gt; sounds like an API name, but it's a backend dedicated to license verification for a Chrome extension, so it goes under &lt;code&gt;02-chrome-ext&lt;/code&gt;. Judging by name would misclassify it as "API → server → &lt;code&gt;01-webapp&lt;/code&gt;."&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The core: why the real directory never moves
+&lt;/h2&gt;
+
+&lt;p&gt;It's tempting to think "organizing = moving folders," but in side-project development, &lt;strong&gt;dependencies on absolute paths hide in three places.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;&lt;code&gt;.vercel/project.json&lt;/code&gt;&lt;/strong&gt; — the Vercel link contains an absolute path. Move it, and &lt;code&gt;vercel deploy&lt;/code&gt; points at a different project.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;launchd plist&lt;/strong&gt; — the script path written in &lt;code&gt;ProgramArguments&lt;/code&gt; is registered as the real path. Move it, and the cron job dies.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;git worktree&lt;/strong&gt; — the metadata for a worktree created with &lt;code&gt;git worktree add&lt;/code&gt; holds the real path in &lt;code&gt;.git/worktrees/&amp;lt;name&amp;gt;/gitdir&lt;/code&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;⚠️ Physically moving a real directory is strictly forbidden. &lt;code&gt;.vercel&lt;/code&gt;, launchd plists, and git worktrees break because they depend on absolute paths. "Classification" is expressed with symlinks + the ledger.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  Operation: expressing classification with a ledger + symlinks
+&lt;/h2&gt;
+
+&lt;p&gt;You never touch the real directory — you just &lt;strong&gt;create a symlink under &lt;code&gt;~/Desktop/All-Projects/&amp;lt;category&amp;gt;/&lt;/code&gt;.&lt;/strong&gt;&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# Classify a new project (without moving the real directory)&lt;/span&gt;
+&lt;span class="nb"&gt;ln&lt;/span&gt; &lt;span class="nt"&gt;-sfn&lt;/span&gt; ~/dev/takugumi ~/Desktop/All-Projects/01-webapp/
+
+&lt;span class="c"&gt;# Verify&lt;/span&gt;
+&lt;span class="nb"&gt;ls&lt;/span&gt; ~/Desktop/All-Projects/01-webapp/
+&lt;span class="c"&gt;# Shows something like  takugumi -&amp;gt; ~/dev/takugumi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;In &lt;code&gt;ln -sfn&lt;/code&gt;, the &lt;code&gt;-f&lt;/code&gt; overwrites an existing symlink, and &lt;code&gt;-n&lt;/code&gt; prevents it from burrowing into the target when the target is a directory. Without these two flags you get a double-nested link.&lt;/p&gt;
+
+&lt;p&gt;The ledger &lt;code&gt;~/PROJECTS.md&lt;/code&gt; is one line per project, holding the path, state, monetization, production URL, and cautions (currently 8 categories × over 40 projects total). By reading this one file, Claude Code can instantly answer "Where's the iOS app for the job-hunt tracker?" or "Which ones are in a live state?"&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The procedure for having Claude do the classification
+&lt;/h2&gt;
+
+&lt;p&gt;The procedure is written in &lt;code&gt;~/.claude/skills/auto/project-categorization/SKILL.md&lt;/code&gt;, and it fires automatically every time a new project is created. The heart of the procedure is only this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;When starting a new project, before you begin writing code:
+
+1. Decide what you're building → pick one of the 8 categories above
+   (Decide by how it's delivered — not by name or first impression)
+2. Only if it fits none of the existing 8, create a new 09-&amp;lt;kebab&amp;gt;
+3. Create the real directory under the appropriate parent dir
+   Web app / extension → ~/dev or ~/Projects
+   Product → ~/digital-products
+   OSS evaluation → ~/oss-trial
+4. ln -sfn &amp;lt;real path&amp;gt; ~/Desktop/All-Projects/&amp;lt;category&amp;gt;/
+5. Add a row to the relevant category table in ~/PROJECTS.md
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Because CLAUDE.md also says "when creating a new project, always classify it into one of the 8 categories before starting," Claude begins with classification without being told.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Verification commands
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# Check that the symlink was created correctly&lt;/span&gt;
+&lt;span class="nb"&gt;ls&lt;/span&gt; ~/Desktop/All-Projects/01-webapp/
+
+&lt;span class="c"&gt;# Check that it was appended to the ledger&lt;/span&gt;
+&lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="s2"&gt;"takugumi"&lt;/span&gt; ~/PROJECTS.md
+
+&lt;span class="c"&gt;# For client-work: check that secrets are ignored&lt;/span&gt;
+git &lt;span class="nt"&gt;-C&lt;/span&gt; ~/dev/&amp;lt;project&amp;gt; check-ignore credentials.json
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Pitfalls I stepped on
+&lt;/h2&gt;
+
+&lt;p&gt;Drawn from what I collected in the auto-skill's &lt;code&gt;Pitfalls&lt;/code&gt; section.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Misclassifying by name&lt;/strong&gt; — I nearly put &lt;code&gt;autolike-license-server&lt;/code&gt; (a Chrome extension backend) under "server = &lt;code&gt;01-webapp&lt;/code&gt;." Read &lt;code&gt;package.json&lt;/code&gt; or the README and judge by how it's delivered.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Secret-key leak risk in &lt;code&gt;05-client-work&lt;/code&gt;&lt;/strong&gt; — &lt;code&gt;toc-seo/credentials.json&lt;/code&gt; (a GCP key) was sitting bare in the root of a company repo. Every time you create client-work, check that secret-key patterns are in &lt;code&gt;.gitignore&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Pushing to a third-party owner's remote&lt;/strong&gt; — &lt;code&gt;ababa-pr/*&lt;/code&gt; and &lt;code&gt;fujibee/*&lt;/code&gt; are treated as &lt;code&gt;05-client-work&lt;/code&gt; and pushing is forbidden. Check the owner with &lt;code&gt;git remote -v&lt;/code&gt; before pushing.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Adding too many categories&lt;/strong&gt; — when in doubt, force it into one of the 8. Only create a new category "when it genuinely fits none of the eight."&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Summary
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;As projects multiply, you lose track of "where" they are and "what state" they're in, even though they exist&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Never move the real directory&lt;/strong&gt; (.vercel, launchd, and git worktrees break). Express classification with symlinks + a ledger&lt;/li&gt;
+&lt;li&gt;Draw the 8 categories by &lt;strong&gt;how something is delivered.&lt;/strong&gt; Judging by name leads to misclassification&lt;/li&gt;
+&lt;li&gt;The ledger &lt;code&gt;~/PROJECTS.md&lt;/code&gt; + the &lt;code&gt;~/Desktop/All-Projects/&amp;lt;category&amp;gt;/&lt;/code&gt; symlink tree is the source of truth&lt;/li&gt;
+&lt;li&gt;Write "classify before starting" into CLAUDE.md, and Claude does it automatically every time&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Next time, I'll write about the setup that &lt;strong&gt;auto-generates a Mermaid diagram of these organized projects every morning and drops it on the Desktop.&lt;/strong&gt;&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;Written by **Lily&lt;/em&gt;* — I ship iOS apps and automate my content stack with Claude Code.&lt;br /&gt;
+Follow along: &lt;a href="https://bokuwalily.com" rel="noopener noreferrer"&gt;Portfolio&lt;/a&gt; · &lt;a href="https://x.com/bokuwalily" rel="noopener noreferrer"&gt;X&lt;/a&gt; · &lt;a href="https://github.com/bokuwalily" rel="noopener noreferrer"&gt;GitHub&lt;/a&gt;*&lt;/p&gt;</description>
+      <link>https://dev.to/bokuwalily/before-your-side-projects-multiply-into-chaos-an-8-category-ledger-and-a-symlink-tree-bi2</link>
+      <pubDate>Tue, 14 Jul 2026 05:00:05 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/bokuwalily/before-your-side-projects-multiply-into-chaos-an-8-category-ledger-and-a-symlink-tree-bi2</guid>
+    </item>
+    <item>
+      <title>[翻訳] Building Reliable Event-Driven Systems: Event Schemas, Versioning, Contract Testing and Events vs Commands (part-1)</title>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Welcome to another multi-part series of articles. I intend this to be rich with explanations and examples.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Distributed systems have become considerably easier to build than they were a decade ago. Modern frameworks allow us to publish events with only a few lines of code, cloud platforms provide fully managed messaging services, and frameworks like Spring Boot makes asynchronous communication feel almost effortless. Because of this, many teams successfully adopt event-driven architectures. Unfortunately, publishing events is usually the easiest part of the journey. &lt;/p&gt;
+
+&lt;p&gt;Designing events that remain reliable for years is considerably more difficult. Most production problems in event-driven systems are rarely caused by the messaging infrastructure itself. Instead, they originate from architectural questions such as: &lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;What information an event should contain?&lt;/em&gt;&lt;br /&gt;
+&lt;em&gt;Whether an event schema can evolve without breaking existing consumers?&lt;/em&gt; &lt;br /&gt;
+&lt;em&gt;How new services safely consume old events?&lt;/em&gt; &lt;br /&gt;
+&lt;em&gt;When a service should publish an event instead of sending a command?&lt;/em&gt; &lt;br /&gt;
+&lt;em&gt;How producers can know they haven't broken downstream consumers?&lt;/em&gt; &lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;These questions determine whether an event-driven system remains maintainable as more services, teams, and business capabilities are added. &lt;/p&gt;
+
+&lt;p&gt;This article explores the practices that make event-driven systems resilient over time. We focus on the contracts that services exchange with each other. In event-driven architecture, events become public APIs, and unlike REST APIs, those APIs are usually consumed by systems the producer does not directly control. It makes compatibility one of the most important design concerns.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;1. Event-Driven Architecture Is Really About Contracts&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Many developers describe event-driven architecture as services communicating through events. That description is correct, but it is also incomplete. Events are more than messages moving between services—every published event represents a contract.&lt;/p&gt;
+
+&lt;p&gt;Suppose an Order Service publishes the following event.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight json"&gt;&lt;code&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"orderId"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"ORD-1001"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"customerId"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"CUS-501"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"status"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"CONFIRMED"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"totalAmount"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;249.99&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Several services subscribe to it.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;                 OrderConfirmed
+                        |
+        +---------------+---------------+
+        |               |               |
+        v               v               v
+ Inventory Service  Billing Service  Notification Service
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The producer may know about three consumers today. Six months later, another team builds additional services such as Analytics, Recommendation, and Customer Loyalty. The producer does not need to change; the consumers simply subscribe. This loose coupling is one of the biggest strengths of event-driven systems, but it is also one of their biggest challenges.&lt;/p&gt;
+
+&lt;p&gt;The producer no longer knows who depends on the event, which makes changing the event significantly more complicated than changing an internal Java object.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Events Are Public APIs&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Most teams treat REST APIs very carefully. Before removing a field, they consider existing clients, API versions, backward compatibility, and migration plans. Events deserve exactly the same level of discipline.&lt;/p&gt;
+
+&lt;p&gt;Once an event is published, it becomes part of the public interface of the service. Removing a field from an event can break downstream systems just as easily as removing a field from a REST response. The difference is that consumers are often invisible. A REST API usually has documented clients, while an event may have consumers owned by completely different teams, some of which may not even exist when the producer is originally developed.&lt;/p&gt;
+
+&lt;p&gt;Thinking of events as contracts fundamentally changes how they should be designed.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;2. Why Event Design Matters More Than Event Publishing&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Publishing an event is a technical task, but designing an event is an architectural task. Many event-driven projects begin with something like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight java"&gt;&lt;code&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Order&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="nc"&gt;Long&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="nc"&gt;Customer&lt;/span&gt; &lt;span class="n"&gt;customer&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="nc"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nc"&gt;OrderItem&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="nc"&gt;Address&lt;/span&gt; &lt;span class="n"&gt;shippingAddress&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The easiest approach is to serialize the entire object and publish it.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;eventPublisher.publish(order);&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;It works—until the domain model changes. A field gets renamed, an object is restructured, or a new relationship is introduced. Every consumer now receives a different payload. The producer evolved, but the contract changed accidentally.&lt;/p&gt;
+
+&lt;p&gt;This is one of the most common mistakes in event-driven systems. Events should not expose internal domain models; they should communicate business facts. Those are two very different things.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;An Event Describes Something That Already Happened&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A useful mental model is that a command asks for something to happen, while an event states that something already happened. For example:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;OrderConfirmed&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;This is a business fact. It cannot be rejected because it has already occurred. Similarly:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;PaymentCompleted&lt;br /&gt;
+InventoryReserved&lt;br /&gt;
+ShipmentCreated&lt;br /&gt;
+CustomerRegistered&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;All describe completed business actions. &lt;/p&gt;
+
+&lt;p&gt;Consumers should be able to trust that these events represent facts. This makes event names extremely important. Good names communicate completed business outcomes, while poor names often expose implementation details. Compare the following examples:&lt;/p&gt;
+
+&lt;p&gt;Good: &lt;code&gt;OrderConfirmed&lt;/code&gt;&lt;br /&gt;
+Poor: &lt;code&gt;UpdateOrderStatus&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The first describes something that happened, while the second sounds like an &lt;em&gt;internal method call&lt;/em&gt;. This distinction becomes increasingly important as systems grow.&lt;/p&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;3. Events Are Immutable&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;One characteristic separates events from many other forms of communication: events are immutable. Once published, an event represents history, and history cannot be rewritten.&lt;/p&gt;
+
+&lt;p&gt;Imagine the following event:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight json"&gt;&lt;code&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"orderId"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"ORD-1001"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"status"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"CONFIRMED"&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Tomorrow, the customer cancels the order. The producer should not update the previous event. Instead, it publishes a new one:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight json"&gt;&lt;code&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"orderId"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"ORD-1001"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"status"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"CANCELLED"&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The event stream now tells a complete story:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;OrderCreated
+      |
+OrderConfirmed
+      |
+OrderCancelled
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Consumers joining later can reconstruct what happened. This is one of the reasons event-driven systems are valuable—events become an immutable business history. Changing previously published events destroys that history.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Events Represent Facts, Not State&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Another common misunderstanding is treating events as snapshots of current state. Consider this event:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight json"&gt;&lt;code&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"orderId"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"ORD-1001"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"status"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"PROCESSING"&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;em&gt;Does it mean the order is currently processing, or that the order entered processing&lt;/em&gt;? These are different meanings.&lt;/p&gt;
+
+&lt;p&gt;A better event would be: &lt;code&gt;OrderProcessingStarted&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The name clearly communicates a business fact. Consumers no longer need to interpret the payload because the event itself explains what happened. As event catalogs grow, this principle becomes increasingly important. Well-designed event names reduce ambiguity, while poorly named events force consumers to infer business meaning.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;4. Events and Commands Are Not the Same&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is one of the most misunderstood topics in event-driven architecture. Many teams use commands and events interchangeably, which creates tightly coupled systems. Understanding the difference changes how services communicate.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Commands Express Intent&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A command represents a request where the sender expects another service to perform an action. &lt;/p&gt;
+
+&lt;p&gt;For example:&lt;br /&gt;
+&lt;code&gt;ReserveInventory&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The sender is asking, “Please reserve inventory.” The receiving service can accept it, reject it, validate it, or return an error. &lt;/p&gt;
+
+&lt;p&gt;Commands imply responsibility—someone is expected to do something.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Events Express Facts&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;An event communicates that something has already happened. &lt;/p&gt;
+
+&lt;p&gt;For example:&lt;br /&gt;
+&lt;code&gt;InventoryReserved&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The reservation has already completed. Consumers cannot reject it; they simply react. This difference may appear subtle, but architecturally it is enormous. Commands influence behavior, while events communicate history.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Visualizing the Difference&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Command&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Order Service
+      |
+Reserve Inventory
+      |
+      v
+Inventory Service
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The Order Service knows exactly who should process the request, making the communication directed.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Event&lt;/strong&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;InventoryReserved
+        |
+   +----+----+---------+
+   |         |         |
+   v         v         v
+Billing   Shipping   Analytics
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The Inventory Service simply publishes a business fact. It does not know who reacts, and it does not need to. That is the essence of loose coupling.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;A Practical Rule of Thumb&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;One guideline that helps during system design reviews is simple: use a &lt;strong&gt;command&lt;/strong&gt; when &lt;em&gt;one specific service is responsible for performing an action&lt;/em&gt;, and use an &lt;strong&gt;event&lt;/strong&gt; when &lt;em&gt;informing any interested service that a business fact has already occurred&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;This distinction keeps responsibilities clear and prevents event-driven systems from gradually turning into distributed RPC systems disguised as messaging.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;In this part, we've explored why event-driven systems fail in production and events vs commands. &lt;/p&gt;
+
+&lt;p&gt;In the next part, we will build on these foundations by designing event schemas that survive years of system evolution.&lt;/p&gt;
+
+&lt;p&gt;Assisted AI to paraphrase. &lt;/p&gt;</description>
+      <link>https://dev.to/morpheus-vera/building-reliable-event-driven-systems-event-schemas-versioning-contract-testing-and-events-vs-37eg</link>
+      <pubDate>Tue, 14 Jul 2026 05:00:00 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/morpheus-vera/building-reliable-event-driven-systems-event-schemas-versioning-contract-testing-and-events-vs-37eg</guid>
+    </item>
+    <item>
+      <title>[翻訳] Your AI agent shouldn't act on data it can't cite</title>
+      <description>&lt;p&gt;&lt;em&gt;A great rep once knew every account. An agent doesn't, unless you tell it what's true and how sure to be.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Enrichment APIs hand your agent a value. An email. A job title. A funding round. The agent acts on it: writes the email, books the play, updates the CRM. But was that email verified, or guessed? Most APIs won't say. For a human scanning a spreadsheet, fine, you eyeball it. For an agent sending on your behalf, an unmarked guess is how it emails a made-up address with total confidence.&lt;/p&gt;
+
+&lt;p&gt;So we built &lt;a href="https://abm.dev" rel="noopener noreferrer"&gt;abm.dev&lt;/a&gt; the other way round. Every field carries its own source and a confidence score. Not a blended trust rating for the record. Per field.&lt;/p&gt;
+
+&lt;p&gt;Eighty-nine canonical fields on an enrichment, forty-three on a person, forty-six on a company. Ten providers behind one call, LinkedIn, Companies House, Hunter, Perplexity, Tavily and five more, aggregated, deduped, reconciled. One key, one schema, no per-source bills. And every value comes back wrapped:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight json"&gt;&lt;code&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"work_email"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"value"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"jsmith@acme.com"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"confidence"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0.94&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"source"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"hunter.io"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"verified"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"employee_count"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"value"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;240&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"confidence"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0.61&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"source"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"linkedin"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"note"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"companies-house filing says 180; both kept"&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;When sources disagree, we don't silently pick a winner. We keep both and tell you. No fabricated data. No silent fallbacks.&lt;/p&gt;
+
+&lt;p&gt;That envelope is the whole point for an agent. It can gate on confidence: act on &lt;code&gt;0.94&lt;/code&gt;, hold on &lt;code&gt;0.61&lt;/code&gt;, route the low ones to a human. It can cite its own work, so when someone asks &lt;em&gt;why did you email this person&lt;/em&gt;, there's a source, not a shrug. Grounding is the difference between an agent that builds pipeline and one that hallucinates it.&lt;/p&gt;
+
+&lt;p&gt;And the honest bit, because an agent needs the honest bit: it's near-useless on companies with no public footprint. The difference is it tells you when it's guessing, instead of guessing in a confident voice.&lt;/p&gt;
+
+&lt;p&gt;Three verbs sit on top of the same idea. &lt;strong&gt;Search&lt;/strong&gt; the accounts and people. &lt;strong&gt;Enrich&lt;/strong&gt; them into cited fields. &lt;strong&gt;Create&lt;/strong&gt; the records and the outreach. Over a plain REST call, or as a &lt;a href="https://abm.dev/docs/integrations/claude-connector" rel="noopener noreferrer"&gt;Claude Connector&lt;/a&gt; your agent talks to directly over MCP.&lt;/p&gt;
+
+&lt;p&gt;If you're building anything that acts on B2B data without a human in the loop, come make it prove itself. There's a free playground at &lt;a href="https://abm.dev" rel="noopener noreferrer"&gt;abm.dev&lt;/a&gt;, and &lt;code&gt;LAUNCHCODES&lt;/code&gt; puts about twenty in credits on your account to try it on an account you know cold. Tell me where it's wrong, that's the useful part.&lt;/p&gt;</description>
+      <link>https://dev.to/abmdev/your-ai-agent-shouldnt-act-on-data-it-cant-cite-4naj</link>
+      <pubDate>Tue, 14 Jul 2026 04:59:58 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/abmdev/your-ai-agent-shouldnt-act-on-data-it-cant-cite-4naj</guid>
+    </item>
+    <item>
+      <title>[翻訳] Giving an AI Agent Real-World Buying Power in India: One API for Local Supply</title>
+      <description>&lt;p&gt;When developers start building AI agents that can "do things in the real world," the conversation usually gets to tool-calling fast. Give your agent a function, it calls the function, done. What the tutorials don't cover is what happens when the function needs to reach actual Indian local supply — a service provider in a specific city, a retail shop with live inventory, a hotel with room availability, a ride or bus booking — and do it reliably, across categories, in production.&lt;/p&gt;
+
+&lt;p&gt;That gap between "agent can call a function" and "agent can actually purchase local supply in India" is where most projects stall.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why Indian Local Supply Is Structurally Hard to Access
+&lt;/h2&gt;
+
+&lt;p&gt;Indian commerce at the local level is deeply fragmented. The supply you care about — neighbourhood services, local retail, accommodation inventory, mobility options — is distributed across dozens of provider rails, each with different APIs, authentication schemes, catalog formats, and order lifecycle semantics.&lt;/p&gt;
+
+&lt;p&gt;To build an agent (or any platform feature) that can search for a plumber in Bangalore, compare hotel rooms in Jaipur, order a product from a local retailer, and book a cab — you would need direct integrations with each rail separately. That means:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Multiple API contracts to negotiate and maintain&lt;/li&gt;
+&lt;li&gt;Different auth flows per provider category&lt;/li&gt;
+&lt;li&gt;Non-uniform catalog structures (what "search" returns looks different for retail vs. services vs. mobility)&lt;/li&gt;
+&lt;li&gt;Different order lifecycle primitives per domain (services have RFQ flows; retail has add-to-cart; mobility has select-then-confirm; accommodation has availability-then-book)&lt;/li&gt;
+&lt;li&gt;No unified way to express agent-friendly intents like "find options, get a quote, confirm if acceptable"&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For a single-domain product, this is manageable. For any platform that wants to span categories — or for an AI agent that should be able to handle whatever the user asks for — it becomes an integration tax that compounds with every new domain.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What "Agentic Commerce" Actually Requires
+&lt;/h2&gt;
+
+&lt;p&gt;The standard e-commerce API mental model (search → add to cart → checkout) doesn't map cleanly onto all supply categories. Services need RFQ flows — you describe what you need, the provider quotes a price, and you confirm if the quote is acceptable. Mobility needs a select-then-confirm pattern with dynamic pricing. Accommodation needs real-time availability queries with rate holds. Retail can work closer to the traditional cart model, but catalog freshness and local inventory make it different from a global e-commerce API.&lt;/p&gt;
+
+&lt;p&gt;For an AI agent to handle these flows gracefully, it needs primitives that match how supply actually works:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Search&lt;/strong&gt; — express intent across category-appropriate dimensions (location, service type, dates, product category, etc.)&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;RFQ / Item Selection&lt;/strong&gt; — identify specific provider options from search results&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Quote&lt;/strong&gt; — get binding or indicative pricing from a specific provider on a specific requirement&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Order&lt;/strong&gt; — initiate and confirm an order with terms agreed&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Status / Lifecycle&lt;/strong&gt; — track, cancel, or modify within the provider's allowed windows&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;These five primitives, unified across categories, are what make a supply API genuinely agent-friendly rather than just another REST API with a search endpoint bolted on.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Integration Tax: What Maintaining Multiple Direct Rails Actually Costs
+&lt;/h2&gt;
+
+&lt;p&gt;Imagine you're building a travel assistant agent. You want it to handle hotels, rides, and inter-city buses in India. Naively, that's three separate integration projects:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;One with each hotel inventory source (each with its own availability format, rate structure, and booking confirmation flow)&lt;/li&gt;
+&lt;li&gt;One with each ride platform (each with its own fare estimation API and trip-confirmation webhook)&lt;/li&gt;
+&lt;li&gt;One with bus aggregator APIs (each with their own seat map format and PNR generation)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Each integration takes weeks to build correctly, and ongoing maintenance cost is real — API versions change, providers update auth schemes, catalog formats drift. When you're building an agent, you want to spend your time on the agent's reasoning, not on keeping a fragile integration layer alive.&lt;/p&gt;
+
+&lt;p&gt;The same tax applies to platforms embedding commerce features — a business operations platform that wants to let users book a service, a marketplace that wants to surface local retail, a B2B procurement tool that wants to reach verified suppliers. Each new supply category is another integration project.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What a Single Agentic-Commerce API Should Look Like
+&lt;/h2&gt;
+
+&lt;p&gt;The value proposition of a supply aggregation API is straightforward: one integration, consistent primitives, supply spanning categories. But the implementation details matter a lot for whether it's genuinely usable for agent workflows.&lt;/p&gt;
+
+&lt;p&gt;What matters for developer and agent use:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Consistency across categories.&lt;/strong&gt; Search should work with the same call structure whether you're looking for a service provider or a retail product. Order primitives should be predictable regardless of whether you're booking accommodation or a local delivery. Agents need deterministic interfaces — category-specific quirks should be handled by the API layer, not by the agent's reasoning loop.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Quote-before-commit flows.&lt;/strong&gt; Many supply categories in India require getting a price quote before committing to an order. An agent that skips this and tries to jump straight to checkout will fail in practice. The API needs to expose RFQ/quote as first-class steps, not hide them.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Structured responses agents can act on.&lt;/strong&gt; Not just human-readable text — structured JSON responses that an agent can parse, compare across options, and use to make decisions. Price, availability, provider metadata, terms all need to be machine-readable.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Honest error semantics.&lt;/strong&gt; When supply isn't available, when a provider is offline, when a quote expires — the API should return structured errors that an agent can handle gracefully, not generic 500s.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Bino Supply API: One API for India Local Supply
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Bino Supply API&lt;/strong&gt; (public surface: &lt;a href="https://boni.one/api-hub" rel="noopener noreferrer"&gt;boni.one/api-hub&lt;/a&gt;) is being built as a single agentic-commerce API giving developers, platforms, and AI agent builders access to Bino-native Indian local supply across categories — services, retail, accommodation, mobility, and more — through one consistent interface.&lt;/p&gt;
+
+&lt;p&gt;The intent is to solve the integration tax described above: instead of maintaining direct rails per supply category, you integrate once and get search, RFQ, quote, and order flows across categories through one API with consistent primitives.&lt;/p&gt;
+
+&lt;p&gt;A few things worth being direct about:&lt;/p&gt;
+
+&lt;p&gt;This is an emerging API, not a mature scaled platform. It is being packaged and positioned for early developers and builders who want to build on top of Indian local supply without the integration overhead. If you're building an AI agent that needs real-world purchasing capability in India, or a platform that wants to embed commerce features across categories, Bino Supply API is worth evaluating as a foundation — not as a fully-proven production scale infrastructure (yet).&lt;/p&gt;
+
+&lt;p&gt;The right early adopters are teams building agent workflows where India supply access is a required capability, platforms evaluating how to add agentic commerce features, and developers exploring what search-to-order across India's local economy can look like when it's API-accessible.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What to Think About When Evaluating This as Infrastructure
+&lt;/h2&gt;
+
+&lt;p&gt;If you're a developer evaluating supply APIs for India, the questions that matter:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Coverage:&lt;/strong&gt; Which categories are live vs. in-progress? For a general-purpose agent, breadth matters more than depth in any single category.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Primitive consistency:&lt;/strong&gt; Can you learn one API shape and apply it across categories, or is each category a different integration effectively?&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Quote/RFQ support:&lt;/strong&gt; Does the API expose this as a first-class step, or do you have to build around it?&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Structured responses:&lt;/strong&gt; Are catalog items, pricing, and availability returned in formats an agent can directly consume and compare?&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Lifecycle support:&lt;/strong&gt; Can you track, cancel, and modify orders through the API, or does post-order management fall back to provider-specific flows?&lt;/p&gt;
+
+&lt;p&gt;Bino Supply API is being built around these questions as the design constraints. If you're early enough in your build to be evaluating infrastructure choices, it's worth looking at the API hub and getting in contact.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Summary
+&lt;/h2&gt;
+
+&lt;p&gt;Giving an AI agent real-world buying power in India is a supply aggregation and API design problem more than a model problem. The model can reason about what the user wants; the hard part is giving it clean, consistent, category-spanning access to actual Indian supply through agent-friendly primitives.&lt;/p&gt;
+
+&lt;p&gt;Bino Supply API is one approach to this problem — a single API for search, RFQ, quotes, and order flows across local services, retail, accommodation, and mobility in India. It's an early-stage platform being built for developers who want to stop maintaining direct rails per supply category and start building on top of India's local economy through one consistent interface.&lt;/p&gt;
+
+&lt;p&gt;If you're building in this space, explore what's available at &lt;a href="https://boni.one/api-hub" rel="noopener noreferrer"&gt;boni.one/api-hub&lt;/a&gt;.&lt;/p&gt;</description>
+      <link>https://dev.to/animesh_gupta_705a19fc6f8/giving-an-ai-agent-real-world-buying-power-in-india-one-api-for-local-supply-2f1m</link>
+      <pubDate>Tue, 14 Jul 2026 04:54:37 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/animesh_gupta_705a19fc6f8/giving-an-ai-agent-real-world-buying-power-in-india-one-api-for-local-supply-2f1m</guid>
+    </item>
+    <item>
+      <title>[翻訳] Threadly: The Missing Memory Layer for Professional Relationships</title>
+      <description>&lt;p&gt;Every breakthrough in your career starts with a conversation.&lt;/p&gt;
+
+&lt;p&gt;A conversation with a founder at a hackathon.&lt;/p&gt;
+
+&lt;p&gt;A mentor who offered to review your portfolio.&lt;/p&gt;
+
+&lt;p&gt;An engineer who said,&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;"Reach out when you're applying."&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;A researcher who shared an idea that changed the way you think.&lt;/p&gt;
+
+&lt;p&gt;The problem is rarely meeting these people.&lt;/p&gt;
+
+&lt;p&gt;The problem is &lt;strong&gt;remembering them&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Not just their names.&lt;/p&gt;
+
+&lt;p&gt;The &lt;strong&gt;context&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;strong&gt;promise&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;strong&gt;opportunity&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;We have incredible tools for finding people. LinkedIn connects us to millions of professionals. Contacts apps store phone numbers. Email archives preserve every message we've ever sent.&lt;/p&gt;
+
+&lt;p&gt;Yet none of them answer the questions that actually matter.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;Who was the founder I met at the AI Summit who wanted to collaborate?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Who did I promise to follow up with after the hackathon?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;What does my professional network actually tell me about my career direction?&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Professional relationships have become fragmented across LinkedIn, emails, business cards, calendars, notes, and memory.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Memory doesn't scale.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;That's why I built &lt;strong&gt;Threadly&lt;/strong&gt;.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Contacts Are Records. Relationships Are Graphs.
+&lt;/h2&gt;
+
+&lt;p&gt;Traditional software stores people like rows in a spreadsheet.&lt;/p&gt;
+
+&lt;p&gt;A relationship doesn't behave like a spreadsheet.&lt;/p&gt;
+
+&lt;p&gt;Every relationship has &lt;strong&gt;context&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;You met someone &lt;strong&gt;somewhere&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;You talked about &lt;strong&gt;something&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;They work &lt;strong&gt;somewhere&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;You promised &lt;strong&gt;something&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;That conversation connects to another person, another company, another event.&lt;/p&gt;
+
+&lt;p&gt;Relationships are naturally connected.&lt;/p&gt;
+
+&lt;p&gt;So instead of building another contact manager, I built a &lt;strong&gt;relationship intelligence platform&lt;/strong&gt; powered by a knowledge graph.&lt;/p&gt;
+
+&lt;p&gt;Every interaction becomes part of a &lt;strong&gt;living memory&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Not just &lt;strong&gt;who&lt;/strong&gt; you know.&lt;/p&gt;
+
+&lt;p&gt;But &lt;strong&gt;how&lt;/strong&gt; you know them.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  The Experience Had To Feel Natural
+&lt;/h2&gt;
+
+&lt;p&gt;One design principle guided every decision.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;People should never have to fill forms after networking.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Imagine finishing a conference.&lt;/p&gt;
+
+&lt;p&gt;Instead of opening a CRM and typing twenty different fields, you simply write:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;"Met Arjun Sharma at the Nasscom AI Summit. He's the founder of Krishify. We discussed rural credit and he offered to introduce me to his CTO."&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;That's it.&lt;/p&gt;
+
+&lt;p&gt;Threadly's &lt;strong&gt;Scanner AI&lt;/strong&gt; extracts:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Person&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Company&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Role&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Event&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Topics&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Commitments&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;…and immediately builds relationships inside the knowledge graph.&lt;/p&gt;
+
+&lt;p&gt;No manual data entry.&lt;/p&gt;
+
+&lt;p&gt;No tagging.&lt;/p&gt;
+
+&lt;p&gt;No categorization.&lt;/p&gt;
+
+&lt;p&gt;Just conversation.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  A Graph That Thinks
+&lt;/h2&gt;
+
+&lt;p&gt;This is where &lt;strong&gt;Neo4j AuraDB&lt;/strong&gt; became the foundation of the project.&lt;/p&gt;
+
+&lt;p&gt;Instead of storing isolated contacts, Threadly models:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Users&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;People&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Companies&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Events&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Topics&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Interactions&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;as interconnected nodes.&lt;/p&gt;
+
+&lt;p&gt;The graph isn't there because graphs are fashionable.&lt;/p&gt;
+
+&lt;p&gt;It's there because &lt;strong&gt;professional relationships are graphs&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;That single design decision changes what becomes possible.&lt;/p&gt;
+
+&lt;p&gt;Instead of searching notes, users can ask:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;"Who do I know at Microsoft?"&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Instead of scrolling through LinkedIn:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;"Who should I reconnect with this month?"&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Instead of manually analyzing hundreds of connections:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;"What does my network tell about me?"&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Those questions don't have keyword answers.&lt;/p&gt;
+
+&lt;p&gt;They require &lt;strong&gt;reasoning across relationships&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;That's exactly what graphs are built for.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  AI Should Understand Relationships
+&lt;/h2&gt;
+
+&lt;p&gt;Capturing information was only the first half of the problem.&lt;/p&gt;
+
+&lt;p&gt;The second half was &lt;strong&gt;understanding it&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Threadly introduces specialized AI agents, each responsible for a single task.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Scanner
+&lt;/h3&gt;
+
+&lt;p&gt;Transforms conversations into structured relationships.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Recall
+&lt;/h3&gt;
+
+&lt;p&gt;Explores the graph to rediscover forgotten connections.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Chief
+&lt;/h3&gt;
+
+&lt;p&gt;Analyzes the entire network and surfaces strategic insights.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Pulse
+&lt;/h3&gt;
+
+&lt;p&gt;Measures the health and diversity of professional relationships.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Nudge
+&lt;/h3&gt;
+
+&lt;p&gt;Recommends who deserves a follow-up before opportunities disappear.&lt;/p&gt;
+
+&lt;p&gt;Each agent builds on the same shared relationship graph.&lt;/p&gt;
+
+&lt;p&gt;That shared memory makes the entire system &lt;strong&gt;smarter over time&lt;/strong&gt;.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Technology Should Disappear
+&lt;/h2&gt;
+
+&lt;p&gt;The technology stack wasn't chosen because it was trendy.&lt;/p&gt;
+
+&lt;p&gt;Every component solved a specific problem.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Next.js&lt;/strong&gt; created a fast, responsive interface.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;FastAPI&lt;/strong&gt; powered a lightweight backend optimized for AI workflows.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Firebase Authentication&lt;/strong&gt; handled secure identity management.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Neo4j AuraDB&lt;/strong&gt; became the relationship memory layer.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Groq&lt;/strong&gt; enabled low-latency AI reasoning.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Render&lt;/strong&gt; and &lt;strong&gt;Vercel&lt;/strong&gt; provided a simple production deployment pipeline.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Good architecture isn't about adding components.&lt;/p&gt;
+
+&lt;p&gt;It's about &lt;strong&gt;removing unnecessary ones&lt;/strong&gt;.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Challenges Along the Way
+&lt;/h2&gt;
+
+&lt;p&gt;Building AI is surprisingly easy.&lt;/p&gt;
+
+&lt;p&gt;Building &lt;strong&gt;reliable AI products&lt;/strong&gt; is much harder.&lt;/p&gt;
+
+&lt;p&gt;One challenge was transforming natural language into structured data without forcing rigid templates.&lt;/p&gt;
+
+&lt;p&gt;People don't describe meetings consistently.&lt;/p&gt;
+
+&lt;p&gt;Some mention companies first.&lt;/p&gt;
+
+&lt;p&gt;Others mention names.&lt;/p&gt;
+
+&lt;p&gt;Some forget events entirely.&lt;/p&gt;
+
+&lt;p&gt;The extraction pipeline had to remain flexible while producing predictable outputs.&lt;/p&gt;
+
+&lt;p&gt;The second challenge was deciding &lt;strong&gt;where intelligence should live&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Initially, it was tempting to let the language model answer everything.&lt;/p&gt;
+
+&lt;p&gt;That quickly became expensive, unpredictable, and difficult to trust.&lt;/p&gt;
+
+&lt;p&gt;Instead, Threadly separates responsibilities.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;The graph stores truth.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;The AI reasons over truth.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;That distinction made the system significantly more reliable.&lt;/p&gt;
+
+&lt;p&gt;The final challenge was deployment.&lt;/p&gt;
+
+&lt;p&gt;Integrating &lt;strong&gt;Firebase Authentication&lt;/strong&gt;, &lt;strong&gt;Groq&lt;/strong&gt;, &lt;strong&gt;Neo4j AuraDB&lt;/strong&gt;, &lt;strong&gt;FastAPI&lt;/strong&gt;, &lt;strong&gt;Render&lt;/strong&gt;, and &lt;strong&gt;Vercel&lt;/strong&gt; into a seamless production workflow required careful handling of authentication, environment variables, CORS policies, and cloud deployment.&lt;/p&gt;
+
+&lt;p&gt;None of those challenges changed the product vision.&lt;/p&gt;
+
+&lt;p&gt;But solving them transformed a local prototype into a production-ready application.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  Why Neo4j Matters
+&lt;/h1&gt;
+
+&lt;p&gt;The most valuable thing Threadly stores isn't contacts.&lt;/p&gt;
+
+&lt;p&gt;It's &lt;strong&gt;context&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Context forms relationships.&lt;/p&gt;
+
+&lt;p&gt;Relationships form graphs.&lt;/p&gt;
+
+&lt;p&gt;Graphs reveal opportunities.&lt;/p&gt;
+
+&lt;p&gt;Using &lt;strong&gt;Neo4j AuraDB&lt;/strong&gt; allowed Threadly to move beyond traditional CRUD operations into &lt;strong&gt;relationship reasoning&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Every new interaction strengthens the network instead of simply adding another row to a database.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  What Comes Next
+&lt;/h1&gt;
+
+&lt;p&gt;Today, Threadly understands conversations.&lt;/p&gt;
+
+&lt;p&gt;Tomorrow, it should understand careers.&lt;/p&gt;
+
+&lt;p&gt;Future versions will integrate:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Calendars&lt;/li&gt;
+&lt;li&gt;Email&lt;/li&gt;
+&lt;li&gt;LinkedIn&lt;/li&gt;
+&lt;li&gt;Meeting transcripts&lt;/li&gt;
+&lt;li&gt;Messaging platforms&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;to continuously enrich the relationship graph without asking users to change how they work.&lt;/p&gt;
+
+&lt;p&gt;The long-term vision isn't another productivity tool.&lt;/p&gt;
+
+&lt;p&gt;It's &lt;strong&gt;a second brain for professional relationships&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;One that remembers every conversation.&lt;/p&gt;
+
+&lt;p&gt;Connects every idea.&lt;/p&gt;
+
+&lt;p&gt;And quietly ensures that no meaningful opportunity is ever lost because memory failed.&lt;/p&gt;
+
+&lt;p&gt;Because in the end,&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Careers aren't built by collecting contacts.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;They're built by nurturing relationships.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;Threadly exists to remember them, even when we can't.&lt;/strong&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/waqar_akhtar_f4a1df2340f1/threadly-the-missing-memory-layer-for-professional-relationships-4mbb</link>
+      <pubDate>Tue, 14 Jul 2026 04:53:48 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/waqar_akhtar_f4a1df2340f1/threadly-the-missing-memory-layer-for-professional-relationships-4mbb</guid>
+    </item>
+    <item>
+      <title>[翻訳] I built a CLI that fixes GTA d3dx9_43.dll errors by just talking to it</title>
+      <description>&lt;p&gt;I was tired of Googling "how to fix d3dx9_43.dll" for 2 hours just to play GTA San Andreas for 10 minutes.&lt;/p&gt;
+
+&lt;p&gt;So I built a CLI you can just talk to.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Meet HridayaOS
+&lt;/h2&gt;
+
+&lt;p&gt;HridayaOS is a command line assistant that understands plain English. &lt;br /&gt;
+No more remembering &lt;code&gt;rm -rf&lt;/code&gt; or digging through sketchy DLL sites.&lt;/p&gt;
+
+&lt;p&gt;Just type what you want it to do.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  1. Fix Game Errors in 1 Line
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;
+bash
+fix error d3d9_43.dll
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;</description>
+      <link>https://dev.to/mohith_saib_04adfa0eb60e/i-built-a-cli-that-fixes-gta-d3dx943dll-errors-by-just-talking-to-it-396m</link>
+      <pubDate>Tue, 14 Jul 2026 04:53:28 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/mohith_saib_04adfa0eb60e/i-built-a-cli-that-fixes-gta-d3dx943dll-errors-by-just-talking-to-it-396m</guid>
+    </item>
+    <item>
+      <title>[翻訳] A photo cleanup app that never uploads your photos — the on-device design tradeoffs</title>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Disclosure: I work on Swipe Cleaner.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Most "clean up your camera roll" apps start the same way: create an account, grant full library access, and then — often without saying so loudly — upload thumbnails or full images to a server to "detect duplicates" or "find blurry shots."&lt;/p&gt;
+
+&lt;p&gt;For a photo library that quietly contains passports, whiteboard snapshots, and the occasional screenshot of a 2FA code, that always felt backwards to me. So when we started building &lt;strong&gt;Swipe Cleaner&lt;/strong&gt; (an iOS photo cleanup app), we picked one hard constraint up front:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;No account. No uploads. Every decision happens on the device.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;That single rule shaped almost every design choice that followed. Here's what changed.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  1. The review model: swipe, don't auto-delete
+&lt;/h2&gt;
+
+&lt;p&gt;The tempting shortcut is to run a model that scores every photo and auto-suggests deletions. But "smart" auto-deletion is exactly where these apps lose people's trust — one wrong call and you've lost a photo you cared about.&lt;/p&gt;
+
+&lt;p&gt;Instead the core loop is manual and boring on purpose: you see one photo at a time and swipe. Left to trash, right to keep. You can start from All Photos, Videos, Screenshots, Favorites, or a timeline. It turns a vague, overwhelming task ("I have 12,000 photos") into a series of one-second decisions.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  2. Nothing is actually deleted until you confirm the batch
+&lt;/h2&gt;
+
+&lt;p&gt;This is the part I'd defend the hardest.&lt;/p&gt;
+
+&lt;p&gt;Swiping left doesn't delete anything. It moves the photo into a &lt;strong&gt;pending-delete queue&lt;/strong&gt;. You keep swiping, build up a batch, and only at the end do you review the whole batch and confirm once. The actual deletion then goes through the system PhotoKit flow — so iOS shows its own confirmation, and the files land in "Recently Deleted" where they're recoverable for 30 days.&lt;/p&gt;
+
+&lt;p&gt;Two safety nets (our batch review + the OS's own trash) instead of an irreversible tap. For a destructive action, that redundancy is worth the extra step.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  3. On-device means "smart" features have to be cheap
+&lt;/h2&gt;
+
+&lt;p&gt;Without a server, you can't lean on heavy ML pipelines. So the useful features are the ones that are genuinely local and fast: sorting by file size (surprisingly effective — big videos are usually the real storage hogs), grouping, and running smoothly on large libraries without a long first-time "scan everything" delay.&lt;/p&gt;
+
+&lt;p&gt;Constraint as a feature: because there's no upload step, there's no waiting for a network round trip, and there's nothing to leak. The app works the same on a plane as it does on wifi.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What I'd tell another builder
+&lt;/h2&gt;
+
+&lt;p&gt;If you're building anything that touches personal data, try writing your privacy constraint as a &lt;em&gt;technical&lt;/em&gt; constraint before you write the marketing copy. "We don't upload your photos" is a nice sentence. "The app has no backend that can receive a photo" is an architecture — and it forces better decisions.&lt;/p&gt;
+
+&lt;p&gt;The core cleanup is free; there's a supporter tier for longer-term stats and an advanced queue, but the privacy model is the same either way.&lt;/p&gt;
+
+&lt;p&gt;If you're on iOS and your storage is permanently "Almost Full," you can try it here: &lt;a href="https://apps.apple.com/cn/app/id6779493280" rel="noopener noreferrer"&gt;https://apps.apple.com/cn/app/id6779493280&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Curious how other people handle the delete-confirmation UX in destructive-action apps — do you prefer a batch review, or immediate undo?&lt;/p&gt;</description>
+      <link>https://dev.to/leozhang8285/a-photo-cleanup-app-that-never-uploads-your-photos-the-on-device-design-tradeoffs-5b0f</link>
+      <pubDate>Tue, 14 Jul 2026 04:52:29 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/leozhang8285/a-photo-cleanup-app-that-never-uploads-your-photos-the-on-device-design-tradeoffs-5b0f</guid>
+    </item>
+    <item>
+      <title>[翻訳] How to Give Your LiveKit, Vapi, or Retell Voice Agent a Real Indian (+91) Phone Number</title>
+      <description>&lt;h2&gt;
+  
+  
+  The problem: your voice agent is ready, but India won't pick up
+&lt;/h2&gt;
+
+&lt;p&gt;You have a working voice AI agent — maybe built on LiveKit Agents, Vapi, or Retell — and you need it to be reachable on a real Indian phone number. Not a virtual number from a gray-market SIM reseller. Not a US Twilio number with unreliable India routing. A legitimate +91 business inbound number that your users can call from any Indian mobile or landline.&lt;/p&gt;
+
+&lt;p&gt;Here is what the standard path looks like:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Find a licensed Indian telecom operator or ITSP (Internet Telephony Service Provider).&lt;/li&gt;
+&lt;li&gt;Submit KYC documents, company registration proof, sometimes a signed LOA (Letter of Authorization).&lt;/li&gt;
+&lt;li&gt;Wait days or weeks for number provisioning.&lt;/li&gt;
+&lt;li&gt;Receive SIP credentials — if you are lucky, a vague PDF with no webhook documentation.&lt;/li&gt;
+&lt;li&gt;Figure out on your own how to bridge that SIP trunk to your agent framework.&lt;/li&gt;
+&lt;li&gt;Hope the number actually works for inbound calls from BSNL, Jio, and Airtel.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Most developers building voice AI side projects or SaaS products hit a wall at step 2. And even teams that get through provisioning discover that Indian telecom providers have almost zero developer-friendly tooling: no webhook endpoints, no call logs via API, no programmable routing rules.&lt;/p&gt;
+
+&lt;p&gt;This article explains the underlying telecom concept (DID routing), how it should connect to a voice AI agent, and what a developer-first approach looks like.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What is a DID, and how does inbound call routing actually work?
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;DID&lt;/strong&gt; stands for Direct Inward Dialing. It is a phone number leased from a telecom carrier that, instead of connecting to a physical phone line, routes inbound calls over SIP (Session Initiation Protocol) to a destination you configure — a SIP URI, a media server, a WebRTC gateway, or an HTTP webhook.&lt;/p&gt;
+
+&lt;p&gt;The routing chain for a typical voice AI agent looks like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Caller dials +91 XXXXX XXXXX
+         |
+   Telecom PSTN (Jio, Airtel, BSNL)
+         |
+   ITSP / DID provider  &amp;lt;-- this is the layer most teams lack
+         |
+   SIP trunk or webhook  &amp;lt;-- where your code takes over
+         |
+   Your voice agent (LiveKit, Vapi, Retell, Asterisk, etc.)
+         |
+   AI model + TTS/STT
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The ITSP layer is the piece that turns a PSTN call into something a developer can interact with. A good DID provider exposes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;A &lt;strong&gt;SIP endpoint&lt;/strong&gt; you can point at a media server (LiveKit SIP, FreeSWITCH, Asterisk)&lt;/li&gt;
+&lt;li&gt;A &lt;strong&gt;webhook&lt;/strong&gt; that fires when a call arrives, letting you dynamically decide routing (transfer, drop to IVR, connect to agent)&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Call detail records&lt;/strong&gt; accessible via API so you can build billing logic or debug dropped calls&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Fallback routing&lt;/strong&gt; so calls do not silently fail if your agent is down&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Most Indian telecom providers expose none of this. They provision the number and give you a SIP trunk — full stop. The webhook layer, the fallback logic, and the call logs are your problem.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why Indian numbers specifically are harder than US numbers
+&lt;/h2&gt;
+
+&lt;p&gt;If you have built voice agents targeting the US market, you are used to Twilio, Vonage, or Plivo — providers that are developer-first from day one with REST APIs, webhooks, and SDKs.&lt;/p&gt;
+
+&lt;p&gt;India has structural differences:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Regulatory layer.&lt;/strong&gt; Inbound business numbers in India require TRAI-compliant provisioning. The operator must verify the entity behind the number. This is not optional — it is what makes the number legitimate and ensures it works across all Indian carriers.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;PSTN interconnect complexity.&lt;/strong&gt; India has fragmented carrier interconnects. A number that works on Jio may not route cleanly from BSNL or a rural landline without proper carrier agreements on the ITSP side.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;No developer-first incumbents.&lt;/strong&gt; The large Indian telecom operators (Airtel Business, Jio Enterprise) are built for enterprise customers with long contract cycles, not for a developer who wants to spin up a number over a weekend.&lt;/p&gt;
+
+&lt;p&gt;The result is that most voice-AI developers building for the Indian market either skip inbound entirely, use SMS fallback, or cobble together offshore numbers with unreliable India routing.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What a clean DID-to-agent connection looks like
+&lt;/h2&gt;
+
+&lt;p&gt;The ideal flow for a voice AI agent on an Indian number:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight json"&gt;&lt;code&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="err"&gt;.&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;Number&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;provisioned&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;and&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;verified&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;(handled&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;by&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;provider)&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="err"&gt;.&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;Inbound&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;call&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;arrives&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;at&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;DID&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="err"&gt;.&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;Provider&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;fires&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;webhook&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;POST&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;to&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;your&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;URL:&lt;/span&gt;&lt;span class="w"&gt;
+   &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"call_id"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"..."&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"from"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"+919..."&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"to"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"+9198..."&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"timestamp"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"..."&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="err"&gt;.&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;Your&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;webhook&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;responds&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;with&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;routing&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;instruction:&lt;/span&gt;&lt;span class="w"&gt;
+   &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"action"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"connect"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"destination"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"sip:agent@your-livekit-host"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+   &lt;/span&gt;&lt;span class="err"&gt;--&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;OR&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;--&lt;/span&gt;&lt;span class="w"&gt;
+   &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"action"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"connect"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"destination"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"wss://your-retell-agent"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="err"&gt;.&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;Media&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;is&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;bridged;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;your&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;agent&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;handles&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;the&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;conversation&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="err"&gt;.&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;Call&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;ends;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;CDR&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;record&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;available&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;via&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;API&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;With LiveKit specifically, you would run the LiveKit SIP component pointed at the DID provider's outbound SIP trunk, and use the webhook to trigger agent dispatch. With Vapi or Retell, you configure the inbound SIP URI in their dashboard and the DID provider terminates to it.&lt;/p&gt;
+
+&lt;p&gt;The critical insight: the DID provider only needs to answer the call and deliver it to your SIP/webhook endpoint. Your agent framework handles everything after that. The hard part is finding an Indian provider that actually exposes that clean hand-off.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Boni Voice API: the developer path for Indian DIDs
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Boni Voice API&lt;/strong&gt; (&lt;a href="https://boni.one/apis/voice" rel="noopener noreferrer"&gt;boni.one/apis/voice&lt;/a&gt;) is built exactly for this gap. It provides dedicated Indian (+91) inbound business numbers with developer-oriented routing.&lt;/p&gt;
+
+&lt;p&gt;What the API surface covers:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;India DID provisioning&lt;/strong&gt; (&lt;a href="https://boni.one/apis/voice/india-did" rel="noopener noreferrer"&gt;boni.one/apis/voice/india-did&lt;/a&gt;): get a +91 number assigned to your account, configured for inbound routing.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Webhook routing&lt;/strong&gt;: point the number at an HTTP endpoint. Boni fires a webhook on inbound calls so your service decides in real time what happens.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;SIP routing&lt;/strong&gt;: connect to a SIP URI — LiveKit SIP, Asterisk, FreeSWITCH, or a hosted provider like Vapi/Retell.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;LiveKit connector&lt;/strong&gt; (&lt;a href="https://boni.one/apis/voice/livekit" rel="noopener noreferrer"&gt;boni.one/apis/voice/livekit&lt;/a&gt;): native integration for teams running LiveKit Agents who want to skip the SIP plumbing and go directly to agent dispatch.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Call logs&lt;/strong&gt;: inbound call records accessible so you can build audit trails or debug routing failures.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Fallback handling&lt;/strong&gt;: Boni manages what happens when your agent endpoint is unreachable, so callers do not hit dead air.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Pricing starts at &lt;strong&gt;Rs 500/month per number&lt;/strong&gt; — within range for a side project or early-stage SaaS. Onboarding is assisted beta; you get in via WhatsApp (link on the product pages above) so a human helps you through initial setup and KYC, which keeps the provisioning compliant without requiring you to negotiate directly with a telecom operator.&lt;/p&gt;
+
+&lt;p&gt;The KYC requirement is not optional — it is the same requirement that makes the number legitimate. Boni handles that layer on your behalf.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Who this is for
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Voice AI developers&lt;/strong&gt; building phone agents targeting Indian users who need a reachable +91 inbound number.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;AI agencies&lt;/strong&gt; deploying customer service or IVR agents for Indian businesses.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;SaaS platforms&lt;/strong&gt; that include phone-channel features and need to provision numbers programmatically for their customers.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;n8n / no-code automation builders&lt;/strong&gt; who want to trigger voice agent flows from inbound Indian calls via webhook.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;LiveKit / Vapi / Retell users&lt;/strong&gt; who have the agent working and just need the Indian number layer sorted.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Getting started
+&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Visit &lt;a href="https://boni.one/apis/voice" rel="noopener noreferrer"&gt;boni.one/apis/voice&lt;/a&gt; or directly &lt;a href="https://boni.one/apis/voice/india-did" rel="noopener noreferrer"&gt;boni.one/apis/voice/india-did&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Use the WhatsApp CTA on the page to start the assisted onboarding.&lt;/li&gt;
+&lt;li&gt;Complete number provisioning (KYC handled with Boni's help).&lt;/li&gt;
+&lt;li&gt;Configure your webhook URL or SIP URI in the Boni dashboard.&lt;/li&gt;
+&lt;li&gt;Start receiving calls on your +91 number routed to your agent.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;If you are on LiveKit, the dedicated connector page at &lt;a href="https://boni.one/apis/voice/livekit" rel="noopener noreferrer"&gt;boni.one/apis/voice/livekit&lt;/a&gt; covers the specific integration steps.&lt;/p&gt;
+
+&lt;p&gt;Getting a legitimate Indian inbound number for a voice agent is genuinely hard today. The problem is not technical — it is the opaque telecom layer sitting between PSTN and your code. Once that layer exposes a clean webhook or SIP hand-off, the rest is standard agent development. That is the gap Boni Voice API is built to close.&lt;/p&gt;</description>
+      <link>https://dev.to/animesh_gupta_705a19fc6f8/how-to-give-your-livekit-vapi-or-retell-voice-agent-a-real-indian-91-phone-number-am6</link>
+      <pubDate>Tue, 14 Jul 2026 04:52:21 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/animesh_gupta_705a19fc6f8/how-to-give-your-livekit-vapi-or-retell-voice-agent-a-real-indian-91-phone-number-am6</guid>
+    </item>
+    <item>
+      <title>[翻訳] Audit BYOK Model Endpoints Before Your AI Agent Gets the Key</title>
+      <description>&lt;p&gt;“Bring your own key” looks like a settings feature. For an AI coding agent, it is also a security boundary: a privileged workload will send repository context, prompts, and credentials toward a network destination selected by configuration.&lt;/p&gt;
+
+&lt;p&gt;That boundary deserves more than a successful &lt;code&gt;GET /models&lt;/code&gt; request.&lt;/p&gt;
+
+&lt;p&gt;I reviewed &lt;a href="https://github.com/chaitin/MonkeyCode" rel="noopener noreferrer"&gt;MonkeyCode&lt;/a&gt;, an open-source AI development platform, at commit &lt;a href="https://github.com/chaitin/MonkeyCode/tree/c58bcd4dd4b7031f469a1271f276d22550b8f523" rel="noopener noreferrer"&gt;&lt;code&gt;c58bcd4&lt;/code&gt;&lt;/a&gt;. Its source provides a useful concrete case because users can configure model providers while task runtimes receive proxy credentials.&lt;/p&gt;
+
+&lt;p&gt;This is a source review, not a penetration test. In particular, I am not claiming encryption, rotation, or revocation behavior that the reviewed files do not establish.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Map the two credential planes
+&lt;/h2&gt;
+
+&lt;p&gt;The reviewed &lt;a href="https://github.com/chaitin/MonkeyCode/blob/c58bcd4dd4b7031f469a1271f276d22550b8f523/backend/ent/schema/modelapikey.go" rel="noopener noreferrer"&gt;model API-key schema&lt;/a&gt; and &lt;a href="https://github.com/chaitin/MonkeyCode/blob/c58bcd4dd4b7031f469a1271f276d22550b8f523/backend/biz/setting/repo/model.go" rel="noopener noreferrer"&gt;model repository&lt;/a&gt; separate a configured provider credential from a runtime API key.&lt;/p&gt;
+
+&lt;p&gt;The task path then calls &lt;code&gt;CreateRuntimeAPIKey&lt;/code&gt; and gives the runtime a proxy base URL plus that runtime token. In the reviewed repository logic, a token is associated with a user, model, and VM; a token for the same user and VM can be reused and rebound to a model.&lt;/p&gt;
+
+&lt;p&gt;That yields two distinct questions:&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Plane&lt;/th&gt;
+&lt;th&gt;Secret holder&lt;/th&gt;
+&lt;th&gt;Security question&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Provider plane&lt;/td&gt;
+&lt;td&gt;Control service&lt;/td&gt;
+&lt;td&gt;Can this credential call only the intended provider, models, and operations?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Runtime plane&lt;/td&gt;
+&lt;td&gt;Agent VM&lt;/td&gt;
+&lt;td&gt;Is this delegated token narrowly bound, short-lived, observable, and invalid after its task boundary ends?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;A proxy reduces direct provider-key exposure inside the VM. It does not automatically settle endpoint trust, server-side storage, token lifetime, replay, or revocation.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Treat the base URL as code execution input
+&lt;/h2&gt;
+
+&lt;p&gt;A configurable model base URL controls where sensitive payloads leave the platform. Audit it like a webhook destination or package registry:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Require HTTPS and perform normal certificate validation.&lt;/li&gt;
+&lt;li&gt;Reject URL-embedded credentials.&lt;/li&gt;
+&lt;li&gt;Resolve and authorize the destination, including redirect targets; protect link-local, loopback, and private metadata ranges unless explicitly required.&lt;/li&gt;
+&lt;li&gt;Allow-list expected hosts and ports for managed deployments.&lt;/li&gt;
+&lt;li&gt;Bind the provider credential to inference-only permissions where the provider supports scopes.&lt;/li&gt;
+&lt;li&gt;Log destination identity, model ID, caller, VM, and decision result without logging prompts or secrets.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;TLS answers “is this encrypted to the named peer?” It does not answer “should this peer receive the repository?” An allow-list or administrator approval supplies that missing policy decision.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Make the policy executable
+&lt;/h2&gt;
+
+&lt;p&gt;Here is a small policy document from the companion files:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight json"&gt;&lt;code&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"endpoint"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"https://llm-gateway.example/v1"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"allowed_hosts"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"llm-gateway.example"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"require_https"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"forbid_url_credentials"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"key_scope"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"model-inference-only"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"runtime_credential"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"audience"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"llm-proxy"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"bound_to"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"user"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"model"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"vm"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"max_ttl_seconds"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;3600&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"egress"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"allowed_ports"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;443&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nl"&gt;"follow_redirects"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The included zero-dependency checker rejects HTTP, URL credentials, unknown hosts, unrestricted key scope, missing bindings, excessive TTL, and redirects:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;node check-policy.mjs byok-policy.json
+node test-policy.mjs
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Expected output:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;PASS BYOK endpoint policy
+PASS policy accepts the safe fixture and rejects five unsafe properties
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This is a configuration gate, not a network scanner. Production enforcement must also validate DNS results at connection time, prevent redirect bypass, use a trusted TLS stack, and keep egress policy outside the agent's control.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Review the lifecycle, not only creation
+&lt;/h2&gt;
+
+&lt;p&gt;For each secret type, write down:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;create -&amp;gt; store -&amp;gt; delegate -&amp;gt; use -&amp;gt; observe -&amp;gt; rotate -&amp;gt; revoke -&amp;gt; delete
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Then demand evidence for each arrow. A schema field proves persistence, not encryption. A generated token proves delegation, not expiry. A proxy proves mediation, not least privilege.&lt;/p&gt;
+
+&lt;p&gt;The runtime-token reuse behavior is also a reason to define model-switch semantics explicitly. If rebinding is intentional, ask what happens to an in-flight request using the prior model, how caches are keyed, and which audit event links old and new authority.&lt;/p&gt;
+
+&lt;p&gt;My acceptance gate would be: no provider key enters the task VM; the outbound host is approved after DNS and redirect handling; the runtime token is audience-, user-, model-, and VM-bound; expiry and revocation are tested; and logs prove the decision without exposing content.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Disclosure: I contribute to the MonkeyCode project. The observations and limitations above are based on the linked repository at the pinned commit and the local policy tests described here.&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+      <link>https://dev.to/jaryn_123/audit-byok-model-endpoints-before-your-ai-agent-gets-the-key-4dna</link>
+      <pubDate>Tue, 14 Jul 2026 04:49:07 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/jaryn_123/audit-byok-model-endpoints-before-your-ai-agent-gets-the-key-4dna</guid>
+    </item>
+    <item>
+      <title>[翻訳] Introducing tasq: An AI-Native Task Orchestrator for Coding Agents</title>
+      <description>&lt;p&gt;If you'd rather try it first than read about it, there's a demo video and a quick tutorial that walk you through the entire workflow in just a few minutes.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/version-1/tasq#tasq" rel="noopener noreferrer"&gt;Demo Movie&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://version-1.github.io/tasq/getting-started/agent-tutorial" rel="noopener noreferrer"&gt;Tasq | Agent Tutorial&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;By the end of it, you'll have an agent:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;picking up issues automatically&lt;/li&gt;
+&lt;li&gt;implementing changes in isolated worktrees&lt;/li&gt;
+&lt;li&gt;creating pull requests&lt;/li&gt;
+&lt;li&gt;updating issue states as work progresses&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This article explains why I built tasq and the problems it tries to solve.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;I spend most of my time building software with AI coding agents.&lt;/p&gt;
+
+&lt;p&gt;My workflow usually looks like this:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Use Claude Code and custom skills to explore a problem and generate a plan.&lt;/li&gt;
+&lt;li&gt;Ask Codex to implement the plan.&lt;/li&gt;
+&lt;li&gt;Let the agent create a pull request.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;At first, it felt magical.&lt;/p&gt;
+
+&lt;p&gt;Then I started running multiple agents in parallel.&lt;/p&gt;
+
+&lt;p&gt;While one agent was investigating a bug, another was implementing a feature. While waiting for CI to finish, I would ask yet another agent to work on a different task.&lt;/p&gt;
+
+&lt;p&gt;A few days later I noticed a problem:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Which tasks are currently running?&lt;/li&gt;
+&lt;li&gt;Which tasks are blocked by dependencies?&lt;/li&gt;
+&lt;li&gt;Which tasks are already finished?&lt;/li&gt;
+&lt;li&gt;Which conversation thread belongs to which implementation?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Sometimes an agent would finish a task and I wouldn't notice for days.&lt;/p&gt;
+
+&lt;p&gt;Sometimes I would discover an unfinished implementation a week later and wonder why it had stopped in the first place.&lt;/p&gt;
+
+&lt;p&gt;AI made software development massively parallel.&lt;/p&gt;
+
+&lt;p&gt;But my task management workflow was still designed for humans.&lt;/p&gt;
+
+&lt;p&gt;That's why I built &lt;strong&gt;tasq&lt;/strong&gt;.&lt;/p&gt;
+
+
+&lt;div class="ltag-github-readme-tag"&gt;
+  &lt;div class="readme-overview"&gt;
+    &lt;h2&gt;
+      &lt;img alt="GitHub logo" src="https://assets.dev.to/assets/github-logo-5a155e1f9a670af7944dd5e12375bc76ed542ea80224905ecaf878b9157cdefc.svg" /&gt;
+      &lt;a href="https://github.com/version-1" rel="noopener noreferrer"&gt;
+        version-1
+      &lt;/a&gt; / &lt;a href="https://github.com/version-1/tasq" rel="noopener noreferrer"&gt;
+        tasq
+      &lt;/a&gt;
+    &lt;/h2&gt;
+    &lt;h3&gt;
+      AI-native task orchestrator for coding agents 
+    &lt;/h3&gt;
+  &lt;/div&gt;
+  &lt;div class="ltag-github-body"&gt;
+    
+&lt;div class="md" id="readme"&gt;&lt;div class="markdown-heading"&gt;
+&lt;h1 class="heading-element"&gt;tasq&lt;/h1&gt;
+&lt;/div&gt;
+&lt;p&gt;AI coding agent task manager.&lt;/p&gt;
+&lt;p&gt;tasq helps you turn implementation work into a visible queue, start local services for that queue, and inspect progress from both the &lt;code&gt;tq&lt;/code&gt; CLI and the Web UI.&lt;/p&gt;
+
+  
+    
+    &lt;span class="m-1"&gt;intro_v2.mp4&lt;/span&gt;
+  
+
+  
+
+  
+
+
+&lt;p&gt;&lt;a href="https://github.com/user-attachments/assets/8c4fdc9c-c70b-4f86-8e0a-323f8880ffb7" rel="noopener noreferrer"&gt;Watch the Tasq introduction video&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Japanese counterpart: &lt;a href="https://github.com/version-1/tasq/README.ja.md" rel="noopener noreferrer"&gt;README.ja.md&lt;/a&gt;.&lt;/p&gt;
+&lt;div class="markdown-heading"&gt;
+&lt;h2 class="heading-element"&gt;Problem&lt;/h2&gt;
+
+&lt;/div&gt;
+&lt;p&gt;AI coding agents make it possible to work on multiple implementation tasks at the same time. The bottleneck moves from writing code to managing parallel work.&lt;/p&gt;
+&lt;div class="markdown-heading"&gt;
+&lt;h3 class="heading-element"&gt;Human Context Switching&lt;/h3&gt;
+
+&lt;/div&gt;
+&lt;p&gt;Agents can run in parallel, but humans still need to track which tasks were assigned, which agents are running, how far each task has progressed, and what should be reviewed next.&lt;/p&gt;
+&lt;div class="markdown-heading"&gt;
+&lt;h3 class="heading-element"&gt;Workspace Conflicts&lt;/h3&gt;
+
+&lt;/div&gt;
+&lt;p&gt;Running multiple agents in one repository checkout can create branch switching issues, unfinished-change conflicts, and overlapping file edits.&lt;/p&gt;
+&lt;div class="markdown-heading"&gt;
+&lt;h3 class="heading-element"&gt;Repeated Setup Work&lt;/h3&gt;
+
+&lt;/div&gt;
+&lt;p&gt;Each agent task often needs the same preparation steps: create a branch, create a worktree, verify dependencies, and run the right…&lt;/p&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="gh-btn-container"&gt;&lt;a class="gh-btn" href="https://github.com/version-1/tasq" rel="noopener noreferrer"&gt;View on GitHub&lt;/a&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;An AI-native task orchestrator designed for coding agents.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why not GitHub Issues or Linear?
+&lt;/h2&gt;
+
+&lt;p&gt;The obvious answer is to create more issues.&lt;/p&gt;
+
+&lt;p&gt;The problem is that not all tasks belong in a shared project management system.&lt;/p&gt;
+
+&lt;p&gt;I don't want to publish every tiny implementation detail, development experiment, or dotfiles improvement to a team-wide Linear workspace.&lt;/p&gt;
+
+&lt;p&gt;Many of these tasks are personal implementation notes or intermediate steps that only exist to help me finish larger work.&lt;/p&gt;
+
+&lt;p&gt;They also have dependencies.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Create database schema&lt;/li&gt;
+&lt;li&gt;Implement repository layer&lt;/li&gt;
+&lt;li&gt;Add API endpoints&lt;/li&gt;
+&lt;li&gt;Update frontend integration&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I don't want to manually copy and paste these tasks into agents in the correct order.&lt;/p&gt;
+
+&lt;p&gt;I want the system to understand the dependency graph and schedule the work automatically.&lt;/p&gt;
+
+&lt;p&gt;What I needed was:&lt;/p&gt;
+
+&lt;p&gt;Run multiple agents and automatically consume tasks while respecting dependencies.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What is tasq?
+&lt;/h2&gt;
+
+&lt;p&gt;tasq combines three ideas:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;A local issue tracker&lt;/li&gt;
+&lt;li&gt;A dependency-aware task queue&lt;/li&gt;
+&lt;li&gt;An orchestrator for coding agents&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Issues are stored locally in a database rather than in GitHub or Linear.&lt;/p&gt;
+
+&lt;p&gt;The orchestrator continuously watches the queue and dispatches executable tasks to coding agents.&lt;/p&gt;
+
+&lt;p&gt;Each task runs in its own Git worktree and branch, so multiple implementations can happen in parallel without conflicts.&lt;/p&gt;
+
+&lt;p&gt;tasq was heavily inspired by Codex Symphony and its orchestration model, while focusing on local-first and personal workflows.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Workflow Customization
+&lt;/h2&gt;
+
+&lt;p&gt;The default implementation loop looks like this:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Create a worktree and branch.&lt;/li&gt;
+&lt;li&gt;Move the issue to &lt;code&gt;in_progress&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Implement the requested changes.&lt;/li&gt;
+&lt;li&gt;Run agent-based review.&lt;/li&gt;
+&lt;li&gt;Create a pull request.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;However, these steps are not hardcoded.&lt;/p&gt;
+
+&lt;p&gt;tasq uses &lt;code&gt;WORKFLOW.md&lt;/code&gt; files inspired by Symphony's workflow specification.&lt;/p&gt;
+
+&lt;p&gt;This means users can customize:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;review strategies&lt;/li&gt;
+&lt;li&gt;branching models&lt;/li&gt;
+&lt;li&gt;required checks&lt;/li&gt;
+&lt;li&gt;skill selection&lt;/li&gt;
+&lt;li&gt;pull request behavior&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;tasq only cares about:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;issue dependencies&lt;/li&gt;
+&lt;li&gt;issue states&lt;/li&gt;
+&lt;li&gt;orchestration&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Everything else belongs to the user.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Autonomous agents still need humans
+&lt;/h2&gt;
+
+&lt;p&gt;In an ideal world, agents would continuously fetch tasks and finish them without interruption.&lt;/p&gt;
+
+&lt;p&gt;Reality is messier.&lt;/p&gt;
+
+&lt;p&gt;Agents may require permissions.&lt;/p&gt;
+
+&lt;p&gt;CI pipelines fail.&lt;/p&gt;
+
+&lt;p&gt;Implementations sometimes diverge from expectations.&lt;/p&gt;
+
+&lt;p&gt;For these situations, tasq intentionally stays lightweight.&lt;/p&gt;
+
+&lt;p&gt;Each issue stores the execution session identifier of the underlying coding agent.&lt;/p&gt;
+
+&lt;p&gt;If something goes wrong, you can simply continue from the existing session:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;codex resume &amp;lt;thread_id&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;You don't need to create another issue just to fix CI failures or tweak a generated implementation.&lt;/p&gt;
+
+&lt;p&gt;You simply resume the conversation and continue from where the agent stopped.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Typical Workflow
+&lt;/h2&gt;
+
+&lt;p&gt;A typical tasq workflow looks like this:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Create a plan using Claude Code, Codex, or your preferred tools.&lt;/li&gt;
+&lt;li&gt;Convert the plan into issues with &lt;code&gt;tq issue create&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Review the generated issues and mark them as &lt;code&gt;ready&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Let the orchestrator dispatch work automatically.&lt;/li&gt;
+&lt;li&gt;Review the generated pull requests.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In practice, this often means your work becomes:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Review issues and move them to ready.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Everything else happens automatically.&lt;/p&gt;
+
+&lt;p&gt;tasq provides both a web interface and a CLI interface.&lt;/p&gt;
+
+&lt;p&gt;The CLI is primarily intended for coding agents, while the web interface focuses on issue management and orchestration visibility.&lt;/p&gt;
+
+&lt;p&gt;There is also a dedicated tasq skill package for coding agents so they can interact with the issue tracker without additional prompting.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What's Next?
+&lt;/h2&gt;
+
+&lt;p&gt;There is still a lot to improve.&lt;/p&gt;
+
+&lt;p&gt;Current ideas include:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;TUI support&lt;/li&gt;
+&lt;li&gt;Seamless recovery of blocked tasks&lt;/li&gt;
+&lt;li&gt;Better onboarding and startup configuration&lt;/li&gt;
+&lt;li&gt;Claude Code integration&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I personally spend most of my time inside tmux and Vim, so a TUI feels inevitable.&lt;/p&gt;
+
+&lt;p&gt;I also want blocked tasks to recover automatically whenever possible.&lt;/p&gt;
+
+&lt;p&gt;For example, if CI fails, users shouldn't need to manually resume an agent and type:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;fix ci&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Finally, tasq currently depends on Codex App Server and does not yet support direct execution through Claude Code.&lt;/p&gt;
+
+&lt;p&gt;Long term, I would like planning and implementation workflows to work seamlessly across both ecosystems.&lt;/p&gt;
+
+&lt;p&gt;If any of this sounds interesting, I'd love for you to try the tutorial and share your feedback.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://version-1.github.io/tasq/" rel="noopener noreferrer"&gt;Tasq Document Site&lt;/a&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/version1/introducing-tasq-an-ai-native-task-orchestrator-for-coding-agents-506c</link>
+      <pubDate>Tue, 14 Jul 2026 04:45:34 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/version1/introducing-tasq-an-ai-native-task-orchestrator-for-coding-agents-506c</guid>
+    </item>
+    <item>
       <title>[翻訳] 弁護士向けの機密文書対応RAGツール：引用の検証がなぜ重要か</title>
       <description>法律文書の機密性と依頼者の信頼を守るため、クラウドAIではなくローカルで動作するオープンソースの文書チャットアプリ「DocuChat」が開発された。
 Ollama、FastAPI、LanceDBなどを組み合わせた自己ホスト型RAGスタックで、ローカルモデルのみを使用してオフライン実行が可能。
