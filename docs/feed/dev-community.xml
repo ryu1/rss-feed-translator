@@ -5,6 +5,122 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] 弁護士向けの機密文書対応RAGツール：引用の検証がなぜ重要か</title>
+      <description>法律文書の機密性と依頼者の信頼を守るため、クラウドAIではなくローカルで動作するオープンソースの文書チャットアプリ「DocuChat」が開発された。
+Ollama、FastAPI、LanceDBなどを組み合わせた自己ホスト型RAGスタックで、ローカルモデルのみを使用してオフライン実行が可能。
+重要な特徴として、モデルが生成した引用文が実際にソース文書に存在するかを機械的に検証し、確認できない主張は表示しない仕組みを採用している。</description>
+      <link>https://dev.to/janderswag/local-first-rag-for-privileged-legal-documents-why-citations-need-verification-4936</link>
+      <pubDate>Tue, 14 Jul 2026 01:47:12 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/janderswag/local-first-rag-for-privileged-legal-documents-why-citations-need-verification-4936</guid>
+    </item>
+    <item>
+      <title>[翻訳] Pollux：ナイジェリアの政治情勢をリアルタイム追跡するプラットフォーム</title>
+      <description>Polluxは匿名でナイジェリアの政治感情をリアルタイムで追跡するプラットフォーム。52人の政治家に対して支持・未定・反対の投票とコメントができ、全6地政学的地域の投票集計結果と中立的なAI生成の人物紹介が表示される。
+フレームワークなしのVanilla TypeScript+Viteフロントエンドと、Vercel serverless関数のバックエンドで構成。最小サンプル数に達しないまでのデータは表示せず、AIが生成するすべてのコンテンツにラベルを付けることで、透明性と信頼性を優先している。
+Gemini 2.5 Flashを用いたコメント自動審査、議論の熱度スコア、支持者と批評家の中立的な見解要約、Google Search groundingによる根拠のある経歴情報の3つの機能を実装している。</description>
+      <link>https://dev.to/akcumeh/pollux-lets-explore-nigerian-political-sentiment-ifo</link>
+      <pubDate>Tue, 14 Jul 2026 01:43:07 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/akcumeh/pollux-lets-explore-nigerian-political-sentiment-ifo</guid>
+    </item>
+    <item>
+      <title>[翻訳] ドキュメントフォルダはナレッジベースではない――出典管理がもたらす違い</title>
+      <description>RAGでドキュメントフォルダに直接クエリを投げるだけでは、信頼性のあるナレッジベースにはならない。問題は埋め込みの質ではなく、各情報がどこから来たのかという出典追跡がないこと。
+ナレッジベースとして機能するには、ドキュメント全体ではなく「主張」という粒度で管理し、それぞれの出典を保持することが不可欠。インポート→抽出→検証→提供という4つのステップのパイプラインを通すことで、AIが答えを引用でき、人間がそれを監査できるようになる。
+このアプローチにより、AgentProtoなどのツールを使って、信頼性のある・監査可能な・ローカルで管理できるナレッジベースを構築できる。</description>
+      <link>https://dev.to/agentiknet/a-folder-of-docs-is-not-a-knowledge-base-55b9</link>
+      <pubDate>Tue, 14 Jul 2026 01:36:49 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/agentiknet/a-folder-of-docs-is-not-a-knowledge-base-55b9</guid>
+    </item>
+    <item>
+      <title>[翻訳] エージェントが子エージェントを生成するのはフォークボムと同じ危険性を持つ</title>
+      <description>LLMエージェントに無制限の子エージェント生成機能を持たせると、Unixのフォークボムと同じメカニズムで制御不能な指数関数的増殖が起こり、コストと計算資源が爆発的に増大する。\nこの問題を防ぐには、生成権を特定の親エージェントのみに限定し、深さ・幅・コストの上限を設定し、子が親より高い権限を得られないようにする4つの制限が必要。\n適切な権限管理により、エージェントチームの強力な機能を保ちながら、リスクを完全に制御可能な範囲に抑えることができる。</description>
+      <link>https://dev.to/agentiknet/an-agent-that-can-spawn-agents-is-a-fork-bomb-with-good-intentions-2kjh</link>
+      <pubDate>Tue, 14 Jul 2026 01:36:46 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/agentiknet/an-agent-that-can-spawn-agents-is-a-fork-bomb-with-good-intentions-2kjh</guid>
+    </item>
+    <item>
+      <title>[翻訳] MoFlo：Claude Codeに記憶と再現性をもたらすローカル-ファースト・オーケストレーション</title>
+      <description>Claude Codeは優れたコーディングエージェントだが、セッション終了時にすべての情報が失われる問題を解決するツール。
+MoFloはローカル-ファーストのオーケストレーション・ツールキットで、セマンティック検索、モデルルーティング、再利用可能なワークフロー（スペル）などを備える。
+クラウド不要で、npm installと初期化コマンドだけで導入でき、コードベースのメモリ化とエージェント間の調整を実現する。</description>
+      <link>https://dev.to/ericcielo/moflo-local-first-agent-orchestration-for-claude-code-1ccj</link>
+      <pubDate>Tue, 14 Jul 2026 01:36:46 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ericcielo/moflo-local-first-agent-orchestration-for-claude-code-1ccj</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIエージェントの承認疲れ問題：読み取りは自動承認、書き込みはゲート化する設計</title>
+      <description>コーディングエージェントにシェルアクセスを与える際、すべてのコマンドを承認させると疲労で危険なコマンドを見落とし、承認をスキップするとデータ削除などの取り返しのつかない操作が実行される。
+状態を変更しない読み取り操作は自動承認し、状態を変更する書き込み操作のみをゲート化する設計原則が重要であり、ツールの種類や可逆性ではなく「状態変化の有無」で判断すべき。
+実装には3段階があり、ツールが自身のリスクを宣言、待機中の決定を中央リレーで管理、外部ゲートでコミットを検証する仕組みで、人間の判断をスケールさせずに安全性を確保できる。</description>
+      <link>https://dev.to/agentiknet/approve-all-is-how-your-agent-ships-the-dangerous-one-2ma</link>
+      <pubDate>Tue, 14 Jul 2026 01:36:42 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/agentiknet/approve-all-is-how-your-agent-ships-the-dangerous-one-2ma</guid>
+    </item>
+    <item>
+      <title>[翻訳] あなたが最適化しているのは、あなたが所有していない部分だ</title>
+      <description>LangChainがモデルを変更せずにコーディングエージェントのランキングを大幅に上げた事例から、AIエージェントの性能向上は「モデル選び」ではなく「その周辺の仕組み（ハーネス）」が重要であることを示す。\nモデルはレンタル品であり、あなたが本当にコントロールできるのはシステムプロンプト、ツール統合、メモリ管理、検証ループなどのハーネス部分。ハーネス設計を5段階で解説し、最適な構築方法と、モデルアップグレード時に不要な部分を削除する規律の重要性を説く。\nホストされたハーネスソリューションは便利だが自分たちでハーネスを構築・保有することで、モデルの切り替えやコスト最適化など、真の柔軟性が得られるという主張。</description>
+      <link>https://dev.to/agentiknet/youre-optimizing-the-part-of-your-agent-you-dont-own-b69</link>
+      <pubDate>Tue, 14 Jul 2026 01:36:40 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/agentiknet/youre-optimizing-the-part-of-your-agent-you-dont-own-b69</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIエージェントを賢くする：インターネット平均から組織固有の知識へ</title>
+      <description>すべてのAIコーディングエージェントは同じ訓練データを持つため、デフォルトではインターネット平均の知識しか持たない。
+モデルの性能が収束した今、差別化の要因はシステム設計にシフトしており、特に検索品質がエージェントのパフォーマンスを左右する。
+組織固有の知識ベース（ラナブック、事例、規約）をクエリ可能なツールとして提供することで、エージェントは「インターネットの知識」ではなく「あなたの組織の知識」で回答できるようになる。</description>
+      <link>https://dev.to/agentiknet/your-coding-agent-knows-the-internets-average-heres-how-to-make-it-know-yours-1aeg</link>
+      <pubDate>Tue, 14 Jul 2026 01:36:33 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/agentiknet/your-coding-agent-knows-the-internets-average-heres-how-to-make-it-know-yours-1aeg</guid>
+    </item>
+    <item>
+      <title>[翻訳] 無限ループの落とし穴：AIエージェントの自動実行では「正確さ」ではなく「継続性」しか得られない</title>
+      <description>AIエージェントを無限ループで実行しても、継続性（走り続けること）と正確性（正しい方向に進むこと）は別の特性であり、ループは誤った方向を確信を持ってループするだけで、間違いが積み重なる。
+最終チェックゲートは遅すぎる防止策であり、単一のアクション（ファイル削除など）と複数ターンにわたるドリフト（スコープクリープなど）という2つの異なる失敗モードに対応する必要がある。
+正確さを確保するには、エージェント自身ではなく外部の異なるモデル/プロバイダーが、ループ実行中にリアルタイムで監視し、途中で軌道修正できる仕組みが必須である。</description>
+      <link>https://dev.to/agentiknet/kill-the-loop-why-while-true-is-not-reliability-59fk</link>
+      <pubDate>Tue, 14 Jul 2026 01:36:30 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/agentiknet/kill-the-loop-why-while-true-is-not-reliability-59fk</guid>
+    </item>
+    <item>
+      <title>[翻訳] Paseoエージェントデーモンの実機レビュー：シンプルな「Hi」が29セント</title>
+      <description>競合製品の開発者が、Paseo（複数のコーディングエージェントを統一インターフェースで管理するローカルデーモン）を実際にインストールして使用し、機能と限界を検証した。
+権限リレー機能に優れ、電話からエージェントの許可をリモート承認できる点が秀逸だが、エージェント出力の検証やツール配信などの高度な監督機能は搭載されていない。
+開発者はPaseoが「物理的に現場にいることが課題」な用途には最適だが、「信頼性のスケーリング」が必要な場合は別のソリューションが必要と結論づけている。</description>
+      <link>https://dev.to/agentiknet/saying-hi-to-this-agent-daemon-cost-029-a-rivals-hands-on-paseo-review-e7i</link>
+      <pubDate>Tue, 14 Jul 2026 01:36:27 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/agentiknet/saying-hi-to-this-agent-daemon-cost-029-a-rivals-hands-on-paseo-review-e7i</guid>
+    </item>
+    <item>
+      <title>[翻訳] 複数のAIエージェント間でスキルを共有する方法—相互運用性の問題を解く</title>
+      <description>異なるAIエージェント（Claude Code、Codex など）間で同じスキルを再度設定する手間を解決するために、契約と実装を分離したファイルベースの仕様が必要である。
+ツール契約（入出力スキーマ）と実装（ドライバ）を分けることで、複数のエージェントから1つの定義を共有でき、手作業での再配線というコストが削減できる。
+agentproto というツールを使い、一元管理されたツール定義をMCPゲートウェイ経由で提供することで、あらゆるエージェントが同じツール群にアクセスでき、エージェント自身がツールを自動拡張することも可能になる。</description>
+      <link>https://dev.to/agentiknet/your-claude-skill-is-invisible-to-codex-heres-how-to-fix-it-3l74</link>
+      <pubDate>Tue, 14 Jul 2026 01:36:24 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/agentiknet/your-claude-skill-is-invisible-to-codex-heres-how-to-fix-it-3l74</guid>
+    </item>
+    <item>
+      <title>[翻訳] React と Firebase で映画発見アプリ「Cineaste」を開発した経験記</title>
+      <description>開発者が映画好きのための発見型プラットフォーム「Cineaste」を React と Firebase を使って構築。キュレーション済み映画コレクション、視聴記録、Letterboxd インポート機能などを搭載し、ユーザーデータは Firestore で一元管理。
+認証機能の実装が想定以上に時間がかかったほか、プライバシーポリシー作成やUI調整など「楽しくない」業務も重要であることを学習。
+現在は Google AdSense 承認申請や UI 最終調整、パフォーマンス改善に注力中で、ユーザーに試用と Premium プラン購入を呼びかけている。</description>
+      <link>https://dev.to/japam28/i-spent-the-past-few-weeks-building-a-cinema-app-with-react-firebase-5f0l</link>
+      <pubDate>Tue, 14 Jul 2026 01:28:53 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/japam28/i-spent-the-past-few-weeks-building-a-cinema-app-with-react-firebase-5f0l</guid>
+    </item>
+    <item>
       <title>[翻訳] JavaScriptの正規表現デバッグにテストマトリックスワークフローを活用する</title>
       <description>正規表現は単体では正しくても、フラグやUnicode表現、APIの使用方法、共有RegExpオブジェクトの可変状態により実際のアプリケーションで失敗することがある。
 入力、パターン・フラグ、コンシューマーAPI、期待結果・状態の4つの軸をテストマトリックスで検証することで、「別のパターンを試す」という非効率なデバッグから脱却できる。

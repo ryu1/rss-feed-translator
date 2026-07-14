@@ -5,6 +5,204 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] MorphoHDL：回路を成長させるためのミニマル言語</title>
+      <description>MorphoHDLは、デジタル回路設計を簡潔に記述できる新しいハードウェア記述言語。
+従来のHDL言語よりも最小限の構文で、より直感的に回路設計ができる。
+動的に回路を拡張・変更する「成長する回路」の概念をサポートしている。</description>
+      <link>https://paradigms-of-intelligence.github.io/morpho/</link>
+      <pubDate>Tue, 14 Jul 2026 01:17:30 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901126</guid>
+    </item>
+    <item>
+      <title>[翻訳] ESBMC-Arduino: Arduinoの形式検証で導入段階のギャップを埋める</title>
+      <description>ESBMC-Arduinoは、Arduinoデバイスに対する形式検証ツールであり、開発環境から実際の導入までのギャップを解消することを目的としている。
+形式検証により、Arduinoプログラムの正確性と安全性を数学的に保証することが可能になる。
+このツールは、組み込みシステム開発における品質向上とバグの早期発見に貢献する。</description>
+      <link>https://arxiv.org/abs/2607.08550</link>
+      <pubDate>Tue, 14 Jul 2026 00:58:55 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901020</guid>
+    </item>
+    <item>
+      <title>[翻訳] Gitの履歴コマンドはもっと活用されるべき機能</title>
+      <description>Gitの履歴コマンド（git history）は、開発者が見落としがちだが非常に有用な機能である。\nこのコマンドを使いこなすことで、コード変更の追跡やデバッグがより効率的になる。\n記事では、git historyの具体的な使用例と活用方法について詳しく解説している。</description>
+      <link>https://lalitm.com/post/git-history/</link>
+      <pubDate>Tue, 14 Jul 2026 00:57:11 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901010</guid>
+    </item>
+    <item>
+      <title>[翻訳] SFFA対ハーバード裁判が大学入試制度に明かしたこと</title>
+      <description>SFFA（Students for Fair Admissions）がハーバード大学を相手に起こした訴訟が、米国の大学入試制度における差別的慣行を明るみに出した。
+裁判を通じて、アファーマティブアクションと人種を考慮した入試選考の実態が詳らかにされ、大学の入試プロセスに関する議論が加熱した。
+本判決は高等教育における公平性と多様性のバランスに関する重要な判例となり、今後の入試制度改革に大きな影響を与えることが予想される。</description>
+      <link>https://sorting-machine.pages.dev/</link>
+      <pubDate>Tue, 14 Jul 2026 00:26:43 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48900796</guid>
+    </item>
+    <item>
+      <title>[翻訳] 成功よりも大切なこと：情熱を持って仕事をすることの重要性</title>
+      <description>起業家にとって、経済的な成功だけでは十分ではなく、自分が本当に愛する仕事をすることが重要であることを論じた記事。
+高い成果を上げても、やりがいを感じられない仕事では長期的な満足度は得られない可能性を指摘。
+自分の価値観や情熱と合致した事業選択が、真の成功につながるというメッセージを提示。</description>
+      <link>https://12gramsofcarbon.com/p/founders-guide-success-may-not-matter</link>
+      <pubDate>Tue, 14 Jul 2026 00:26:00 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48900790</guid>
+    </item>
+    <item>
+      <title>[翻訳] ブラウザで歌声を楽譜に変換できるツール</title>
+      <description>ブラウザ上で直接、ユーザーの歌声を音声認識して楽譜に変換するWebアプリケーション。
+歌った音を自動的に五線譜上の音符として出力し、プリント可能な形式で保存できる機能を提供。
+ボーカルトレーニングや作曲補助ツールとして活用でき、特別なソフトウェアのインストール不要で利用可能。</description>
+      <link>https://om-intelligence.ch/projects/vocal-notation/vocal-notation.html</link>
+      <pubDate>Tue, 14 Jul 2026 00:10:36 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48900686</guid>
+    </item>
+    <item>
+      <title>[翻訳] Sx 2.0：Dropboxフォルダを使ってチームとAIスキルを共有</title>
+      <description>SxはAIスキルを共有するためのツールで、2.0ではGitに依存せずDropboxなどのクラウドストレージを活用。
+非技術ユーザー向けにMac/Windows/Linux対応のネイティブアプリを追加し、1分以内で共有を開始可能に。
+ClaudeやCodexのプラグインとして直接使用でき、スキル評価やLLMの重複排除などの拡張機能システムも実装。</description>
+      <link>https://sleuth-io.github.io/sx/2026/07/10/your-dropbox-is-now-a-skill-server.html</link>
+      <pubDate>Mon, 13 Jul 2026 23:26:52 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48900319</guid>
+    </item>
+    <item>
+      <title>[翻訳] ContextVault - AIと team の共有メモリ層</title>
+      <description>AIプロジェクトで蓄積されたプロンプトや設計決定などのコンテキストが複数ツールに分散してしまう問題を解決するため、Kevin が開発した共有コンテキスト管理プラットフォーム。
+チーム全体で過去の知識を一元管理し、ChatGPT・Claude・Gemini などの複数の AI クライアントから MCP サーバー経由でアクセス可能。
+PostgreSQL・Node.js・Next.js などで構築されており、GitHub/Google/Microsoft/GitLab の OAuth認証、ロールベースアクセス制御、メタデータ付きコンテキスト記録などを備えている。</description>
+      <link>https://www.contextvault.dev/</link>
+      <pubDate>Mon, 13 Jul 2026 23:22:18 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48900288</guid>
+    </item>
+    <item>
+      <title>[翻訳] 写真技術が普及する前にインドを描いたイギリス人女性画家</title>
+      <description>写真技術が登場する前の時代にインドを訪れたイギリス人女性画家の作品と人生を紹介する記事。
+スケッチや素描を通じてインドの風景や文化を記録した彼女の貴重な視点と芸術的な表現。
+BBCが報じた歴史的な女性芸術家の業績と、彼女が遺した記録資料の重要性。</description>
+      <link>https://www.bbc.com/news/articles/cm2drrv6q54o</link>
+      <pubDate>Mon, 13 Jul 2026 23:12:22 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48900191</guid>
+    </item>
+    <item>
+      <title>[翻訳] アジアで最も清潔な村が観光客対策で日曜日の入村を禁止</title>
+      <description>インドのマウリンノン村は観光客の急増により環境問題に直面している。
+村の清潔さが世界的に知られるようになった結果、過度な観光化が進み、地元住民の生活に支障が出ている。
+持続可能な観光管理のため、日曜日の訪問を禁止する措置を導入した。</description>
+      <link>https://www.bbc.com/travel/article/20260625-why-asias-cleanest-village-bans-tourists-on-sundays</link>
+      <pubDate>Mon, 13 Jul 2026 22:19:16 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48899672</guid>
+    </item>
+    <item>
+      <title>[翻訳] マイクロソフトが2026年初頭に予定するClaudeコードとGitHub Copilot CLIの展開に関する研究</title>
+      <description>マイクロソフトがClaudeコードとGitHub Copilot CLIを2026年初頭にリリースする予定について、学術的な研究が発表されている。
+この研究論文はarXivに掲載されており、開発者向けツールの次世代機能に関する詳細な分析を提供している。
+Hacker Newsでの議論では27ポイント、11件のコメントが寄せられ、開発コミュニティからの関心を集めている。</description>
+      <link>https://arxiv.org/abs/2607.01418</link>
+      <pubDate>Mon, 13 Jul 2026 21:43:51 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48899321</guid>
+    </item>
+    <item>
+      <title>[翻訳] SalesPatriot（YC W25）がサンフランシスコでフルスタックエンジニアを募集中</title>
+      <description>YコンビネーターのW25バッチに採択されたSalesPatriotが、サンフランシスコ拠点でフルスタックエンジニアの採用を行っています。
+同社の採用ページでは、具体的な職務内容や応募条件など詳細な情報が掲載されています。
+Hacker Newsで紹介されており、スタートアップでの成長機会を求めるエンジニアにとって関心のある求人となっています。</description>
+      <link>https://jobs.ashbyhq.com/SalesPatriot/df223727-5781-433e-bc75-2aa5bf8dc8d7</link>
+      <pubDate>Mon, 13 Jul 2026 21:01:00 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48898814</guid>
+    </item>
+    <item>
+      <title>[翻訳] YouTubeのギター講座動画をギタータブPDFに変換するCLIツール</title>
+      <description>YouTubeのギター講座動画を自動的にPDF形式のギタータブに変換するシンプルなCLIツールを開発。
+動画をダウンロードしてフレームをサンプリングし、Claude VisionでタブエリアをAIで検出してトリミング、楽譜の小節番号で重複を排除してPDFに統合する仕組み。
+既存の音声ト文字サービスより精度が高く、さらに多くのYouTube動画での検証が予定されている。</description>
+      <link>https://github.com/marcelpanse/youtube-guitar-tab-parser</link>
+      <pubDate>Mon, 13 Jul 2026 20:13:14 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48898154</guid>
+    </item>
+    <item>
+      <title>[翻訳] Samsung Health、AI学習を拒否するとデータ削除を予告</title>
+      <description>Samsung Healthアプリが、ユーザーがAI学習への協力をオプトアウトした場合、データ削除を脅迫的に予告している。
+この強制的なAI学習への同意要求が、ユーザーのプライバシー権と選択の自由に対する懸念を生じさせている。
+Hacker Newsで大きな話題となり、強行的なデータ利用ポリシーに対する批判が集中している。</description>
+      <link>https://neow.in/cWsyMTV3</link>
+      <pubDate>Mon, 13 Jul 2026 20:01:43 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48897991</guid>
+    </item>
+    <item>
+      <title>[翻訳] SQLでニューラルネットワークを実装してみた</title>
+      <description>配列データベースライブラリXarray-SQLの開発過程で、SQLを使ってニューラルネットワークを実装することができるという発見から出発した。
+地理空間データの一般的な操作が本質的には関係代数演算であることに気づき、DataFusionの上に自動微分（autograd）を実装することで、SQLでも勾配計算が可能になることを実証した。
+ リレーショナルデータベースの論理層と物理層の分離という原則により、SQLベースのニューラルネットワークはGPUクラスタでの分散学習に適している可能性がある。</description>
+      <link>https://github.com/xqlsystems/xarray-sql/blob/claude/xarray-sql-mnist-demo/benchmarks/nn.py</link>
+      <pubDate>Mon, 13 Jul 2026 20:00:10 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48897975</guid>
+    </item>
+    <item>
+      <title>[翻訳] NOAA元職員らが気候データ保存サイト「Climate.us」を立ち上げ</title>
+      <description>NOAA（アメリカ海洋大気庁）の元職員が、気候関連のデータとリソースを保存・提供するウェブサイト「Climate.us」を構築しました。
+気候変動に関する重要な情報が失われることを防ぐため、民間主導でこのプロジェクトが進められています。
+Hacker Newsで高い関心を集め、435ポイント、174件のコメントを獲得しています。</description>
+      <link>https://19thnews.org/2026/07/noaa-climate-data-website/</link>
+      <pubDate>Mon, 13 Jul 2026 19:57:55 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48897945</guid>
+    </item>
+    <item>
+      <title>[翻訳] Telegramの短縮ドメイン「t.me」が一時停止状態に</title>
+      <description>TelegramのショートカットURLドメインである「t.me」が利用できない状態になっている。
+ドメインの登録情報によると、現在サスペンド（一時停止）されているという。
+原因は明かされていないが、ユーザーへの影響は大きく、オンラインで話題になっている。</description>
+      <link>https://www.whois.com/whois/t.me</link>
+      <pubDate>Mon, 13 Jul 2026 19:52:25 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48897878</guid>
+    </item>
+    <item>
+      <title>[翻訳] TFTPハニーポットの調査結果</title>
+      <description>セキュリティ研究者がTFTP（Trivial File Transfer Protocol）プロトコルを標的にしたハニーポットを運用し、その結果を報告している。
+実際の攻撃パターンやアクセス傾向などから、ネットワークセキュリティの脅威状況に関する実データが明らかにされている。
+Hacker Newsで注目を集め、セキュリティコミュニティからの議論や意見が寄せられている。</description>
+      <link>https://bruceediger.com/posts/tftp-honeypot-results/</link>
+      <pubDate>Mon, 13 Jul 2026 19:11:17 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48897329</guid>
+    </item>
+    <item>
+      <title>[翻訳] カリフォルニア州の物議を醸す法案が可決されれば、無限スクロール機能が危機的状況に陥る可能性</title>
+      <description>カリフォルニア州で提案されている新しい法案により、SNSの無限スクロール機能が規制される可能性がある。
+特に10代のユーザーを対象にした機能制限が盛り込まれており、Meta含むソーシャルメディア企業に大きな影響を与える見通し。
+この法案が可決された場合、プラットフォーム側は機能の仕様変更を余儀なくされる可能性が高い。</description>
+      <link>https://www.sfgate.com/politics/article/meta-social-media-teenagers-22337724.php</link>
+      <pubDate>Mon, 13 Jul 2026 18:53:53 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48897104</guid>
+    </item>
+    <item>
+      <title>[翻訳] Xcodeを一度も開かずにMacとiOSアプリを開発・リリースする方法</title>
+      <description>開発者がXcodeを使わずにMacおよびiOSアプリケーションの開発とリリースを実現する手法について解説しています。
+代替ツールやコマンドラインワークフローを活用した開発プロセスの詳細が紹介されています。
+このアプローチは開発効率の向上やワークフローのカスタマイズを求める開発者にとって有用な選択肢となっています。</description>
+      <link>https://scottwillsey.com/building-and-shipping-mac-and-ios-apps-without-ever-opening-xcode/</link>
+      <pubDate>Mon, 13 Jul 2026 18:22:16 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48896665</guid>
+    </item>
+    <item>
       <title>[翻訳] 卵の摂取量が多いほどアルツハイマー病のリスクが低下する可能性</title>
       <description>研究によると、卵の消費量とアルツハイマー病の発症リスクには逆相関関係があることが示唆されている。
 卵に含まれる栄養素がアルツハイマー病の予防に役立つ可能性がある。
