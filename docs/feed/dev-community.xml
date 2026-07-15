@@ -5,6 +5,124 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] React NativeのTurboModulesで同期呼び出しが必ずしも高速とは限らない理由</title>
+      <description>React NativeのTurboModulesは同期的にネイティブ機能にアクセスできるが、通信が効率的でもネイティブ処理自体の実行時間は短縮されない。
+ストレージアクセス、暗号化処理、データ変換などの重い操作をJavaScriptスレッドがブロックすると、UIのレスポンス低下やアニメーションのカクつきなどの性能問題が生じる。
+同期呼び出しは極めて軽量で予測可能な定数やメモリ内値の取得のみに限定し、ストレージ・ネットワーク・暗号化などは非同期のままにすべき。</description>
+      <link>https://dev.to/subraatakumar/synchronous-turbomodules-are-not-automatically-fast-1fb6</link>
+      <pubDate>Wed, 15 Jul 2026 05:14:04 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/subraatakumar/synchronous-turbomodules-are-not-automatically-fast-1fb6</guid>
+    </item>
+    <item>
+      <title>[翻訳] OpenAI互換APIを使ってGPT-Image-2で画像編集を実装する実践ガイド</title>
+      <description>Ace Data CloudのOpenAI互換Images Edits APIを使用してGPT-Image-2で画像を編集するための実践的なパイプラインを解説しています。
+単一または複数の参照画像を送信し、編集指示を記述して生成された画像URLを取得するワークフローの具体例とベストプラクティスを紹介しています。
+製品写真の編集、UIモックアップの再生成、アセットのスタイル変更など、実装時に注意すべき制約事項とチェックリストも提供しています。</description>
+      <link>https://dev.to/germey/a-practical-guide-to-editing-images-with-gpt-image-2-over-an-openai-compatible-api-508a</link>
+      <pubDate>Wed, 15 Jul 2026 05:12:00 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/germey/a-practical-guide-to-editing-images-with-gpt-image-2-over-an-openai-compatible-api-508a</guid>
+    </item>
+    <item>
+      <title>[翻訳] Spring Bootで自作IAMシステムを構築して、本番環境で見つかったバグの話</title>
+      <description>Spring Boot 3.3.5で完全なIAM（Identity &amp; Access Management）システムを自作し、複数の認証方式とRBAC機能を実装した。
+GoogleとGitHubのOAuth2/OIDC認証は仕様が異なるため、別々のサービスで処理する必要があり、最終的に単一の provisioner に統合している。
+本番環境（リバースプロキシ経由）での redirect_uri_mismatch エラーは X-Forwarded-Proto ヘッダー対応で解決でき、ローカル環境と本番環境で異なる問題が発生することを学んだ。</description>
+      <link>https://dev.to/tharvbytes/i-built-a-full-iam-system-in-spring-boot-heres-what-broke-when-i-put-it-on-the-internet-3n8l</link>
+      <pubDate>Wed, 15 Jul 2026 05:11:18 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/tharvbytes/i-built-a-full-iam-system-in-spring-boot-heres-what-broke-when-i-put-it-on-the-internet-3n8l</guid>
+    </item>
+    <item>
+      <title>[翻訳] LLMに管理者権限を与えるな：WordPressの自動化には限定的なMCPサーバーが必須</title>
+      <description>LLMに広い権限を与えてWordPress REST APIにアクセスさせると、プロンプトインジェクションやロジックエラーによる権限昇格など深刻なセキュリティリスクが生じる問題を指摘。
+セキュリティを確保するには、プロンプトの指示ではなくサーバー側でハードコードされた制約が必須であり、WordPress Subscriber CreatorはLLMの入力を無視して役割を強制的に「subscriber」に限定する仕組みを実装している。
+限定的な機能に特化した「Surgical Integration」アプローチにより、不要な機能を排除し、パスワード管理もWordPressの既存フロー委譲するなど、本番環境での安全な自動化を実現している。</description>
+      <link>https://dev.to/renato_marinho/stop-giving-your-llm-admin-rights-why-surgical-mcp-servers-are-the-only-way-to-automate-wordpress-14hf</link>
+      <pubDate>Wed, 15 Jul 2026 05:02:29 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/renato_marinho/stop-giving-your-llm-admin-rights-why-surgical-mcp-servers-are-the-only-way-to-automate-wordpress-14hf</guid>
+    </item>
+    <item>
+      <title>[翻訳] スライド変更検出器の正しい評価方法 — バイアスを避けるためのプロトコル</title>
+      <description>動画からスライドを抽出するJavaScriptツール開発者が、スライド変更検出器を公正に評価するための実践的なプロトコルを解説します。
+デモ動画を見せて「動作した」と言うだけでは何も証明にならず、検出器は良さそうに見えても短いスライドを見落とすなど様々な問題が隠れている可能性があります。
+手動でグラウンドトゥルースを作成し、サンプリング設定を固定し、正確に適合判定を行い、失敗パターンを分類・公開することで、初めて信頼できる評価が実現できます。</description>
+      <link>https://dev.to/larryxue/how-to-evaluate-a-slide-change-detector-without-fooling-yourself-2558</link>
+      <pubDate>Wed, 15 Jul 2026 04:49:31 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/larryxue/how-to-evaluate-a-slide-change-detector-without-fooling-yourself-2558</guid>
+    </item>
+    <item>
+      <title>[翻訳] Gitの変更内容をアーキテクチャ観点から自動レビューするCLIツール「SKTR」をリリース</title>
+      <description>システムナレッジと技術レビューを行うCLIツール「SKTR」の最初のリリース候補版が公開されました。
+Gitの差分を解析し、決定論的なルールに基づいてアーキテクチャと保守性の観点からコードをレビューします。
+Python、JavaScript、TypeScript、Java等に対応し、CI統合やオプションのAI説明機能も備えています。</description>
+      <link>https://dev.to/prubianes/i-just-released-sktr-a-deterministic-architecture-review-cli-fk</link>
+      <pubDate>Wed, 15 Jul 2026 04:46:29 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/prubianes/i-just-released-sktr-a-deterministic-architecture-review-cli-fk</guid>
+    </item>
+    <item>
+      <title>[翻訳] BigQueryのタイムトラベル機能が便利</title>
+      <description>BigQueryは特定の過去時点でのテーブルデータを参照できるタイムトラベル機能を提供しており、2～7日以内（デフォルトは7日）のスナップショットにアクセス可能。\nスケジュール実行されるパイプラインで常に更新されるテーブルの場合、過去のある時点でのデータを確認できることは非常に有用。\nテーブルの完全復元時は歴史データを新しいテーブルにコピーし、現在のテーブルのみ修復する場合は一時テーブルを経由する必要がある（同じテーブルへの同時アクセスはできないため）。</description>
+      <link>https://dev.to/wangonya/bigquery-time-travel-is-pretty-neat-g46</link>
+      <pubDate>Wed, 15 Jul 2026 04:45:51 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/wangonya/bigquery-time-travel-is-pretty-neat-g46</guid>
+    </item>
+    <item>
+      <title>[翻訳] Osmosis RPC入門：AMMがチェーンモジュールとなっているCosmos DEXの使い方</title>
+      <description>OsmosisはCosmos生態系最大のDEXで、EVMチェーンと異なり、AMM機能がスマートコントラクトではなくネイティブなチェーンモジュール（poolmanager・gamm等）として組み込まれている。
+Tendermint RPC・LCD/REST・gRPCの3つのインターフェースを使い分けて、「どのコントラクト関数か」ではなく「どのモジュールクエリか」という問い方でチェーン状態をクエリする仕様が特徴。
+ブロックタイムは5～6秒でBFT最終性を持つため再編成がなく、マイクロ単位（uosmo）とIBC資産のハッシュベース表記（ibc/&lt;HASH&gt;）の2つのポイントに注意が必要。</description>
+      <link>https://dev.to/swiftnodes/osmosis-rpc-querying-the-cosmos-dex-where-the-amm-is-a-chain-module-3lgd</link>
+      <pubDate>Wed, 15 Jul 2026 04:45:09 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/swiftnodes/osmosis-rpc-querying-the-cosmos-dex-where-the-amm-is-a-chain-module-3lgd</guid>
+    </item>
+    <item>
+      <title>[翻訳] Codex が Claude Code を追い抜いたのか？700万ユーザーが示す真実</title>
+      <description>Codex は 2026 年 7 月に 700 万ユーザーに達し、6 ヶ月で 10 倍成長を遂げたが、これはChatGPT に統合されたことによる数字で、実際には 20% が非開発者ユーザーである。
+Claude Code は月間ユーザー数では劣るものの、2 月時点で 25 億ドルの年間経常収益を達成しており、ユーザー 1 人あたりの収益が約 500 ドルと圧倒的に高い。
+開発者の実際の使い分けは「Codex でタスク割り当て、Claude Code で深い実装」という棲み分けが進んでおり、勝者を決めるのではなく複数ツールの活用戦略が重要になっている。</description>
+      <link>https://dev.to/max_quimby/did-codex-overtake-claude-code-the-7m-user-question-5bam</link>
+      <pubDate>Wed, 15 Jul 2026 04:44:12 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/max_quimby/did-codex-overtake-claude-code-the-7m-user-question-5bam</guid>
+    </item>
+    <item>
+      <title>[翻訳] 実践プロジェクトが従来のコース学習を上回る学習効果をもたらす理由</title>
+      <description>コースは理論と予測可能なエラーを提供するが、実際のプロジェクトは予測不能なバグやエッジケースを通じてより深い理解をもたらす。
+HTTP 429エラーやメモリリークなどの実世界の問題に直面することで、スレッド処理やメモリ管理といった教科書では学べない実践的なスキルが身につく。
+プログラマーは理論的な知識よりも、問題解決を強いられるプロジェクトを優先すべきで、その過程での試行錯誤こそが最高の学習となる。</description>
+      <link>https://dev.to/romdevin/real-world-projects-enhance-learning-depth-compared-to-traditional-course-completion-in-programming-3ki4</link>
+      <pubDate>Wed, 15 Jul 2026 04:42:35 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/romdevin/real-world-projects-enhance-learning-depth-compared-to-traditional-course-completion-in-programming-3ki4</guid>
+    </item>
+    <item>
+      <title>[翻訳] apitapでPostgresからClickHouseへ1000万行を9.9秒で転送する方法</title>
+      <description>データエンジニアが開発したapitapというオープンソースツールを使うと、1000万行のテーブルを複数データベース間で超高速に転送できます。既存ツール（dlt、ingestr）と比べて圧倒的に高速であり、メモリ効率も優れているため、小規模なインフラで大規模なデータ移動が可能です。
+ベンチマーク結果の解釈には注意が必要で、「行数/時間」ではなく「バイト/時間」で正規化して比較することが重要です。apitapがテーブル内の並列化、ゼロコピー設計、メモリ効率による設計により、既存ツールより数十倍高速化を実現しました。
+apitapはPythonパッケージで気軽に導入でき、小規模なリソースで大規模なデータ転送を行いたいユーザーに最適です。将来的にはSnowflakeやBigQueryなど複数のデータベース対応とインクリメンタル同期機能が計画されています。</description>
+      <link>https://dev.to/abdul_haris_61d92398e38a8/i-moved-10-million-rows-in-99-seconds-with-pip-install-apitap-42ih</link>
+      <pubDate>Wed, 15 Jul 2026 04:40:13 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/abdul_haris_61d92398e38a8/i-moved-10-million-rows-in-99-seconds-with-pip-install-apitap-42ih</guid>
+    </item>
+    <item>
+      <title>[翻訳] Webアプリケーションのリクエスト経路：NGINXがDockerコンテナ間のトラフィックをどう制御するか</title>
+      <description>ブラウザがURLを入力してからデータベースから戻ってくるまでの完全なリクエストの流れを解説。
+NGINXがリバースプロキシとして機能し、インターネットの唯一の入口となってリクエストをフロントエンド/バックエンドに振り分ける仕組み。
+DNS解決から始まり、コントローラー層・サービス層・ORM・データベース処理を経て、レスポンスが同じ経路で戻る一連のプロセスを図解で理解できる。</description>
+      <link>https://dev.to/roshan_singh_dd54d52bbaa7/-the-journey-of-a-request-how-nginx-routes-traffic-between-docker-containers-in-a-modern-web-47k0</link>
+      <pubDate>Wed, 15 Jul 2026 04:35:50 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/roshan_singh_dd54d52bbaa7/-the-journey-of-a-request-how-nginx-routes-traffic-between-docker-containers-in-a-modern-web-47k0</guid>
+    </item>
+    <item>
       <title>[翻訳] ドキュメント不要時代は幻想？AIの時代における技術文書の重要性</title>
       <description>コードのロジックと開発者の意図のギャップについて、ドキュメント廃止論の問題点を考察する記事。
 AIの進化によってコード解析が容易になっても、なぜドキュメントは依然として重要なのかを議論。
