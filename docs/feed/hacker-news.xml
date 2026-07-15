@@ -5,103 +5,202 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
-      <title>[翻訳] YouTrackDB is a general-use object-oriented graph database</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://github.com/JetBrains/youtrackdb"&gt;https://github.com/JetBrains/youtrackdb&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48902026"&gt;https://news.ycombinator.com/item?id=48902026&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 24&lt;/p&gt;
-&lt;p&gt;# Comments: 0&lt;/p&gt;</description>
-      <link>https://github.com/JetBrains/youtrackdb</link>
-      <pubDate>Tue, 14 Jul 2026 03:39:55 +0000</pubDate>
+      <title>[翻訳] Tailscale SSHの不正な引数処理により root アクセスが可能に（TS-2026-009）</title>
+      <description>Tailscale SSHの引数処理に脆弱性があり、攻撃者が root 権限でコマンドを実行できる可能性がある。
+認証を回避して不正なアクセス権限を取得される恐れがあり、影響を受けたシステムの管理権限が侵害されるリスクがある。
+Tailscale は既に同社のセキュリティ情報ページでこの脆弱性に関する詳細な情報を公開している。</description>
+      <link>https://tailscale.com/security-bulletins</link>
+      <pubDate>Wed, 15 Jul 2026 01:08:26 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48902026</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48915004</guid>
     </item>
     <item>
-      <title>[翻訳] Our Amish Language</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://www.thedial.world/articles/news/amish-pennsylvania-dutch"&gt;https://www.thedial.world/articles/news/amish-pennsylvania-dutch&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48901645"&gt;https://news.ycombinator.com/item?id=48901645&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 17&lt;/p&gt;
-&lt;p&gt;# Comments: 2&lt;/p&gt;</description>
-      <link>https://www.thedial.world/articles/news/amish-pennsylvania-dutch</link>
-      <pubDate>Tue, 14 Jul 2026 02:40:41 +0000</pubDate>
+      <title>[翻訳] データセンターの電力需要が一般家庭の電気代を230億ドル押し上げ</title>
+      <description>データセンターの急速な拡大に伴う電力需要の増加により、米国の一般家庭の電気料金が約230億ドル上昇したと報告されている。
+AI技術やクラウドサービスの急成長に伴うサーバー施設の増設が電力市場に大きな影響を与えている。
+公共部門と民間部門の電力コストの不均衡が政策議論の焦点となり始めている。</description>
+      <link>https://fortune.com/2026/07/14/data-centers-23-billion-electricity-bills/</link>
+      <pubDate>Wed, 15 Jul 2026 00:20:31 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901645</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48914683</guid>
     </item>
     <item>
-      <title>[翻訳] Japan develops a method to recover up to 90% of lithium from used EV batteries</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://tech.supercarblondie.com/japan-recovers-up-to-90-of-lithium-from-used-ev-batteries/"&gt;https://tech.supercarblondie.com/japan-recovers-up-to-90-of-lithium-from-used-ev-batteries/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48901569"&gt;https://news.ycombinator.com/item?id=48901569&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 181&lt;/p&gt;
-&lt;p&gt;# Comments: 49&lt;/p&gt;</description>
-      <link>https://tech.supercarblondie.com/japan-recovers-up-to-90-of-lithium-from-used-ev-batteries/</link>
-      <pubDate>Tue, 14 Jul 2026 02:27:20 +0000</pubDate>
+      <title>[翻訳] 20個のCodexアカウントを並列実行してエルデシュの20個の問題を解く</title>
+      <description>AIモデルのCodexを複数アカウント並列実行することで、数学の難問であるエルデシュ問題の解決に取り組んでいる。
+従来は困難とされていた複雑な数学問題に対し、AIの並列処理能力を活用した新しいアプローチを提案している。
+この手法は、AIを数学研究のツールとして活用する可能性を示すものとなっている。</description>
+      <link>https://www.starfleetmath.com/</link>
+      <pubDate>Wed, 15 Jul 2026 00:15:56 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901569</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48914646</guid>
     </item>
     <item>
-      <title>[翻訳] Fundamentals of Wireless Communication (2005)</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://web.stanford.edu/~dntse/wireless_book.html"&gt;https://web.stanford.edu/~dntse/wireless_book.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48901454"&gt;https://news.ycombinator.com/item?id=48901454&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 86&lt;/p&gt;
-&lt;p&gt;# Comments: 2&lt;/p&gt;</description>
-      <link>https://web.stanford.edu/~dntse/wireless_book.html</link>
-      <pubDate>Tue, 14 Jul 2026 02:10:19 +0000</pubDate>
+      <title>[翻訳] バンクーバー警察のウェブサイトに「素早く退出」ボタン、閲覧履歴を自動削除</title>
+      <description>バンクーバー警察（VPD）のウェブサイトに、クリックするとブラウザ履歴から自動的に削除される「Quick Escape」ボタンが実装されている。
+このボタンは、家庭内暴力や虐待のリソースページを訪問している人が、安全かつ素早くサイトを離れる必要がある場合を想定した機能。
+利用者のプライバシーと安全性を保護するための配慮から導入された。</description>
+      <link>https://vpd.ca/</link>
+      <pubDate>Wed, 15 Jul 2026 00:15:53 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901454</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48914644</guid>
     </item>
     <item>
-      <title>[翻訳] Satellite Tracker – Live Map of Starlink and 30k Satellites</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://satellitemap.space/"&gt;https://satellitemap.space/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48901356"&gt;https://news.ycombinator.com/item?id=48901356&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 45&lt;/p&gt;
-&lt;p&gt;# Comments: 9&lt;/p&gt;</description>
-      <link>https://satellitemap.space/</link>
-      <pubDate>Tue, 14 Jul 2026 01:55:24 +0000</pubDate>
+      <title>[翻訳] Casio FX-870P電卓のエミュレータが公開</title>
+      <description>懐かしのCasio FX-870P電卓をソフトウェアで再現するエミュレータがGitHubで公開されている。
+オープンソースプロジェクトとして開発されており、誰でもアクセス・利用が可能。
+Hacker Newsで話題となり、レトロなコンピュータ技術への関心の高さを示している。</description>
+      <link>https://github.com/urbancamo/fx870p-emulator</link>
+      <pubDate>Tue, 14 Jul 2026 22:47:58 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901356</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913910</guid>
     </item>
     <item>
-      <title>[翻訳] What will be left for us to work on?</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://www.normaltech.ai/p/what-will-be-left-for-us-to-work"&gt;https://www.normaltech.ai/p/what-will-be-left-for-us-to-work&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48901292"&gt;https://news.ycombinator.com/item?id=48901292&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 76&lt;/p&gt;
-&lt;p&gt;# Comments: 79&lt;/p&gt;</description>
-      <link>https://www.normaltech.ai/p/what-will-be-left-for-us-to-work</link>
-      <pubDate>Tue, 14 Jul 2026 01:44:40 +0000</pubDate>
+      <title>[翻訳] スーパーマリオブラザーズでJEPAワールドモデルを学習させるLeMario</title>
+      <description>JEPAフレームワークを用いてスーパーマリオブラザーズ上でワールドモデルの学習を実現したプロジェクト。
+複雑なゲーム環境において、AIが環境の法則を理解し予測する能力を獲得することを目指している。
+このアプローチにより、ゲーム内での動作予測やAIエージェントの制御精度向上を実現している。</description>
+      <link>https://www.benjamin-bai.com/projects/lemario</link>
+      <pubDate>Tue, 14 Jul 2026 22:30:47 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901292</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913763</guid>
     </item>
     <item>
-      <title>[翻訳] Building Food Metadata with LLM Juries</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://careersatdoordash.com/blog/building-food-metadata-with-llm-juries-context-optimization-multimodal-ai/"&gt;https://careersatdoordash.com/blog/building-food-metadata-with-llm-juries-context-optimization-multimodal-ai/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48901275"&gt;https://news.ycombinator.com/item?id=48901275&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 22&lt;/p&gt;
-&lt;p&gt;# Comments: 6&lt;/p&gt;</description>
-      <link>https://careersatdoordash.com/blog/building-food-metadata-with-llm-juries-context-optimization-multimodal-ai/</link>
-      <pubDate>Tue, 14 Jul 2026 01:41:49 +0000</pubDate>
+      <title>[翻訳] スマート家電の動作確認をしておこう</title>
+      <description>スマートテレビなどのスマート家電の不具合や問題について注意喚起する記事。\n定期的にスマート家電の状態をチェックすることの重要性を説いている。\nユーザーが事前に対応しておくべき点について解説している。</description>
+      <link>https://xeiaso.net/notes/2026/check-your-smart-tv/</link>
+      <pubDate>Tue, 14 Jul 2026 22:00:41 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901275</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913457</guid>
     </item>
     <item>
-      <title>[翻訳] Is x86 ready to ACE it?</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://chipsandcheese.com/p/is-x86-ready-to-ace-it"&gt;https://chipsandcheese.com/p/is-x86-ready-to-ace-it&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48901235"&gt;https://news.ycombinator.com/item?id=48901235&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 38&lt;/p&gt;
-&lt;p&gt;# Comments: 4&lt;/p&gt;</description>
-      <link>https://chipsandcheese.com/p/is-x86-ready-to-ace-it</link>
-      <pubDate>Tue, 14 Jul 2026 01:36:13 +0000</pubDate>
+      <title>[翻訳] AI産業の急速な成長を支える資金調達：キャッシュフローから債務へ</title>
+      <description>AI技術への投資拡大に伴い、企業の資金調達手段がキャッシュフローから債務依存へシフトしている動向を分析した国際決済銀行（BIS）の報告書。
+AIインフラストラクチャー構築に必要な莫大な資本支出に対応するため、企業が社債やローンなどの借入による資金調達を増やしている実態を探究。
+AI産業の継続的な成長と金融システムの安定性のバランスについて、政策立案者への示唆を提供している。</description>
+      <link>https://www.bis.org/publ/bisbull120.pdf</link>
+      <pubDate>Tue, 14 Jul 2026 21:58:36 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901235</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913443</guid>
     </item>
     <item>
-      <title>[翻訳] The Economics of Recursive Self-Improvement [pdf]</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://elasticity.institute/rsi-paper.pdf"&gt;https://elasticity.institute/rsi-paper.pdf&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48901224"&gt;https://news.ycombinator.com/item?id=48901224&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 54&lt;/p&gt;
-&lt;p&gt;# Comments: 6&lt;/p&gt;</description>
-      <link>https://elasticity.institute/rsi-paper.pdf</link>
-      <pubDate>Tue, 14 Jul 2026 01:35:23 +0000</pubDate>
+      <title>[翻訳] マイクロソフト、過去最多となる570件のセキュリティ脆弱性をパッチ</title>
+      <description>マイクロソフトが過去最高記録となる570個のセキュリティ脆弱性に対するパッチをリリースした。
+これは同社の定期的なセキュリティアップデートの中でも異例の規模となる大規模なパッチ配布である。
+セキュリティ研究コミュニティから、システムの安定性への影響と脆弱性の重要度分類に関する懸念が寄せられている。</description>
+      <link>https://krebsonsecurity.com/2026/07/microsoft-patches-a-record-570-security-flaws/</link>
+      <pubDate>Tue, 14 Jul 2026 21:32:22 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901224</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913190</guid>
+    </item>
+    <item>
+      <title>[翻訳] Dependabotのバージョン更新にデフォルトのパッケージクールダウン機能が追加</title>
+      <description>GitHubのDependabotが新たにデフォルトのパッケージクールダウン機能を導入しました。
+この機能により、依存関係の更新リクエストの頻度を自動的に制御し、過度な更新を防ぐことができます。
+開発者はより安定したパッケージ更新スケジュールを実現でき、CI/CDパイプラインへの負荷軽減が期待できます。</description>
+      <link>https://github.blog/changelog/2026-07-14-dependabot-version-updates-introduce-default-package-cooldown/</link>
+      <pubDate>Tue, 14 Jul 2026 21:15:51 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913050</guid>
+    </item>
+    <item>
+      <title>[翻訳] GoでHTMXを活用する方法</title>
+      <description>GoプログラマがHTMXフレームワークの実装方法と活用例について解説している記事。
+HTMXとGoの組み合わせによるモダンなウェブ開発手法に関する実践的な知見が紹介されている。
+Hacker Newsで110ポイントを獲得し、26件のコメントで活発に議論されている。</description>
+      <link>https://www.alexedwards.net/blog/how-i-use-htmx-with-go</link>
+      <pubDate>Tue, 14 Jul 2026 19:55:31 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48912175</guid>
+    </item>
+    <item>
+      <title>[翻訳] Cursor の脆弱性：完全公開がセキュリティ対策の最後の手段となった理由</title>
+      <description>開発者向けAIツール「Cursor」で発見された脆弱性に対し、セキュリティ研究者が完全公開による対応を余儀なくされた。
+従来の責任あるセキュリティ公開プロセスが機能しない状況で、脆弱性情報を全面開示することがユーザー保護の唯一の手段と判断された。
+このケースはセキュリティ業界における開示方針の限界と、企業の対応姿勢の重要性を浮き彫りにしている。</description>
+      <link>https://mindgard.ai/blog/cursor-0day-when-full-disclosure-becomes-the-only-protection-left</link>
+      <pubDate>Tue, 14 Jul 2026 17:58:35 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48910676</guid>
+    </item>
+    <item>
+      <title>[翻訳] Bonsai 27B：スマートフォンで動作する270億パラメータモデル</title>
+      <description>270億パラメータ規模の言語モデル「Bonsai 27B」がスマートフォン上での実行に対応。
+モデルの軽量化と最適化により、モバイルデバイスでの実用的なAI推論が可能に。
+Hacker Newsで高い関心を集め、434ポイント、160件のコメントで活発な議論が展開中。</description>
+      <link>https://prismml.com/news/bonsai-27b</link>
+      <pubDate>Tue, 14 Jul 2026 17:50:48 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48910545</guid>
+    </item>
+    <item>
+      <title>[翻訳] Kontigo（YC S24）がセキュリティ責任者を採用中</title>
+      <description>Y Combinator S24期採択企業のKontigoがセキュリティヘッドのポジションで採用を実施中。
+詳細は公式の採用ページで確認できる。
+Hacker Newsで共有されている求人情報。</description>
+      <link>https://www.ycombinator.com/companies/kontigo/jobs/uNttrlv-head-of-security</link>
+      <pubDate>Tue, 14 Jul 2026 17:00:17 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48909820</guid>
+    </item>
+    <item>
+      <title>[翻訳] 積み上がり続けるテクノロジーの複雑性</title>
+      <description>ソフトウェア開発における技術的負債と複雑性が継続的に増加している現状について考察した記事。
+開発者が新しい技術やフレームワークを追加し続けることで、システムの複雑さが指数関数的に増していく問題を指摘。
+ テクノロジースタックの肥大化に対する実践的なアプローチと警告を提示している。</description>
+      <link>https://lucumr.pocoo.org/2026/7/13/the-tower-keeps-rising/</link>
+      <pubDate>Tue, 14 Jul 2026 16:57:54 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48909785</guid>
+    </item>
+    <item>
+      <title>[翻訳] Agnost AI：会話型AIエージェントのユーザーフィードバックを自動抽出するツール</title>
+      <description>チャットボットや音声AIエージェントの会話ログから、ユーザーの不満や機能要望などの行動信号を自動検出する分析プラットフォーム。
+従来のウェブアプリとは異なり、言語インターフェースを持つAIアシスタントには適切なメトリクスがないという課題を解決する。
+大規模な会話データをLLMに直接送るのではなく、埋め込みクラスタリングと機械学習を組み合わせることで効率的に分析を実現。</description>
+      <link>https://agnost.ai</link>
+      <pubDate>Tue, 14 Jul 2026 16:06:18 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48908950</guid>
+    </item>
+    <item>
+      <title>[翻訳] 名作の冒頭を毎日表示するブラウザ拡張機能</title>
+      <description>複数年かけて収集した名作の冒頭を毎日ブラウザで表示するツール。
+シンプルな背景に名作の冒頭を表示するデザインにこだわり、現在約60作品を収録。
+リフレッシュするたびに異なる名作の冒頭を楽しめる。</description>
+      <link>https://www.verbaprima.com/</link>
+      <pubDate>Tue, 14 Jul 2026 15:24:49 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48908271</guid>
+    </item>
+    <item>
+      <title>[翻訳] USB-Cへの徹底した移行を支持する立場</title>
+      <description>著者はUSB-Cの普及を強く支持し、複数の接続規格が存在することの非効率性を批判しています。
+デバイス間の互換性向上とユーザー体験の統一化により、USB-C標準化の重要性を主張しています。
+この記事はHacker Newsで164ポイントを獲得し、265件のコメントが寄せられるなど、活発な議論を生んでいます。</description>
+      <link>https://shkspr.mobi/blog/2026/07/im-a-usb-c-maximalist/</link>
+      <pubDate>Tue, 14 Jul 2026 15:20:36 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48908214</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIに思考を委ねすぎていないか？</title>
+      <description>AIツールの急速な進化により、人間が意思決定や問題解決をAIに過度に依存する傾向が生じている。
+こうした思考の外部化は利便性をもたらす一方で、批判的思考力や創造性の低下につながる可能性がある。
+人間とAIの適切なバランスを取り、人間の認知能力を維持することの重要性が議論されている。</description>
+      <link>https://www.artfish.ai/p/offloading-thinking-to-ai</link>
+      <pubDate>Tue, 14 Jul 2026 15:18:13 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48908178</guid>
+    </item>
+    <item>
+      <title>[翻訳] セレーナ・ウィリアムズのフィットネストラッキングアプリ「Fit-Dex」</title>
+      <description>セレーナ・ウィリアムズが開発したフィットネス関連のWebアプリケーション「Fit-Dex」がNetlifyでホストされている。
+Hacker Newsで話題になっており、現在4ポイントの注目を集めている。
+テニスの伝説的選手による健康管理ツールとして関心が寄せられている。</description>
+      <link>https://serena-williams-fitdex.netlify.app/</link>
+      <pubDate>Tue, 14 Jul 2026 13:12:55 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48906339</guid>
     </item>
     <item>
       <title>[翻訳] MorphoHDL：回路を成長させるためのミニマル言語</title>
