@@ -5,6 +5,204 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] もう一文字 - 新作ワードゲーム</title>
+      <description>Hacker Newsで紹介されたワードゲーム「One More Letter」のプレイ可能なWebアプリケーション。
+毎日のチャレンジやゲームプレイを通じて言葉遊びを楽しめるシンプルなゲーム。
+開発者が作成したオリジナルの言葉パズルゲームで、コミュニティから好評を得ている。</description>
+      <link>https://playonemoreletter.com/</link>
+      <pubDate>Wed, 15 Jul 2026 23:10:10 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928402</guid>
+    </item>
+    <item>
+      <title>[翻訳] SQLiteにおける文字列内のヌル文字の扱い</title>
+      <description>SQLiteで文字列内にヌル文字（NULL文字）を含める場合の処理方法と注意点について説明されている公式ドキュメント。
+ヌル文字の挿入や検出、文字列操作時の動作など、開発者が知るべき重要な仕様情報を提供。
+SQLiteを使用する際の潜在的な問題を回避するための実装知識を網羅。</description>
+      <link>https://sqlite.org/nulinstr.html</link>
+      <pubDate>Wed, 15 Jul 2026 23:03:45 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928343</guid>
+    </item>
+    <item>
+      <title>[翻訳] 金属有機構造体（MOF）：化学の革新的新素材</title>
+      <description>金属有機構造体（Metal-Organic Frameworks）は、金属イオンと有機分子を組み合わせた新しい材料で、化学分野での革新的な応用が期待されている。
+多孔性構造により、ガス貯蔵、分離、触媒など様々な用途での活用が検討されており、エネルギーや環境問題の解決に貢献する可能性がある。
+バークレー化学科の研究では、この素材の特性と実用化に向けた取り組みが紹介されている。</description>
+      <link>https://chemistry.berkeley.edu/news/meet-metal-organic-frameworks-chemistry%E2%80%99s-new-miracle-materials</link>
+      <pubDate>Wed, 15 Jul 2026 23:00:31 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928313</guid>
+    </item>
+    <item>
+      <title>[翻訳] アンチMacユーザーインターフェース設計（1996年）</title>
+      <description>1996年に発表されたMacのUIに対する批判的な分析と代替的なインターフェース設計の提案についての記事。
+NN/gのコンテンツで、ユーザビリティの観点からMacのUIの問題点を指摘しています。
+Hacker Newsで54ポイント、17件のコメントを獲得し、当時のUI/UXデザイン議論として注目されました。</description>
+      <link>https://www.nngroup.com/articles/anti-mac-interface/</link>
+      <pubDate>Wed, 15 Jul 2026 22:52:36 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928234</guid>
+    </item>
+    <item>
+      <title>[翻訳] SQLiteもRustスタイルのエディション機能を導入すべき</title>
+      <description>SQLiteが言語のバージョン管理と互換性維持の仕組みとしてRustのエディション機能を採用することを提案する記事。
+エディション機能により、SQLiteは既存コードの互換性を保ちながら新しい機能や仕様変更を段階的に導入できる可能性がある。
+Hacker Newsで118ポイントを獲得し、46件のコメントが寄せられている。</description>
+      <link>https://mort.coffee/home/sqlite-editions/</link>
+      <pubDate>Wed, 15 Jul 2026 22:42:58 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928135</guid>
+    </item>
+    <item>
+      <title>[翻訳] LLMを活用したMikroTikネットワーク管理</title>
+      <description>LLM（大規模言語モデル）とMikroTikルーターを組み合わせたネットワーク管理手法に関する記事。
+AIを使用してネットワーク設定や運用を効率化する実践的なアプローチについて解説。
+Hacker Newsで47ポイント、11件のコメントを獲得している注目の技術トピック。</description>
+      <link>https://blog.greg.technology/2026/07/14/llm-networking-with-mikrotik.html</link>
+      <pubDate>Wed, 15 Jul 2026 22:23:27 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48927915</guid>
+    </item>
+    <item>
+      <title>[翻訳] WebRTCを使ったP2P型ローカルファイル転送サービス</title>
+      <description>WebRTCプロトコルを活用して、デバイス間で直接ファイルを転送できるP2Pベースのソリューション。
+サーバーを経由せず、ローカルネットワーク上でセキュアにファイル共有が可能。
+PairDropというプラットフォームで実装され、Hacker Newsで話題を集めている。</description>
+      <link>https://pairdrop.net/</link>
+      <pubDate>Wed, 15 Jul 2026 22:22:08 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48927900</guid>
+    </item>
+    <item>
+      <title>[翻訳] 政府・企業・非営利団体はオープンソースAIへの投資を進めるべき</title>
+      <description>政府、企業、非営利団体がオープンソースのAI開発に対して積極的な投資を行うことの重要性を提唱している。
+オープンソースAIは、技術の透明性と民主化を実現し、単一の企業による支配を防ぐ効果がある。
+公開資金と民間資金の協力により、誰もがアクセス可能で安全なAI技術の発展が可能になると主張している。</description>
+      <link>https://www.siegelendowment.org/wp-content/uploads/2026/07/fortune-david-siegel-open-source-ai.pdf</link>
+      <pubDate>Wed, 15 Jul 2026 21:16:36 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48927095</guid>
+    </item>
+    <item>
+      <title>[翻訳] WebAssemblyで動作するFirefoxブラウザ</title>
+      <description>GeckoエンジンやUI、JavaScriptエンジンのSpidermonkeyを含むFirefoxブラウザ全体がWebAssemblyにコンパイルされ、canvas要素上で動作するプロジェクト。
+エンドツーエンド暗号化対応、WASM-&gt;JS JIT機能を備えており、デバッグとJIT研究に25,000以上のトークンを費やして実装。
+WebAssemblyの限界に挑戦する実験的なプロジェクトで、より実用的な「ブラウザ内ブラウザ」として別途browser.jsも開発。</description>
+      <link>https://developer.puter.com/labs/firefox-wasm/</link>
+      <pubDate>Wed, 15 Jul 2026 21:00:17 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48926939</guid>
+    </item>
+    <item>
+      <title>[翻訳] Grok Buildがオープンソース化</title>
+      <description>xAIが開発したGrok Buildをオープンソースで公開しました。
+GitHubで誰でもアクセス・利用できるようになり、開発者コミュニティの貢献が可能になりました。
+Hacker Newsでも話題となり、265ポイント、310件のコメントを集めています。</description>
+      <link>https://github.com/xai-org/grok-build</link>
+      <pubDate>Wed, 15 Jul 2026 20:24:58 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48926590</guid>
+    </item>
+    <item>
+      <title>[翻訳] Brainless：Claude Code、Codex、Grokのようなデザインを持つShadcnコンポーネント集</title>
+      <description>Claude Code、Codex、Grokなどの人気AIコーディングツールのUIデザインを模したShadcnコンポーネント集が公開されました。
+開発者が各ツールの視覚的スタイルを再現し、プロジェクトで再利用可能なコンポーネントとして提供しています。
+Hacker Newsで91ポイント獲得し、18件のコメントが寄せられ、コミュニティの関心が高まっています。</description>
+      <link>https://brainless.swerdlow.dev</link>
+      <pubDate>Wed, 15 Jul 2026 19:42:53 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48926085</guid>
+    </item>
+    <item>
+      <title>[翻訳] Voxatron - ボクセルベースの3Dゲーム作成ツール</title>
+      <description>Lexaloffleが開発したVoxatronは、ボクセル（立方体のピクセル）を使用して3Dゲームを作成・実行できるプラットフォーム。
+直感的なボクセルエディタと統合されたゲームエンジンにより、プログラミング経験がなくてもレトロ風の3Dゲーム開発が可能。
+Hacker Newsで63ポイント、19件のコメントを獲得し、クリエイティブなゲーム開発ツールとして注目を集めている。</description>
+      <link>https://www.lexaloffle.com/voxatron.php</link>
+      <pubDate>Wed, 15 Jul 2026 19:40:23 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48926053</guid>
+    </item>
+    <item>
+      <title>[翻訳] コマンドライン操作の恐怖ゲーム『Duskers』が続編制作へ</title>
+      <description>人気のコマンドラインベースの恐怖ゲーム『Duskers』の続編『Duskers 2.0』が発表された。
+ゲーム開発スタジオMisfits Atticにより、次世代バージョンの開発が進行中である。
+オリジナルの魅力を保ちつつ、新たな要素と改善が加えられる予定。</description>
+      <link>https://elbowgreasegames.substack.com/p/misfits-attic-announces-duskers-20</link>
+      <pubDate>Wed, 15 Jul 2026 19:27:59 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48925888</guid>
+    </item>
+    <item>
+      <title>[翻訳] Inkling：オープンウェイト型AIモデルの発表</title>
+      <description>Thinking Machinesが新しいオープンウェイト型のAIモデル「Inkling」を発表しました。
+このモデルは誰でも自由に利用・改変できる形式で公開され、AIの民主化を進める取り組みとなっています。
+Hacker Newsで大きな関心を集め、高いスコアと多くのコメントを獲得しています。</description>
+      <link>https://thinkingmachines.ai/news/introducing-inkling/</link>
+      <pubDate>Wed, 15 Jul 2026 18:12:45 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48924912</guid>
+    </item>
+    <item>
+      <title>[翻訳] YCombinatorの投資企業Artie、ソフトウェアエンジニアを募集中</title>
+      <description>YCombinator S23期間中に設立されたArtieが、ソフトウェアエンジニアの採用を進めている。
+同社の採用情報の詳細はAshby採用プラットフォーム上で確認できる。
+Hacker Newsのコミュニティから現在の注目度は限定的となっている。</description>
+      <link>https://jobs.ashbyhq.com/artie</link>
+      <pubDate>Wed, 15 Jul 2026 17:01:02 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48923833</guid>
+    </item>
+    <item>
+      <title>[翻訳] デジタル時計デザインのコレクション</title>
+      <description>デジタル時計のデザイン集を紹介するサイト。
+Hacker Newsで178ポイント、36件のコメントを獲得。
+様々なスタイルのデジタル時計実装例を閲覧できるリソース。</description>
+      <link>https://clocks.dev</link>
+      <pubDate>Wed, 15 Jul 2026 16:33:15 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48923380</guid>
+    </item>
+    <item>
+      <title>[翻訳] misa77 - LZ4の2倍高速なデコーダーコーデック、圧縮率も優秀</title>
+      <description>数ヶ月の開発期間を経て完成したコーデック「misa77」は、LZ4を大幅に上回るデコード性能を実現しており、同じ圧縮率クラスで最高レベルの展開スループットを提供します。\nブランチ削減とアウトオブオーダーコア対応のスマートなフォーマット設計により、misa77は5219 MB/sのデコード速度（LZ4は2505 MB/s）を達成しながら、圧縮率も42.64%と競争力のある数値を実現しています。\nただし圧縮速度は遅く（54.5 MB/s）、デコード性能と圧縮率を優先する用途に特化したコーデックとなっています。</description>
+      <link>https://github.com/welcome-to-the-sunny-side/misa77</link>
+      <pubDate>Wed, 15 Jul 2026 15:58:59 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48922838</guid>
+    </item>
+    <item>
+      <title>[翻訳] 13年前のXeonプロセッサでGPUなしにGemma 4 26Bを毎秒5トークンで実行</title>
+      <description>古いXeonプロセッサを使用してGPUなしで大規模言語モデル（Gemma 4 26B）を実行することに成功した。
+毎秒5トークンという実用的な速度で推論が可能であり、最新のハードウェアがなくても大規模モデルの運用ができることを実証している。
+限られたリソースでもAIモデルを効率的に活用する方法の可能性を示唆している。</description>
+      <link>https://www.neomindlabs.com/2026/06/08/running-gemma-4-26b-at-5-tokens-sec-on-a-13-year-old-xeon-with-no-gpu/</link>
+      <pubDate>Wed, 15 Jul 2026 15:34:05 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48922434</guid>
+    </item>
+    <item>
+      <title>[翻訳] 万能なハーネス技術の実現に向けて</title>
+      <description>汎用的なハーネス技術の開発と実装に関する研究内容が紹介されている。
+Hacker Newsで173ポイントを獲得し、86件のコメントが寄せられ、高い関心を集めている。
+ハーネス技術の応用可能性と将来性について、技術コミュニティから活発な議論が行われている。</description>
+      <link>https://eardatasci.github.io/c/ambiance/index.html</link>
+      <pubDate>Wed, 15 Jul 2026 14:08:28 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48921077</guid>
+    </item>
+    <item>
+      <title>[翻訳] Telegramのデータセンターに関する謎を解き明かす</title>
+      <description>Telegramのデータセンター運用についての詳細な調査記事。
+セキュリティと分散化を実現するための基盤構造の解析。
+メッセージング通信の裏側にある技術的な仕組みを探る。</description>
+      <link>https://dev.moe/en/3025</link>
+      <pubDate>Wed, 15 Jul 2026 13:22:00 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48920475</guid>
+    </item>
+    <item>
       <title>[翻訳] ジュラシック・パークのコンピュータを徹底解剖</title>
       <description>映画『ジュラシック・パーク』に登場するコンピュータシステムについての詳細な技術分析記事。
 当時実際に使用されていたハードウェアやソフトウェアの仕様を詳しく解説。
