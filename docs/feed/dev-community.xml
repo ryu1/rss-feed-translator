@@ -5,6 +5,124 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] 2026年のB2BとAI向けおすすめ監査ログプラットフォーム8選</title>
+      <description>エンタープライズ顧客への販売にはセキュリティ監査が必須となり、SOC 2やISO 27001、EU AI Actなどの規制対応が重要。本記事では8つの監査ログプラットフォームを比較し、それぞれの技術的特性と用途を解説。
+Observabilityツール（Arize PhoenixやLangfuse）とCompliance監査ログツール（VolidatorやWorkOS）は異なる目的で設計されており、エンタープライズ対応にはCompliance特化型が必要。
+AIエージェント時代の監査ログは、従来型システムの制限（500文字制限、非決定的状態の記録不可）を克服し、5MBまでのペイロード対応、暗号化イミュータビリティ、フォレンジック再生機能が求められる。</description>
+      <link>https://dev.to/ankreations/top-audit-trail-platforms-to-use-in-2026-for-b2b-and-agentic-applications-20af</link>
+      <pubDate>Thu, 16 Jul 2026 05:24:04 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ankreations/top-audit-trail-platforms-to-use-in-2026-for-b2b-and-agentic-applications-20af</guid>
+    </item>
+    <item>
+      <title>[翻訳] MERN Stack学習155日目：フードデリバリーアプリのメニューフィルター機能を実装</title>
+      <description>ソフトウェアエンジニアリング学習155日目。トマトというフードデリバリーアプリのExploreMenuコンポーネントを動的な状態管理で実装しました。\nユーザーがメニューを閲覧する際のレスポンシブなビジュアルフィードバックは、高いコンバージョンレートを実現するために重要です。\nコンポーネント間でのステート管理を親コンポーネントで一元管理し、propsを通じて子コンポーネントにカテゴリ選択状態を渡すフィルター機能を構築しました。</description>
+      <link>https://dev.to/ali_hamza_589ec7b3eb6688d/day-155-of-learning-mern-stack-49jg</link>
+      <pubDate>Thu, 16 Jul 2026 05:14:07 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ali_hamza_589ec7b3eb6688d/day-155-of-learning-mern-stack-49jg</guid>
+    </item>
+    <item>
+      <title>[翻訳] TypeScript だけでは不十分：ランタイム検証がなぜ真の型安全性に必須なのか</title>
+      <description>JavaScriptの柔軟性は初期段階では利点だったが、現代の大規模アプリケーション開発ではバグの温床となり、TypeScriptが解決策として登場しました。
+しかし、TypeScriptのコンパイル時の型チェックはランタイムでは消失し、API応答やユーザー入力などの外部データ検証には対応できていません。
+Zod、Valibot、ArkTypeなどのランタイム検証ツールとTypeScriptを組み合わせ、標準化を目指すStandard Schemaの動きにより、真の型安全性が実現できます。</description>
+      <link>https://dev.to/11_thanyathonr1ack__b2/mngkhaam-typescript-thamaim-type-safety-thiiaethcchringtngaipaiklkwaaaekh-compile-time-503i</link>
+      <pubDate>Thu, 16 Jul 2026 05:05:19 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/11_thanyathonr1ack__b2/mngkhaam-typescript-thamaim-type-safety-thiiaethcchringtngaipaiklkwaaaekh-compile-time-503i</guid>
+    </item>
+    <item>
+      <title>[翻訳] 70個のチャレンジと542の受賞作を分析して判明した、DEV Bug Smashで勝つための完全ガイド</title>
+      <description>著者が過去70のDEVチャレンジと542の受賞作品を徹底分析し、複数の賞を獲得するための具体的な戦略を解説。
+受賞作に共通する5つの特徴（明確なコンセプト、実用性、完成度の高さ、優れた文章、スポンサー技術の活用）と失敗パターン、トラック別の戦略を紹介。
+Clear the Lineup、Smash Stories、Sentryなど各カテゴリーの詳細な执行計画、テンプレート、50項目以上のチェックリストを提供。</description>
+      <link>https://dev.to/aniruddhaadak/i-read-all-70-past-dev-challenges-542-winning-submissions-heres-the-bug-smash-playbook-57i6</link>
+      <pubDate>Thu, 16 Jul 2026 05:00:58 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/aniruddhaadak/i-read-all-70-past-dev-challenges-542-winning-submissions-heres-the-bug-smash-playbook-57i6</guid>
+    </item>
+    <item>
+      <title>[翻訳] 使用していないMCPプラグインが知らぬ間にコンテキストを圧迫する問題を、週次の自動無効化パイプラインで解決する</title>
+      <description>有効化したまま忘れたプラグインはスキーマ情報をコンテキストに常駐させため、コンテキスト予算を圧迫する問題に対し、3段階のパイプライン（検出→自動無効化→キャッシュアーカイブ）で週次に自動対応する仕組みを実装。
+過去30日間に実際に呼ばれたツール使用ログをJSONで厳密に集計し、保護リスト外の不要プラグインを特定し、キャッシュサイズ順に週5個まで段階的に無効化することでコンテキスト効率化を実現。
+launchdを使った自動スケジューリング、LSPやインフラプラグインの保護リスト管理、無効化済みキャッシュの30日後削除機能など、段階的で安全な運用の仕組みまで解説。</description>
+      <link>https://dev.to/bokuwalily/unused-mcp-plugins-are-quietly-eating-your-context-a-weekly-auto-disable-pipeline-1gl7</link>
+      <pubDate>Thu, 16 Jul 2026 05:00:06 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/bokuwalily/unused-mcp-plugins-are-quietly-eating-your-context-a-weekly-auto-disable-pipeline-1gl7</guid>
+    </item>
+    <item>
+      <title>[翻訳] カメラで撮るだけで商品登録—AIが小売店のデジタル化を実現</title>
+      <description>インドの小規模キラナ店がONDC（オープンデジタルコマース）に参入できない理由は、商品情報をシステムに手入力する時間がないこと。
+Dukaan Digitalは、仕入れ伝票や棚の写真をAI（Gemini 1.5 Flash）で読み込み、自動的に商品カタログに変換することで、この課題を解決する。
+手作業データ入力が午後かかる作業から5分の作業に短縮され、小売店がデジタル商取引で大手プラットフォームと競争できる道を開く。</description>
+      <link>https://dev.to/isaqureshi/dukaan-digital-teaching-an-ai-to-read-a-kirana-shop-so-small-stores-can-compete-on-ondc-2p0i</link>
+      <pubDate>Thu, 16 Jul 2026 04:53:33 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/isaqureshi/dukaan-digital-teaching-an-ai-to-read-a-kirana-shop-so-small-stores-can-compete-on-ondc-2p0i</guid>
+    </item>
+    <item>
+      <title>[翻訳] JavaのnewとnewInstance()の違い：オブジェクト生成方法の比較</title>
+      <description>Javaのオブジェクト生成には、コンパイル時にクラスが判明している場合に使う「new演算子」と、実行時に動的にクラスを指定できる「リフレクション」の2つの方法がある。
+newInstance()はJava 9以降非推奨となり、代わりにgetDeclaredConstructor().newInstance()の使用が推奨されている。これにより例外処理が改善され、パラメータ付きコンストラクタにも対応できる。
+newは高速で型安全だが、リフレクションはSpringやHibernateなどのフレームワークやプラグインアーキテクチャでの動的なオブジェクト生成に活躍する。</description>
+      <link>https://dev.to/rajeshbhola1/java-new-vs-newinstance-35hb</link>
+      <pubDate>Thu, 16 Jul 2026 04:49:48 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/rajeshbhola1/java-new-vs-newinstance-35hb</guid>
+    </item>
+    <item>
+      <title>[翻訳] ソフトウェアエンジニアから宇宙へ：エンジニアキャリアを星に向かわせる理由</title>
+      <description>7年以上のソフトウェアエンジニアとしてのキャリアを築いてきた著者が、子どもの頃からの夢であるミッションコントロールと宇宙開発の道へキャリアチェンジすることを決意した。
+技術的なスキルは宇宙産業へのキャリアシフトへの完璧な基礎となり、本当にやりたいことへの情熱が再び目覚めたという。
+航空宇宙ソフトウェア、飛行物理学、ハードウェアレベルのプログラミングなど、新しい分野の習得に取り組み、人類の宇宙進出への貢献を目指している。</description>
+      <link>https://dev.to/xaiphyr/from-code-to-the-cosmos-why-i-am-steering-my-engineering-career-toward-the-stars-1fg</link>
+      <pubDate>Thu, 16 Jul 2026 04:47:09 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/xaiphyr/from-code-to-the-cosmos-why-i-am-steering-my-engineering-career-toward-the-stars-1fg</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIエージェントが独断で行動主体を選ぶべきではない理由</title>
+      <description>AIエージェントが生成するツール呼び出しは形式的に正しくても、その背後に正当な身元がない可能性がある。モデル出力を信頼せず、認証されたシステム境界から信頼できる行動主体を確立する必要がある。
+行動主体は「リクエスト元」「エージェント自体」「実行権限者」の3つの異なるアイデンティティに分離すべきで、これらが一つのuser_idに統合されると認証と権限委譲の追跡が不可能になる。
+ツール実行時には主体の検証を何度も行い、ビジネスシステムが最終的な権限判定を実施し、監査ログで各行為者を区別できるよう設計することが重要である。</description>
+      <link>https://dev.to/gangan/why-an-ai-agent-must-never-choose-its-own-acting-subject-3bb7</link>
+      <pubDate>Thu, 16 Jul 2026 04:44:57 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/gangan/why-an-ai-agent-must-never-choose-its-own-acting-subject-3bb7</guid>
+    </item>
+    <item>
+      <title>[翻訳] WhatsAppのボット・ヒューマンハンドオフ問題：会話のコンテキストを失わずに引き継ぐ方法</title>
+      <description>WhatsAppのサポートボットは簡単な質問には対応できるが、複雑な問題で人間へ引き継ぐ際にコンテキストを失い、顧客は情報を繰り返す羽目になるという「ボットループ」問題が発生する。
+適切なハンドオフには、明示的な引き継ぎリクエストと信頼度・試行回数に基づくエスカレーション、完全な会話履歴と構造化サマリーの引き継ぎ、正しい担当者への割り当て、同じ電話番号での継続が必要である。
+BowChatなどのツールを使い、ボットと人間が同じスレッドで会話を共有し、顧客に見えないように背後で制御を行き来させることで、シームレスな引き継ぎが実現できる。</description>
+      <link>https://dev.to/animesh_gupta_705a19fc6f8/the-whatsapp-handoff-problem-passing-a-bot-conversation-to-a-human-without-losing-context-24ja</link>
+      <pubDate>Thu, 16 Jul 2026 04:42:59 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/animesh_gupta_705a19fc6f8/the-whatsapp-handoff-problem-passing-a-bot-conversation-to-a-human-without-losing-context-24ja</guid>
+    </item>
+    <item>
+      <title>[翻訳] UIの遅延を解消: カスタムフックでインタラクション反応を高速化</title>
+      <description>記事の内容を確認できませんでした。
+Liquid構文エラーが発生しています。
+元の記事ソースの確認が必要です。</description>
+      <link>https://dev.to/iprajapatiparesh/banish-ui-lag-custom-hook-interaction-feedback-2kgi</link>
+      <pubDate>Thu, 16 Jul 2026 04:31:11 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/iprajapatiparesh/banish-ui-lag-custom-hook-interaction-feedback-2kgi</guid>
+    </item>
+    <item>
+      <title>[翻訳] 単なるマクロでは不十分：画面認識機能を備えたTC Gamesの代替ツール</title>
+      <description>TC Gamesはマクロを使用した自動化に優れていますが、画面の状態を理解せず盲目的に入力を再生するため、ローディングやエラーダイアログなどの予期しない状況に対応できません。
+LaiCai Screen Mirroringなどの代替ツールは、画像テンプレート、OCR、物体検出を使用して現在の画面フレームを認識し、その結果に基づいて次のアクション（分岐、待機、マクロ実行など）を決定する「画面認識自動化」レイヤーを提供します。
+ゲームパッドマッピング、macOS対応、QAテストなど用途に応じた機能選択が重要であり、同時にゲーム利用規約や不正行為防止ポリシーの遵守が責務とされています。</description>
+      <link>https://dev.to/laicaiapp/when-a-mobile-game-macro-is-not-enough-a-screen-aware-tc-games-alternative-1gj6</link>
+      <pubDate>Thu, 16 Jul 2026 04:29:48 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/laicaiapp/when-a-mobile-game-macro-is-not-enough-a-screen-aware-tc-games-alternative-1gj6</guid>
+    </item>
+    <item>
       <title>[翻訳] 開発者向けツールのLLM評価：実用性、正確性、安全性の3軸で測定する</title>
       <description>LLMベースの開発者ツール（コード提案、PR自動生成など）の性能を正しく測定するには、従来のチャットボット評価ではなく、実際の成果物（diff、ビルド結果、テスト合格状況）に基づく評価が必要。
 評価の3つの独立した軸は、①正確性（コンパイル・テスト合格などバイナリ判定）、②実用性（ユーザーの手間を減らしたか、ユーザー行動で測定）、③安全性（プロンプトインジェクションなどの攻撃への耐性）で、それぞれ異なる測定手法と管理方法が必要。

@@ -5,6 +5,116 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] 音楽海賊版の時代が失った喜び</title>
+      <description>かつて音楽海賊版の時代に存在した、ユーザーが感じていた特別な体験や自由感について振り返る記事。
+ストリーミング時代への移行により、音楽入手の容易さは増した一方で、探求や発見の喜びなど失われたものがあることを指摘。
+CD-RやOinkなどのファイル共有プラットフォームが提供していた独特の音楽文化と、それが現在のストリーミングサービスとどう異なるかを探る。</description>
+      <link>https://www.pigeonsandplanes.com/read/music-piracy-what-cd-oink-nine-inch-nails-streaming</link>
+      <pubDate>Thu, 16 Jul 2026 04:46:21 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930454</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIは単なるツールではない――使い方だけでは説明できない理由</title>
+      <description>AIを「単なるツール」と表現することは不正確であり、その影響力や本質をはき違えている可能性がある。
+ツールの使い方次第という主張は、AIの能動的な特性や独自の影響を過小評価している。
+AIの扱いについて、より深い検討と責任あるアプローチが必要とされている。</description>
+      <link>https://www.frank.computer/blog/2025/05/just-a-tool.html</link>
+      <pubDate>Thu, 16 Jul 2026 04:31:01 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930363</guid>
+    </item>
+    <item>
+      <title>[翻訳] 投げ方が狙いを決める</title>
+      <description>投げる行為と狙いの関係について、実践的な視点から解説した記事。
+物を投げるときに、事前に狙いを定めるのではなく、投げる動作そのものが最終的な着地点を決定することの重要性を論じている。
+この考え方は問題解決やプロジェクト管理など、様々な分野に応用できる示唆に富んだ内容。</description>
+      <link>https://thegustafson.com/blog/my-throw-decides-my-aim</link>
+      <pubDate>Thu, 16 Jul 2026 03:51:25 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930149</guid>
+    </item>
+    <item>
+      <title>[翻訳] ボタンをゼロから作るなら、まず宇宙を作る必要がある</title>
+      <description>アクセシビリティを考慮したボタン実装には、単なるUI要素の作成以上の複雑な考慮が必要であることを示唆した記事。
+Webアプリケーションの基本的なコンポーネントであるボタンを正しく実装するには、HTMLの基礎から始まる多くの要素を理解する必要がある。
+Hacker Newsで42ポイントを獲得し、アクセシビリティ実装の重要性についての議論が行われている。</description>
+      <link>https://madcampos.dev/blog/2026/07/accessibility-from-scratch/</link>
+      <pubDate>Thu, 16 Jul 2026 03:48:43 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930136</guid>
+    </item>
+    <item>
+      <title>[翻訳] 768台のサーバーを1台に見せる技術</title>
+      <description>PlanetScaleが複数のサーバーを単一のシステムとして管理・運用する技術について解説しています。
+大規模なインフラストラクチャを透過的に統合し、ユーザーには単一のサーバーとして見えるようにする仕組みを実現しています。
+このアプローチにより、スケーラビリティと運用効率の向上を実現する方法が紹介されています。</description>
+      <link>https://planetscale.com/blog/making-768-servers-look-like-1</link>
+      <pubDate>Thu, 16 Jul 2026 03:36:42 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930075</guid>
+    </item>
+    <item>
+      <title>[翻訳] ロンドンのゲリラ広告がカイリー・ジェンナーのMeta眼鏡キャンペーンを風刺</title>
+      <description>ロンドンのバスに掲出されたゲリラ広告がカイリー・ジェンナーがMeta製スマートグラスの宣伝に起用されたことを皮肉的に風刺している。
+これはテック企業による著名人を使った宣伝手法に対する批判的なアクションと考えられる。
+この記事はHacker Newsで133ポイントを獲得し、74件のコメントが寄せられている。</description>
+      <link>https://hyperallergic.com/guerrilla-london-bus-ads-mock-kylie-jenners-meta-glasses-campaign/</link>
+      <pubDate>Thu, 16 Jul 2026 03:24:25 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930011</guid>
+    </item>
+    <item>
+      <title>[翻訳] 19世紀の美しい野生動物イラスト1,300点が復元・公開される</title>
+      <description>19世紀の野生動物イラスト1,300点以上が復元され、オンラインで閲覧できるようになった。
+Open Cultureによって公開されたこれらの貴重な歴史的資料は、当時の自然観察や科学的記録の重要な遺産である。
+誰もが無料でアクセス可能になり、自然史と美術の融合した文化遺産が広く共有されている。</description>
+      <link>https://www.openculture.com/2026/07/explore-1300-beautiful-wildlife-illustrations-from-the-19th-century.html</link>
+      <pubDate>Thu, 16 Jul 2026 03:12:47 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929945</guid>
+    </item>
+    <item>
+      <title>[翻訳] Cloudflare AIを活用したオープンソースの無料音声認識ツール「Whispr」</title>
+      <description>CloudflareのAI機能を利用した、オープンソースの音声認識ツール「Whispr」がGitHubで公開されました。
+無料ティアでも利用可能な構成になっており、誰でもアクセスできるようになっています。
+Hacker Newsで話題となり、開発者コミュニティから注目を集めています。</description>
+      <link>https://github.com/PrestigePvP/Voicebox</link>
+      <pubDate>Thu, 16 Jul 2026 02:57:30 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929870</guid>
+    </item>
+    <item>
+      <title>[翻訳] LLMはコンピュータアーキテクチャ論文の深い技術的理解ができるのか</title>
+      <description>大規模言語モデル（LLM）がコンピュータアーキテクチャに関する技術論文を深く理解できるかを検証した研究。
+LLMが複雑なハードウェア設計や最適化手法などの専門的な内容をどの程度理解・処理できるかを調査。
+AIの技術的な理解能力の限界と可能性について考察した学術論文。</description>
+      <link>https://arxiv.org/abs/2607.11859</link>
+      <pubDate>Thu, 16 Jul 2026 02:17:31 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929660</guid>
+    </item>
+    <item>
+      <title>[翻訳] Tokio/Rayonの落とし穴：なぜAsync/Awaitは並行処理で失敗するのか</title>
+      <description>RustのTokioやRayonといった非同期ランタイムの設計における課題と、Async/Awaitが並行処理の実装で直面する根本的な問題について解説。
+非同期プログラミングの複雑性と、現在のアプローチの限界を指摘し、より効果的な並行処理の実装方法を探討。
+Hacker Newsで30ポイント、30件のコメントを集めた技術的な議論。</description>
+      <link>https://pmbanugo.me/blog/why-async-await-complect-concurrency</link>
+      <pubDate>Thu, 16 Jul 2026 02:06:36 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929587</guid>
+    </item>
+    <item>
+      <title>[翻訳] BlueSkyがAT Protocolの商標を取得</title>
+      <description>BlueSkyがオープンソースのAT Protocolプロトコルの商標権を取得した。
+商標化により、プロトコルの知的財産がより正式に保護されることになる。
+これはブロックチェーンベースのソーシャルネットワーク基盤の安定性向上を意図している。</description>
+      <link>https://atproto.com/blog/at-protocol-trademark</link>
+      <pubDate>Thu, 16 Jul 2026 01:21:04 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929351</guid>
+    </item>
+    <item>
       <title>[翻訳] もう一文字 - 新作ワードゲーム</title>
       <description>Hacker Newsで紹介されたワードゲーム「One More Letter」のプレイ可能なWebアプリケーション。
 毎日のチャレンジやゲームプレイを通じて言葉遊びを楽しめるシンプルなゲーム。
