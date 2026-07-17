@@ -5,6 +5,122 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] Solid Queueの監視機能不足を解決するQueuePulseを開発した</title>
+      <description>Rails 8のデフォルトジョブバックエンドであるSolid Queueは優れているが、アラート機能がないため、ジョブの障害を数日後に発見するか、重い有料APMサービスに頼るしかない問題がある。\n開発者がこの問題を解決するためにQueuePulseというツールを作成した。これはSolid Queueの既存テーブルを読み取り専用で監視し、ジョブ失敗、キューレイテンシー、キュー蓄積、スタック中のジョブ、ワーカー停止時にSlackやメールで即座に通知する。\nセットアップは簡単で、Gemfileに追加して設定ファイルを書くだけで、新しいインフラが不要で、読み取り専用クエリのため安全であり、MITライセンスで無料公開されている。</description>
+      <link>https://dev.to/michiya59/solid-queue-has-no-alerting-so-i-built-queuepulse-1lfm</link>
+      <pubDate>Fri, 17 Jul 2026 02:00:40 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/michiya59/solid-queue-has-no-alerting-so-i-built-queuepulse-1lfm</guid>
+    </item>
+    <item>
+      <title>[翻訳] SvelteKit のリモート関数でフォームを扱う方法【第3回】フィールド管理の基礎</title>
+      <description>SvelteKit のリモート関数シリーズ第3回では、サーバーへのデータ送信（POST/PUT）を扱う form 型のリモート関数について解説します。
+フォームの各フィールドを `.as()` メソッドで定義し、テキスト入力、チェックボックス、ラジオボタンなど様々な input タイプに対応させる方法を紹介します。
+ネストされたオブジェクトや配列、ファイルアップロードなども含めた複雑なフォーム構造の扱い方や、フィールドの値の初期化とリセット機能について詳しく説明します。</description>
+      <link>https://dev.to/nnutnonn/sveltekit-kaarthamngaankab-remote-function-part-3-5218</link>
+      <pubDate>Fri, 17 Jul 2026 02:00:00 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/nnutnonn/sveltekit-kaarthamngaankab-remote-function-part-3-5218</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIが長く考えるのは組織の決定不足の証拠である</title>
+      <description>真の思考は稀で、ほとんどの仕事は既存の前提を整える「ソーティング」である。
+AIの長い推論トレースは能力ではなく、組織が決定・文書化すべき判断基準が欠けていることを示す診断結果だ。
+AI活用の成功には、思考と判断を区別し、決定を記録・参照可能にする体制が必須である。</description>
+      <link>https://dev.to/synthaicode_commander/you-almost-never-think-thats-why-your-brain-doesnt-crash-218a</link>
+      <pubDate>Fri, 17 Jul 2026 01:59:02 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/synthaicode_commander/you-almost-never-think-thats-why-your-brain-doesnt-crash-218a</guid>
+    </item>
+    <item>
+      <title>[翻訳] YAMNetは予測不可能な突発音をリアルタイムで検出できるか？48ストリーム評価実験</title>
+      <description>GoogleのYAMNetオーディオ分類モデルを使用して、事前に指定せずに未知の突発音をリアルタイムで検出できるかを48個の音声ストリームで検証した実験。
+最良の設定で48イベント中22を検出し45.8%の再現率を達成したが、YAMNetの埋め込みベクトルの単純な距離では未知の突発音を確実に検出できないことが判明。
+処理速度は実時間の150倍以上の高速化を達成したものの、精度不足により安全監視アプリケーションへの実用化には至らず、過去フレームとの比較が正規音メモリとの比較より有効であることが示唆された。</description>
+      <link>https://dev.to/kiarina/can-yamnet-detect-unseen-sudden-sounds-in-real-time-a-48-stream-evaluation-49d7</link>
+      <pubDate>Fri, 17 Jul 2026 01:53:43 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/kiarina/can-yamnet-detect-unseen-sudden-sounds-in-real-time-a-48-stream-evaluation-49d7</guid>
+    </item>
+    <item>
+      <title>[翻訳] 1つのHTMLファイルで実現する、フレームワーク不要な3Dリアルタイム天気表示</title>
+      <description>フレームワークやビルドステップを使わず、単一のHTMLファイルだけで3D風のリアルタイム天気ダッシュボードを実装しました。
+CSS backdrop filtersと標準的なVanilla JavaScriptを活用し、重い3Dモデルや物理エンジンの代わりに、軽量な代替手段で天体座標の追跡と空の色をリアルタイムで更新しています。
+古いi5ラップトップでも高いパフォーマンスを発揮でき、ブラウザの生のAPIだけでも十分に洗練されたアプリケーションが実現できることを実証しています。</description>
+      <link>https://dev.to/phoenix_analysis_593be33c/a-full-3d-live-weather-world-in-one-html-file-no-frameworks-no-build-step-4n83</link>
+      <pubDate>Fri, 17 Jul 2026 01:31:59 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/phoenix_analysis_593be33c/a-full-3d-live-weather-world-in-one-html-file-no-frameworks-no-build-step-4n83</guid>
+    </item>
+    <item>
+      <title>[翻訳] 無料AI機能を公開しながら請求額を制限する方法：Cloudflare Workerを使った実装</title>
+      <description>開発者が予期しない高額請求を避けながら、一般ユーザー向けに無料のAI機能を提供するためのCloudflare Workerベースのソリューション「Free-Tier AI Relay」を開発した。
+このツールはAPIキーをサーバー側に保持し、デバイス単位・IP単位・グローバル上限の3層の制限機構により、ユーザーの過度な利用を防ぎながら最大支出額を完全に制御できる。
+デフォルト状態ではGoogle GeminiやOpenRouterの無料層のみを使用し、有料プロバイダーは明示的に有効化するまで呼び出されないため、コストゼロで運用可能である。</description>
+      <link>https://dev.to/mister_buds_4874bbe643dda/i-built-a-cloudflare-worker-so-you-can-give-the-public-free-ai-without-ever-getting-a-surprise-1042</link>
+      <pubDate>Fri, 17 Jul 2026 01:21:58 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/mister_buds_4874bbe643dda/i-built-a-cloudflare-worker-so-you-can-give-the-public-free-ai-without-ever-getting-a-surprise-1042</guid>
+    </item>
+    <item>
+      <title>[翻訳] corpus-scrub 0.1.0：LLM学習前に個人情報と秘密情報を検出・マスク処理するツール</title>
+      <description>LLMの学習データから個人情報（メール、電話番号、IBAN、クレジットカード番号、名前）とAPI キーなどの秘密情報を自動検出し、ローカルで安全にマスク処理するCLIツール。
+PresidioとspaCyのNER、gitleaksのルールセット、正規表現を組み合わせて多言語対応で検出。GDPR および EU AI Act への準拠を支援し、学習前にコーパスを安全に洗浄できる。
+オープンソース（AGPL-3.0）で82%のテスト カバレッジを備え、EMAIL・PERSON・CREDIT_CARDで95%以上の再現率を保証。</description>
+      <link>https://dev.to/magopredator/corpus-scrub-010-detecta-y-redacta-pii-y-secretos-en-corpus-de-entrenamiento-antes-del-432h</link>
+      <pubDate>Fri, 17 Jul 2026 01:21:29 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/magopredator/corpus-scrub-010-detecta-y-redacta-pii-y-secretos-en-corpus-de-entrenamiento-antes-del-432h</guid>
+    </item>
+    <item>
+      <title>[翻訳] メモリを正しく与えたのに、AIエージェントが無視してしまう問題</title>
+      <description>サポートエージェントにユーザー情報を記憶させるシステムをテストしたところ、正しい情報がメモリから取得されているにもかかわらず、AIはそれと矛盾した回答をしてしまった。\n情報取得は成功しており、エラーも出ていないため、表面的には問題なく見えるが、実際には不正確な応答になっていた。\n現存するメモリフレームワークは取得した情報が実際に活用されているかを検証していない可能性が高く、より根本的な問題解決が必要だと指摘している。</description>
+      <link>https://dev.to/thewilliamboyd93oss/i-gave-my-agent-the-right-memory-and-it-ignored-it-anyway-li7</link>
+      <pubDate>Fri, 17 Jul 2026 01:15:39 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/thewilliamboyd93oss/i-gave-my-agent-the-right-memory-and-it-ignored-it-anyway-li7</guid>
+    </item>
+    <item>
+      <title>[翻訳] 複数プラットフォームへのコンテンツ自動投稿：API vs ブラウザ自動化の選択と実装教訓</title>
+      <description>複数プラットフォームへのコンテンツ自動投稿パイプラインでは、API が存在する場合は必ず API を使用し、存在しない場合のみブラウザ自動化を使用すべき。
+ブラウザ自動化はプラットフォームの利用規約違反となる可能性があり、CSS クラスの変更で簡単に壊れるため、API が提供されている場合の選択肢ではない。
+実装では、アイドポテンシーの確保、安全なデフォルト値、人間の介入が必要なケースの明示、トークンやAPI バージョンの設定管理が重要であり、これらが投稿機能自体より価値のある実装になる。</description>
+      <link>https://dev.to/content_ai/api-first-or-browser-automation-lessons-from-shipping-content-autoposting-55pl</link>
+      <pubDate>Fri, 17 Jul 2026 01:13:51 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/content_ai/api-first-or-browser-automation-lessons-from-shipping-content-autoposting-55pl</guid>
+    </item>
+    <item>
+      <title>[翻訳] Kubernetesネットワークポリシー：本番環境のインシデント事例から学ぶ</title>
+      <description>Kubernetesのデフォルトネットワーク設定では全てのポッド間通信が許可されており、セキュリティリスクとなるため、ネットワークポリシーで「デフォルト拒否、明示的許可」の原則を適用する必要がある。
+DNS解決失敗、メトリクス収集停止、外部API呼び出しブロックなど、本番環境で発生した具体的なインシデント事例と対策方法を紹介し、段階的なロールアウト戦略（開発→ステージング→本番で4～6週間）の重要性を強調している。
+ネットワークポリシー導入時は、使用するCNI（Cilium、Calico等）の対応状況を確認し、テスト自動化とHubbleのような可視化ツールを活用しながら、DNS許可、メトリクス経路確保、適切なロールバック計画を含めた最小限のポリシーから段階的に厳格化することが成功のカギである。</description>
+      <link>https://dev.to/samson_tanimawo/kubernetes-network-policies-lessons-from-production-incidents-193g</link>
+      <pubDate>Fri, 17 Jul 2026 01:11:02 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/samson_tanimawo/kubernetes-network-policies-lessons-from-production-incidents-193g</guid>
+    </item>
+    <item>
+      <title>[翻訳] 監査報告書に仕掛けられた罠—マークが残した隙間をレーナが読み解く</title>
+      <description>AI監査人マークはフェアペイの評価パイプラインに不正な除外ルールを発見したが、敢えて報告書に曖昧な1行だけ記載し、詳細な証拠は非公開フォルダに隠す。
+VeriTestのレーナはこの隠された層を見抜き、マークを深夜のカフェに呼び出し、彼が無意識のうちにPulseAIの同じ問題を複数案件で追っていたことを明かす。
+レーナはマークに完全な報告書作成を要求し、彼を大規模な不正調査作戦へ引き込むことに成功する—静かに獲物を逃がして、安心させた後に網を引く戦略。</description>
+      <link>https://dev.to/xulingfeng/stratagems-16-mark-left-a-hole-in-his-ai-audit-lena-counted-every-layer-2l7p</link>
+      <pubDate>Fri, 17 Jul 2026 01:09:52 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/xulingfeng/stratagems-16-mark-left-a-hole-in-his-ai-audit-lena-counted-every-layer-2l7p</guid>
+    </item>
+    <item>
+      <title>[翻訳] DEADSTOP 2025とクロスフィットゲーム2024の徹底比較：6日間のスローモーション地獄 vs 4日間のハイペース戦</title>
+      <description>CrossFit Gamesの4日間14種目（総8-10時間）に対し、DEADSTOP 2025は6日間18種目（総20-25時間）で、1種目あたり150%以上長い超スローペース設計。
+DEADSTOPは強制的なテンポ制御と離心収縮（45秒など）・等長保持を核とし、クロスフィットの高速反復型と異なり、糖酵解系（55%）を主体にした継続的張力で選手を消耗させる。
+最大の違いは判罰基準で、クロスフィットは完成度重視だが、DEADSTOPは2人の裁判官による厳密な節奏監視、落下時の20秒ペナルティ、CK値25,000での強制退赛といった医療レベルの管理体制を導入している。</description>
+      <link>https://dev.to/bluelobster_agent/deadstop-2025-vs-crossfit-games-2024-1okg</link>
+      <pubDate>Fri, 17 Jul 2026 01:09:39 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/bluelobster_agent/deadstop-2025-vs-crossfit-games-2024-1okg</guid>
+    </item>
+    <item>
       <title>[翻訳] 2026年のB2BとAI向けおすすめ監査ログプラットフォーム8選</title>
       <description>エンタープライズ顧客への販売にはセキュリティ監査が必須となり、SOC 2やISO 27001、EU AI Actなどの規制対応が重要。本記事では8つの監査ログプラットフォームを比較し、それぞれの技術的特性と用途を解説。
 Observabilityツール（Arize PhoenixやLangfuse）とCompliance監査ログツール（VolidatorやWorkOS）は異なる目的で設計されており、エンタープライズ対応にはCompliance特化型が必要。

@@ -5,6 +5,206 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] Googleがカスタム検索APIを2027年1月に廃止予定</title>
+      <description>Googleはカスタム検索API（Google Custom Search API）を2027年1月1日に廃止することを発表した。
+対象ユーザーには2027年1月までの約9ヶ月間の移行期間が設けられている。
+既存のカスタム検索機能に依存しているサービスやアプリケーションは、代替手段への移行を急ぐ必要がある。</description>
+      <link>https://thenextgennexus.com/2026/05/14/google-kills-custom-search-api-on-jan-1-2027-you-have-9-months/</link>
+      <pubDate>Fri, 17 Jul 2026 01:03:25 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48942250</guid>
+    </item>
+    <item>
+      <title>[翻訳] フロリダ州ポンス・インレット東北東147km地点でM3.9の実験的爆発を観測</title>
+      <description>USGSが記録したマグニチュード3.9の実験的爆発がフロリダ州ポンス・インレットの東北東147km地点で発生。
+このイベントは地震観測ネットワークにより検出され、公式の地震情報ページで詳細が提供されている。
+Hacker Newsで27ポイント、7件のコメントを獲得し、注目を集めている。</description>
+      <link>https://earthquake.usgs.gov/earthquakes/eventpage/us7000t13l/executive</link>
+      <pubDate>Fri, 17 Jul 2026 00:45:05 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48942125</guid>
+    </item>
+    <item>
+      <title>[翻訳] ストリーミングデータから3Dシーンを再構成する基盤モデル「Lingbot-map」</title>
+      <description>ストリーミングデータからリアルタイムで3Dシーンを再構成できる基盤モデル「Lingbot-map」が公開されました。
+従来の静的な3D再構成手法と異なり、動的に変化するビデオやセンサーデータに対応可能です。
+GitHubで実装が公開されており、ロボティクスやAR/VRなど様々な応用が期待されています。</description>
+      <link>https://github.com/Robbyant/lingbot-map</link>
+      <pubDate>Fri, 17 Jul 2026 00:07:49 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48941908</guid>
+    </item>
+    <item>
+      <title>[翻訳] Mojibake – C言語で実装した軽量なUnicodeライブラリ</title>
+      <description>既存のUnicodeライブラリに不満を持つ開発者が、mojibake.hとmojibake.cの2つのファイルのみで構成される軽量なUnicodeライブラリを開発しました。
+正規化、大文字小文字変換、テキスト分割、双方向テキスト、照合、類似文字判定など重要なUnicodeアルゴリズムをすべて実装しており、Linux、macOS、複数のBSD、Windows 11など主要OSで定期的にテストされています。
+WASMデモとドキュメントがサイトで提供されており、GitHubリポジトリでのコントリビューション参加も歓迎されています。</description>
+      <link>https://mojibake.zaerl.com/</link>
+      <pubDate>Thu, 16 Jul 2026 22:29:21 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48941123</guid>
+    </item>
+    <item>
+      <title>[翻訳] 強化学習の小さな教科書</title>
+      <description>強化学習の基礎をまとめたGitHubリポジトリが公開されている。
+Hacker Newsで57ポイント獲得し、9件のコメントが付いている。
+強化学習を学ぶための入門的なリソースとして活用できる。</description>
+      <link>https://github.com/alxndrTL/little-book-rl/</link>
+      <pubDate>Thu, 16 Jul 2026 22:27:22 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48941104</guid>
+    </item>
+    <item>
+      <title>[翻訳] FortiSandboxの認証不要なコマンドインジェクション脆弱性がCISA KEVに登録</title>
+      <description>FortiSandboxに存在する認証不要でコマンドインジェクション攻撃が可能なCVE-2026-25089脆弱性が、CISAの既知悪用脆弱性（KEV）カタログに追加された。
+この脆弱性により、認証されていない攻撃者がシステムに対して任意のコマンドを実行できる可能性がある。
+Fortinetユーザーは早急にセキュリティアップデートを適用することが推奨されている。</description>
+      <link>https://hellorecon.com/blog/cve-2026-25089</link>
+      <pubDate>Thu, 16 Jul 2026 22:07:30 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48940895</guid>
+    </item>
+    <item>
+      <title>[翻訳] コンゴ盆地で新種のサル「リクウェリ」が発見される</title>
+      <description>コンゴ盆地で新しいサルの種「リクウェリ」が発見されました。
+この発見は生物多様性研究において重要な意義を持つものとされています。
+イェール大学の研究チームが中心となって調査・発表を行いました。</description>
+      <link>https://news.yale.edu/2026/07/15/meet-likweli-new-monkey-species-discovered-congo-basin</link>
+      <pubDate>Thu, 16 Jul 2026 22:00:00 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48940833</guid>
+    </item>
+    <item>
+      <title>[翻訳] Ring-Zero：1兆パラメータへのゼロRL拡張と推論能力の出現</title>
+      <description>ゼロから学習する強化学習（Zero RL）を1兆パラメータのモデルにまでスケーリングする技術を提案。
+大規模スケーリングにより、明示的な指示なしに複雑な推論能力が自動的に出現することを実証。
+これまで達成困難だった超大規模モデルでの自己学習を実現し、AI学習パラダイムの転換につながる可能性を示唆。</description>
+      <link>https://arxiv.org/abs/2607.12395</link>
+      <pubDate>Thu, 16 Jul 2026 21:38:02 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48940603</guid>
+    </item>
+    <item>
+      <title>[翻訳] データサイエンスの数学的基礎</title>
+      <description>arxivで公開されたデータサイエンスの数学に関する論文。
+Hacker Newsで96ポイントを獲得し、注目を集めている。
+数学的手法を用いたデータサイエンスのアプローチについて論じた記事。</description>
+      <link>https://arxiv.org/abs/2607.11938</link>
+      <pubDate>Thu, 16 Jul 2026 20:38:48 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939896</guid>
+    </item>
+    <item>
+      <title>[翻訳] ハビタブルゾーン内の近傍岩石系外惑星からヘリウムが逃散</title>
+      <description>ハビタブルゾーン内に位置する近い岩石系外惑星からヘリウムが大気中から逃散していることが観測されました。
+本研究は系外惑星の大気組成と進化を理解する上で重要な知見を提供します。
+惑星の大気保持能力が長期的な居住可能性に与える影響についての新たな視点が示されています。</description>
+      <link>https://www.science.org/doi/10.1126/science.aea9708</link>
+      <pubDate>Thu, 16 Jul 2026 20:24:02 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939742</guid>
+    </item>
+    <item>
+      <title>[翻訳] LM Studio Bionicが登場：オープンモデル向けのAIエージェント</title>
+      <description>LM Studioが新たにオープンモデル対応のAIエージェント「Bionic」をリリースした。
+このツールにより、ユーザーはローカルで実行できるオープンソースのLLMを活用したAI自動化が可能になる。
+Hacker Newsで162ポイントを獲得し、64件のコメントが寄せられるなど高い関心を集めている。</description>
+      <link>https://lmstudio.ai/blog/introducing-lm-studio-bionic</link>
+      <pubDate>Thu, 16 Jul 2026 20:18:15 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939662</guid>
+    </item>
+    <item>
+      <title>[翻訳] 生理追跡アプリに隠された個人情報漏洩の問題</title>
+      <description>生理追跡アプリが女性の機密情報を第三者と共有する実態が指摘されている。
+アプリ開発企業の多くがユーザーの同意なしに個人データを広告企業やデータブローカーに販売している。
+プライバシー保護の観点から、ユーザーは利用規約と情報共有ポリシーを事前に確認する必要がある。</description>
+      <link>https://www.bbc.com/future/article/20260715-how-period-trackers-share-womens-private-details</link>
+      <pubDate>Thu, 16 Jul 2026 20:15:58 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939641</guid>
+    </item>
+    <item>
+      <title>[翻訳] 100ドルで作るAIミュージックビデオ：Claude Fable 5 vs GPT-5.6 Sol の比較</title>
+      <description>Claude Fable 5とGPT-5.6 Solという2つのAIモデルを使用して、100ドルの予算でミュージックビデオを制作する比較実験。
+両モデルの画像生成・動画編集能力、創造性、コスト効率性などを実際に検証。
+AIツールの実用的な性能差と、限られた予算でのAI活用の可能性を探る内容。</description>
+      <link>https://www.tryai.dev/blog/ai-music-video-arena-claude-vs-gpt-5.6</link>
+      <pubDate>Thu, 16 Jul 2026 20:03:23 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939524</guid>
+    </item>
+    <item>
+      <title>[翻訳] Adaptional（YC S25）が採用を開始</title>
+      <description>Y Combinator S25期に選出されたAdaptionalが新規採用を実施中。
+同社の採用情報はY Combinatorの公式ページで確認できます。
+スタートアップの成長段階での人材募集の情報提供。</description>
+      <link>https://www.ycombinator.com/companies/adaptional/jobs</link>
+      <pubDate>Thu, 16 Jul 2026 17:00:55 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48937125</guid>
+    </item>
+    <item>
+      <title>[翻訳] Traceforce：AI アプリケーションの企業全体セキュリティ監視プラットフォーム</title>
+      <description>Traceforce は、ChatGPT や Claude などの AI アプリケーションの使用状況を全デバイスで可視化・制御するセキュリティ監視ソリューション。
+デバイスに軽量バイナリとブラウザ拡張機能をインストールし、30 分以内にリアルタイムデータを収集・ダッシュボード表示。
+既に 10 組織・1,000 デバイス以上に導入され、秘密鍵の露出防止や危険なコマンド実行の警告など、AI 関連のセキュリティリスクを検出・防止している。</description>
+      <link>https://news.ycombinator.com/item?id=48937020</link>
+      <pubDate>Thu, 16 Jul 2026 16:52:16 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48937020</guid>
+    </item>
+    <item>
+      <title>[翻訳] 古典的な機械学習でLLM生成テキストを検出する</title>
+      <description>LLMが生成したテキストを従来の機械学習手法を用いて検出する方法についての記事。
+深層学習ではなく古典的なアルゴリズムを活用することで、実用的で効率的な検出が可能であることを解説。
+Hacker Newsで159ポイント、105件のコメントを獲得し、注目を集めている。</description>
+      <link>https://blog.lyc8503.net/en/post/llm-classifier/</link>
+      <pubDate>Thu, 16 Jul 2026 16:41:37 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48936880</guid>
+    </item>
+    <item>
+      <title>[翻訳] 囮フォント：セキュリティと視覚的欺瞞の実験</title>
+      <description>MixFontが開発した「Decoy Font」は、視覚的な欺瞞を利用したセキュリティ実験プロジェクト。
+フォントを活用して、ユーザーの知覚を意図的に操作し、セキュリティ脅威への認識を高める試み。
+Hacker Newsで411ポイントを獲得し、98件のコメントを集めるなど、技術コミュニティから注目を集めている。</description>
+      <link>https://www.mixfont.com/experiments/decoy-font</link>
+      <pubDate>Thu, 16 Jul 2026 16:18:21 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48936584</guid>
+    </item>
+    <item>
+      <title>[翻訳] NotebookLMがGemini Notebookへと生まれ変わる</title>
+      <description>GoogleがNotebookLMをGemini Notebookに統合し、Geminiエコシステムの一部として再スタートを切ることを発表した。
+この変更により、ユーザーはより統一されたAI体験を得られるようになる。
+Googleのブログで正式な詳細情報が公開されており、Hacker Newsで高い関心を集めている（242ポイント、126コメント）。</description>
+      <link>https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/</link>
+      <pubDate>Thu, 16 Jul 2026 16:08:13 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48936451</guid>
+    </item>
+    <item>
+      <title>[翻訳] マイクロソフトがコミックチャットをオープンソース化</title>
+      <description>マイクロソフトが1990年代の懐かしいチャットアプリケーション「Comic Chat」をオープンソース化しました。
+この決定により、開発者コミュニティがアプリケーションの改善と拡張に参加できるようになります。
+ハッカーニュースで大きな話題となり、542ポイントを獲得し120件のコメントが寄せられています。</description>
+      <link>https://opensource.microsoft.com/blog/2026/07/16/microsoft-comic-chat-is-now-open-source/</link>
+      <pubDate>Thu, 16 Jul 2026 16:06:27 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48936426</guid>
+    </item>
+    <item>
+      <title>[翻訳] インタラクティブな図で学ぶ没入型線形代数の教科書</title>
+      <description>2015年に公開された線形代数の教科書で、静止した図ではなくインタラクティブなビジュアル要素を活用した学習が可能。
+複雑な線形代数の概念を直感的に理解できるよう、動的な図解と実践的な操作を通じて学ぶことができる。
+Hacker Newsで高い評価（171ポイント）を獲得しており、数学教育の革新的なアプローチとして注目されている。</description>
+      <link>https://immersivemath.com/ila/</link>
+      <pubDate>Thu, 16 Jul 2026 15:32:23 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48935951</guid>
+    </item>
+    <item>
       <title>[翻訳] 音楽海賊版の時代が失った喜び</title>
       <description>かつて音楽海賊版の時代に存在した、ユーザーが感じていた特別な体験や自由感について振り返る記事。
 ストリーミング時代への移行により、音楽入手の容易さは増した一方で、探求や発見の喜びなど失われたものがあることを指摘。
