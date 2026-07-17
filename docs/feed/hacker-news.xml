@@ -5,6 +5,38 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] Pebbleスマートウォッチ、2026年7月の大型アップデートを発表</title>
+      <description>Pebbleスマートウォッチプロジェクトが2026年7月の大規模なアップデートをリリース。
+新機能や改善内容の詳細がrepebble.comのブログで公開されている。
+Hacker Newsで話題となり、開発コミュニティからの関心が寄せられている。</description>
+      <link>https://repebble.com/blog/pebble-mega-update-july-2026</link>
+      <pubDate>Fri, 17 Jul 2026 03:53:38 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48943174</guid>
+    </item>
+    <item>
+      <title>[翻訳] How Has Roman Concrete Lasted for Millennia? 1,900-Year-Old Latrine Offers Clues</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://www.smithsonianmag.com/smart-news/how-has-roman-concrete-lasted-for-millennia-a-1900-year-old-latrine-offers-new-clues-about-the-materials-impressive-durability-180989115/"&gt;https://www.smithsonianmag.com/smart-news/how-has-roman-concrete-lasted-for-millennia-a-1900-year-old-latrine-offers-new-clues-about-the-materials-impressive-durability-180989115/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48943142"&gt;https://news.ycombinator.com/item?id=48943142&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 32&lt;/p&gt;
+&lt;p&gt;# Comments: 14&lt;/p&gt;</description>
+      <link>https://www.smithsonianmag.com/smart-news/how-has-roman-concrete-lasted-for-millennia-a-1900-year-old-latrine-offers-new-clues-about-the-materials-impressive-durability-180989115/</link>
+      <pubDate>Fri, 17 Jul 2026 03:48:26 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48943142</guid>
+    </item>
+    <item>
+      <title>[翻訳] GrapheneOS recommended for domestic abuse victims</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://privacypros.com.au/privacy-hub/articles/dv-safe-phone-australia/"&gt;https://privacypros.com.au/privacy-hub/articles/dv-safe-phone-australia/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48942454"&gt;https://news.ycombinator.com/item?id=48942454&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 42&lt;/p&gt;
+&lt;p&gt;# Comments: 21&lt;/p&gt;</description>
+      <link>https://privacypros.com.au/privacy-hub/articles/dv-safe-phone-australia/</link>
+      <pubDate>Fri, 17 Jul 2026 01:36:52 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48942454</guid>
+    </item>
+    <item>
       <title>[翻訳] Googleがカスタム検索APIを2027年1月に廃止予定</title>
       <description>Googleはカスタム検索API（Google Custom Search API）を2027年1月1日に廃止することを発表した。
 対象ユーザーには2027年1月までの約9ヶ月間の移行期間が設けられている。
@@ -23,6 +55,17 @@ Hacker Newsで27ポイント、7件のコメントを獲得し、注目を集め
       <pubDate>Fri, 17 Jul 2026 00:45:05 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48942125</guid>
+    </item>
+    <item>
+      <title>[翻訳] The Human-in-the-Loop Is Tired</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://pydantic.dev/articles/the-human-in-the-loop-is-tired"&gt;https://pydantic.dev/articles/the-human-in-the-loop-is-tired&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48942000"&gt;https://news.ycombinator.com/item?id=48942000&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 115&lt;/p&gt;
+&lt;p&gt;# Comments: 58&lt;/p&gt;</description>
+      <link>https://pydantic.dev/articles/the-human-in-the-loop-is-tired</link>
+      <pubDate>Fri, 17 Jul 2026 00:21:09 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48942000</guid>
     </item>
     <item>
       <title>[翻訳] ストリーミングデータから3Dシーンを再構成する基盤モデル「Lingbot-map」</title>

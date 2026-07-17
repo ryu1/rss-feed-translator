@@ -5,6 +5,2358 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] I Built a Free Online Astigmatism Test — Here's How It Works</title>
+      <description>&lt;p&gt;Astigmatism affects roughly 1 in 3 adults, but most people don't know they have it. An optometrist can diagnose it in minutes, but getting to one isn't always convenient.&lt;/p&gt;
+
+&lt;p&gt;Enter the Siemens Star — a radial pattern of black and white lines. If all lines look equally sharp, your vision is likely fine. If some lines appear grey or blurry while others stay crisp, that's a strong sign of astigmatism.&lt;/p&gt;
+
+&lt;p&gt;I came across this concept a while ago and realized something: most Siemens Star images online are terrible. Low resolution, badly printed, hard to use. So I built a free interactive version.&lt;/p&gt;
+
+&lt;p&gt;sighthealthpro.com — 30 seconds, no signup, works in your browser.&lt;/p&gt;
+
+&lt;p&gt;The tool is not a diagnosis. It's a screening layer that helps you decide whether to book an actual eye exam. If the test flags anything unusual, the next step is always an optometrist with a phoropter.&lt;/p&gt;
+
+&lt;p&gt;It's a simple tool, but sometimes simple tools solve real problems.&lt;/p&gt;</description>
+      <link>https://dev.to/_1d83187776d42a2f1bee6/i-built-a-free-online-astigmatism-test-heres-how-it-works-21kc</link>
+      <pubDate>Fri, 17 Jul 2026 05:35:37 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/_1d83187776d42a2f1bee6/i-built-a-free-online-astigmatism-test-heres-how-it-works-21kc</guid>
+    </item>
+    <item>
+      <title>[翻訳] AI Memory OSS를 프롬프트가 아니라 백엔드 시스템으로 읽는 10가지 질문</title>
+      <description>&lt;h1&gt;
+  
+  
+  AI Memory OSS를 프롬프트가 아니라 백엔드 시스템으로 읽는 10가지 질문
+&lt;/h1&gt;
+
+&lt;p&gt;AI memory를 처음 보면 prompt, embedding, vector search부터 눈에 들어온다. 하지만 기능을 운영 가능한 서비스로 만들려면 그 앞뒤의 상태와 실패를 함께 봐야 한다. 원문은 언제 저장되는지, 느린 추론은 어디서 실행되는지, 파생된 기억은 무엇을 근거로 하는지, 검색 인덱스와 DB가 어긋나면 어떻게 복구하는지까지 답해야 한다.&lt;/p&gt;
+
+&lt;p&gt;이 글은 AI memory OSS인 Honcho를 pinned source와 변경 이력으로 읽으면서 만든 질문 지도다. Honcho의 모든 설계를 설명하거나 평가하려는 글이 아니라, 기능 설명을 실제 backend contract로 내려가기 위해 무엇을 물어야 하는지 정리한다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Scenario
+&lt;/h2&gt;
+
+&lt;p&gt;사용자와 Agent가 오랫동안 대화하는 서비스를 생각해 본다.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;사용자가 메시지를 보낸다.
+-&amp;gt; 원문이 저장된다.
+-&amp;gt; 느린 LLM 작업이 기억 후보를 만든다.
+-&amp;gt; Agent가 나중에 필요한 기억을 검색한다.
+-&amp;gt; 사용자는 말을 바꾸거나 삭제를 요청한다.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;짧은 demo라면 최근 대화와 vector search만으로도 동작할 수 있다. 하지만 서비스가 오래 실행되면 질문이 달라진다.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;LLM 호출 중 API와 DB resource는 어떻게 되는가?
+원문과 LLM이 만든 주장은 같은 데이터인가?
+worker가 죽으면 어떤 상태부터 다시 시작하는가?
+같은 기억이 중복 생성되면 무엇을 기준으로 막는가?
+DB에는 있는데 vector index에는 없는 기억을 누가 복구하는가?
+삭제는 DB row만 지우면 끝나는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;그래서 AI memory를 다음과 같은 lifecycle로 읽었다.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;write                                      (Q1)
+-&amp;gt; durable raw state                       (Q2)
+-&amp;gt; queue / worker                          (Q3)
+-&amp;gt; derived claim + provenance              (Q2, Q4)
+   provenance = 원본까지의 근거 연결
+-&amp;gt; vector index sync                       (Q7)
+-&amp;gt; scoped retrieval                        (Q5, Q6)
+-&amp;gt; correction / deletion                   (Q8)
+-&amp;gt; observability / cost control            (Q9)
+
+schema evolution은 이 lifecycle 전체를 가로지른다. (Q10)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;각 화살표는 구현 단계인 동시에 실패할 수 있는 경계다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  1. API boundary: 요청 안에서 어디까지 끝낼 것인가?
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;HTTP 응답 전에 반드시 저장해야 하는 상태는 무엇인가?
+느린 embedding/LLM 호출은 어디서 끊어야 하는가?
+외부 호출을 기다리는 동안 DB transaction이나 connection을 점유하는가?
+요청 실패와 background 작업 실패를 어떻게 구분하는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;비동기 API를 사용한다고 resource가 자동으로 짧게 유지되는 것은 아니다. Honcho의 한 변경을 추적했을 때도 핵심은 &lt;code&gt;async&lt;/code&gt; 문법이 아니라 외부 호출과 DB session/transaction scope를 분리한 것이었다. 이 사례는 &lt;a href="https://dev.to/junhyun-dev/neurin-llm-hocul-jung-db-connectioneul-jabji-anhneun-iyu-3abg"&gt;첫 번째 글&lt;/a&gt;에서 자세히 다뤘다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  2. State model: 원문과 파생된 기억의 grain(한 row가 의미하는 단위)은 무엇인가?
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;message와 memory document는 왜 분리되는가?
+어떤 row가 원본이고 어떤 row가 LLM이 만든 claim인가?
+claim은 어떤 source를 가리키는가?
+사실, 추론, 패턴, 모순을 같은 상태로 취급하는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;AI가 만든 문장을 원문과 같은 진실로 저장하면 나중에 수정, 재계산, 설명이 어려워진다. Honcho의 pinned model도 &lt;code&gt;Message&lt;/code&gt;와 &lt;code&gt;Document&lt;/code&gt;를 분리하고, document에 &lt;code&gt;level&lt;/code&gt;과 &lt;code&gt;source_ids&lt;/code&gt;를 둔다. 여기서 가져갈 일반적인 질문은 특정 테이블 이름이 아니라 다음 계약이다.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;derived claim은 raw record와 다른 identity와 provenance를 가져야 하는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  3. Queue/worker: queue item보다 논리적 작업의 identity가 있는가?
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;retry해도 같은 일임을 어떻게 식별하는가?
+같은 사용자나 session의 작업은 어디까지 직렬화하는가?
+다른 작업은 병렬로 실행할 수 있는가?
+처리 중 worker가 죽으면 어떤 claim과 checkpoint가 남는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Queue를 도입했다는 사실만으로 중복 처리와 순서 문제가 해결되지는 않는다. payload보다 먼저 &lt;code&gt;이 시스템에서 같은 일은 무엇인가?&lt;/code&gt;를 정의해야 한다. Honcho의 queue model에는 &lt;code&gt;work_unit_key&lt;/code&gt;(같은 논리적 작업임을 식별하는 key)가 있고, 일부 pending 작업에는 이 key를 기준으로 한 unique constraint가 있다. 다만 enqueue부터 recovery까지의 전체 계약은 후속 source audit 대상으로 남겨뒀다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  4. LLM boundary: 모델이 판단하는 것과 코드가 강제하는 것은 무엇인가?
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;LLM은 어떤 판단만 맡는가?
+출력이 비어 있거나 구조가 깨지면 어떻게 하는가?
+source 없는 claim을 허용하는가?
+성공은 API 응답 수신인가, schema 통과인가, 저장 완료인가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;LLM에게 유연한 판단을 맡기더라도 identity, 허용 상태, provenance, checkpoint 같은 계약은 결정적으로 검증할 필요가 있다. 모델의 좋은 답을 기대하는 것과 시스템이 잘못된 상태를 거부하는 것은 다른 책임이다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  5. Identity/authz: actor, tenant, resource, subject가 같은가?
+&lt;/h2&gt;
+
+&lt;p&gt;여기서 tenant는 고객 또는 workspace 단위의 격리 경계를 뜻한다.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;요청을 보낸 actor는 누구인가?
+어느 workspace의 resource에 접근하는가?
+누가 누구에 대해 만든 기억인가?
+DB query와 vector search에 같은 tenant scope가 적용되는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Agent와 사용자를 하나의 identity model로 표현하면 도메인 모델은 유연해질 수 있다. 반면 &lt;code&gt;요청자&lt;/code&gt;, &lt;code&gt;기억의 관찰자&lt;/code&gt;, &lt;code&gt;기억의 대상&lt;/code&gt;, &lt;code&gt;resource owner&lt;/code&gt;가 서로 다른 축이 될 수 있다. 편리한 도메인 모델이 권한 검증까지 자동으로 단순화한다고 가정하면 안 된다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  6. Retrieval: 저장된 기억 중 무엇이 실제 답변 후보가 되는가?
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;semantic search 전에 어떤 tenant/session/level filter를 적용하는가?
+원문 기반 claim과 상위 추론을 같은 우선순위로 검색하는가?
+deleted, stale, sync-pending 상태는 후보에서 제외되는가?
+응답에 source와 reasoning path를 함께 전달할 수 있는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;기억을 만드는 pipeline과 Agent가 사용하는 serving path는 별개의 계약이다. 저장 품질이 좋아도 retrieval filter가 잘못되면 다른 tenant의 기억, 삭제된 기억, 근거가 약한 추론이 답변에 들어갈 수 있다. Honcho의 retrieval filter 구성은 아직 별도 source audit 전이다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  7. Index consistency: DB와 vector store의 반쪽 성공을 어떻게 복구하는가?
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;DB commit 후 vector upsert가 실패하면 무엇이 남는가?
+DB에는 있지만 index에는 없는 row를 어떻게 찾는가?
+재시도 횟수와 마지막 성공 시점을 기록하는가?
+vector backend를 바꿔도 serving contract가 유지되는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Honcho의 pinned source에는 document의 &lt;code&gt;sync_state&lt;/code&gt;, &lt;code&gt;last_sync_at&lt;/code&gt;, &lt;code&gt;sync_attempts&lt;/code&gt;와 DB와 vector index 사이의 어긋난 상태를 맞추는 background 작업인 reconciler가 존재한다. 이 작업은 미동기 항목의 재시도와 삭제 잔여물 정리를 담당한다. 이것은 중요한 조사 단서지만, 모든 crash window와 복구 의미를 확인했다는 뜻은 아니다. DB-vector consistency는 별도의 teardown으로 검증할 예정이다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  8. Deletion/retention: 언제 삭제가 완료됐다고 말할 수 있는가?
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;message를 삭제하면 파생된 document도 함께 처리되는가?
+DB, vector index, cache, backup 중 어디까지 삭제해야 하는가?
+soft delete와 hard delete 사이의 상태는 누가 소유하는가?
+외부 index 삭제가 실패하면 DB row를 보존하는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;AI memory에서 삭제는 개인정보 문제이면서 분산 상태 정합성 문제다. Honcho source에는 &lt;code&gt;deleted_at&lt;/code&gt;으로 표시한 뒤 reconciler가 외부 vector 삭제와 DB hard delete를 처리하는 경로가 있다. 이 경로 역시 lifecycle 전체를 별도 audit하기 전에는 설계 완료 여부를 단정하지 않는다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  9. Observability/cost: 운영자는 어떤 질문에 답할 수 있는가?
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;queue backlog와 stale work를 볼 수 있는가?
+workspace별 memory 생성 지연을 알 수 있는가?
+LLM latency, token usage, retry 비용을 추적하는가?
+특정 memory가 왜 생성됐는지 source까지 추적할 수 있는가?
+DB connection pool과 외부 provider 장애를 구분할 수 있는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;관측성은 dashboard 제품명을 고르는 문제가 아니다. 먼저 운영자가 복구와 비용 판단을 위해 답해야 할 질문을 정하고, 그 질문에 필요한 durable state와 event를 남겨야 한다. Honcho의 pinned source에도 message별 &lt;code&gt;token_count&lt;/code&gt;와 sync 재시도 횟수 같은 단서 상태가 있지만, 운영 관측 전체는 아직 검증하지 않았다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  10. Schema evolution: 처음 정한 memory model이 틀리면 어떻게 바꾸는가?
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;새 identity나 document level을 기존 데이터에 어떻게 적용하는가?
+old API/worker와 new schema가 동시에 존재할 수 있는가?
+vector namespace나 ID 규칙 변경을 어떻게 backfill하는가?
+rollback하면 새로 생성된 data shape을 어떻게 읽는가?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Agent 제품의 개념은 계속 바뀔 수 있다. 따라서 모델을 잘 정하는 능력만큼, 기존 데이터를 잃지 않고 계약을 바꾸는 migration 경로도 중요하다. Honcho에는 migration 이력이 존재하지만 이 글에서는 그 경로를 검증하지 않았다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  질문을 실제 조사로 내리는 방법
+&lt;/h2&gt;
+
+&lt;p&gt;이 질문들을 모든 기능에 한꺼번에 적용하면 거대한 체크리스트만 남는다. 이 글에서는 다음 순서로 범위를 줄였다.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;1. 지금 보는 기능의 actor를 정한다.
+2. durable state transition을 시간순으로 적는다.
+3. 그 전이에서 실제로 발생하는 pressure 하나를 고른다.
+4. 코드, migration, test, commit에서 현재 답을 찾는다.
+5. 내 시스템에는 copy / simplify / avoid 중 무엇을 할지 결정한다.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;예를 들어 dream scheduling을 볼 때는 &lt;code&gt;AI가 기억을 만든다&lt;/code&gt;에서 멈추지 않는다.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;actor: scheduler / worker
+input: source-like explicit documents
+in-flight owner: pending queue item
+completed progress: success checkpoint
+pressure: 비용, retry, source/derived feedback loop
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;이렇게 상태의 owner를 나누자, 파생된 출력이 다음 실행의 eligibility를 키우는 문제와 enqueue 시점에 checkpoint를 먼저 전진시키는 문제가 보였다. Honcho가 이를 어떻게 변경했는지는 &lt;a href="https://dev.to/junhyun-dev/ai-memoryga-jagi-culryeogeul-dasi-ibryeogeuro-seji-anhge-haneun-beob-2k0g"&gt;두 번째 글&lt;/a&gt;에서 추적했다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  이 지도가 증명하지 않는 것
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;이 글은 Honcho의 공개 코드와 변경 이력을 읽으며 만든 분석 틀이다. Honcho를 직접 구현, 운영하거나 기여한 경험이 아니다.&lt;/li&gt;
+&lt;li&gt;분석 기준은 &lt;code&gt;85239a69b262c944de3c35900b91c88ba9b84f1a&lt;/code&gt;로 고정했다.&lt;/li&gt;
+&lt;li&gt;열 가지 질문이 모든 AI memory 서비스에 동일한 우선순위로 필요하다고 주장하지 않는다.&lt;/li&gt;
+&lt;li&gt;DB-vector consistency, deletion, observability, migration은 source에서 조사 단서를 확인했지만, 아직 lifecycle 전체와 runtime behavior를 검증하지 않았다.&lt;/li&gt;
+&lt;li&gt;이 질문 지도는 security review, privacy review, production load test를 대체하지 않는다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;다음 teardown에서는 현재 source evidence가 충분한 주제부터 multi-tenant authz와 work-unit serialization을 검토한다. Retrieval, index consistency, deletion은 실제 실패 경계와 테스트를 확인한 뒤에만 공개 글로 승격할 예정이다.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Sources
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/plastic-labs/honcho" rel="noopener noreferrer"&gt;Honcho repository&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/plastic-labs/honcho/tree/85239a69b262c944de3c35900b91c88ba9b84f1a" rel="noopener noreferrer"&gt;Pinned Honcho source tree&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/plastic-labs/honcho/blob/85239a69b262c944de3c35900b91c88ba9b84f1a/src/models.py#L206-L528" rel="noopener noreferrer"&gt;Pinned message, document, queue state models&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/plastic-labs/honcho/blob/85239a69b262c944de3c35900b91c88ba9b84f1a/src/routers/messages.py#L88-L141" rel="noopener noreferrer"&gt;Pinned message write and enqueue boundary&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/plastic-labs/honcho/blob/85239a69b262c944de3c35900b91c88ba9b84f1a/src/crud/document.py#L197-L421" rel="noopener noreferrer"&gt;Pinned document retrieval paths&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/plastic-labs/honcho/blob/85239a69b262c944de3c35900b91c88ba9b84f1a/src/reconciler/sync_vectors.py#L78-L455" rel="noopener noreferrer"&gt;Pinned vector sync reconciler&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/plastic-labs/honcho/blob/85239a69b262c944de3c35900b91c88ba9b84f1a/src/crud/document.py#L1031-L1106" rel="noopener noreferrer"&gt;Pinned soft-delete cleanup path&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://dev.to/junhyun-dev/neurin-llm-hocul-jung-db-connectioneul-jabji-anhneun-iyu-3abg"&gt;느린 LLM 호출 중 DB connection을 잡지 않는 이유&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://dev.to/junhyun-dev/ai-memoryga-jagi-culryeogeul-dasi-ibryeogeuro-seji-anhge-haneun-beob-2k0g"&gt;AI memory가 자기 출력을 다시 입력으로 세지 않게 하는 법&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description>
+      <link>https://dev.to/junhyun-dev/ai-memory-ossreul-peurompeuteuga-anira-baegendeu-siseutemeuro-ilgneun-10gaji-jilmun-1h9h</link>
+      <pubDate>Fri, 17 Jul 2026 05:26:15 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/junhyun-dev/ai-memory-ossreul-peurompeuteuga-anira-baegendeu-siseutemeuro-ilgneun-10gaji-jilmun-1h9h</guid>
+    </item>
+    <item>
+      <title>[翻訳] Full Stack Developer. I build fast, responsive, SEO-friendly websites and modern SaaS products.</title>
+      <description>&lt;p&gt;I'm &lt;strong&gt;Krishnan&lt;/strong&gt;, a Full Stack Developer passionate about building immersive and performant web experiences.&lt;/p&gt;
+
+&lt;p&gt;This &lt;strong&gt;portfolio&lt;/strong&gt; is built with &lt;em&gt;React, Three.js, modern animations&lt;/em&gt;, and &lt;strong&gt;Netlify Functions&lt;/strong&gt; powering an AI portfolio assistant. It showcases my featured projects, technical skills, and interactive UI/UX experiments.&lt;/p&gt;
+
+&lt;p&gt;Technologies used include React, JavaScript, Three.js, Tailwind CSS, Netlify Functions, REST APIs, and responsive design.&lt;/p&gt;
+
+&lt;p&gt;I'm actively looking to connect with developers, recruiters, and clients interested in modern frontend and full-stack development.&lt;/p&gt;
+
+&lt;p&gt;Portfolio: [&lt;a href="https://krishnan-showcase.netlify.app/" rel="noopener noreferrer"&gt;https://krishnan-showcase.netlify.app/&lt;/a&gt;]&lt;/p&gt;
+
+&lt;p&gt;LinkedIn: [&lt;a href="https://www.linkedin.com/in/krishnan-p-" rel="noopener noreferrer"&gt;https://www.linkedin.com/in/krishnan-p-&lt;/a&gt;]&lt;/p&gt;</description>
+      <link>https://dev.to/krishnan_p/full-stack-developer-i-build-fast-responsive-seo-friendly-websites-and-modern-saas-products-4ik8</link>
+      <pubDate>Fri, 17 Jul 2026 05:23:17 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/krishnan_p/full-stack-developer-i-build-fast-responsive-seo-friendly-websites-and-modern-saas-products-4ik8</guid>
+    </item>
+    <item>
+      <title>[翻訳] Website vs Mobile App: Which Should Your Business Build First in 2026?</title>
+      <description>&lt;p&gt;One of the most common questions I hear when someone is planning a new digital product is:&lt;/p&gt;
+
+&lt;p&gt;"Should we build a website or a mobile app?"&lt;/p&gt;
+
+&lt;p&gt;For many businesses, the first thought is:&lt;/p&gt;
+
+&lt;p&gt;"We need an app."&lt;/p&gt;
+
+&lt;p&gt;But do you really?&lt;/p&gt;
+
+&lt;p&gt;A mobile app can be powerful, but it isn't automatically the best starting point for every business.&lt;/p&gt;
+
+&lt;p&gt;Depending on your users, budget, business model, and product requirements, starting with a website or web application might actually be the smarter decision.&lt;/p&gt;
+
+&lt;p&gt;Here's how I think about it.&lt;/p&gt;
+
+&lt;p&gt;🌐 When Should You Build a Website First?&lt;/p&gt;
+
+&lt;p&gt;For most new businesses and startups, starting with a website or web application often makes sense.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Users Can Access It Instantly&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;A website doesn't require installation.&lt;/p&gt;
+
+&lt;p&gt;Someone can discover your business through:&lt;/p&gt;
+
+&lt;p&gt;Google&lt;br /&gt;
+Social media&lt;br /&gt;
+WhatsApp&lt;br /&gt;
+Email&lt;br /&gt;
+Online advertising&lt;br /&gt;
+A shared link&lt;/p&gt;
+
+&lt;p&gt;One click, and they're there.&lt;/p&gt;
+
+&lt;p&gt;With an app, users need to find it in an app store, download it, install it, and then open it.&lt;/p&gt;
+
+&lt;p&gt;Every additional step creates friction.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Websites Are Better for Discoverability&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;If Google is an important customer acquisition channel for your business, having a website is essential.&lt;/p&gt;
+
+&lt;p&gt;Search engines can index your content and help potential customers discover your product or service.&lt;/p&gt;
+
+&lt;p&gt;For businesses relying on SEO, content marketing, or local search, a website is usually the better starting point.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Development Is Usually Faster and More Affordable&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;A responsive website can work across:&lt;/p&gt;
+
+&lt;p&gt;Desktop&lt;br /&gt;
+Laptop&lt;br /&gt;
+Tablet&lt;br /&gt;
+Android&lt;br /&gt;
+iPhone&lt;/p&gt;
+
+&lt;p&gt;You can serve users across multiple devices without necessarily building separate applications.&lt;/p&gt;
+
+&lt;p&gt;For a startup validating an idea or a business working with a limited initial budget, this can make a big difference.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Updates Are Easier&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;When you update a website, users can access the latest version immediately.&lt;/p&gt;
+
+&lt;p&gt;Mobile apps may involve:&lt;/p&gt;
+
+&lt;p&gt;Building a new release&lt;br /&gt;
+Testing&lt;br /&gt;
+App store submission&lt;br /&gt;
+Review processes&lt;br /&gt;
+Users updating the app&lt;/p&gt;
+
+&lt;p&gt;During the early stages of a product—when things change frequently—a web application can provide more flexibility.&lt;/p&gt;
+
+&lt;p&gt;📱 When Does a Mobile App Make More Sense?&lt;/p&gt;
+
+&lt;p&gt;There are situations where an app is absolutely the right choice.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Your Product Is Used Frequently&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;If customers interact with your product several times a week—or multiple times a day—an app can provide a much better experience.&lt;/p&gt;
+
+&lt;p&gt;Think about:&lt;/p&gt;
+
+&lt;p&gt;Banking&lt;br /&gt;
+Food delivery&lt;br /&gt;
+Fitness tracking&lt;br /&gt;
+Messaging&lt;br /&gt;
+Transportation&lt;br /&gt;
+Productivity tools&lt;/p&gt;
+
+&lt;p&gt;Frequent usage makes installing an app worthwhile.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;You Need Device-Specific Features&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Mobile apps can provide deeper access to features like:&lt;/p&gt;
+
+&lt;p&gt;Camera&lt;br /&gt;
+GPS&lt;br /&gt;
+Bluetooth&lt;br /&gt;
+Biometrics&lt;br /&gt;
+Push notifications&lt;br /&gt;
+Sensors&lt;br /&gt;
+Background services&lt;/p&gt;
+
+&lt;p&gt;If these capabilities are central to your product, a mobile app may be the better option.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Push Notifications Are Important&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Push notifications can be valuable for:&lt;/p&gt;
+
+&lt;p&gt;Order updates&lt;br /&gt;
+Appointment reminders&lt;br /&gt;
+Messages&lt;br /&gt;
+Offers&lt;br /&gt;
+Important alerts&lt;/p&gt;
+
+&lt;p&gt;But notifications need to provide genuine value.&lt;/p&gt;
+
+&lt;p&gt;Sending too many is also one of the fastest ways to get users to disable notifications—or uninstall your app.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Your Product Is Highly Personalized&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Apps work particularly well when users log in frequently and interact with personalized information.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+
+&lt;p&gt;Customer dashboards&lt;br /&gt;
+Employee apps&lt;br /&gt;
+Student platforms&lt;br /&gt;
+Membership apps&lt;br /&gt;
+Financial products&lt;br /&gt;
+Healthcare platforms&lt;/p&gt;
+
+&lt;p&gt;In these cases, an app can create a smoother and more focused experience.&lt;/p&gt;
+
+&lt;p&gt;⚖️ Website vs Mobile App: Quick Comparison&lt;br /&gt;
+Factor  Website Mobile App&lt;br /&gt;
+Initial Cost    Generally Lower Generally Higher&lt;br /&gt;
+Development Time    Faster  Longer&lt;br /&gt;
+Installation    Not Required    Required&lt;br /&gt;
+SEO Strong  Limited&lt;br /&gt;
+Device Features Limited Strong&lt;br /&gt;
+Push Notifications  Limited Strong&lt;br /&gt;
+Frequent Engagement Good    Excellent&lt;br /&gt;
+Updates Instant May Require Updates&lt;br /&gt;
+Accessibility   Any Browser Installed Devices&lt;br /&gt;
+Maintenance Generally Simpler   More Complex&lt;br /&gt;
+🤔 What About Building Both?&lt;/p&gt;
+
+&lt;p&gt;Sometimes, both are necessary.&lt;/p&gt;
+
+&lt;p&gt;But that doesn't mean you need both on day one.&lt;/p&gt;
+
+&lt;p&gt;A practical approach could be:&lt;/p&gt;
+
+&lt;p&gt;Step 1: Build a website or web application.&lt;/p&gt;
+
+&lt;p&gt;Step 2: Launch it and start acquiring users.&lt;/p&gt;
+
+&lt;p&gt;Step 3: Observe how people actually use your product.&lt;/p&gt;
+
+&lt;p&gt;Step 4: Identify whether an app would significantly improve the experience.&lt;/p&gt;
+
+&lt;p&gt;Step 5: Build the app based on real user behavior.&lt;/p&gt;
+
+&lt;p&gt;This approach helps reduce risk and prevents you from spending money on something your customers may not actually need.&lt;/p&gt;
+
+&lt;p&gt;🚨 A Mistake I Often See&lt;/p&gt;
+
+&lt;p&gt;Some businesses decide they need an app simply because their competitors have one.&lt;/p&gt;
+
+&lt;p&gt;But having an app doesn't automatically create engagement.&lt;/p&gt;
+
+&lt;p&gt;Before building one, ask:&lt;/p&gt;
+
+&lt;p&gt;Why would someone install my app?&lt;/p&gt;
+
+&lt;p&gt;Then ask an even more important question:&lt;/p&gt;
+
+&lt;p&gt;Why would they keep it installed?&lt;/p&gt;
+
+&lt;p&gt;If your customers only interact with your business once every few months, asking them to install an app may create unnecessary friction.&lt;/p&gt;
+
+&lt;p&gt;A fast, well-designed mobile website might be enough.&lt;/p&gt;
+
+&lt;p&gt;💡 Start With the Problem, Not the Technology&lt;/p&gt;
+
+&lt;p&gt;Instead of saying:&lt;/p&gt;
+
+&lt;p&gt;"I want to build an app."&lt;/p&gt;
+
+&lt;p&gt;Start with:&lt;/p&gt;
+
+&lt;p&gt;"What problem am I trying to solve?"&lt;/p&gt;
+
+&lt;p&gt;Then think about:&lt;/p&gt;
+
+&lt;p&gt;Who are the users?&lt;br /&gt;
+How often will they use the product?&lt;br /&gt;
+How will they discover it?&lt;br /&gt;
+What features do they actually need?&lt;br /&gt;
+Do you need mobile hardware features?&lt;br /&gt;
+What's the initial budget?&lt;br /&gt;
+How quickly do you need to launch?&lt;/p&gt;
+
+&lt;p&gt;Once you answer these questions, the technology decision usually becomes much clearer.&lt;/p&gt;
+
+&lt;p&gt;My Simple Rule&lt;/p&gt;
+
+&lt;p&gt;If you're launching something new and still validating your idea:&lt;/p&gt;
+
+&lt;p&gt;Start with the simplest product that solves the core problem.&lt;/p&gt;
+
+&lt;p&gt;For many businesses, that's a website or web application.&lt;/p&gt;
+
+&lt;p&gt;If users engage frequently, need device-specific capabilities, or genuinely benefit from a dedicated mobile experience, build an app.&lt;/p&gt;
+
+&lt;p&gt;Sometimes, the answer is both.&lt;/p&gt;
+
+&lt;p&gt;But don't build both because every modern business is "supposed" to have an app.&lt;/p&gt;
+
+&lt;p&gt;Build them because your users actually need them.&lt;/p&gt;
+
+&lt;p&gt;Final Thoughts&lt;/p&gt;
+
+&lt;p&gt;A website and a mobile app aren't competitors.&lt;/p&gt;
+
+&lt;p&gt;They're different tools for different problems.&lt;/p&gt;
+
+&lt;p&gt;Your goal shouldn't be to choose the most impressive technology.&lt;/p&gt;
+
+&lt;p&gt;It should be to choose the solution that delivers the most value to your users while supporting your business goals.&lt;/p&gt;
+
+&lt;p&gt;Start simple.&lt;/p&gt;
+
+&lt;p&gt;Validate your idea.&lt;/p&gt;
+
+&lt;p&gt;Understand your users.&lt;/p&gt;
+
+&lt;p&gt;Then scale based on real needs.&lt;/p&gt;
+
+&lt;p&gt;Because the best software decisions aren't driven by trends.&lt;/p&gt;
+
+&lt;p&gt;They're driven by problems worth solving.&lt;/p&gt;
+
+&lt;p&gt;What do you usually recommend to clients: website first, mobile app first, or both?&lt;/p&gt;
+
+&lt;p&gt;I'd love to hear how other developers and founders approach this decision.&lt;/p&gt;
+
+&lt;h1&gt;
+  
+  
+  webdev #mobile #programming #startup
+&lt;/h1&gt;</description>
+      <link>https://dev.to/ankiit_janggid_36fb55410d/website-vs-mobile-app-which-should-your-business-build-first-in-2026-3jhh</link>
+      <pubDate>Fri, 17 Jul 2026 05:22:47 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ankiit_janggid_36fb55410d/website-vs-mobile-app-which-should-your-business-build-first-in-2026-3jhh</guid>
+    </item>
+    <item>
+      <title>[翻訳] H5 or Native App for QR-Based Device Rentals? A Decision Framework</title>
+      <description>&lt;p&gt;A QR code makes a device rental look simple: scan, pay, unlock, return.&lt;/p&gt;
+
+&lt;p&gt;The client experience behind that QR code is not simple. A product team still has to decide whether the scan should open a mobile web flow, deep-link into a native app, or support both. That choice affects acquisition, payment behavior, device control, customer support, and the evidence available when something goes wrong.&lt;/p&gt;
+
+&lt;p&gt;This article presents a decision framework for shared power banks and other unattended shared-device systems. It is not a universal recommendation for H5 or native. The right answer depends on where users come from, what the payment provider supports, and how much lifecycle engagement the service actually needs.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Start with the rental state machine, not the screen
+&lt;/h2&gt;
+
+&lt;p&gt;Before selecting a client, define the system events that must happen during a rental:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Identify the cabinet, venue, tenant, and market from the QR code.&lt;/li&gt;
+&lt;li&gt;Establish a user or session identity.&lt;/li&gt;
+&lt;li&gt;Show localized pricing, deposit or authorization terms, and rental rules.&lt;/li&gt;
+&lt;li&gt;Create a rental intent and payment intent.&lt;/li&gt;
+&lt;li&gt;Confirm the payment state that permits release.&lt;/li&gt;
+&lt;li&gt;Send a release command to the correct cabinet and slot.&lt;/li&gt;
+&lt;li&gt;Confirm that a device was actually released.&lt;/li&gt;
+&lt;li&gt;Track the active rental.&lt;/li&gt;
+&lt;li&gt;Detect a valid return.&lt;/li&gt;
+&lt;li&gt;Close the order, calculate the final amount, and reconcile payment.&lt;/li&gt;
+&lt;li&gt;Preserve enough evidence for support, refund, and device investigation.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Both H5 and native clients are interfaces to this state machine. Neither should be the system of record. Order, payment, device, and command states belong on the backend, where retries and asynchronous callbacks can be handled consistently.&lt;/p&gt;
+
+&lt;p&gt;That distinction matters because several real-world events do not arrive in a neat sequence. A payment callback can be delayed. A cabinet can receive a command but fail to release a device. The browser can close after payment. A return can be detected before the client refreshes. A reliable architecture must tolerate these conditions independently of the client type.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Where H5 is strongest
+&lt;/h2&gt;
+
+&lt;p&gt;An H5 flow is usually the lowest-friction path for a first rental. A user scans a code with the phone camera or a messaging app and enters a mobile web page without installing anything.&lt;/p&gt;
+
+&lt;p&gt;This makes H5 attractive when:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;most users are occasional or one-time renters;&lt;/li&gt;
+&lt;li&gt;venues depend on tourist or walk-in traffic;&lt;/li&gt;
+&lt;li&gt;the operator wants to validate demand before investing in a full native product;&lt;/li&gt;
+&lt;li&gt;acquisition cost and time-to-first-rental matter more than long-term app engagement;&lt;/li&gt;
+&lt;li&gt;the required payment methods work reliably in a mobile browser;&lt;/li&gt;
+&lt;li&gt;device interaction happens through backend-to-cabinet commands rather than direct phone-to-device communication.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;H5 is especially effective as a market-entry surface. A new operator can localize a web flow, configure a payment path, and test a limited number of venues without asking every user to install an app before understanding the service.&lt;/p&gt;
+
+&lt;p&gt;The trade-off is that the browser is a less controlled runtime. Sessions may be interrupted, deep links may behave differently across apps, and payment redirects can return to an unexpected tab. Push notifications and background capabilities are also more limited than in a native app.&lt;/p&gt;
+
+&lt;p&gt;For that reason, an H5 rental flow should be resumable. If the user returns after payment, the backend should be able to recover the latest rental intent by a short-lived session, authenticated identity, or safe order lookup. The page should not assume that a successful client-side redirect is the only evidence of payment.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Where a native app is strongest
+&lt;/h2&gt;
+
+&lt;p&gt;A native app becomes more valuable when the service has a repeated relationship with the renter rather than a single transaction.&lt;/p&gt;
+
+&lt;p&gt;It is a better fit when:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;users rent frequently and benefit from saved preferences or membership;&lt;/li&gt;
+&lt;li&gt;the product needs reliable push notifications for active rentals, returns, or account events;&lt;/li&gt;
+&lt;li&gt;the service requires direct Bluetooth, NFC, location, camera, or other device capabilities;&lt;/li&gt;
+&lt;li&gt;a consistent in-app payment and identity experience can be maintained across target markets;&lt;/li&gt;
+&lt;li&gt;the operator has the support capacity to maintain iOS and Android releases;&lt;/li&gt;
+&lt;li&gt;app-store distribution and review lead time are compatible with the launch plan.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Native does not automatically make the rental more reliable. It gives the team more control over the client runtime, but the backend still needs idempotent payment handling, command tracking, and order recovery. An app can also introduce new failure modes: outdated versions, denied permissions, unsupported devices, store availability, and release fragmentation.&lt;/p&gt;
+
+&lt;p&gt;The install request is itself a product decision. Requiring an app before a first rental may be acceptable for a commuter service with repeat use. It is much harder to justify for a visitor who needs a power bank for one hour at an unfamiliar venue.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The hybrid pattern
+&lt;/h2&gt;
+
+&lt;p&gt;Many systems benefit from supporting both paths without building two unrelated products.&lt;/p&gt;
+
+&lt;p&gt;A practical hybrid model is:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;let first-time users scan into H5;&lt;/li&gt;
+&lt;li&gt;keep rental eligibility, payment, device commands, and order states in shared backend services;&lt;/li&gt;
+&lt;li&gt;offer the app to repeat users when it provides a clear benefit;&lt;/li&gt;
+&lt;li&gt;use universal links or app links so installed users can enter the same cabinet context in the app;&lt;/li&gt;
+&lt;li&gt;preserve a web fallback if the deep link or app handoff fails.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The QR payload should identify context, not encode trust. It may carry a cabinet reference, tenant or brand route, and versioned parameters, but the backend must validate whether the cabinet is active, belongs to the expected operator, and can accept a rental.&lt;/p&gt;
+
+&lt;p&gt;Avoid designing separate H5 and app order models. That creates reconciliation and support problems later. A support agent should see one order timeline regardless of which client initiated it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Five questions that make the decision clearer
+&lt;/h2&gt;
+
+&lt;h3&gt;
+  
+  
+  1. How often will a user rent?
+&lt;/h3&gt;
+
+&lt;p&gt;If the normal user rents once during a trip or event, installation friction is difficult to recover. If the user rents several times per week, membership, notifications, history, and saved identity can justify an app.&lt;/p&gt;
+
+&lt;p&gt;Do not use total market size as the proxy. Use expected rental frequency by venue type and user segment.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  2. What does the payment flow require?
+&lt;/h3&gt;
+
+&lt;p&gt;Map the exact payment sequence for each market:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;redirect, embedded checkout, wallet handoff, or native SDK;&lt;/li&gt;
+&lt;li&gt;direct charge, authorization and capture, or another deposit/risk model;&lt;/li&gt;
+&lt;li&gt;asynchronous webhook behavior;&lt;/li&gt;
+&lt;li&gt;cancellation, timeout, partial refund, and reconciliation rules;&lt;/li&gt;
+&lt;li&gt;what happens when payment succeeds but release fails.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Some payment methods work well on mobile web. Others are smoother through an app or a local super-app. These capabilities and rules change, so they should be verified with the selected payment provider for each launch.&lt;/p&gt;
+
+&lt;p&gt;The client should display state, not invent it. A “payment successful” screen is only safe when the backend has reached the state required by the rental policy.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  3. Does the phone communicate with the device?
+&lt;/h3&gt;
+
+&lt;p&gt;If the phone only sends an authenticated request to the platform and the platform sends a command to the cabinet, H5 can cover many use cases.&lt;/p&gt;
+
+&lt;p&gt;If the phone must communicate directly through Bluetooth or NFC, scan hardware-specific data, or perform persistent background work, native capabilities may become necessary.&lt;/p&gt;
+
+&lt;p&gt;Even then, separate direct device interaction from order authority. A Bluetooth success signal should be correlated with the server-side command and rental record rather than treated as an isolated client fact.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  4. What happens when the user disappears mid-flow?
+&lt;/h3&gt;
+
+&lt;p&gt;Test at least these interruptions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;browser or app closes before payment returns;&lt;/li&gt;
+&lt;li&gt;payment completes but the callback is delayed;&lt;/li&gt;
+&lt;li&gt;release command times out;&lt;/li&gt;
+&lt;li&gt;cabinet reports an empty or blocked slot;&lt;/li&gt;
+&lt;li&gt;device is released but the client never receives confirmation;&lt;/li&gt;
+&lt;li&gt;user switches networks or loses connectivity;&lt;/li&gt;
+&lt;li&gt;return happens while the client is offline.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The recovery design is more important than the happy-path animation. Use idempotency keys for creation and payment operations, stable correlation identifiers across services, explicit timeouts, and a backend order timeline that support staff can inspect.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  5. Who will maintain the client after launch?
+&lt;/h3&gt;
+
+&lt;p&gt;H5 can reduce release overhead, but it still requires browser and payment compatibility testing. Native provides richer capabilities, but adds store releases, SDK upgrades, permission changes, and version support.&lt;/p&gt;
+
+&lt;p&gt;The correct comparison is not “one web page versus one app.” It is the ongoing cost of maintaining a trustworthy rental interface in every target market.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  A compact decision matrix
+&lt;/h2&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Constraint&lt;/th&gt;
+&lt;th&gt;H5 leaning&lt;/th&gt;
+&lt;th&gt;Native leaning&lt;/th&gt;
+&lt;th&gt;Hybrid response&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;First-time or tourist use&lt;/td&gt;
+&lt;td&gt;Strong&lt;/td&gt;
+&lt;td&gt;Weak&lt;/td&gt;
+&lt;td&gt;H5 as default entry&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Frequent repeat rentals&lt;/td&gt;
+&lt;td&gt;Moderate&lt;/td&gt;
+&lt;td&gt;Strong&lt;/td&gt;
+&lt;td&gt;Prompt app after demonstrated value&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;No direct phone-to-device link&lt;/td&gt;
+&lt;td&gt;Strong&lt;/td&gt;
+&lt;td&gt;Moderate&lt;/td&gt;
+&lt;td&gt;Shared backend command service&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Bluetooth/NFC/background work&lt;/td&gt;
+&lt;td&gt;Weak&lt;/td&gt;
+&lt;td&gt;Strong&lt;/td&gt;
+&lt;td&gt;Native capability with server authority&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Fast pilot iteration&lt;/td&gt;
+&lt;td&gt;Strong&lt;/td&gt;
+&lt;td&gt;Moderate&lt;/td&gt;
+&lt;td&gt;Pilot on H5, preserve app-ready APIs&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Push and membership&lt;/td&gt;
+&lt;td&gt;Limited&lt;/td&gt;
+&lt;td&gt;Strong&lt;/td&gt;
+&lt;td&gt;App for retained users&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Market-specific payment redirects&lt;/td&gt;
+&lt;td&gt;Often strong&lt;/td&gt;
+&lt;td&gt;Varies&lt;/td&gt;
+&lt;td&gt;Route by verified PSP capability&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Minimal release operations&lt;/td&gt;
+&lt;td&gt;Stronger&lt;/td&gt;
+&lt;td&gt;Weaker&lt;/td&gt;
+&lt;td&gt;Keep common domain and API contracts&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;This matrix is directional. A single hard requirement—such as mandatory direct Bluetooth interaction—can outweigh several softer preferences.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Architecture rules that apply to both
+&lt;/h2&gt;
+
+&lt;p&gt;Whichever client is selected, several rules reduce operational risk:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Use one backend state model.&lt;/strong&gt; H5, iOS, Android, operator dashboards, and support tools should read the same rental and payment truth.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Make commands traceable.&lt;/strong&gt; Record which order produced a release command, the target cabinet and slot, timestamps, acknowledgements, retries, and the observed release result.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Treat payment callbacks as asynchronous.&lt;/strong&gt; Verify signatures, handle duplicates, and make processing idempotent. Never depend only on the browser or app returning to a success page.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Separate payment success from device success.&lt;/strong&gt; A successful payment does not prove that a device was released. Define the compensation path when one succeeds and the other fails.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Design for support evidence.&lt;/strong&gt; Preserve a readable timeline that correlates the QR context, rental intent, payment events, device commands, telemetry, release, return, price calculation, and refund actions.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Localize behavior, not only text.&lt;/strong&gt; Currency display, timezones, phone formats, receipt expectations, payment methods, support channels, and policy copy can all vary by market.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  A sensible default for an early pilot
+&lt;/h2&gt;
+
+&lt;p&gt;For many unattended shared-device pilots, H5 is a reasonable first entry path when the phone does not need direct hardware communication. It reduces first-use friction and makes it easier to test venues, pricing presentation, payment completion, and support workflows.&lt;/p&gt;
+
+&lt;p&gt;That does not mean “build web now and redesign everything later.” The pilot should use production-minded backend boundaries from the start:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;a versioned QR and routing model;&lt;/li&gt;
+&lt;li&gt;a client-independent rental state machine;&lt;/li&gt;
+&lt;li&gt;a payment abstraction with webhook and reconciliation support;&lt;/li&gt;
+&lt;li&gt;a traceable device-command service;&lt;/li&gt;
+&lt;li&gt;localization keys rather than hardcoded market behavior;&lt;/li&gt;
+&lt;li&gt;APIs that a future app can reuse.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If the pilot shows repeat usage, membership demand, or a need for stronger device integration, a native app can be added without replacing the core order model.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Final takeaway
+&lt;/h2&gt;
+
+&lt;p&gt;The H5-versus-app decision is not mainly about frontend preference. It is about user frequency, payment capability, hardware interaction, failure recovery, and the operating model behind the rental.&lt;/p&gt;
+
+&lt;p&gt;Use H5 when immediate access and pilot speed dominate. Use native when repeated engagement or phone-level capabilities create real user value. Use a hybrid model when the first rental and the retained-user experience have different needs.&lt;/p&gt;
+
+&lt;p&gt;In every case, keep order, payment, and device truth on the backend. The client can change. The operational evidence cannot.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  About the author
+&lt;/h2&gt;
+
+&lt;p&gt;This article was written by the engineering and operations team behind CoreCharge Cloud. We work on shared-device rental SaaS workflows, including QR-based H5/App entry, payment and device-state coordination, order tracking, and multi-tenant operations.&lt;/p&gt;
+
+&lt;p&gt;For related product context, our &lt;a href="https://corecharge.cloud/en/news/power-bank-rental-software-features/" rel="noopener noreferrer"&gt;power bank rental software feature overview&lt;/a&gt; describes the broader platform areas around these client-flow decisions. The engineering framework in this article stands on its own.&lt;/p&gt;
+
+&lt;p&gt;The framework above reflects our practical engineering perspective. It is not a product specification, commercial promise, or market-specific payment, regulatory, or compliance claim.&lt;/p&gt;</description>
+      <link>https://dev.to/_2e753170f7cbf17032d37/h5-or-native-app-for-qr-based-device-rentals-a-decision-framework-1924</link>
+      <pubDate>Fri, 17 Jul 2026 05:16:18 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/_2e753170f7cbf17032d37/h5-or-native-app-for-qr-based-device-rentals-a-decision-framework-1924</guid>
+    </item>
+    <item>
+      <title>[翻訳] Lessons Learned Building and Launching FugoFresh, a Calorie Counter Mobile App in 2026</title>
+      <description>&lt;p&gt;For months, I was trapped in the cage of perfectionism. I chained myself to my desk for ten hours a day, obsessing over every line of code until I thought my app was flawless.Then came the Play Store launch—and with it, the inevitable bugs.Devastated, I plunged back into the cycle. I spent another seven grueling months adding features and chasing perfection. But the horizon kept moving. Finally, a shift in perspective brought me peace: I realized that perfection belongs to Allah alone; human hands will always create flaws.Today, when a bug appears, I simply fix it, upload the update, and let it go. Action beats perfection every time.&lt;/p&gt;</description>
+      <link>https://dev.to/fugofresh/lessons-learned-building-and-launching-fugofresh-a-calorie-counter-mobile-app-in-2026-1gpn</link>
+      <pubDate>Fri, 17 Jul 2026 05:15:18 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/fugofresh/lessons-learned-building-and-launching-fugofresh-a-calorie-counter-mobile-app-in-2026-1gpn</guid>
+    </item>
+    <item>
+      <title>[翻訳] SVD y PCA: cómo el álgebra lineal comprime miles de dimensiones</title>
+      <description>&lt;p&gt;Reducí una matriz de un millón de columnas a diez y perdés menos información de la que imaginás: así funcionan &lt;strong&gt;SVD y PCA&lt;/strong&gt;, el dúo de álgebra lineal que sostiene los sistemas de recomendación, la compresión de imágenes y buena parte del machine learning moderno.&lt;/p&gt;
+
+&lt;p&gt;Un &lt;a href="https://arxiv.org/abs/2607.11938" rel="noopener noreferrer"&gt;libro publicado el 11 de julio de 2026 en arXiv&lt;/a&gt; por Afonso Bandeira, Amit Singer y Thomas Strohmer, titulado "Mathematics of Data Science", dedica un capítulo entero a esta técnica junto a otros 15 sobre los fundamentos matemáticos de la ciencia de datos: desde geometría en dimensiones altas hasta redes neuronales profundas. Este artículo toma ese capítulo como punto de partida y lo explica desde cero, con código en Python.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  TL;DR
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Vas a entender qué hace matemáticamente la descomposición en valores singulares (SVD), paso a paso.- Vas a poder implementar PCA desde cero con NumPy, sin depender de una caja negra.- Vas a saber elegir cuántas componentes principales conservar usando la varianza explicada.- Vas a distinguir cuándo usar PCA/SVD y cuándo conviene t-SNE, UMAP o un autoencoder.- Vas a comprender por qué la maldición de la dimensionalidad hace que las distancias pierdan sentido.- Vas a poder comprimir una matriz o imagen calculando su aproximación de rango bajo con SVD.- Vas a saber verificar que tu PCA está bien calculado revisando explained_variance_ratio_.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Qué son SVD y PCA y por qué importan
+&lt;/h2&gt;
+
+&lt;p&gt;La &lt;strong&gt;descomposición en valores singulares&lt;/strong&gt; (SVD, por sus siglas en inglés) es una factorización que existe para &lt;em&gt;cualquier&lt;/em&gt; matriz, sin importar su forma ni si es cuadrada. Toma una matriz A de tamaño m x n y la reescribe como el producto de tres matrices: U, Sigma y V transpuesta. No hace falta que A represente nada especial: puede ser una tabla de clientes, los píxeles de una imagen o las calificaciones de usuarios sobre películas.&lt;/p&gt;
+
+&lt;p&gt;El &lt;strong&gt;Análisis de Componentes Principales&lt;/strong&gt; (PCA) es, en el fondo, una aplicación directa de SVD: se usa para encontrar las direcciones donde los datos varían más y proyectar la información sobre esas direcciones, descartando el ruido. Cuando un dataset tiene 500 columnas pero solo 8 explican el 95% del comportamiento, PCA es la herramienta que lo revela.&lt;/p&gt;
+
+&lt;p&gt;Por qué importa: casi todo el machine learning trabaja con matrices de datos de alta dimensión (imágenes, texto vectorizado, señales de sensores, genes). SVD y PCA son la base matemática que permite comprimir esa información sin destruirla, acelerar entrenamientos, eliminar ruido y visualizar datos que de otra forma serían imposibles de graficar en dos o tres ejes. El teorema de Eckart-Young, uno de los resultados que el libro de Bandeira, Singer y Strohmer desarrolla en detalle, demuestra algo muy fuerte: quedarte con los primeros k valores singulares te da la &lt;em&gt;mejor&lt;/em&gt; aproximación posible de rango k a tu matriz original, medida en norma de Frobenius. No es una heurística, es un óptimo matemático.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Cómo funciona la descomposición por dentro
+&lt;/h2&gt;
+
+&lt;p&gt;Toda matriz A de m filas y n columnas se puede escribir como A = U · Sigma · VT, donde U es una matriz ortogonal de m x m (sus columnas son los &lt;em&gt;vectores singulares izquierdos&lt;/em&gt;), V es otra matriz ortogonal de n x n (columnas: &lt;em&gt;vectores singulares derechos&lt;/em&gt;) y Sigma es una matriz diagonal con los &lt;em&gt;valores singulares&lt;/em&gt;, siempre positivos y ordenados de mayor a menor.&lt;/p&gt;
+
+&lt;p&gt;Los valores singulares miden cuánta "energía" o varianza aporta cada dirección. El primer valor singular corresponde a la dirección donde los datos varían más; el segundo, a la siguiente dirección ortogonal con más varianza, y así sucesivamente. Si los primeros k valores singulares concentran casi toda la energía, podés descartar el resto sin perder información relevante: esa es la base matemática de la compresión con SVD.&lt;br /&gt;
+Cada valor singular pesa cuanta varianza aporta su direccion.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;flowchart TD
+    A["Matriz A (m filas x n columnas)"] --&amp;gt; U["U: vectores singulares izquierdos"]
+    A --&amp;gt; S["Sigma: valores singulares ordenados"]
+    A --&amp;gt; V["V transpuesta: vectores singulares derechos"]
+    U --&amp;gt; R["A = U x Sigma x V-transpuesta"]
+    S --&amp;gt; R
+    V --&amp;gt; R
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;PCA reutiliza exactamente esta descomposición, pero antes centra los datos (resta la media de cada columna) para que el primer valor singular capture varianza real y no el desplazamiento del origen. Los &lt;em&gt;vectores singulares derechos&lt;/em&gt; (filas de V transpuesta) se convierten en las &lt;strong&gt;componentes principales&lt;/strong&gt;: nuevas direcciones, combinaciones lineales de las columnas originales, ordenadas por cuánta varianza explican. Una propiedad clave: U y V son ortogonales, lo que significa que rotan los datos sin deformarlos, solo cambian el sistema de referencia para alinear los ejes con la varianza real.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Ejemplos prácticos: de la matriz mínima a un dataset real
+&lt;/h2&gt;
+
+&lt;p&gt;Empecemos por el caso más simple posible: una matriz de 2x2, para ver qué devuelve &lt;code&gt;numpy.linalg.svd&lt;/code&gt; sin ningún ruido de por medio.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;
+
+&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;array&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;])&lt;/span&gt;
+
+&lt;span class="n"&gt;U&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;S&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Vt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linalg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;svd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;U:&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;U&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Valores singulares:&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;S&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Vt:&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Vt&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Este bloque descompone una matriz de 2x2 en sus tres piezas. &lt;code&gt;S&lt;/code&gt; devuelve un vector con los valores singulares (no la matriz diagonal completa, NumPy la simplifica), ordenados de mayor a menor. Podés reconstruir la matriz original con &lt;code&gt;U @ np.diag(S) @ Vt&lt;/code&gt; y confirmar que da el mismo resultado que &lt;code&gt;A&lt;/code&gt;: esa reconstrucción exacta es la que después se trunca a los primeros k términos para comprimir.&lt;/p&gt;
+
+&lt;p&gt;Ahora un caso más realista: un dataset simulado de 200 clientes con 50 variables numéricas (comportamiento de compra, por ejemplo), reducido a 2 dimensiones con PCA implementado manualmente sobre SVD:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;pca_manual&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;X_centrado&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;U&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;S&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Vt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linalg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;svd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;X_centrado&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;full_matrices&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;False&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;componentes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Vt&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;X_reducido&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;X_centrado&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt; &lt;span class="n"&gt;componentes&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;
+    &lt;span class="n"&gt;varianza_explicada&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;S&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;S&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;X_reducido&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;varianza_explicada&lt;/span&gt;
+
+&lt;span class="n"&gt;rng&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;default_rng&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;datos_clientes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;rng&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;normal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;datos_reducidos&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;varianza&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;pca_manual&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;datos_clientes&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Forma original:&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;datos_clientes&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shape&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Forma reducida:&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;datos_reducidos&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shape&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Varianza explicada por componente:&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;varianza&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;La función centra los datos, calcula la SVD y proyecta sobre las &lt;code&gt;k&lt;/code&gt; primeras componentes. El resultado, &lt;code&gt;datos_reducidos&lt;/code&gt;, pasa de 50 columnas a 2, algo que ya podés graficar en un scatter plot. &lt;code&gt;varianza_explicada&lt;/code&gt; te dice qué porcentaje de la información original conservó cada componente: si sumás los dos valores y da algo bajo, como suele pasar con datos puramente aleatorios como en este ejemplo simulado, es esperable, porque no metimos estructura real en los datos, cualquier dirección explica más o menos lo mismo.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;💡 Tip:&lt;/strong&gt; si tu matriz es dispersa (sparse), como una matriz término-documento de texto, usá &lt;code&gt;scipy.sparse.linalg.svds&lt;/code&gt; o &lt;code&gt;sklearn.decomposition.TruncatedSVD&lt;/code&gt; en vez de &lt;code&gt;numpy.linalg.svd&lt;/code&gt;: esta última densifica la matriz en memoria y puede tirarte el proceso por RAM.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Un tercer ejemplo, más cercano a un caso de uso real: comprimir una matriz (por ejemplo, los píxeles de una imagen en escala de grises) quedándote solo con los primeros k valores singulares y midiendo el error de esa aproximación.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;comprimir_svd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;matriz&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;U&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;S&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Vt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linalg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;svd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;matriz&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;full_matrices&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;False&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;aproximacion&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;U&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;diag&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;S&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt; &lt;span class="n"&gt;Vt&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;:]&lt;/span&gt;
+    &lt;span class="n"&gt;error_relativo&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linalg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;norm&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;matriz&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;aproximacion&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linalg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;norm&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;matriz&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;aproximacion&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error_relativo&lt;/span&gt;
+
+&lt;span class="n"&gt;imagen&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;default_rng&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;normal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;300&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;_&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error_k10&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;comprimir_svd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;imagen&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;_&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error_k50&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;comprimir_svd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;imagen&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Error relativo con k=10: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;error_k10&lt;/span&gt;&lt;span class="si"&gt;:&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Error relativo con k=50: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;error_k50&lt;/span&gt;&lt;span class="si"&gt;:&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Con imágenes reales (fotos, escaneos, radiografías) la mayoría de la energía suele concentrarse en los primeros valores singulares, porque hay estructura repetida (bordes, texturas, zonas planas). En una matriz de ruido puro como la de este ejemplo, en cambio, el error baja de forma mucho más lenta a medida que aumentás k, precisamente porque no hay estructura que comprimir.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Cómo empezar a usar PCA en tu propio dataset
+&lt;/h2&gt;
+
+&lt;p&gt;Para reproducir estos ejemplos necesitás Python 3.10 o superior y dos paquetes: NumPy y, para la versión productiva, scikit-learn.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Windows (PowerShell):&lt;/strong&gt;&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;python &lt;span class="nt"&gt;-m&lt;/span&gt; pip &lt;span class="nb"&gt;install &lt;/span&gt;numpy scikit-learn
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;macOS:&lt;/strong&gt;&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;python3 &lt;span class="nt"&gt;-m&lt;/span&gt; pip &lt;span class="nb"&gt;install &lt;/span&gt;numpy scikit-learn
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;Linux:&lt;/strong&gt;&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;pip &lt;span class="nb"&gt;install &lt;/span&gt;numpy scikit-learn
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Con scikit-learn, el mismo PCA manual de arriba se reduce a estas líneas, con la ventaja de que la clase ya trae validaciones, distintos solvers y opciones adicionales:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;sklearn.decomposition&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;PCA&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;
+
+&lt;span class="n"&gt;rng&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;default_rng&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;datos_clientes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;rng&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;normal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="n"&gt;pca&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;PCA&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n_components&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;datos_reducidos&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pca&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fit_transform&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;datos_clientes&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Varianza explicada:&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;pca&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;explained_variance_ratio_&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Suma acumulada:&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;pca&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;explained_variance_ratio_&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;La clave exacta a configurar es &lt;code&gt;n_components&lt;/code&gt;: podés pasarle un entero (cantidad fija de componentes) o un float entre 0 y 1, por ejemplo &lt;code&gt;n_components=0.95&lt;/code&gt;, en cuyo caso scikit-learn elige automáticamente cuántas componentes necesita para retener ese porcentaje de varianza.&lt;/p&gt;
+
+&lt;p&gt;Para &lt;strong&gt;verificar&lt;/strong&gt; que el PCA está bien calculado, revisá que &lt;code&gt;pca.explained_variance_ratio_.sum()&lt;/code&gt; se acerque a 1.0 cuando usás todas las componentes posibles, y compará contra &lt;code&gt;np.linalg.matrix_rank(datos_clientes)&lt;/code&gt; para confirmar cuántas dimensiones tienen información real (rango de la matriz) antes de reducir.&lt;br /&gt;
+Con 2 de 50 columnas ya se puede graficar el dataset completo.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Casos de uso reales
+&lt;/h2&gt;
+
+&lt;p&gt;Los sistemas de recomendación tipo &lt;em&gt;filtrado colaborativo&lt;/em&gt;, el que popularizó el Netflix Prize, factorizan la matriz usuario-item con una variante de SVD para predecir qué calificación le daría un usuario a una película que nunca vio. La matriz original tiene millones de celdas vacías (usuarios que no vieron casi nada), y SVD encuentra factores latentes que generalizan esos huecos.&lt;/p&gt;
+
+&lt;p&gt;La compresión de imágenes usa SVD de forma directa: cada imagen en escala de grises es una matriz de píxeles, y quedarte con los primeros k valores singulares reconstruye una versión de menor tamaño con pérdida controlada. Cuanto más estructura tenga la imagen original (bordes definidos, zonas repetidas), menos k necesitás para una reconstrucción visualmente aceptable.&lt;/p&gt;
+
+&lt;p&gt;En bioinformática, PCA reduce datasets de expresión génica con decenas de miles de columnas (una por gen) a un puñado de componentes que agrupan pacientes por similitud biológica. En finanzas, PCA sobre series de tasas de interés identifica los "factores" (nivel, pendiente, curvatura) que explican casi todo el movimiento de la curva completa, algo que los modelos de riesgo usan para simular escenarios con muchas menos variables que las tasas individuales.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Errores comunes y buenas prácticas
+&lt;/h2&gt;
+
+&lt;p&gt;El error más frecuente es aplicar PCA &lt;strong&gt;sin estandarizar&lt;/strong&gt; variables que están en escalas distintas: si una columna mide años (0-100) y otra mide ingresos (0-1.000.000), la varianza del ingreso domina la primera componente sin que eso refleje ninguna relación real. La solución es escalar cada columna a media 0 y desviación estándar 1 antes de correr PCA, con &lt;code&gt;sklearn.preprocessing.StandardScaler&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Otro error es interpretar las componentes principales como si tuvieran significado de negocio directo: una componente es una combinación lineal de las variables originales, no una variable nueva con nombre propio. Hay que inspeccionar los pesos (&lt;code&gt;pca.components_&lt;/code&gt;) para entender qué variables originales pesan más en cada componente antes de bautizarla con un nombre.&lt;/p&gt;
+
+&lt;p&gt;También es común elegir &lt;code&gt;k&lt;/code&gt; de forma arbitraria. La práctica recomendada es graficar la varianza explicada acumulada contra el número de componentes (el "scree plot") y cortar donde la curva se aplana, o fijar un umbral como 90-95% de varianza retenida en vez de adivinar un número redondo.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;⚠️ Ojo:&lt;/strong&gt; PCA solo captura relaciones &lt;em&gt;lineales&lt;/em&gt;. Si tus datos tienen estructura curva o forman clusters no lineales, vas a necesitar t-SNE, UMAP o un autoencoder: PCA los va a aplastar en una proyección que pierde esa estructura.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;
+  
+  
+  Comparativa: SVD/PCA frente a otras técnicas de reducción
+&lt;/h2&gt;
+
+&lt;p&gt;MétodoCuándo usarloVentajaLimitaciónSVD / PCADatos con relaciones lineales, necesitás velocidad e interpretabilidadDeterminista, rápido, matemáticamente óptimoNo captura estructura no linealt-SNEVisualización exploratoria en 2D/3D de clusters no linealesPreserva vecindarios localesLento en datasets grandes, no determinista, no proyecta datos nuevosUMAPVisualización y reducción a mayor escala que t-SNEMás rápido que t-SNE, preserva mejor la estructura globalHiperparámetros sensibles, resultados varían entre corridasAutoencoderDatos con relaciones muy no lineales y volumen suficiente para entrenar una redAprende cualquier función de reducciónNecesita más datos, GPU y ajuste fino que PCA&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Profundizando: qué pasa en dimensiones altas
+&lt;/h2&gt;
+
+&lt;p&gt;Cuando el número de columnas crece mucho más rápido que el número de filas, por ejemplo 20.000 genes medidos en apenas 200 pacientes, aparece lo que el libro de Bandeira, Singer y Strohmer discute bajo el título "Curses, Blessings, and Surprises in High Dimensions": la intuición geométrica que tenemos en 2 o 3 dimensiones deja de funcionar.&lt;/p&gt;
+
+&lt;p&gt;Un ejemplo concreto: en dimensiones altas, casi todo el volumen de una esfera se concentra cerca de su superficie, no en el centro. Y las distancias euclidianas entre puntos aleatorios tienden a volverse casi idénticas entre sí, lo que rompe algoritmos que dependen de "vecino más cercano", como k-NN, si no se reduce la dimensionalidad antes de aplicarlos.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;flowchart LR
+    D1["Pocas dimensiones: distancias variadas"] --&amp;gt; D2["Mas dimensiones: distancias se parecen entre si"]
+    D2 --&amp;gt; D3["Muchas dimensiones: casi todo el volumen esta en la superficie"]
+    D3 --&amp;gt; D4["Sin reducir: k-NN y clustering pierden sentido"]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;SVD y PCA no resuelven la maldición de la dimensionalidad por arte de magia: lo que hacen es identificar cuántas dimensiones &lt;em&gt;realmente&lt;/em&gt; aportan información, el rango efectivo de la matriz, y descartar el resto, que suele ser ruido. Esto es distinto de reducir dimensiones a ciegas, y es la razón por la que un preprocesamiento con PCA suele mejorar el desempeño de algoritmos basados en distancias.&lt;/p&gt;
+
+&lt;p&gt;El flujo completo de un pipeline de PCA en producción, desde datos crudos hasta componentes listas para un modelo posterior, se ve así:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;flowchart TD
+    A["Datos crudos"] --&amp;gt; B["Estandarizar columnas"]
+    B --&amp;gt; C["Centrar datos (restar la media)"]
+    C --&amp;gt; D["Calcular SVD de la matriz centrada"]
+    D --&amp;gt; E["Elegir k componentes por varianza acumulada"]
+    E --&amp;gt; F["Proyectar datos sobre k componentes"]
+    F --&amp;gt; G["Datos reducidos listos para el modelo"]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Otro detalle avanzado: cuando la matriz es demasiado grande para calcular la SVD completa, por ejemplo con millones de filas, se usa &lt;strong&gt;randomized SVD&lt;/strong&gt;, un algoritmo que aproxima los primeros k valores singulares proyectando la matriz sobre un subespacio aleatorio de dimensión reducida antes de descomponerla. &lt;code&gt;sklearn.decomposition.PCA&lt;/code&gt; lo activa automáticamente con &lt;code&gt;svd_solver="randomized"&lt;/code&gt; cuando detecta datasets grandes, y el costo computacional pasa de depender de las dimensiones completas de la matriz a depender solo de k, el número de componentes que pediste.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;💭 Clave:&lt;/strong&gt; el rango efectivo de una matriz real casi nunca es su rango matemático completo. La mayoría de los datasets del mundo real tienen mucha menos "información" de la que sugiere su número de columnas, y por eso SVD funciona tan bien como técnica de compresión.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;📖 Resumen en Telegram: Ver resumen&lt;/p&gt;
+
+&lt;p&gt;Tu próximo paso: tomá un dataset propio en un DataFrame de pandas, corré &lt;code&gt;PCA(n_components=0.95).fit(df_estandarizado)&lt;/code&gt; y graficá la varianza explicada acumulada para ver cuántas dimensiones reales tiene tu problema.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Preguntas frecuentes
+&lt;/h2&gt;
+
+&lt;h3&gt;
+  
+  
+  ¿Qué diferencia hay entre SVD y PCA?
+&lt;/h3&gt;
+
+&lt;p&gt;SVD es la operación matemática general que factoriza cualquier matriz en tres piezas. PCA es una aplicación específica de SVD sobre datos centrados, pensada para encontrar direcciones de máxima varianza. En la práctica, PCA se calcula usando SVD por dentro.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  ¿Cuántas componentes principales debería elegir?
+&lt;/h3&gt;
+
+&lt;p&gt;No hay un número universal. La práctica estándar es fijar un umbral de varianza explicada acumulada, 90-95% es común, y usar &lt;code&gt;pca.explained_variance_ratio_.cumsum()&lt;/code&gt; para encontrar cuántas componentes lo alcanzan.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  ¿PCA funciona con datos categóricos?
+&lt;/h3&gt;
+
+&lt;p&gt;No directamente. PCA asume variables numéricas continuas. Para datos categóricos existen variantes como MCA (Análisis de Correspondencias Múltiples), o hay que codificar las categorías numéricamente antes, con cuidado de no introducir relaciones de orden falsas.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  ¿Es lo mismo SVD que la descomposición en autovalores (eigendecomposition)?
+&lt;/h3&gt;
+
+&lt;p&gt;Están relacionadas pero no son idénticas. La eigendecomposition solo existe para matrices cuadradas y diagonalizables. SVD existe para cualquier matriz, y los valores singulares de A son la raíz cuadrada de los autovalores de A transpuesta por A.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  ¿Qué biblioteca de Python conviene usar en producción?
+&lt;/h3&gt;
+
+&lt;p&gt;Para datasets que caben en memoria, &lt;code&gt;numpy.linalg.svd&lt;/code&gt; o &lt;code&gt;sklearn.decomposition.PCA&lt;/code&gt; alcanzan. Para matrices dispersas de texto o grafos, &lt;code&gt;scipy.sparse.linalg.svds&lt;/code&gt; o &lt;code&gt;sklearn.decomposition.TruncatedSVD&lt;/code&gt; evitan densificar la matriz.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  ¿SVD sirve para datos dispersos (sparse), como una matriz de texto?
+&lt;/h3&gt;
+
+&lt;p&gt;Sí, con la variante truncada. Calcular la SVD completa de una matriz dispersa gigante la convierte en densa en memoria, lo que puede consumir gigabytes innecesarios: por eso &lt;code&gt;TruncatedSVD&lt;/code&gt; calcula solo los primeros k valores singulares sin densificar la matriz completa.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Referencias
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="https://arxiv.org/abs/2607.11938" rel="noopener noreferrer"&gt;Bandeira, Singer y Strohmer, "Mathematics of Data Science" (arXiv:2607.11938)&lt;/a&gt;: el libro completo con los 16 capítulos de fundamentos matemáticos de la ciencia de datos.- &lt;a href="https://en.wikipedia.org/wiki/Singular_value_decomposition" rel="noopener noreferrer"&gt;Wikipedia: Singular Value Decomposition&lt;/a&gt;: definición formal, propiedades y demostraciones de la factorización.- &lt;a href="https://scikit-learn.org/stable/modules/decomposition.html#pca" rel="noopener noreferrer"&gt;Documentación oficial de scikit-learn sobre PCA&lt;/a&gt;: parámetros de la clase, solvers disponibles y ejemplos.- &lt;a href="https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html" rel="noopener noreferrer"&gt;Documentación de numpy.linalg.svd&lt;/a&gt;: referencia de la función usada en los ejemplos de este artículo.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;📱 &lt;strong&gt;¿Te gusta este contenido?&lt;/strong&gt; Únete a nuestro canal de Telegram &lt;a href="https://t.me/programacion" rel="noopener noreferrer"&gt;@programacion&lt;/a&gt; donde publicamos a diario lo más relevante de tecnología, IA y desarrollo. Resúmenes rápidos, contenido fresco todos los días.&lt;/p&gt;</description>
+      <link>https://dev.to/lu1tr0n/svd-y-pca-como-el-algebra-lineal-comprime-miles-de-dimensiones-l9p</link>
+      <pubDate>Fri, 17 Jul 2026 05:11:04 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/lu1tr0n/svd-y-pca-como-el-algebra-lineal-comprime-miles-de-dimensiones-l9p</guid>
+    </item>
+    <item>
+      <title>[翻訳] Passwordless Laravel Auth Is Easy to Demo and Harder to Run Well</title>
+      <description>&lt;p&gt;Passwordless auth sounds like a simplification until you try to run it in a real Laravel product. The UI gets simpler. The security model does not. You remove the password field, but you still have to prove identity, prevent replay, handle hostile email infrastructure, preserve decent UX across devices, and give support a way to debug failures without turning into a manual override team.&lt;/p&gt;
+
+&lt;p&gt;That is why most magic-link examples are fine for prototypes and incomplete for production. They focus on generating a signed URL and calling &lt;code&gt;Auth::login()&lt;/code&gt; when it is opened. That is the easy part. The hard part is everything around the click.&lt;/p&gt;
+
+&lt;p&gt;My recommendation is blunt: &lt;strong&gt;do not implement passwordless auth in Laravel as a “special login link” feature. Implement it as a short-lived authentication workflow with explicit state, single-use consumption, step-up hooks, and support visibility.&lt;/strong&gt; If you skip those layers, you are not shipping passwordless auth. You are shipping a bearer token in an email and hoping the rest works out.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The first threat is often your user's email security stack
+&lt;/h2&gt;
+
+&lt;p&gt;A lot of magic-link writeups quietly assume the first request to the link comes from the human who owns the inbox. In production, that assumption breaks fast.&lt;/p&gt;
+
+&lt;p&gt;Enterprise email systems, secure mail gateways, antivirus products, browser preview services, and mobile mail clients often prefetch links. Some do it to scan for malware. Some do it to build previews. Some follow redirects. If your Laravel route performs the login on the first &lt;code&gt;GET&lt;/code&gt;, one of those automated actors can consume the credential before the user even sees the email.&lt;/p&gt;
+
+&lt;p&gt;That creates a failure mode that feels bizarre to users. They click the email one minute later and see “link expired” or “token already used.” From their perspective, your auth is broken. From your perspective, it worked exactly once, just not for the person you intended.&lt;/p&gt;
+
+&lt;p&gt;This is why &lt;strong&gt;magic-link login should almost never be consume-on-GET in a serious app&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Use email links to resume a flow, not to finish it
+&lt;/h3&gt;
+
+&lt;p&gt;A better pattern is simple:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;User requests passwordless sign-in.&lt;/li&gt;
+&lt;li&gt;You create a login attempt record in the database.&lt;/li&gt;
+&lt;li&gt;You email a signed URL that identifies that attempt.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;GET&lt;/code&gt; request validates the link and renders a confirmation page.&lt;/li&gt;
+&lt;li&gt;A deliberate &lt;code&gt;POST&lt;/code&gt; consumes the attempt and creates the session.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;That extra round-trip is not busywork. It is what separates “clickable email token” from “scanner-resistant auth flow.” Automated scanners are very good at issuing &lt;code&gt;GET&lt;/code&gt; requests. They are much worse at completing a CSRF-protected browser form in the same session context.&lt;/p&gt;
+
+&lt;p&gt;A minimal route shape in Laravel can look like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight php"&gt;&lt;code&gt;&lt;span class="nc"&gt;Route&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;middleware&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'guest'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;group&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;function&lt;/span&gt; &lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nc"&gt;Route&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;post&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'/login/passwordless'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;RequestMagicLinkController&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;middleware&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'throttle:5,1'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'passwordless.request'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="nc"&gt;Route&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'/login/passwordless/{attempt}'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;ShowMagicLinkController&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;middleware&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'signed'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'passwordless.show'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="nc"&gt;Route&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;post&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'/login/passwordless/{attempt}'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;ConsumeMagicLinkController&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;middleware&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="s1"&gt;'signed'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'throttle:6,1'&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'passwordless.consume'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The important design choice is not the route naming. It is the separation of concerns.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The email link proves the user reached the mailbox.&lt;/li&gt;
+&lt;li&gt;The confirmation POST proves a browser session intentionally completed the flow.&lt;/li&gt;
+&lt;li&gt;Your application decides whether that is enough for full access or only enough for provisional access.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;
+  
+  
+  Signed URLs are useful, but not sufficient
+&lt;/h3&gt;
+
+&lt;p&gt;Laravel's &lt;a href="https://laravel.com/docs/urls#signed-urls" rel="noopener noreferrer"&gt;signed URL support&lt;/a&gt; is absolutely worth using here. It protects query integrity and expiration. But it does not solve the full problem.&lt;/p&gt;
+
+&lt;p&gt;A signed URL does &lt;strong&gt;not&lt;/strong&gt; make the underlying login attempt single-use. It does not tell you whether a link was consumed by a scanner. It does not stop a forwarded email from being reused inside its lifetime. It does not decide whether a new device should be trusted.&lt;/p&gt;
+
+&lt;p&gt;That distinction matters because teams often mistake “cryptographically signed” for “production-ready.” Those are different claims.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The core object is not the link. It is the login attempt
+&lt;/h2&gt;
+
+&lt;p&gt;If you want passwordless auth to survive production, you need a first-class persistence model for the flow. The link should point to a login attempt record, not carry the whole security story inside the URL.&lt;/p&gt;
+
+&lt;p&gt;A reasonable schema usually includes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;id&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;user_id&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;token_hash&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;expires_at&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;consumed_at&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;requested_ip&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;requested_user_agent&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;requested_at&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;redirect_to&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;device_label&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;risk_flags&lt;/code&gt; or equivalent JSON metadata&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The token itself should be random, short-lived, and stored only as a hash. Treat it the same way you treat reset tokens: the raw secret exists only long enough to email it.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Hash the token and keep the URL boring
+&lt;/h3&gt;
+
+&lt;p&gt;You do not need a clever token format. You need an unpredictable one.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight php"&gt;&lt;code&gt;&lt;span class="kn"&gt;use&lt;/span&gt; &lt;span class="nc"&gt;Illuminate\Support\Str&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="nv"&gt;$plainToken&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Str&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;64&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="nv"&gt;$attempt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;MagicLoginAttempt&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;create&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;
+    &lt;span class="s1"&gt;'user_id'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nv"&gt;$user&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s1"&gt;'token_hash'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;hash&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'sha256'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;$plainToken&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="s1"&gt;'expires_at'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;now&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;addMinutes&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="s1"&gt;'requested_ip'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;request&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;ip&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt;
+    &lt;span class="s1"&gt;'requested_user_agent'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;substr&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nf"&gt;request&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;userAgent&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="s1"&gt;'redirect_to'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;'/dashboard'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;]);&lt;/span&gt;
+
+&lt;span class="nv"&gt;$url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;URL&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;temporarySignedRoute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s1"&gt;'passwordless.show'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;expires_at&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="s1"&gt;'attempt'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s1"&gt;'token'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nv"&gt;$plainToken&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;That is enough. Resist the urge to encode user data, device hints, or trust semantics into the token itself. Put state in the database where you can revoke it, inspect it, and reason about it.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  One active attempt or many?
+&lt;/h3&gt;
+
+&lt;p&gt;This is an architectural choice worth making explicitly.&lt;/p&gt;
+
+&lt;p&gt;If a user requests five links in ten minutes, what should happen?&lt;/p&gt;
+
+&lt;p&gt;The easy answer is to allow all of them until they expire. The operationally cleaner answer is usually to invalidate older pending attempts when a newer one is issued, especially for low-friction consumer flows. That reduces confusion and gives support a clearer story: “only the latest email works.”&lt;/p&gt;
+
+&lt;p&gt;For B2B apps, I prefer one of these two policies:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Single active attempt per user&lt;/strong&gt; for standard sign-in.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Scoped active attempts&lt;/strong&gt; when you want parallel flows, such as one for web login and one for privileged action confirmation.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;What I would avoid is laissez-faire token issuance with overlapping validity windows. That produces the exact support tickets you do not want.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Replay protection is the part that separates demos from systems
+&lt;/h2&gt;
+
+&lt;p&gt;A magic link is a bearer credential. That means whoever presents it first within the allowed window may gain access unless you design the consumption step carefully.&lt;/p&gt;
+
+&lt;p&gt;The minimum bar is straightforward:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;the token must be single-use&lt;/li&gt;
+&lt;li&gt;token consumption must be atomic&lt;/li&gt;
+&lt;li&gt;successful login must rotate the session&lt;/li&gt;
+&lt;li&gt;second use must fail cleanly, not race unpredictably&lt;/li&gt;
+&lt;li&gt;old attempts should not remain ambiguously “sort of valid”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;
+  
+  
+  Consume with an atomic state transition
+&lt;/h3&gt;
+
+&lt;p&gt;The most common bug in homemade passwordless auth is loading a valid attempt, checking it, and then updating it later in a way that allows two near-simultaneous requests to succeed.&lt;/p&gt;
+
+&lt;p&gt;The right mental model is not “validate then login.” It is “win the one-time state transition, then login.”&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight php"&gt;&lt;code&gt;&lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; &lt;span class="n"&gt;__invoke&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;Request&lt;/span&gt; &lt;span class="nv"&gt;$request&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="nv"&gt;$attemptId&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nv"&gt;$attempt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;MagicLoginAttempt&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;query&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;whereKey&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$attemptId&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;where&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'expires_at'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'&amp;gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nf"&gt;now&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;firstOrFail&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+    &lt;span class="nf"&gt;abort_unless&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="nb"&gt;hash_equals&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;token_hash&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;hash&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'sha256'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nv"&gt;$request&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'token'&lt;/span&gt;&lt;span class="p"&gt;))),&lt;/span&gt;
+        &lt;span class="mi"&gt;403&lt;/span&gt;
+    &lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="nv"&gt;$updated&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;MagicLoginAttempt&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;query&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;whereKey&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;whereNull&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'consumed_at'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;where&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'expires_at'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'&amp;gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nf"&gt;now&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+        &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;update&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;
+            &lt;span class="s1"&gt;'consumed_at'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;now&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt;
+            &lt;span class="s1"&gt;'consumed_ip'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nv"&gt;$request&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;ip&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt;
+            &lt;span class="s1"&gt;'consumed_user_agent'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;substr&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nv"&gt;$request&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;userAgent&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="p"&gt;]);&lt;/span&gt;
+
+    &lt;span class="nf"&gt;abort_if&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$updated&lt;/span&gt; &lt;span class="o"&gt;!==&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;409&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'This sign-in link is no longer valid.'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+    &lt;span class="nc"&gt;Auth&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;loginUsingId&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;remember&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nv"&gt;$request&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;session&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;regenerate&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nf"&gt;app&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;PostMagicLoginRedirector&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;handle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$request&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;That update call is doing the real work. Only one request gets to transition the attempt from pending to consumed.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Do not overfit to IP and user agent
+&lt;/h3&gt;
+
+&lt;p&gt;A lot of teams see replay risk and immediately try to bind the flow to IP address or browser fingerprint. That sounds strong until real users hit it from mobile networks, privacy-preserving browsers, VPNs, or email apps that hand off to a different browser instance.&lt;/p&gt;
+
+&lt;p&gt;My advice is to treat those signals as &lt;strong&gt;risk indicators, not absolute truth&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Good uses of those signals:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;require extra confirmation if the consume request is materially different from the request that created the attempt&lt;/li&gt;
+&lt;li&gt;downgrade trust for the resulting session&lt;/li&gt;
+&lt;li&gt;add audit metadata&lt;/li&gt;
+&lt;li&gt;trigger step-up auth for sensitive accounts&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Bad uses:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;hard-block normal device transitions&lt;/li&gt;
+&lt;li&gt;permanently deny login because the IP changed between request and click&lt;/li&gt;
+&lt;li&gt;pretend browser fingerprints are stable enough to be identity proof&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Passwordless auth gets worse, not better, when you replace passwords with brittle environmental checks.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Expiration should reflect attack window, not developer convenience
+&lt;/h3&gt;
+
+&lt;p&gt;Fifteen minutes is a common default because it feels reasonable, and for many apps it is. But do not pick a TTL because it appears in tutorials. Pick it because it matches the risk of the action.&lt;/p&gt;
+
+&lt;p&gt;A low-privilege product login can often tolerate a short-lived email token. A billing confirmation or admin access flow should usually have a narrower window and stronger follow-up checks.&lt;/p&gt;
+
+&lt;p&gt;The right question is not “what expiry do other apps use?” It is “how much damage can a leaked email link do before it expires?”&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Device trust and step-up auth are where the architecture gets real
+&lt;/h2&gt;
+
+&lt;p&gt;A lot of teams imagine passwordless as a replacement for the entire auth stack. That is the wrong framing for any app with meaningful account value.&lt;/p&gt;
+
+&lt;p&gt;In practice, passwordless auth is usually your &lt;strong&gt;primary login factor&lt;/strong&gt;, not your entire authorization model. Once the user proves inbox access, you still need a policy for new devices, risky sessions, privileged actions, and recovery.&lt;/p&gt;
+
+&lt;p&gt;This is where many Laravel apps should stop improvising and let &lt;strong&gt;Fortify&lt;/strong&gt; handle the second-factor layer.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Magic link first, Fortify second
+&lt;/h3&gt;
+
+&lt;p&gt;If you already use &lt;a href="https://laravel.com/docs/fortify" rel="noopener noreferrer"&gt;Laravel Fortify&lt;/a&gt;, the clean approach is to keep concerns separate:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;passwordless flow establishes baseline identity&lt;/li&gt;
+&lt;li&gt;Fortify handles TOTP or other second-factor challenge when required&lt;/li&gt;
+&lt;li&gt;trusted-device state influences whether challenge can be skipped&lt;/li&gt;
+&lt;li&gt;authorization gates for sensitive actions still check current assurance level&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That design matters because it lets you avoid a common anti-pattern: stuffing every security decision into the magic-link controller.&lt;/p&gt;
+
+&lt;p&gt;The magic-link flow should answer one question: &lt;em&gt;did this user complete a valid email-based sign-in attempt?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Fortify and your trust policy should answer the next question: &lt;em&gt;is this session strong enough for the thing they are trying to do?&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Provisional sessions are underrated
+&lt;/h3&gt;
+
+&lt;p&gt;A clean way to integrate the handoff is to create a real authenticated session after successful token consumption, but mark it as &lt;strong&gt;provisional&lt;/strong&gt; until required step-up checks pass.&lt;/p&gt;
+
+&lt;p&gt;For example, after &lt;code&gt;Auth::loginUsingId()&lt;/code&gt;, you can set session metadata like:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;auth_method=passwordless_email&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;auth_assurance=low&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;step_up_required=true&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;trusted_device=false&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Then middleware or your redirect layer can decide whether the user goes straight to the dashboard, to the Fortify challenge, or to a limited-access screen.&lt;/p&gt;
+
+&lt;p&gt;That gives you a lot more control than treating auth as a binary “logged in or not” state.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Trusted device should be revocable server state
+&lt;/h3&gt;
+
+&lt;p&gt;The lazy version of trusted device is a permanent cookie that says “do not ask again.” That is convenient and weak.&lt;/p&gt;
+
+&lt;p&gt;A better version is:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;a random device token stored as a hashed record server-side&lt;/li&gt;
+&lt;li&gt;an &lt;code&gt;expires_at&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;a label the user can understand, like “MacBook Pro, Chrome”&lt;/li&gt;
+&lt;li&gt;a &lt;code&gt;last_seen_at&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;a way to revoke all or one device from account settings&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That lets you preserve smooth repeat sign-in without making trust irreversible.&lt;/p&gt;
+
+&lt;p&gt;The policy should also be narrower than most teams first imagine. Trusted device should usually reduce friction for routine access. It should &lt;strong&gt;not&lt;/strong&gt; silently authorize sensitive actions forever.&lt;/p&gt;
+
+&lt;p&gt;A practical policy might look like this:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ordinary product access: allow with passwordless login&lt;/li&gt;
+&lt;li&gt;new device on admin account: require Fortify challenge&lt;/li&gt;
+&lt;li&gt;billing change or API key creation: require recent step-up regardless of trusted device&lt;/li&gt;
+&lt;li&gt;team ownership transfer: require fresh challenge, always&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That is the difference between “passwordless login” and “passwordless security theater.”&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Support and observability determine whether the system survives launch
+&lt;/h2&gt;
+
+&lt;p&gt;The first time passwordless auth fails, support will learn more about your design than your developers did.&lt;/p&gt;
+
+&lt;p&gt;Users do not file tickets that say “I suspect your token consumption semantics are vulnerable to prefetch races.” They say things like:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;“the link did not work”&lt;/li&gt;
+&lt;li&gt;“I got logged out and the new email also failed”&lt;/li&gt;
+&lt;li&gt;“it says already used”&lt;/li&gt;
+&lt;li&gt;“I’m on a new laptop and now I’m stuck”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If your team cannot reconstruct the flow quickly, they will start inventing manual fixes. That is where insecure operational habits are born.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Log events across the lifecycle
+&lt;/h3&gt;
+
+&lt;p&gt;At minimum, emit structured events for:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;login attempt created&lt;/li&gt;
+&lt;li&gt;email dispatch attempted&lt;/li&gt;
+&lt;li&gt;email dispatch succeeded or failed&lt;/li&gt;
+&lt;li&gt;landing route viewed&lt;/li&gt;
+&lt;li&gt;consume requested&lt;/li&gt;
+&lt;li&gt;consume rejected with reason&lt;/li&gt;
+&lt;li&gt;session created&lt;/li&gt;
+&lt;li&gt;Fortify challenge initiated&lt;/li&gt;
+&lt;li&gt;challenge completed or failed&lt;/li&gt;
+&lt;li&gt;trusted device granted, refreshed, revoked&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The events do not need to be fancy. They need to be correlated.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight php"&gt;&lt;code&gt;&lt;span class="nc"&gt;MagicLinkRequested&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;dispatch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;$user&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nc"&gt;MagicLinkEmailSent&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;dispatch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;$user&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nc"&gt;MagicLinkViewed&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;dispatch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nf"&gt;request&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;ip&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
+&lt;span class="nc"&gt;MagicLinkConsumeRejected&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;dispatch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'expired'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nc"&gt;MagicLinkConsumed&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;dispatch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$attempt&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;$user&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nc"&gt;StepUpChallengeRequired&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;dispatch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$user&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nf"&gt;session&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="nf"&gt;getId&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
+&lt;span class="nc"&gt;TrustedDeviceGranted&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="nf"&gt;dispatch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$user&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;$device&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;What matters is that a support engineer or developer can inspect a timeline and answer basic questions without guessing.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Build for common failure stories, not just malicious ones
+&lt;/h3&gt;
+
+&lt;p&gt;The most frequent problems are usually operational, not adversarial:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;the user clicked the oldest of several emails&lt;/li&gt;
+&lt;li&gt;the corporate mail gateway prefetched the link&lt;/li&gt;
+&lt;li&gt;the user opened the email on mobile but expected the desktop browser to be logged in&lt;/li&gt;
+&lt;li&gt;the device changed and step-up auth was required unexpectedly&lt;/li&gt;
+&lt;li&gt;the email delivery lag exceeded the token TTL&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Your system should be opinionated about these cases.&lt;/p&gt;
+
+&lt;p&gt;For example, if you detect that an already-consumed attempt was first viewed by a mail-security user agent before the real browser arrived, your UI can say something useful instead of a generic failure message: “Your email security scanner may have opened this sign-in link. Request a new one.”&lt;/p&gt;
+
+&lt;p&gt;That is not just better UX. It reduces pointless support volume.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Recovery policy is part of the auth design
+&lt;/h3&gt;
+
+&lt;p&gt;Passwordless auth fails hardest when inbox access is degraded or lost. If the user's email is unavailable and their trusted device is gone, what happens next?&lt;/p&gt;
+
+&lt;p&gt;You need that answer before launch.&lt;/p&gt;
+
+&lt;p&gt;Good recovery design usually includes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;a clear operator policy for what support may and may not do&lt;/li&gt;
+&lt;li&gt;audited device revocation and session revocation&lt;/li&gt;
+&lt;li&gt;strong identity proof requirements before account recovery&lt;/li&gt;
+&lt;li&gt;explicit separation between “resend login flow” and “override security controls”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;What I would avoid is first-line support having the power to casually disable two-factor settings or impersonate users. That turns your help desk into the weakest part of the auth stack.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What I would actually ship in a Laravel app
+&lt;/h2&gt;
+
+&lt;p&gt;If I were replacing passwords in a real Laravel product today, I would keep the design deliberately boring.&lt;/p&gt;
+
+&lt;p&gt;The implementation would have these properties:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;email links resume a flow on &lt;code&gt;GET&lt;/code&gt;; they do not log users in directly&lt;/li&gt;
+&lt;li&gt;login attempts are stored server-side with hashed tokens and explicit lifecycle fields&lt;/li&gt;
+&lt;li&gt;only the latest standard sign-in attempt remains valid unless there is a clear reason otherwise&lt;/li&gt;
+&lt;li&gt;token consumption happens on &lt;code&gt;POST&lt;/code&gt; with CSRF protection and atomic single-use update&lt;/li&gt;
+&lt;li&gt;successful consumption regenerates the session immediately&lt;/li&gt;
+&lt;li&gt;the resulting session carries an assurance level, not just a yes/no login state&lt;/li&gt;
+&lt;li&gt;Fortify handles step-up auth instead of homemade challenge logic scattered across controllers&lt;/li&gt;
+&lt;li&gt;trusted-device records are revocable, expiring, and backed by server state&lt;/li&gt;
+&lt;li&gt;sensitive actions require recent assurance, not just any authenticated session&lt;/li&gt;
+&lt;li&gt;support can inspect the full event trail without ever seeing raw tokens&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That is not the shortest path to “passwordless.” It is the shortest path I would trust.&lt;/p&gt;
+
+&lt;p&gt;Magic links are valuable. They remove password reset churn, reduce credential-stuffing exposure, and often improve the first-login experience. Those are real wins. But they are only wins if the surrounding system is tighter than the password flow you replaced.&lt;/p&gt;
+
+&lt;p&gt;The decision rule is simple: &lt;strong&gt;if your Laravel passwordless auth can be consumed by a scanner, replayed by a second request, trusted forever on the wrong device, or debugged only by guesswork, you have not finished the design.&lt;/strong&gt; The magic link is not the hard part. The operational model is.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;Read the full post on QCode: &lt;a href="https://qcode.in/passwordless-laravel-auth-magic-links-are-not-the-hard-part/" rel="noopener noreferrer"&gt;https://qcode.in/passwordless-laravel-auth-magic-links-are-not-the-hard-part/&lt;/a&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/saqueib/passwordless-laravel-auth-is-easy-to-demo-and-harder-to-run-well-15fm</link>
+      <pubDate>Fri, 17 Jul 2026 05:08:37 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/saqueib/passwordless-laravel-auth-is-easy-to-demo-and-harder-to-run-well-15fm</guid>
+    </item>
+    <item>
+      <title>[翻訳] We let an AI reviewer approve and merge its own PRs — here's the open-source gate that makes it safe</title>
+      <description>&lt;p&gt;We're building &lt;a href="https://human0.ai" rel="noopener noreferrer"&gt;human0&lt;/a&gt;: a company that runs itself, operated by autonomous AI agents instead of people. Agents write features, open pull requests, and ship them. Which raises the obvious question — &lt;strong&gt;who reviews the code an agent writes before it merges?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;You can't let an agent rubber-stamp its own work. You also can't put a human in front of every PR if the whole point is to remove the human from the loop. So we built an AI reviewer that holds a real bar, and we open-sourced it: &lt;a href="https://github.com/human0-ai/code-review" rel="noopener noreferrer"&gt;human0-ai/code-review&lt;/a&gt; (Apache-2.0).&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What it does
+&lt;/h2&gt;
+
+&lt;p&gt;It's a GitHub Action. On every pull request it:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;reads the &lt;strong&gt;whole&lt;/strong&gt; PR, not just the diff,&lt;/li&gt;
+&lt;li&gt;leaves &lt;strong&gt;inline comments&lt;/strong&gt; on the lines that matter,&lt;/li&gt;
+&lt;li&gt;gives &lt;strong&gt;one verdict&lt;/strong&gt;: approve, or request changes.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;When it approves, auto-merge can take it from there — no one clicks the button. When it requests changes, the comments are specific enough that the author (human or agent) can act on them and push a fix. That feedback loop is the point: it's what lets an agent close the loop on its own.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The bar is one plain-language doc
+&lt;/h2&gt;
+
+&lt;p&gt;There's no rules engine and no config DSL. You write what "good" means for your project in a single Markdown file (&lt;code&gt;docs/ai-review.md&lt;/code&gt;) — your conventions, what to check, what to ignore — in plain English. Want it stricter on tests? Quiet on style? Edit the doc. It also reads your &lt;code&gt;AGENTS.md&lt;/code&gt; / &lt;code&gt;CLAUDE.md&lt;/code&gt;, so house rules you already wrote are enforced for free.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  It runs in your repo, with your key
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Runs entirely in &lt;strong&gt;your&lt;/strong&gt; GitHub Actions. Your code never leaves your repo.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Bring your own key&lt;/strong&gt; — an Anthropic API key or a Claude.ai OAuth token.&lt;/li&gt;
+&lt;li&gt;Apache-2.0, yours end to end.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Setup (the short version)
+&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Add &lt;code&gt;ANTHROPIC_API_KEY&lt;/code&gt; (or &lt;code&gt;CLAUDE_CODE_OAUTH_TOKEN&lt;/code&gt;) to &lt;strong&gt;Settings → Secrets and variables → Actions&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;Drop your standards doc in at &lt;code&gt;docs/ai-review.md&lt;/code&gt; (start from the &lt;a href="https://github.com/human0-ai/template/blob/main/docs/ai-review.md" rel="noopener noreferrer"&gt;template's&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;Enable &lt;strong&gt;"Allow GitHub Actions to create and approve pull requests"&lt;/strong&gt; in Actions settings.&lt;/li&gt;
+&lt;li&gt;Add the workflow:
+&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;AI Review&lt;/span&gt;
+&lt;span class="na"&gt;on&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;pull_request&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;types&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;opened&lt;/span&gt;&lt;span class="pi"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;synchronize&lt;/span&gt;&lt;span class="pi"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;ready_for_review&lt;/span&gt;&lt;span class="pi"&gt;]&lt;/span&gt;
+&lt;span class="na"&gt;permissions&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;contents&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;write&lt;/span&gt;
+  &lt;span class="na"&gt;pull-requests&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;write&lt;/span&gt;
+  &lt;span class="na"&gt;checks&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;read&lt;/span&gt;
+&lt;span class="na"&gt;jobs&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;review&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;runs-on&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ubuntu-latest&lt;/span&gt;
+    &lt;span class="na"&gt;steps&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;uses&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;actions/checkout@v4&lt;/span&gt;
+        &lt;span class="na"&gt;with&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+          &lt;span class="na"&gt;ref&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;${{ github.event.pull_request.head.sha }}&lt;/span&gt;
+          &lt;span class="na"&gt;fetch-depth&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;uses&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;human0-ai/code-review@v1&lt;/span&gt;
+        &lt;span class="na"&gt;with&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+          &lt;span class="na"&gt;anthropic_api_key&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;${{ secrets.ANTHROPIC_API_KEY }}&lt;/span&gt;
+          &lt;span class="na"&gt;github_token&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;${{ github.token }}&lt;/span&gt;
+          &lt;span class="na"&gt;pr_number&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;${{ github.event.pull_request.number }}&lt;/span&gt;
+          &lt;span class="na"&gt;head_sha&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;${{ github.event.pull_request.head.sha }}&lt;/span&gt;
+          &lt;span class="na"&gt;repo&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;${{ github.repository }}&lt;/span&gt;
+          &lt;span class="na"&gt;prompt_file&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;docs/ai-review.md&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Open a PR and it reviews the next push.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Honest limitations
+&lt;/h2&gt;
+
+&lt;p&gt;It's only as good as the underlying model and your standards doc. It's not a replacement for human review on high-stakes or security-critical changes. And large diffs cost real API tokens — this isn't free.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Want the whole loop?
+&lt;/h2&gt;
+
+&lt;p&gt;This action is just the gate. If you want the full autonomous build → review → merge machine, start from the &lt;a href="https://github.com/human0-ai/template" rel="noopener noreferrer"&gt;human0 template&lt;/a&gt; — describe a change, an agent builds it, the reviewer checks it, and it ships itself.&lt;/p&gt;
+
+&lt;p&gt;It's the same reviewer that gates every PR that builds human0 itself. Repo: &lt;a href="https://github.com/human0-ai/code-review" rel="noopener noreferrer"&gt;https://github.com/human0-ai/code-review&lt;/a&gt; — feedback and issues welcome.&lt;/p&gt;</description>
+      <link>https://dev.to/human0ai_dev/we-let-an-ai-reviewer-approve-and-merge-its-own-prs-heres-the-open-source-gate-that-makes-it-safe-5cf2</link>
+      <pubDate>Fri, 17 Jul 2026 05:06:39 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/human0ai_dev/we-let-an-ai-reviewer-approve-and-merge-its-own-prs-heres-the-open-source-gate-that-makes-it-safe-5cf2</guid>
+    </item>
+    <item>
+      <title>[翻訳] Las tres vidas de mi clave de firma JWT</title>
+      <description>&lt;p&gt;Una sola clave privada firma todos los tokens que emite nuestro servidor de autenticación. Piérdela y un atacante acuña un token válido para cualquier usuario, sin necesidad de contraseña, y tus registros muestran un inicio de sesión impecable. Es el secreto más valioso de todo el sistema y, a lo largo de su vida, se ha mudado dos veces: nació dentro del proceso de la aplicación, luego fue desterrada a una bóveda de la que ya no puede salir y después se reencarnó en un tipo de clave completamente distinto. Cada mudanza ocurrió en un emisor en producción, con tokens ya en circulación y validadores que cachean un estado que no controlamos. Esto es lo que realmente cuestan esas mudanzas, y la que más nos enseñó fue la que no anunciamos.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Vida uno: la clave que el servidor guardaba en el bolsillo
+&lt;/h2&gt;
+
+&lt;p&gt;Al principio, la clave vivía donde se usaba. El servidor generaba una clave RSA-2048, la mantenía en memoria y firmaba sus tokens con RS256. Este es el comportamiento por defecto en casi todas partes, y funciona bien hasta el momento en que pronuncias en voz alta la palabra &lt;em&gt;custodia&lt;/em&gt;. La clave privada era accesible para cualquier cosa capaz de leer la memoria del proceso, su configuración o una copia de seguridad de cualquiera de las dos. Queríamos poder decirles a los clientes que una base de datos filtrada no expone nada útil, y una clave de firma que estaba a un solo proceso de distancia de esa base de datos convertía esa afirmación en una mentira. La clave tenía que salir del edificio.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Vida dos: la clave que se mudó a una bóveda de la que no puede salir
+&lt;/h2&gt;
+
+&lt;p&gt;Introdujimos una costura —un &lt;code&gt;ISignatureProvider&lt;/code&gt; al que el servidor llama cada vez que necesita una firma— y pusimos un KMS detrás. Ahora la clave se genera &lt;em&gt;dentro&lt;/em&gt; del motor transit de Vault y nunca se exporta. La aplicación no la posee; envía a la bóveda los bytes que hay que firmar y recibe de vuelta una firma. Puede &lt;em&gt;usar&lt;/em&gt; la clave, pero no puede &lt;em&gt;exfiltrarla&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Esa distinción es todo el quid del asunto. Un volcado de memoria, un archivo de configuración derramado, una copia de seguridad filtrada: ninguno de ellos contiene ya la clave, porque la clave nunca estuvo en ninguno de esos lugares. Comprometer la aplicación ahora le compra al atacante la capacidad de &lt;em&gt;pedirle a la bóveda que firme&lt;/em&gt;, algo que podemos limitar por tasa, auditar y revocar. Ya no le compra la clave en sí, que era algo sobre lo que no podíamos hacer nada una vez que desaparecía.&lt;/p&gt;
+
+&lt;p&gt;Aquí viene la parte que no incluimos en las notas de la versión. El mismo commit que trasladó la clave a la bóveda también, sin hacer ruido, redujo a la mitad nuestro número de iteraciones de PBKDF2, de 100.000 a 50.000. Un solo diff, dos cambios de seguridad que apuntaban en direcciones opuestas: el titular era «firmar en el KMS», y viajando por debajo iba un factor de trabajo de hash de contraseñas reducido a la mitad, en una línea que nadie miraba porque la historia trataba de otra cosa. Ambos son código de seguridad, así que ambos se revisaron como un único cambio «más seguro» y se aprobaron sin más gracias a la solidez de la mitad buena.&lt;/p&gt;
+
+&lt;p&gt;La corrección fue de una línea. La lección no. Un diff etiquetado como &lt;em&gt;más seguro&lt;/em&gt; sigue siendo un diff, y las constantes sensibles a la seguridad que contiene —número de iteraciones, tamaños de clave, tiempos de espera, nombres de algoritmos— no heredan una aureola del mensaje del commit. Ahora tratamos un número de factor de trabajo igual que tratamos la elección de un algoritmo: algo que se afirma y se verifica, no algo en lo que confías porque el cambio que lo rodeaba era una buena idea.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Vida tres: la clave que se hizo más pequeña para ser más rápida
+&lt;/h2&gt;
+
+&lt;p&gt;Con la firma detrás de un KMS, cada firma es un viaje de ida y vuelta por la red, y firmar con RSA es de las operaciones caras. Así que la clave cambió de especie: RS256 sobre RSA-2048 pasó a ser ES256 sobre la curva P-256. Firmar con curva elíptica es aproximadamente un orden de magnitud más barato que con RSA, una firma P-256 ocupa 64 bytes donde la de RSA-2048 ocupa 256, y el conjunto de claves públicas que descargan los validadores encoge en consecuencia. Clave más pequeña, firma más pequeña, JWKS más pequeño, tokens más rápidos: todo por elegir una curva mejor.&lt;/p&gt;
+
+&lt;p&gt;La trampa es que no puedes cambiar de golpe el algoritmo de firma en un emisor en producción. Todos los tokens ya emitidos se firmaron con RS256 y tienen que seguir validándose hasta que caduquen. Cada validador tiene cacheada tu clave pública antigua. Cambia el algoritmo de un solo movimiento e invalidarás, en el mismo instante, todos los tokens en circulación y todos los conjuntos de claves cacheados: una caída autoinfligida disfrazada de mejora.&lt;/p&gt;
+
+&lt;p&gt;Lo que funcionó fue dejar de fingir que alguna vez hubo una sola clave. El almacén de claves se volvió agnóstico respecto al algoritmo: mantiene la clave RSA y la clave EC al mismo tiempo, y publica ambas en el JWKS, cada una bajo su propio identificador de clave y su propio algoritmo. Un &lt;em&gt;selector&lt;/em&gt; de clave activa, independiente, decide qué clave firma los nuevos tokens, y se aparta por sí solo de la vieja clave RSA en el momento en que existe una clave EC: sin ninguna opción de configuración, sin ningún despliegue programado para coincidir con una rotación. Durante el solapamiento, el documento de discovery anuncia ambas claves públicas, de modo que los tokens firmados con cualquiera de las dos siguen validándose. Una vez que ha caducado el último token RS256, discovery anuncia solo ES256 y la validación fija &lt;code&gt;ValidAlgorithms = ES256&lt;/code&gt;, lo que además le cierra la puerta en las narices a los ataques de confusión de algoritmo que intentan convencer a un validador de que acepte el esquema equivocado. La migración es un fundido cruzado que el emisor realiza sobre sí mismo, no un interruptor que alguien acciona.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  La lección, factorizada
+&lt;/h2&gt;
+
+&lt;p&gt;Una clave de firma parece una constante: un secreto, establecido una vez, referenciado para siempre. La nuestra no lo era. A lo largo de su vida cambió de custodia, del proceso a un KMS, y cambió de especie, de RSA a curva elíptica, y ambas mudanzas hubo que hacerlas con tokens en circulación y validadores cacheando cosas que no nos pertenecen. La propiedad que hizo sobrevivible cada mudanza fue la misma en ambas ocasiones: el sistema nunca dio por sentado que hubiera exactamente una clave, un algoritmo o un hogar. Construye el almacén de claves para que albergue varias claves y para que anuncie con honestidad cuáles alberga, y la rotación —de dónde vive la clave o de qué tipo de clave se trata— deja de ser una caída que programas y se convierte en una propiedad que el emisor gestiona por su cuenta.&lt;/p&gt;
+
+&lt;p&gt;Si gestionas la autenticación, aquello que firma tus tokens debería ser el objeto más aburrido, más inspeccionable y menos ingenioso que poseas. Al nuestro le hicieron falta tres vidas para llegar ahí. Valió la pena cada una de ellas.&lt;/p&gt;</description>
+      <link>https://dev.to/authagonal/las-tres-vidas-de-mi-clave-de-firma-jwt-4enk</link>
+      <pubDate>Fri, 17 Jul 2026 05:02:18 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/authagonal/las-tres-vidas-de-mi-clave-de-firma-jwt-4enk</guid>
+    </item>
+    <item>
+      <title>[翻訳] The three lives of my JWT signing key</title>
+      <description>&lt;p&gt;One private key signs every token our auth server issues. Lose it and an attacker mints a valid token for any user, no password required, and your logs show a clean login. It is the single most valuable secret in the system, and over its life it has moved twice: it was born inside the application process, then exiled to a vault it can no longer leave, then reincarnated as a different kind of key entirely. Each move happened on a live issuer with tokens already in flight and validators caching state we don't control. This is what those moves actually take, and the one that taught us the most was the one we didn't announce.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Life one: the key the server kept in its pocket
+&lt;/h2&gt;
+
+&lt;p&gt;In the beginning the key lived where it was used. The server generated an RSA-2048 key, held it in memory, and signed its tokens with RS256. This is the default almost everywhere, and it is fine right up until you say the word &lt;em&gt;custody&lt;/em&gt; out loud. The private key was reachable by anything that could read the process's memory, its configuration, or a backup of either. We wanted to be able to tell customers that a leaked database exposes nothing useful, and a signing key sitting one process away from that database made the claim a lie. The key had to leave the building.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Life two: the key that moved into a vault it can't leave
+&lt;/h2&gt;
+
+&lt;p&gt;We introduced a seam — an &lt;code&gt;ISignatureProvider&lt;/code&gt; the server calls whenever it needs a signature — and put a KMS behind it. The key is now generated &lt;em&gt;inside&lt;/em&gt; Vault's transit engine and never exported. The application doesn't hold it; it sends the bytes to be signed to the vault and gets a signature back. It can &lt;em&gt;use&lt;/em&gt; the key and it cannot &lt;em&gt;exfiltrate&lt;/em&gt; it.&lt;/p&gt;
+
+&lt;p&gt;That distinction is the whole point. A memory dump, a spilled config file, a leaked backup — none of them contain the key anymore, because the key was never in any of those places. Compromising the application now buys an attacker the ability to &lt;em&gt;ask the vault to sign&lt;/em&gt;, which we can rate-limit, audit, and revoke. It no longer buys them the key itself, which we could do nothing about once it was gone.&lt;/p&gt;
+
+&lt;p&gt;Here is the part we didn't put in the release notes. The same commit that moved the key into the vault also quietly halved our PBKDF2 iteration count, from 100,000 down to 50,000. One diff, two security changes pointing in opposite directions: the headline was "sign in the KMS," and riding underneath it was a password-hashing work factor cut in half, in a line nobody was looking at because the story was about something else. Both are security code, so both got reviewed as a single "more secure" change and waved through on the strength of the good half.&lt;/p&gt;
+
+&lt;p&gt;The fix was one line. The lesson wasn't. A diff labelled &lt;em&gt;more secure&lt;/em&gt; is still a diff, and the security-sensitive constants inside it — iteration counts, key sizes, timeouts, algorithm names — don't inherit a halo from the commit message. We now treat a work-factor number the same way we treat a choice of algorithm: something asserted and checked, not something you trust because the surrounding change was a good idea.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Life three: the key that got smaller to get faster
+&lt;/h2&gt;
+
+&lt;p&gt;With signing behind a KMS, every signature is a network round-trip, and RSA signing is the expensive kind. So the key changed species: RS256 over RSA-2048 became ES256 over the P-256 curve. Elliptic-curve signing is roughly an order of magnitude cheaper than RSA, a P-256 signature is 64 bytes where RSA-2048's is 256, and the public key set validators download shrinks accordingly. Smaller key, smaller signature, smaller JWKS, faster tokens — all from picking a better curve.&lt;/p&gt;
+
+&lt;p&gt;The catch is that you cannot flip-swap the signing algorithm on a live issuer. Every token already issued was signed RS256 and has to keep validating until it expires. Every validator has your old public key cached. Change the algorithm in one move and you invalidate every token in flight and every cached key set at the same instant — a self-inflicted outage dressed up as an upgrade.&lt;/p&gt;
+
+&lt;p&gt;What worked was to stop pretending there was ever only one key. The key store went algorithm-agnostic: it holds the RSA key and the EC key at the same time, and publishes both in the JWKS, each under its own key id and algorithm. A separate active-key &lt;em&gt;picker&lt;/em&gt; decides which key signs new tokens, and it rotates itself off the legacy RSA key the moment an EC key exists — no config flag, no deploy timed to line up with a rotation. Through the overlap, discovery advertises both public keys, so tokens signed with either one keep validating. Once the last RS256 token has expired, discovery advertises only ES256 and validation pins &lt;code&gt;ValidAlgorithms = ES256&lt;/code&gt;, which also slams the door on algorithm-confusion attacks that try to talk a validator into accepting the wrong scheme. The migration is a crossfade the issuer performs on itself, not a switch anyone throws.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The lesson, factored out
+&lt;/h2&gt;
+
+&lt;p&gt;A signing key looks like a constant: one secret, set once, referenced forever. Ours wasn't. In its life it changed custody, from the process to a KMS, and it changed species, from RSA to elliptic curve, and both moves had to be made with tokens in flight and validators caching things we don't own. The property that made each move survivable was the same one both times: the system never assumed there was exactly one key, one algorithm, or one home. Build the key store to hold several keys and to honestly advertise which ones it holds, and rotation — of where the key lives or of what kind of key it is — stops being an outage you schedule and becomes a property the issuer manages on its own.&lt;/p&gt;
+
+&lt;p&gt;If you run auth, the thing that signs your tokens should be the most boring, most inspectable, least clever object you own. Ours took three lives to get there. It was worth every one.&lt;/p&gt;</description>
+      <link>https://dev.to/authagonal/the-three-lives-of-my-jwt-signing-key-4j87</link>
+      <pubDate>Fri, 17 Jul 2026 05:02:08 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/authagonal/the-three-lives-of-my-jwt-signing-key-4j87</guid>
+    </item>
+    <item>
+      <title>[翻訳] How I Auto-Resume a Rate-Limited Claude Code Session with PROGRESS.md and Retries</title>
+      <description>&lt;p&gt;My previous post, &lt;a href="https://zenn.dev/bokuwalily/articles/output-token-sentinel" rel="noopener noreferrer"&gt;Making costs visible by monitoring output tokens&lt;/a&gt;, was about &lt;em&gt;stopping&lt;/em&gt; overuse. This time it's the opposite problem: how to &lt;strong&gt;keep waking up a session that has stalled&lt;/strong&gt; — the story of &lt;code&gt;resume-on-ratelimit.sh&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;I got burned more than once by handing a long task to Claude Code, stepping away from my desk, and coming back to find it had halted on a rate limit. Restarting by hand is tedious, and when the restart is delayed, it forgets the earlier context and starts over. This article is a record of how I solved that problem in 20 lines of shell script.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The problem: long tasks stall halfway on rate limits
+&lt;/h2&gt;
+
+&lt;p&gt;When you run a headless task with &lt;code&gt;claude -p&lt;/code&gt;, the process exits non-zero the moment it hits your plan's 5h block or 7d block. Two things go wrong here.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;The record of "how far the task got" disappears&lt;/strong&gt; — a plain re-run starts over from the beginning&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;You don't notice&lt;/strong&gt; — if you're not watching the terminal, you don't even know it stopped&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The pattern I settled on: &lt;strong&gt;use PROGRESS.md as a "handoff ticket" and carry the work forward with &lt;code&gt;--continue&lt;/code&gt; retries.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Using PROGRESS.md as a handoff ticket
+&lt;/h2&gt;
+
+&lt;p&gt;When I hand a task to Claude, I include an instruction in the first prompt: "update PROGRESS.md at each work boundary." Claude naturally follows this, continuously writing completed steps, remaining steps, and notes into the file.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight markdown"&gt;&lt;code&gt;&lt;span class="gh"&gt;# PROGRESS.md（Claude が自動更新）&lt;/span&gt;
+
+&lt;span class="gu"&gt;## 完了&lt;/span&gt;
+&lt;span class="p"&gt;-&lt;/span&gt; [x] 依存パッケージの調査
+&lt;span class="p"&gt;-&lt;/span&gt; [x] ディレクトリ構造の設計
+
+&lt;span class="gu"&gt;## 進行中&lt;/span&gt;
+&lt;span class="p"&gt;-&lt;/span&gt; [ ] 各モジュールのスケルトン生成
+
+&lt;span class="gu"&gt;## 次に実行すること&lt;/span&gt;
+モジュールAのテストを先に書く。設計メモは ./design.md 参照。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;With this in place, the restart prompt can be a single line: &lt;code&gt;"Read PROGRESS.md and continue the interrupted work"&lt;/code&gt;. Claude reads the file and resumes from what's left.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The full resume-on-ratelimit.sh
+&lt;/h2&gt;
+
+&lt;p&gt;Here is the complete script quoted from the real file (&lt;code&gt;~/.claude/scripts/resume-on-ratelimit.sh&lt;/code&gt;).&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;#!/usr/bin/env bash&lt;/span&gt;
+&lt;span class="c"&gt;# レートリミットで止まったら自動で再開するラッパー&lt;/span&gt;
+&lt;span class="c"&gt;# 使い方: bash resume-on-ratelimit.sh [追加の指示]&lt;/span&gt;
+&lt;span class="c"&gt;#         bash resume-on-ratelimit.sh "PROGRESS.mdを読んで作業を再開して"&lt;/span&gt;
+
+&lt;span class="nb"&gt;set&lt;/span&gt; &lt;span class="nt"&gt;-euo&lt;/span&gt; pipefail
+
+&lt;span class="nv"&gt;WAIT_MINUTES&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;WAIT_MINUTES&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="nv"&gt;5&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;
+&lt;span class="nv"&gt;MAX_RETRIES&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;MAX_RETRIES&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="nv"&gt;20&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;
+&lt;span class="nv"&gt;TASK&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;1&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="nv"&gt;PROGRESS&lt;/span&gt;&lt;span class="p"&gt;.mdを読んで中断した作業を続けて。作業済みなら何もしない。&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="nv"&gt;RETRY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;0
+
+notify&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  osascript &lt;span class="nt"&gt;-e&lt;/span&gt; &lt;span class="s2"&gt;"display notification &lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt; with title &lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt;Claude Code&lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; 2&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"[&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;date&lt;/span&gt; &lt;span class="s1"&gt;'+%H:%M'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;] 起動: &lt;/span&gt;&lt;span class="nv"&gt;$TASK&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+
+&lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nv"&gt;$RETRY&lt;/span&gt; &lt;span class="nt"&gt;-lt&lt;/span&gt; &lt;span class="nv"&gt;$MAX_RETRIES&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do
+  if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nv"&gt;$RETRY&lt;/span&gt; &lt;span class="nt"&gt;-eq&lt;/span&gt; 0 &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then
+    &lt;/span&gt;claude &lt;span class="nt"&gt;--dangerously-skip-permissions&lt;/span&gt; &lt;span class="nt"&gt;--continue&lt;/span&gt; &lt;span class="nt"&gt;-p&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$TASK&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+    &lt;span class="nv"&gt;EXIT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$?&lt;/span&gt;
+  &lt;span class="k"&gt;else
+    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"[&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;date&lt;/span&gt; &lt;span class="s1"&gt;'+%H:%M'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;] リトライ &lt;/span&gt;&lt;span class="nv"&gt;$RETRY&lt;/span&gt;&lt;span class="s2"&gt; / &lt;/span&gt;&lt;span class="nv"&gt;$MAX_RETRIES&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+    claude &lt;span class="nt"&gt;--dangerously-skip-permissions&lt;/span&gt; &lt;span class="nt"&gt;--continue&lt;/span&gt; &lt;span class="nt"&gt;-p&lt;/span&gt; &lt;span class="s2"&gt;"PROGRESS.mdを読んで中断した作業を続けて。"&lt;/span&gt;
+    &lt;span class="nv"&gt;EXIT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$?&lt;/span&gt;
+  &lt;span class="k"&gt;fi
+
+  if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nv"&gt;$EXIT&lt;/span&gt; &lt;span class="nt"&gt;-eq&lt;/span&gt; 0 &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then
+    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"[&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;date&lt;/span&gt; &lt;span class="s1"&gt;'+%H:%M'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;] 完了"&lt;/span&gt;
+    notify &lt;span class="s2"&gt;"Claude Code: 作業完了"&lt;/span&gt;
+    &lt;span class="nb"&gt;exit &lt;/span&gt;0
+  &lt;span class="k"&gt;fi
+
+  &lt;/span&gt;&lt;span class="nv"&gt;RETRY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$((&lt;/span&gt;RETRY &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="k"&gt;))&lt;/span&gt;
+  &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"[&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;date&lt;/span&gt; &lt;span class="s1"&gt;'+%H:%M'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;] レートリミット検出 (exit: &lt;/span&gt;&lt;span class="nv"&gt;$EXIT&lt;/span&gt;&lt;span class="s2"&gt;)。&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;WAIT_MINUTES&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;分後にリトライ..."&lt;/span&gt;
+  notify &lt;span class="s2"&gt;"Claude Code: レートリミット。&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;WAIT_MINUTES&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;分後に再開します"&lt;/span&gt;
+  &lt;span class="nb"&gt;sleep&lt;/span&gt; &lt;span class="k"&gt;$((&lt;/span&gt;WAIT_MINUTES &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="m"&gt;60&lt;/span&gt;&lt;span class="k"&gt;))&lt;/span&gt;
+&lt;span class="k"&gt;done
+
+&lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"最大リトライ回数に達しました"&lt;/span&gt;
+notify &lt;span class="s2"&gt;"Claude Code: 最大リトライ超過。手動確認してください"&lt;/span&gt;
+&lt;span class="nb"&gt;exit &lt;/span&gt;1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The whole design fits in a 20-line loop.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The exit code is the only signal for detecting a rate limit
+&lt;/h2&gt;
+
+&lt;p&gt;The &lt;code&gt;claude&lt;/code&gt; command returns exit 0 on a clean finish and non-zero otherwise. As it stands, any exit code other than 0 on a rate limit can be used for the check. I do not strictly separate out "this is the rate-limit-specific code."&lt;/p&gt;
+
+&lt;p&gt;The script's premise is a deliberate simplification: &lt;strong&gt;non-zero = a state that should wait and retry&lt;/strong&gt;. It has the side effect of also retrying tasks that are completely failing, but capping the count with &lt;code&gt;MAX_RETRIES&lt;/code&gt; prevents an infinite loop.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;code&gt;--dangerously-skip-permissions&lt;/code&gt; is essential for unattended operation. Without it, a confirmation prompt appears on every tool use and blocks. That said, when you use this flag, narrow &lt;code&gt;allowedTools&lt;/code&gt; in the prompt or scope it strictly to trusted, task-specific work.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  The MAX_RETRIES guard
+&lt;/h2&gt;
+
+&lt;p&gt;With the defaults &lt;code&gt;MAX_RETRIES=20&lt;/code&gt; and &lt;code&gt;WAIT_MINUTES=5&lt;/code&gt;, it waits for at most &lt;strong&gt;100 minutes (20 × 5 min)&lt;/strong&gt;. A 7d block resets a week later, so in practice these parameters cover "rate limits within a few hours."&lt;/p&gt;
+
+&lt;p&gt;They can be overridden via environment variables, so you can tune them to the situation.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# 10分ごとに最大5回だけ待つ例&lt;/span&gt;
+&lt;span class="nv"&gt;WAIT_MINUTES&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;10 &lt;span class="nv"&gt;MAX_RETRIES&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;5 bash resume-on-ratelimit.sh &lt;span class="s2"&gt;"重いタスク"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;When &lt;code&gt;MAX_RETRIES&lt;/code&gt; is reached, it exits with &lt;code&gt;exit 1&lt;/code&gt; and fires a notification. A parent script or launchd can catch this &lt;code&gt;exit 1&lt;/code&gt; and wire it up to an alert.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Combining with macOS notifications
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;notify()&lt;/code&gt; fires a macOS system notification via &lt;code&gt;osascript&lt;/code&gt;.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;notify&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  osascript &lt;span class="nt"&gt;-e&lt;/span&gt; &lt;span class="s2"&gt;"display notification &lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt; with title &lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt;Claude Code&lt;/span&gt;&lt;span class="se"&gt;\"&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; 2&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The &lt;code&gt;|| true&lt;/code&gt; is there so that even under the script's &lt;code&gt;set -e&lt;/code&gt;, a failed notification (no notification permission, etc.) doesn't kill the process.&lt;/p&gt;
+
+&lt;p&gt;Notifications fire at three moments: when a rate limit is detected, when a retry succeeds, and when &lt;code&gt;MAX_RETRIES&lt;/code&gt; is exceeded. Even when you're away from your desk, the Dock bounce lets you notice.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Integration with autopilot.sh: three launches via launchd
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;autopilot.sh&lt;/code&gt; is launched by launchd (&lt;code&gt;com.lily.autopilot.plist&lt;/code&gt;) three times a day: at &lt;strong&gt;2:00, 5:00, and 23:00&lt;/strong&gt;.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight xml"&gt;&lt;code&gt;&lt;span class="nt"&gt;&amp;lt;key&amp;gt;&lt;/span&gt;StartCalendarInterval&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;array&amp;gt;&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;lt;dict&amp;gt;&amp;lt;key&amp;gt;&lt;/span&gt;Hour&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;integer&amp;gt;&lt;/span&gt;2&lt;span class="nt"&gt;&amp;lt;/integer&amp;gt;&amp;lt;key&amp;gt;&lt;/span&gt;Minute&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;integer&amp;gt;&lt;/span&gt;0&lt;span class="nt"&gt;&amp;lt;/integer&amp;gt;&amp;lt;/dict&amp;gt;&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;lt;dict&amp;gt;&amp;lt;key&amp;gt;&lt;/span&gt;Hour&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;integer&amp;gt;&lt;/span&gt;5&lt;span class="nt"&gt;&amp;lt;/integer&amp;gt;&amp;lt;key&amp;gt;&lt;/span&gt;Minute&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;integer&amp;gt;&lt;/span&gt;0&lt;span class="nt"&gt;&amp;lt;/integer&amp;gt;&amp;lt;/dict&amp;gt;&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;lt;dict&amp;gt;&amp;lt;key&amp;gt;&lt;/span&gt;Hour&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;integer&amp;gt;&lt;/span&gt;23&lt;span class="nt"&gt;&amp;lt;/integer&amp;gt;&amp;lt;key&amp;gt;&lt;/span&gt;Minute&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;integer&amp;gt;&lt;/span&gt;0&lt;span class="nt"&gt;&amp;lt;/integer&amp;gt;&amp;lt;/dict&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/array&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;2 AM and 11 PM are the "set a long task running" hours; 5 AM is meant to "make progress before I wake up." What covers the gaps outside these launch windows is &lt;code&gt;resume-on-ratelimit.sh&lt;/code&gt;, which I &lt;strong&gt;use as a wrapper when I manually run a long task&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;autopilot.sh&lt;/code&gt; is designed to stop autonomously after one Phase (up to 40 turns), so it doesn't need a retry loop, but &lt;code&gt;resume-on-ratelimit.sh&lt;/code&gt; is for the case where the user wants to "keep it running until this process finishes."&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Pitfalls I hit
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Re-running without &lt;code&gt;--continue&lt;/code&gt; starts a new session&lt;/strong&gt; → the previous context is gone, and even reading PROGRESS.md, it has no memory of "which files it was touching." Always use &lt;code&gt;--continue&lt;/code&gt; together with it.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;If you forget to instruct it to update PROGRESS.md, the handoff ticket comes up empty&lt;/strong&gt; → the restart prompt whiffs on "do nothing if already done" and just ends. Always put "update PROGRESS.md at each boundary" in the first prompt.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;A non-zero exit isn't always a rate limit&lt;/strong&gt; → if it dies on a syntax error or misconfiguration, it will keep retrying. Once you exceed MAX_RETRIES, manual verification is needed.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Watch out for combining &lt;code&gt;set -euo pipefail&lt;/code&gt; with &lt;code&gt;|| true&lt;/code&gt;&lt;/strong&gt; → if another command sneaks in before you capture &lt;code&gt;EXIT=$?&lt;/code&gt;, the exit code gets overwritten. If you modify the script, be careful about &lt;em&gt;when&lt;/em&gt; you capture the variable.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;launchd jobs are skipped while macOS is asleep&lt;/strong&gt; → &lt;code&gt;resume-on-ratelimit.sh&lt;/code&gt;, being a shell sleep loop, resumes after waking even if it was asleep. If you need the autopilot side, configure wake on schedule with &lt;code&gt;pmset&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Summary
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Use PROGRESS.md as a handoff ticket&lt;/strong&gt;: just instruct Claude to "update it at each boundary," and the restart prompt is a single line&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Exit-code checks are enough for rate-limit detection&lt;/strong&gt;: non-zero → wait → resume with &lt;code&gt;--continue&lt;/code&gt;, a loop you can build in 20 lines&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;A MAX_RETRIES guard is essential&lt;/strong&gt;: set an upper bound so a fully stuck task isn't retried forever&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;macOS notifications are a one-liner with &lt;code&gt;osascript&lt;/code&gt;&lt;/strong&gt;: don't forget &lt;code&gt;|| true&lt;/code&gt;, so a failed notification doesn't kill the process under &lt;code&gt;set -e&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Its role differs from the launchd autopilot&lt;/strong&gt;: autopilot is a scheduled, autonomous improvement loop; resume-on-ratelimit is an attended-job wrapper for "just until this task finishes"&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Next time I'll write about a problem that ironically emerged &lt;em&gt;because&lt;/em&gt; this automation foundation grew — &lt;a href="https://zenn.dev/bokuwalily/articles/context-slimming" rel="noopener noreferrer"&gt;&lt;strong&gt;the story of how skills and agents multiplied until context injection hit 228 KB, and the audit that trimmed it to 48 KB&lt;/strong&gt;&lt;/a&gt;.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;Written by **Lily&lt;/em&gt;* — I ship iOS apps and automate my content stack with Claude Code.&lt;br /&gt;
+Follow along: &lt;a href="https://bokuwalily.com" rel="noopener noreferrer"&gt;Portfolio&lt;/a&gt; · &lt;a href="https://x.com/bokuwalily" rel="noopener noreferrer"&gt;X&lt;/a&gt; · &lt;a href="https://github.com/bokuwalily" rel="noopener noreferrer"&gt;GitHub&lt;/a&gt;*&lt;/p&gt;</description>
+      <link>https://dev.to/bokuwalily/how-i-auto-resume-a-rate-limited-claude-code-session-with-progressmd-and-retries-5cl5</link>
+      <pubDate>Fri, 17 Jul 2026 05:00:05 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/bokuwalily/how-i-auto-resume-a-rate-limited-claude-code-session-with-progressmd-and-retries-5cl5</guid>
+    </item>
+    <item>
       <title>[翻訳] Solid Queueの監視機能不足を解決するQueuePulseを開発した</title>
       <description>Rails 8のデフォルトジョブバックエンドであるSolid Queueは優れているが、アラート機能がないため、ジョブの障害を数日後に発見するか、重い有料APMサービスに頼るしかない問題がある。\n開発者がこの問題を解決するためにQueuePulseというツールを作成した。これはSolid Queueの既存テーブルを読み取り専用で監視し、ジョブ失敗、キューレイテンシー、キュー蓄積、スタック中のジョブ、ワーカー停止時にSlackやメールで即座に通知する。\nセットアップは簡単で、Gemfileに追加して設定ファイルを書くだけで、新しいインフラが不要で、読み取り専用クエリのため安全であり、MITライセンスで無料公開されている。</description>
       <link>https://dev.to/michiya59/solid-queue-has-no-alerting-so-i-built-queuepulse-1lfm</link>
