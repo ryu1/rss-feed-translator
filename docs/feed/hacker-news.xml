@@ -5,6 +5,28 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] Mac gaming is finally getting the overpowered upgrade it deserves</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://www.macworld.com/article/3189951/apples-latest-game-porting-toolkit-beta-changed-how-i-think-about-mac-gaming.html"&gt;https://www.macworld.com/article/3189951/apples-latest-game-porting-toolkit-beta-changed-how-i-think-about-mac-gaming.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48955159"&gt;https://news.ycombinator.com/item?id=48955159&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 17&lt;/p&gt;
+&lt;p&gt;# Comments: 8&lt;/p&gt;</description>
+      <link>https://www.macworld.com/article/3189951/apples-latest-game-porting-toolkit-beta-changed-how-i-think-about-mac-gaming.html</link>
+      <pubDate>Sat, 18 Jul 2026 04:13:00 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48955159</guid>
+    </item>
+    <item>
+      <title>[翻訳] Moonstone: Modern, cross-platform Lua runtime and package manager written in Zig</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://moonstone.sh/"&gt;https://moonstone.sh/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48954175"&gt;https://news.ycombinator.com/item?id=48954175&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 28&lt;/p&gt;
+&lt;p&gt;# Comments: 8&lt;/p&gt;</description>
+      <link>https://moonstone.sh/</link>
+      <pubDate>Sat, 18 Jul 2026 01:18:15 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48954175</guid>
+    </item>
+    <item>
       <title>[翻訳] 「ダートノート」という新しいノート術を始めてみた</title>
       <description>著者が「ダートノート」という新しいノート記録方法を開始した。
 詳細な内容は記事で紹介されているが、具体的な方法や目的については記事を参照する必要がある。
@@ -23,6 +45,17 @@ Hacker Newsで求人情報が共有されている。</description>
       <pubDate>Sat, 18 Jul 2026 01:01:08 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48954074</guid>
+    </item>
+    <item>
+      <title>[翻訳] Stenchill: 3D Printable Solder Paste Stencil Generator</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://www.stenchill.com/en/"&gt;https://www.stenchill.com/en/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48953981"&gt;https://news.ycombinator.com/item?id=48953981&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 24&lt;/p&gt;
+&lt;p&gt;# Comments: 4&lt;/p&gt;</description>
+      <link>https://www.stenchill.com/en/</link>
+      <pubDate>Sat, 18 Jul 2026 00:48:37 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48953981</guid>
     </item>
     <item>
       <title>[翻訳] ソフトウェアエンジニアリングにおけるAIに対する批判的な意見</title>
@@ -203,6 +236,17 @@ Hacker Newsで高い関心を集め、371ポイント、270件のコメントを
       <pubDate>Fri, 17 Jul 2026 14:31:10 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48947825</guid>
+    </item>
+    <item>
+      <title>[翻訳] Kimi K3, and what we can still learn from the pelican benchmark</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://simonwillison.net/2026/Jul/16/kimi-k3/"&gt;https://simonwillison.net/2026/Jul/16/kimi-k3/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48947717"&gt;https://news.ycombinator.com/item?id=48947717&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 300&lt;/p&gt;
+&lt;p&gt;# Comments: 159&lt;/p&gt;</description>
+      <link>https://simonwillison.net/2026/Jul/16/kimi-k3/</link>
+      <pubDate>Fri, 17 Jul 2026 14:21:51 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48947717</guid>
     </item>
     <item>
       <title>[翻訳] Pebbleスマートウォッチ、2026年7月の大型アップデートを発表</title>
@@ -1949,46 +1993,6 @@ Wikipediaで詳細が紹介されている歴史的建造物。</description>
       <pubDate>Wed, 01 Jul 2026 01:23:09 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48741359</guid>
-    </item>
-    <item>
-      <title>[翻訳] 大統領、暗号資産取引で10億ドル以上の利益を獲得</title>
-      <description>米大統領がトランプ・メディア・テクノロジー・グループの株式売却やビットコイン関連事業を通じて、2025年に10億ドルを超える利益を得た。
-この収益は同氏の2025年における大幅な資産増加の一部を構成している。
-ウォール・ストリート・ジャーナルが報じた暗号資産取引による莫大な利益は、政界での影響力とビジネス利益の関係について議論を呼んでいる。</description>
-      <link>https://www.wsj.com/politics/policy/trump-made-more-than-1-billion-on-crypto-deals-part-of-2025-windfall-ee917d3f</link>
-      <pubDate>Wed, 01 Jul 2026 00:27:56 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48741012</guid>
-    </item>
-    <item>
-      <title>[翻訳] 米商務省がClaude Fable 5とMythos 5の輸出規制を解除</title>
-      <description>米商務省がAnthropicのAIモデル「Claude Fable 5」と「Mythos 5」の輸出規制を解除した。
-これまでの輸出制限が緩和され、国際的なアクセスが拡大することが期待される。
-Hacker Newsで大きな話題となり、232ポイントを獲得し90件のコメントが寄せられている。</description>
-      <link>https://twitter.com/AnthropicAI/status/2072106151890809341</link>
-      <pubDate>Tue, 30 Jun 2026 23:55:12 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48740771</guid>
-    </item>
-    <item>
-      <title>[翻訳] Googleが開発したコードリポジトリ間移行ツール「Copybara」</title>
-      <description>Googleが開発したオープンソースツール「Copybara」は、複数のリポジトリ間でコードを効率的に移動・同期することができます。
-GitHub上で公開されており、複雑なコード移行作業を自動化し、開発チームの生産性向上を実現します。
-Hacker Newsで注目を集めており、開発者コミュニティから高い関心が寄せられています。</description>
-      <link>https://github.com/google/copybara</link>
-      <pubDate>Tue, 30 Jun 2026 23:45:39 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48740698</guid>
-    </item>
-    <item>
-      <title>[翻訳] Hatari - ブラウザで動作するAtari ST/STE/TT/Falconエミュレータ</title>
-      <description>懐かしのAtariコンピュータシリーズをオンラインでエミュレートするWebベースのツールが登場しました。
-Hatariを使用することで、ブラウザ上でAtari ST、STE、TT、Falconの各機種を直接実行できます。
-レトロなゲームやアプリケーションの動作環境を現代的に再現する取り組みとして注目されています。</description>
-      <link>https://hatari.frama.io/hatari/online/hatari.html</link>
-      <pubDate>Tue, 30 Jun 2026 22:34:23 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48740135</guid>
     </item>
   </channel>
 </rss>

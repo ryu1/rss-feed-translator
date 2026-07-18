@@ -5,6 +5,2014 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] Benchmarking Gemini 2.5 Flash vs 3.1 Flash-Lite vs Gemma 4 with LLM judge (Claude Fable 5)</title>
+      <description>&lt;p&gt;&lt;em&gt;Cross-posted from &lt;a href="https://ioreader.app/blog/the-whiteness-test" rel="noopener noreferrer"&gt;the IO reader blog&lt;/a&gt;, where the full version includes all 36 unedited transcripts side by side.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;With &lt;code&gt;gemini-2.5-flash&lt;/code&gt; scheduled to retire on October 16, we needed to audition replacements for a production workload that generic leaderboards say nothing about: twelve distinct "reading lens" prompts — literary close reading, Socratic questioning, EN→KO translation under a hard register constraint, vocabulary coaching — that our iOS reading app serves through Firebase AI Logic.&lt;/p&gt;
+
+&lt;p&gt;So we ran the audition the unfashionable way: one adversarial stimulus, every production prompt verbatim, three models, and a human reading + LLM judge (Claude Fable 5).&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Method
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Stimulus.&lt;/strong&gt; The closing paragraph of Melville's "Whiteness of the Whale" chapter — chosen to break things: archaic vocabulary (&lt;em&gt;subtile&lt;/em&gt;, &lt;em&gt;palsied&lt;/em&gt;, &lt;em&gt;charnel-house&lt;/em&gt;), one enormous periodic sentence, nineteenth-century natural philosophy, and a live metaphysical argument. If a model holds this paragraph steady through twelve different lenses, it holds almost anything a reader will meet.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Models.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;gemini-2.5-flash&lt;/code&gt; — the incumbent engine&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;gemini-3.1-flash-lite&lt;/code&gt; — its smaller, newer successor candidate&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;gemma-4-26b-a4b-it&lt;/code&gt; — open-weights reasoning contender&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Protocol.&lt;/strong&gt; Production prompts verbatim as a single user turn; temperature 0.4; &lt;code&gt;thinkingBudget: 0&lt;/code&gt; on the Gemini models; reasoning left on for Gemma (its serving default). One generation per cell — 12 × 3 = 36 calls — with latency and token counts taken from the API's own &lt;code&gt;usageMetadata&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Results
+&lt;/h2&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Model&lt;/th&gt;
+&lt;th&gt;Runs&lt;/th&gt;
+&lt;th&gt;Median&lt;/th&gt;
+&lt;th&gt;P90&lt;/th&gt;
+&lt;th&gt;$/1M in·out&lt;/th&gt;
+&lt;th&gt;Measured billed ¢/reply&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;gemini-2.5-flash&lt;/td&gt;
+&lt;td&gt;12/12&lt;/td&gt;
+&lt;td&gt;1.7 s&lt;/td&gt;
+&lt;td&gt;2.8 s&lt;/td&gt;
+&lt;td&gt;0.30 · 2.50&lt;/td&gt;
+&lt;td&gt;0.057¢&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;gemini-3.1-flash-lite&lt;/td&gt;
+&lt;td&gt;12/12&lt;/td&gt;
+&lt;td&gt;2.2 s&lt;/td&gt;
+&lt;td&gt;3.0 s&lt;/td&gt;
+&lt;td&gt;0.25 · 1.50&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;0.038¢&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;gemma-4-26b-a4b-it&lt;/td&gt;
+&lt;td&gt;12/12&lt;/td&gt;
+&lt;td&gt;49.6 s*&lt;/td&gt;
+&lt;td&gt;126.8 s*&lt;/td&gt;
+&lt;td&gt;0.15 · 0.60&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;0.150¢&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;em&gt;*Shared research endpoint with reasoning enabled — compare Gemma's quality here, not its speed. "Billed ¢/reply" is computed from each model's measured median prompt and output tokens at list price, including hidden reasoning tokens, which are billed as output.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Finding 1: Format compliance was 36/36 — on every model
+&lt;/h3&gt;
+
+&lt;p&gt;Word caps, fixed output structures, question-only constraints, and the Korean formal-register rule (해라체, never conversational endings) all held across every generation. A prompt contract, it turns out, is a property of the contract — not of the model behind it. That's what makes engines swappable without the product changing shape.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Finding 2: The smallest, newest model read best
+&lt;/h3&gt;
+
+&lt;p&gt;Gemini 3.1 Flash-Lite — 40% cheaper on output than the incumbent — kept producing the sharpest specific observations. It was the only model to name Melville's "colourless, all-colour" paradox outright, and it described the prose as "a rhetorical trap" whose cumulative clauses leave the reader "as intellectually blinded as the wretched infidel."&lt;/p&gt;
+
+&lt;p&gt;The cleanest contrast: one of our lenses must end every response with a single unsettling question. Same paragraph, same instructions, three minds —&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;"Does the terror of whiteness truly stem from its objective qualities, or from humanity's ingrained need to project meaning and warmth onto a fundamentally indifferent cosmos?" — gemini-2.5-flash&lt;/p&gt;
+
+&lt;p&gt;"If color is a lie, is truth merely the blindness of the void?" — gemini-3.1-flash-lite&lt;/p&gt;
+
+&lt;p&gt;"If the truth is a shroud, is the only way to remain sane to remain deceived?" — gemma-4-26b&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The incumbent is thorough and slightly padded. The understudy is compressed and exact. The open-weights model writes like it's been saving that sentence all week.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Finding 3: Sticker price is not delivered price
+&lt;/h3&gt;
+
+&lt;p&gt;Gemma 4 26B has the &lt;strong&gt;lowest list price&lt;/strong&gt; on the bench and the &lt;strong&gt;highest measured cost per reply&lt;/strong&gt; — roughly 4× Flash-Lite. The gap is hidden reasoning: with its default thinking mode on, it deliberated for 5,000–10,000 unseen tokens per answer, and reasoning tokens bill as output.&lt;/p&gt;
+
+&lt;p&gt;If you're comparing models on list price, check &lt;code&gt;usageMetadata.thoughtsTokenCount&lt;/code&gt; first. For self-hosted batch pipelines Gemma's quality is real and the economics change entirely; for interactive serving through a metered API, list-price comparisons are fiction.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Limitations
+&lt;/h2&gt;
+
+&lt;p&gt;One generation per cell — a structured qualitative reading, not a statistical claim. Judging wasn't blind. Gemma's latency reflects a shared research endpoint, not managed serving. And one passage is one genre; the next run adds an analytical text, a modern novel, and poetry.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The full transcripts
+&lt;/h2&gt;
+
+&lt;p&gt;All 36 outputs — unedited, side by side, including both Korean translations and the answers we found weakest — are in the full research note:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;→ &lt;a href="https://ioreader.app/blog/the-whiteness-test" rel="noopener noreferrer"&gt;ioreader.app/blog/the-whiteness-test&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Disclosure: IO is our app; the benchmark used its production prompts. Curious how others are accounting for thinking-token billing when comparing reasoning models — comments welcome.&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/io_56a2cd4aff31d/benchmarking-gemini-25-flash-vs-31-flash-lite-vs-gemma-4-with-llm-judge-claude-fable-5-356</link>
+      <pubDate>Sat, 18 Jul 2026 05:17:12 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/io_56a2cd4aff31d/benchmarking-gemini-25-flash-vs-31-flash-lite-vs-gemma-4-with-llm-judge-claude-fable-5-356</guid>
+    </item>
+    <item>
+      <title>[翻訳] Adding an AI Chat Feature to My Expense Manager</title>
+      <description>&lt;p&gt;I already had a working expense tracker built with React, Express and SQLite. For this task I had to pick an AI feature that actually made sense for it, not just bolt something on for the sake of it. So I went with a chat feature where you can ask questions about your own spending in plain English, like "how much did I spend on food this month" or "what's my biggest category", and it answers based on your real data.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why this feature
+&lt;/h2&gt;
+
+&lt;p&gt;The app already had a summary section showing totals and category breakdowns, but that only tells you so much. If you want anything more specific, like comparing two categories or checking a particular time period, you'd have to scroll through the list and do the math yourself. A chat feature solves that. You just ask the question and get an answer. It felt like the most natural extension of data I already had sitting in the database, and it's also the feature that actually forced me to think hard about prompts and streaming instead of just calling an API once and printing the result.&lt;/p&gt;
+
+&lt;p&gt;I did consider two other options first. Auto categorizing expenses as you type felt too small, more of a classifier than an AI feature. A one shot spending summary was decent but static, you'd generate it once and that's it. Chat felt like the one that actually used the AI SDK the way it's meant to be used.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Technical decisions
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Provider and model.&lt;/strong&gt; I used Google AI Studio for the API key since it's free and doesn't need a card. I started with &lt;code&gt;gemini-2.5-flash&lt;/code&gt; because that's what most tutorials use, but it turned out that model isn't available to new API keys anymore, so I switched to &lt;code&gt;gemini-flash-latest&lt;/code&gt; instead, which just points at whatever Google's current default flash model is. At one point I got hit with a 503 "high demand" error when testing, which was annoying since it made me think something was broken on my end. I left the model as is and tried again after a few hours and it just worked, so it really was Google's servers being temporarily overloaded like the error message said, not a bug in my code.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Streaming.&lt;/strong&gt; This one was an easy call. It's a chat interface, so it streams. Waiting for the whole response to load before showing anything would feel broken compared to literally every other chat app people use. If this had been a one shot "summarize my month" button instead of a back and forth chat, I probably wouldn't have bothered with streaming.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Messages and prompt structure.&lt;/strong&gt; On the frontend, &lt;code&gt;useChat&lt;/code&gt; keeps track of the conversation and sends the full message history to my backend route on every new message. On the backend, before calling the model, I query the expenses table fresh every single time, pull the total, the category breakdown, and the most recent expenses, and drop all of that into the system instructions along with a rule that says only answer from this data, don't make numbers up. So the model isn't relying on memory of a past conversation for the actual numbers, it's getting current data injected right before it answers.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  How I approached the integration
+&lt;/h2&gt;
+
+&lt;p&gt;I started by getting the API key, installing the &lt;code&gt;ai&lt;/code&gt; and &lt;code&gt;@ai-sdk/google&lt;/code&gt; packages, and writing the backend route first before touching any frontend code. My plan was to test it with curl before building any UI on top of it, which turned out to be a really good decision because I hit four separate bugs before it worked at all.&lt;/p&gt;
+
+&lt;p&gt;First one, I had named the environment variable wrong in my &lt;code&gt;.env&lt;/code&gt; file. I used something like &lt;code&gt;APIKEY&lt;/code&gt; instead of the exact name the SDK expects, &lt;code&gt;GOOGLE_GENERATIVE_AI_API_KEY&lt;/code&gt;, so the provider just couldn't find a key at all.&lt;/p&gt;
+
+&lt;p&gt;Second one, I was passing &lt;code&gt;convertToModelMessages(messages)&lt;/code&gt; straight into &lt;code&gt;streamText&lt;/code&gt; without awaiting it. Turns out that function became async in this version of the SDK, so I was actually passing a Promise object into the messages field instead of an array, which threw a weird error about &lt;code&gt;messages.some&lt;/code&gt; not being a function. Took a bit of digging through the stack trace to realize the fix was just adding &lt;code&gt;await&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Third one, that model version thing I mentioned above, &lt;code&gt;gemini-2.5-flash&lt;/code&gt; returning a 404 saying it's no longer available to new users.&lt;/p&gt;
+
+&lt;p&gt;Fourth one, after switching models I got hit with a 503 saying the model was experiencing high demand. I left the code as is and tried again a few hours later and it worked fine, so that one really was just Google's servers being temporarily overloaded, not something I needed to fix on my end.&lt;/p&gt;
+
+&lt;p&gt;Worth mentioning too, once I actually had the app deployed and was testing it live, I hit a different error from the 503, a 429 saying I'd exceeded my quota, specifically the free tier's limit of 20 requests per minute. That one wasn't Google's servers being overloaded, it was me sending too many test questions back to back while checking that everything worked. Different failure mode, same fix though, just wait a bit and it clears itself.&lt;/p&gt;
+
+&lt;p&gt;Once the backend was actually working, wiring up the frontend with &lt;code&gt;useChat&lt;/code&gt; was pretty smooth in comparison. I also ran into a proxy issue where the dev server couldn't reach my Express server since I hadn't set one up yet, so I added a proxy in &lt;code&gt;vite.config.js&lt;/code&gt; pointing &lt;code&gt;/api&lt;/code&gt; requests at &lt;code&gt;localhost:5000&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;One more thing I noticed while testing, I asked "how much have I spent on food this month" and it gave me a number, but all my actual expenses were logged in June, not July. Turns out the model had no idea what today's date even was, so "this month" meant nothing to it and it just summed everything. I fixed this by explicitly passing today's date into the system instructions and telling it to filter by date before answering, which helped a lot but wasn't a perfect fix. Asking "how much have I spent this month" after that gave me an answer that mentioned June instead of clearly saying there's nothing for July, so there's still some inconsistency there.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What I'd do differently
+&lt;/h2&gt;
+
+&lt;p&gt;The biggest one, I currently send raw expense rows into the prompt and let the model do date filtering and math over plain text. It mostly works but it's not reliable, as I found out with the date filtering bug above. A better approach would be doing that filtering in SQL or JavaScript before it ever reaches the model, so the model is just explaining numbers I already calculated correctly instead of being trusted to calculate them itself.&lt;/p&gt;
+
+&lt;p&gt;I'd also want to look into giving the model actual tools it can call to query the database directly instead of getting a static dump of everything on every message. Right now it gets the same big block of context whether the question needs it or not, which is wasteful and will get worse as the expense table grows.&lt;/p&gt;</description>
+      <link>https://dev.to/oluchii/adding-an-ai-chat-feature-to-my-expense-manager-32j0</link>
+      <pubDate>Sat, 18 Jul 2026 05:10:21 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/oluchii/adding-an-ai-chat-feature-to-my-expense-manager-32j0</guid>
+    </item>
+    <item>
+      <title>[翻訳] Why Your Automation Completed Successfully But Shipped Nothing</title>
+      <description>&lt;p&gt;Your n8n workflow ran successfully. The logs say 200. Your monitoring dashboard is green. But three days later, a customer asks why their data never arrived. The workflow executed — it just did nothing.&lt;/p&gt;
+
+&lt;p&gt;This isn't a crash. It's not an error. It's a silent failure, and it hides because everything &lt;em&gt;looks&lt;/em&gt; right.&lt;/p&gt;
+
+&lt;p&gt;If you've built automation in n8n, Make, or Zapier, you've probably had this moment: a workflow that "succeeded" but produced zero output. Maybe you've debugged it. Maybe you're still looking for it. Let's talk about why this happens, structurally, and what actually triggers it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The HTTP 200 Trap
+&lt;/h2&gt;
+
+&lt;p&gt;Most workflow platforms return HTTP 200 to the caller the moment the workflow execution &lt;em&gt;completes without throwing an exception&lt;/em&gt;. Completion ≠ success. A workflow can finish, exit cleanly, and have done absolutely nothing useful.&lt;/p&gt;
+
+&lt;p&gt;Here's the thing: that's not a bug in the platform. It's a design consequence of how automation flows are built: they're linear chains of nodes, each passing output to the next. If one node outputs nothing, and the next node's input validation is lenient, the workflow keeps going — silently — until it reaches the end.&lt;/p&gt;
+
+&lt;p&gt;Then it returns 200.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Four Conditions That Trigger Silent Failures
+&lt;/h2&gt;
+
+&lt;p&gt;Let's walk through the actual structural scenarios where this happens.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  1. Output Validation is Missing or Trusting
+&lt;/h3&gt;
+
+&lt;p&gt;Imagine a "Read from API" node. The API returns 200, but the response body is empty (or a valid JSON with no data fields). Most platforms don't validate the &lt;em&gt;shape&lt;/em&gt; of the response — they just check "did the HTTP call succeed?"&lt;/p&gt;
+
+&lt;p&gt;The node outputs &lt;code&gt;{}&lt;/code&gt; or &lt;code&gt;null&lt;/code&gt; or an empty array.&lt;/p&gt;
+
+&lt;p&gt;The next node in the chain (maybe a "transform" or "write to database") expects a certain structure. If it doesn't validate strictly, it passes the empty object downstream. The workflow keeps running.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Example in n8n:&lt;/strong&gt; A "HTTP Request" node calls an endpoint. The endpoint returns &lt;code&gt;{"status": "ok"}&lt;/code&gt; but has no &lt;code&gt;data&lt;/code&gt; field. Your downstream "Function" node expects &lt;code&gt;data&lt;/code&gt;. If you're not checking for its existence, your code silently handles the &lt;code&gt;undefined&lt;/code&gt; case — maybe by writing nothing, maybe by writing a default value. Workflow continues. Returns 200.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  2. Conditional Branching Creates Silent Paths
+&lt;/h3&gt;
+
+&lt;p&gt;Many platforms let you fork workflows: "If X, do A; else do B."&lt;/p&gt;
+
+&lt;p&gt;If neither A nor B is required, the workflow can take a "silent" branch — one that produces no output, no side effects, nothing.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Example in Make:&lt;/strong&gt; You have a conditional: "If user role is admin, send approval email; otherwise, do nothing." If the user is not an admin, the else branch executes: it's an empty node, or a node with no configured action. The workflow completes and returns 200. The email was never sent. Nothing failed.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  3. Empty Arrays and Loop Edge Cases
+&lt;/h3&gt;
+
+&lt;p&gt;Automation platforms let you loop over arrays. Process each item, transform it, write it.&lt;/p&gt;
+
+&lt;p&gt;What if the array is empty?&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Example in n8n:&lt;/strong&gt; A "Merge" node combines data from two sources: &lt;code&gt;source1.items&lt;/code&gt; (10 items) and &lt;code&gt;source2.items&lt;/code&gt; (0 items, because the API returned no results). You loop over the merged array, handling each item. But if one of those results is empty because source2 contributed nothing, you end up writing incomplete records — missing entire fields — and your downstream "Write to Database" node accepts them because it's lenient.&lt;/p&gt;
+
+&lt;p&gt;Workflow returns 200. But the data is corrupted — or missing.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  4. Transformation Nodes That Swallow Errors
+&lt;/h3&gt;
+
+&lt;p&gt;Some nodes are designed to transform data. If the transformation fails gracefully (catches the error, logs it, and returns a default value), the workflow doesn't error — it continues with the default.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Example in Zapier:&lt;/strong&gt; You have a "Code" step that's supposed to parse a JSON field. If the JSON is malformed, most platforms let you set a fallback: return &lt;code&gt;{}&lt;/code&gt; on error. The step completes. Returns an empty object. The next step (maybe a database write) accepts it because the schema allows empty objects.&lt;/p&gt;
+
+&lt;p&gt;Workflow completes. Returns 200.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why This Is Hard to Catch
+&lt;/h2&gt;
+
+&lt;p&gt;These silent failures hide because:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Logs are happy.&lt;/strong&gt; Each node runs. Each node completes. Each node says "OK."&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Errors are caught.&lt;/strong&gt; Exceptions are handled (either explicitly or by the platform's default error handler), so nothing surfaces to your monitoring.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Downstream systems don't complain immediately.&lt;/strong&gt; The data loss or silent no-op might not surface for hours or days. By then, you've forgotten what the workflow did.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Platform monitoring only tracks execution.&lt;/strong&gt; Most workflow platforms tell you &lt;em&gt;if&lt;/em&gt; a run happened, not &lt;em&gt;what it did&lt;/em&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2&gt;
+  
+  
+  The Pattern You're Looking For
+&lt;/h2&gt;
+
+&lt;p&gt;If you want to catch these before customers do, look for:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Workflows that complete with zero output.&lt;/strong&gt; A workflow should produce &lt;em&gt;something&lt;/em&gt; — even an error message is something. Nothing is suspicious.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Workflows whose output doesn't match their declared shape.&lt;/strong&gt; If you expect &lt;code&gt;{ id, email, created_at }&lt;/code&gt; and you get &lt;code&gt;{}&lt;/code&gt;, that's a failure.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Workflows that run but downstream systems don't see the effect.&lt;/strong&gt; Your database didn't get written. Your API wasn't called. Your email wasn't sent. But the workflow says "success."&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Branches that execute but produce no side effects.&lt;/strong&gt; Conditional forks that silently do nothing.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  What You Can Do Today
+&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Validate explicitly.&lt;/strong&gt; In every transformation node, check the shape of the data. If it doesn't match, raise an error — don't silently pass a malformed object downstream.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Add guards at critical points.&lt;/strong&gt; Before a "write" or "send" node, add a validation step. If the data is empty, invalid, or missing required fields, fail the workflow (loudly).&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Log the actual output.&lt;/strong&gt; Don't just log that a node executed. Log what it &lt;em&gt;produced&lt;/em&gt;. Empty output should raise a flag.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Monitor the outcome, not the execution.&lt;/strong&gt; Check that the side effect actually happened. Did the database write succeed? Did the email send? Did the API get called? If the workflow says yes but the actual system says no, that's a silent failure.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2&gt;
+  
+  
+  The Real Answer
+&lt;/h2&gt;
+
+&lt;p&gt;The structural problem is that automation platforms are designed to be lenient and permissive — they prioritize "keep running" over "fail loudly." That's good for resilience. But it means you need visibility into what actually ran, not just whether it ran.&lt;/p&gt;
+
+&lt;p&gt;The workflows we build in these platforms are often mission-critical: customer data, billing events, API calls to downstream services. A workflow that completes successfully but does nothing is worse than a workflow that crashes — at least with a crash, you know something went wrong.&lt;/p&gt;
+
+&lt;p&gt;Next time you build a workflow, ask: what does "success" actually mean? Is it that the workflow executed? Or that the workflow did what it was supposed to do? Those are different things. And until you're monitoring the latter, the former is just a green light that says nothing is broken — when in fact, everything might be.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;Have you hit a silent failure in your automation? What did it look like? The more we talk about these, the sooner we'll build platforms that catch them automatically.&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/babarmaker76/why-your-automation-completed-successfully-but-shipped-nothing-3pa2</link>
+      <pubDate>Sat, 18 Jul 2026 05:10:16 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/babarmaker76/why-your-automation-completed-successfully-but-shipped-nothing-3pa2</guid>
+    </item>
+    <item>
+      <title>[翻訳] Your Calculator App Has a Units Problem</title>
+      <description>&lt;p&gt;Your Calculator App Has a Units Problem&lt;br /&gt;
+Most calculator apps are five lines of arithmetic wrapped in three hundred lines of UI. That ratio is exactly why they break. The arithmetic is trivial, so nobody reviews it — and the bug that ships is almost never a math bug. It's a units bug.&lt;br /&gt;
+I spent a few weeks last year rebuilding an estimator for a civil-engineering domain, and the whole project turned into one long lesson about how weakly typed numbers rot a codebase. Here's what I'd do differently from line one.&lt;br /&gt;
+A number without a unit is a lie&lt;br /&gt;
+Here's the shape of code I see in almost every calculator repo on GitHub:&lt;br /&gt;
+&lt;code&gt;function calculateWeight(area, thickness, density) {&lt;br /&gt;
+  return area * thickness * density / 1000;&lt;br /&gt;
+}&lt;/code&gt;&lt;br /&gt;
+Reasonable. Also completely undefended. Is thickness in millimetres or metres? Is density in kg/m³ or lb/ft³? The function has no idea, and neither does the caller six modules away who just wired up an input field labelled "Thickness."&lt;br /&gt;
+Pass 50 (mm) where the function expects 0.05 (m), and you don't get an error. You get an answer that's 1000× too large, rendered confidently in a nice card with a currency symbol next to it.&lt;br /&gt;
+The fix isn't clever. It's just tagging:&lt;br /&gt;
+`const mm = (v) =&amp;gt; ({ value: v / 1000, unit: 'm' });&lt;br /&gt;
+const m  = (v) =&amp;gt; ({ value: v,        unit: 'm' });&lt;/p&gt;
+
+&lt;p&gt;function volume(area, thickness) {&lt;br /&gt;
+  if (area.unit !== 'm2' || thickness.unit !== 'm') {&lt;br /&gt;
+    throw new TypeError(&lt;code&gt;unit mismatch: ${area.unit} × ${thickness.unit}&lt;/code&gt;);&lt;br /&gt;
+  }&lt;br /&gt;
+  return { value: area.value * thickness.value, unit: 'm3' };&lt;br /&gt;
+}&lt;code&gt;&lt;br /&gt;
+Verbose? Yes. But every conversion now happens at exactly one boundary — the input parser — instead of being scattered through the call graph as bare /1000 and * 0.3048 sprinkles. If you're on TypeScript, branded types get you the same safety with zero runtime cost:&lt;br /&gt;
+&lt;/code&gt;type Metres = number &amp;amp; { readonly __unit: 'm' };&lt;br /&gt;
+type Millimetres = number &amp;amp; { readonly __unit: 'mm' };&lt;code&gt;&lt;br /&gt;
+The bug that taught me this&lt;br /&gt;
+The domain I was working in has two materials with confusingly similar names: the sticky black binder, and the finished road mix that binder goes into. One weighs about 1,020 kg/m³. The other weighs about 2,350 kg/m³.&lt;br /&gt;
+They're not interchangeable, and yet plenty of published tools put the mix figure behind a field labelled with the binder's name. The result: an order that's roughly 130% too high, or one that's less than half of what the site needs. On a 400-tonne job that's a five-figure error, produced by a tool that never threw a single exception.&lt;br /&gt;
+That's the thing about domain calculators. Your test suite passes. Your types check. Your answer is wrong. The only defense is encoding the domain distinction into the code itself, rather than hoping the label on the input is enough:&lt;br /&gt;
+&lt;/code&gt;const DENSITY = {&lt;br /&gt;
+  BINDER: { value: 1020, unit: 'kg/m3', appliesTo: 'binder' },&lt;br /&gt;
+  MIX:    { value: 2350, unit: 'kg/m3', appliesTo: 'mix' },&lt;br /&gt;
+};&lt;/p&gt;
+
+&lt;p&gt;function toVolume(mass, density) {&lt;br /&gt;
+  if (mass.material !== density.appliesTo) {&lt;br /&gt;
+    throw new Error(&lt;code&gt;cannot apply ${density.appliesTo} density to ${mass.material}&lt;/code&gt;);&lt;br /&gt;
+  }&lt;br /&gt;
+  // ...&lt;br /&gt;
+}&lt;code&gt;&lt;br /&gt;
+Now the wrong pairing is a crash in development instead of a purchase order in production. This kind of guard rail is what separates a toy from a tool — and it's the reason I ended up rebuilding the whole thing as the [Bitumen Calculator](https://bitumencalculator.org/), where the two densities are tracked as separate quantities all the way through and both are shown in the output rather than silently collapsed into one number.&lt;br /&gt;
+Two calculations wearing the same costume&lt;br /&gt;
+The second structural mistake: assuming one input schema covers the domain.&lt;br /&gt;
+In my case, material gets applied two entirely different ways. Rolled into a layer, where you know the thickness and compute a volume. Or sprayed onto a surface, where there is no meaningful thickness — the spec gives you a coverage rate in litres per square metre directly.&lt;br /&gt;
+Modelling that as one form with an optional field is how you get a tool that produces confident nonsense. A sprayed coat is about a third of a millimetre thick. Enter that as a layer thickness and you'll either trip a minimum-value validator or get a tonnage for a layer that doesn't exist.&lt;br /&gt;
+Discriminated unions, not optional fields:&lt;br /&gt;
+&lt;/code&gt;const job =&lt;br /&gt;
+  { mode: 'layer', thicknessM: 0.05, mixDensity: 2350, binderPct: 5.5 }&lt;br /&gt;
+  // or&lt;br /&gt;
+  { mode: 'spray', rateLPerM2: 0.30, residueFraction: 0.60 };&lt;code&gt;&lt;br /&gt;
+Two modes, two schemas, two validators. The UI swaps the entire input set when the mode changes, because these are genuinely different calculations — not two views of one.&lt;br /&gt;
+The conversion nobody documents&lt;br /&gt;
+Last one, and it's the most expensive kind of bug: the transformation that lives in the domain but not in the spec sheet.&lt;br /&gt;
+Sprayed material is usually an emulsion — the actual binder suspended in water, typically 55–70% by mass. The specification quotes what's left after the water evaporates. So the quantity you order is not the quantity in the spec:&lt;br /&gt;
+&lt;/code&gt;const productLitres = residualLitres / residueFraction;&lt;br /&gt;
+// 0.30 / 0.60 = 0.50 L/m²`&lt;br /&gt;
+Skip that division and you're 40% short on site. It's one line of code. It's also the line that every naive implementation omits, because it isn't arithmetic — it's domain knowledge, and you only get it by reading the standards or talking to someone who does the work.&lt;br /&gt;
+Which is the real takeaway. The formula is the easy part; it's a multiplication. What makes a domain calculator trustworthy is everything around the formula: units carried explicitly, mutually exclusive modes modelled as such, and the unglamorous conversions that only exist in a PDF someone handed you.&lt;br /&gt;
+A checklist, if you're building one&lt;/p&gt;
+
+&lt;p&gt;Tag every quantity with its unit. Convert only at the I/O boundary.&lt;br /&gt;
+Validate ranges against physical reality, not just &amp;gt; 0. A 5,000 mm asphalt layer is a typo, not a road.&lt;br /&gt;
+If the domain has two calculation methods, build two forms.&lt;br /&gt;
+Put your defaults in one exported constants module and let users edit them.&lt;br /&gt;
+Show intermediate steps. When a number looks wrong, users need to see where it diverged.&lt;br /&gt;
+Keep it client-side if you can. Field users lose signal, and nobody wants a spinner at a job site.&lt;/p&gt;
+
+&lt;p&gt;None of this is advanced engineering. It's just taking the boring half of the problem as seriously as the interesting half — which, in calculator apps, is where all the actual bugs live.&lt;/p&gt;</description>
+      <link>https://dev.to/damion_gayle56/your-calculator-app-has-a-units-problem-2177</link>
+      <pubDate>Sat, 18 Jul 2026 05:09:44 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/damion_gayle56/your-calculator-app-has-a-units-problem-2177</guid>
+    </item>
+    <item>
+      <title>[翻訳] Why Android's Speech Recognizer Struggles with Tagalog and What I Did About It</title>
+      <description>&lt;p&gt;ViVeL — Vida Verdadera De Dios, "True Life of God." I wanted a name shaped like Israel: not just a label, but a word that says something about who the people are. ViVeL is an offline Bible app for Android with voice search over Ang Dating Biblia (Tagalog, 1905) and the KJV.&lt;/p&gt;
+
+&lt;p&gt;In English, voice search works fine. In Tagalog, it fights back — and the ways it fails turned out to be interesting enough to write up.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The problem
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;a class="article-body-image-wrapper" href="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fabcgcqmwfahiw20w6wg2.png"&gt;&lt;img alt=" " height="1745" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fabcgcqmwfahiw20w6wg2.png" width="800" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Here's a real one from the app. I said &lt;strong&gt;naglalakip na gumagawa&lt;/strong&gt;. The recognizer produced:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;magkakalapit na gumagawa&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The recognizer heard a completely &lt;em&gt;different word&lt;/em&gt;, not a typo, not a misspelling, a different word entirely. And here's why that matters more for search than for dictation: with dictation, one wrong word in a sentence is survivable. With verse search, one wrong word means &lt;strong&gt;zero results&lt;/strong&gt;. It's all-or-nothing. The verse either surfaces or it doesn't.&lt;/p&gt;
+
+&lt;p&gt;I'm using the &lt;code&gt;speech_to_text&lt;/code&gt; Flutter plugin, which wraps the platform's on-device recognizer, with the locale set to &lt;code&gt;fil-PH&lt;/code&gt;. Two things go wrong with Tagalog specifically:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Tagalog is low-resource.&lt;/strong&gt; There's far less Tagalog in the recognizer's training data than English, so its confidence on Tagalog words is shakier and it biases toward more common word sequences.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Tagalog loves reduplication and long affixed words&lt;/strong&gt;,&lt;code&gt;naglalakip&lt;/code&gt;, &lt;code&gt;magkakalapit&lt;/code&gt;, &lt;code&gt;nangagsisiibig&lt;/code&gt;. These long, morphologically dense words are exactly the ones a shaky recognizer mangles, collapsing one into a nearby-sounding other.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2&gt;
+  
+  
+  What I could fix, spelling, not sound
+&lt;/h2&gt;
+
+&lt;p&gt;There's a &lt;em&gt;second&lt;/em&gt; mismatch that I could actually solve: the modern speech recognizer outputs modern spelling, but my bundled text is the 1905 ADB, which spells things the old way. &lt;code&gt;Diyos&lt;/code&gt; vs &lt;code&gt;Dios&lt;/code&gt;. &lt;code&gt;sapagkat&lt;/code&gt; vs &lt;code&gt;Sapagka't&lt;/code&gt;. &lt;code&gt;kanya&lt;/code&gt; vs &lt;code&gt;kaniya&lt;/code&gt;. &lt;code&gt;ngunit&lt;/code&gt; vs &lt;code&gt;Nguni't&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Even if the recognizer hears the word perfectly, the FTS5 search misses because the spellings don't match. So I fold both forms into one canonical form before searching:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight dart"&gt;&lt;code&gt;&lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'normalizeForSearch folds archaic and modern spellings together'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;DatabaseHelper&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;normalizeForSearch&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'Diyos'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'Dios'&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+  &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'sapagkat'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Sapagka't"&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+  &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'Hesukristo'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'Jesucristo'&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+  &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'kanya'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'kaniya'&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+  &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'ngunit'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Nguni't"&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+  &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'gayon'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="s"&gt;'gayon'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;          &lt;span class="c1"&gt;// unaffected words stay stable&lt;/span&gt;
+  &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'nangagsisiibig'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="s"&gt;'nangagsisyibig'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// folds only whole words&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The tricky part is folding at the &lt;em&gt;right&lt;/em&gt; granularity. &lt;code&gt;nang&lt;/code&gt; should fold to &lt;code&gt;ng&lt;/code&gt; as a whole word but not when it's buried inside &lt;code&gt;nangagsisiibig&lt;/code&gt;, or you corrupt unrelated words. So the normalizer is word-boundary aware, not a blind find-and-replace.&lt;/p&gt;
+
+&lt;p&gt;I also lean on the recognizer's &lt;strong&gt;alternate hypotheses&lt;/strong&gt;. The plugin returns more than just the top transcription, so when the best guess misses, I retry the search against the runner-up transcriptions:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight dart"&gt;&lt;code&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+  &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;alternates&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;skip&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;recognizedWords&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;trim&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isNotEmpty&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;recognizedWords&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Sometimes the correct word is the recognizer's second or third guess, and this quietly rescues the search.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What I haven't solved, the sound-level miss
+&lt;/h2&gt;
+
+&lt;p&gt;Spelling normalization and alternates handle a lot. What they &lt;em&gt;don't&lt;/em&gt; handle is the case at the top: &lt;code&gt;naglalakip&lt;/code&gt; heard as &lt;code&gt;magkakalapit&lt;/code&gt;. That's not a spelling variant and it's not in the alternates list, it's a genuine acoustic substitution of one whole word for another.&lt;/p&gt;
+
+&lt;p&gt;The approaches I'm weighing:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Phonetic normalization&lt;/strong&gt; - map both the transcript and the index to a sound-based key (a Tagalog-tuned Soundex/Metaphone) so acoustically-near words collide on purpose.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Fuzzy matching over FTS5&lt;/strong&gt; - Levenshtein or trigram distance against the verse index, so a near-miss still retrieves candidates instead of nothing.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Tagalog-aware morphology&lt;/strong&gt; - strip reduplication and affixes before matching, so &lt;code&gt;naglalakip&lt;/code&gt; and its mangled cousins reduce toward a common root.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Each option has a downside. Phonetic keys match too many unrelated words. Fuzzy search across the whole Bible gets slow on cheap phones. Stripping affixes properly needs real Tagalog grammar rules, not shortcuts.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Have you hit this?
+&lt;/h2&gt;
+
+&lt;p&gt;If you've built voice or search for Tagalog or any low-resource language with heavy affixation I'd like to know how you handled the acoustic misses. Phonetic keying? Fuzzy retrieval? Something smarter? The spelling and alternates layers were the easy 80%. The last 20%, where the recognizer swaps in a whole wrong word, is the part I'm still chewing on.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;I'm a software engineer from the Philippines building offline-first Android apps, with a focus on Tagalog-language tooling that most speech and search stacks weren't designed for.&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/ravenclaw27/why-androids-speech-recognizer-struggles-with-tagalog-and-what-i-did-about-it-42l3</link>
+      <pubDate>Sat, 18 Jul 2026 05:09:20 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/ravenclaw27/why-androids-speech-recognizer-struggles-with-tagalog-and-what-i-did-about-it-42l3</guid>
+    </item>
+    <item>
+      <title>[翻訳] The Change Must Defend Itself: A Five-R Review for AI-Generated Code</title>
+      <description>&lt;p&gt;&lt;em&gt;How to evaluate reason, reach, reversibility, resilience, and reviewability before an AI-assisted change reaches production.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;AI-generated code often arrives looking complete.&lt;/p&gt;
+
+&lt;p&gt;It may compile, follow repository conventions, include unit tests, and present a confident explanation of its design. What it does not automatically provide is evidence that the change belongs in production.&lt;/p&gt;
+
+&lt;p&gt;The implementation cannot prove that the original problem was framed correctly. It cannot establish how far the change will travel through connected systems, whether its effects can be safely reversed, or how it will behave when its assumptions fail.&lt;/p&gt;
+
+&lt;p&gt;In large-scale distributed systems, I have repeatedly seen seemingly small changes—especially retries, schema updates, fallback logic and timeout adjustments—create consequences far beyond the service in which they were introduced.&lt;/p&gt;
+
+&lt;p&gt;A production change should therefore be treated as a technical claim that must defend itself. It should explain why it needs to exist, identify what it can affect, preserve a credible path to reversal, tolerate realistic failures, and remain understandable to the engineers who inherit it.&lt;/p&gt;
+
+&lt;p&gt;I organize that evaluation into five dimensions:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Reason, Reach, Reversibility, Resilience, and Reviewability.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Together, they form the &lt;strong&gt;Five-R Review&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;When code becomes easier to generate, producing more code is no longer the central challenge. The harder problem becomes determining:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Whether the code should exist&lt;/li&gt;
+&lt;li&gt;Whether the design fits the surrounding system&lt;/li&gt;
+&lt;li&gt;Whether the assumptions are correct&lt;/li&gt;
+&lt;li&gt;Whether the change is safe to operate&lt;/li&gt;
+&lt;li&gt;Whether the team can maintain it six months later&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;AI can compress implementation time, but it does not eliminate the obligation to justify a production change. The faster an implementation appears, the more explicitly its assumptions, reach, and failure behavior must be examined.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  A Working Implementation Is Not Production-Ready
+&lt;/h2&gt;
+
+&lt;p&gt;An AI assistant can generate a technically valid function without understanding the full environment in which that function will operate.&lt;/p&gt;
+
+&lt;p&gt;Consider a seemingly simple request:&lt;br /&gt;
+&lt;code&gt;Add automatic retries when the downstream inventory service times out.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The implementation may be straightforward. Add a retry library, configure exponential backoff, log failures, and return an error after the final attempt.&lt;/p&gt;
+
+&lt;p&gt;Passing local validation does not establish that the system-level behavior is safe. That difference is why implementation evidence compilation, tests, and style compliance is necessary but insufficient for production approval.&lt;/p&gt;
+
+&lt;p&gt;But an experienced engineer immediately sees additional questions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Is the downstream operation idempotent?&lt;/li&gt;
+&lt;li&gt;Can retries create duplicate reservations?&lt;/li&gt;
+&lt;li&gt;Will simultaneous retries amplify traffic during an outage?&lt;/li&gt;
+&lt;li&gt;Is the timeout caused by overload, data corruption, or a network problem?&lt;/li&gt;
+&lt;li&gt;Does the caller have its own retry policy?&lt;/li&gt;
+&lt;li&gt;Could the message broker replay the request again?&lt;/li&gt;
+&lt;li&gt;What happens if the first call succeeds but the response is lost?&lt;/li&gt;
+&lt;li&gt;How will support teams distinguish the original call from repeated attempts?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;None of these questions are syntax problems.&lt;/p&gt;
+
+&lt;p&gt;They are system judgment problems.&lt;/p&gt;
+
+&lt;p&gt;AI can help surface these concerns, but it cannot automatically guarantee that the organization has answered them correctly. The quality of the result still depends on the context supplied, the architecture surrounding the change, and the engineer evaluating the recommendation.&lt;/p&gt;
+
+&lt;p&gt;A locally correct implementation can still create a globally incorrect system.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  The Evidence Gap Between Working Code and a Defensible Change
+&lt;/h2&gt;
+
+&lt;p&gt;AI-assisted development can produce implementations faster than teams can establish whether those implementations are appropriate for the systems around them.&lt;/p&gt;
+
+&lt;p&gt;This creates an evidence gap: the difference between showing that code works under controlled conditions and showing that the resulting change is safe, necessary, operable, and maintainable in production.&lt;/p&gt;
+
+&lt;p&gt;Every generated pull request still requires decisions about assumptions, dependencies, failure behavior, rollout strategy, ownership, and recovery. Producing the implementation faster does not eliminate those decisions. It compresses the time available to make them well.&lt;/p&gt;
+
+&lt;p&gt;A team can now produce more prototypes, more pull requests, more generated tests, and more alternative implementations. But every generated change still creates a decision:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Accept it&lt;/li&gt;
+&lt;li&gt;Reject it&lt;/li&gt;
+&lt;li&gt;Modify it&lt;/li&gt;
+&lt;li&gt;Test it further&lt;/li&gt;
+&lt;li&gt;Redesign it&lt;/li&gt;
+&lt;li&gt;Deploy it cautiously&lt;/li&gt;
+&lt;li&gt;Roll it back&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;As generation speed increases, the number of decisions can grow faster than the team’s ability to evaluate them.&lt;/p&gt;
+
+&lt;p&gt;As the volume of generated changes increases, the evaluation burden moves downstream. Architecture reviews, pull requests, testing environments, deployment controls, and production operations must absorb decisions that implementation speed did not remove.&lt;/p&gt;
+
+&lt;p&gt;A team may appear faster because it produces more code. At the same time, it may become slower at reviewing, integrating, validating, and operating that code.&lt;/p&gt;
+
+&lt;p&gt;The bottleneck has moved.&lt;/p&gt;
+
+&lt;p&gt;It is no longer only in the editor. It is now distributed across architecture reviews, pull requests, test environments, observability systems, deployment pipelines, and production operations.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  Generated Output Is Evidence of Activity, Not Readiness
+&lt;/h2&gt;
+
+&lt;p&gt;Traditional productivity measurements become dangerous in an AI-assisted environment.&lt;/p&gt;
+
+&lt;p&gt;Lines of code were never a reliable measure of engineering value. They become even less meaningful when thousands of lines can be generated almost instantly.&lt;/p&gt;
+
+&lt;p&gt;The same problem applies to other output-oriented metrics:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Number of pull requests&lt;/li&gt;
+&lt;li&gt;Number of commits&lt;/li&gt;
+&lt;li&gt;Story points completed&lt;/li&gt;
+&lt;li&gt;Features created&lt;/li&gt;
+&lt;li&gt;Tests generated&lt;/li&gt;
+&lt;li&gt;Tasks closed&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These measurements describe activity. They do not necessarily describe improvement.&lt;/p&gt;
+
+&lt;p&gt;A generated feature that increases operational complexity is not automatically progress. A large test suite that validates mocked behavior but misses integration failures may create false confidence. A quickly produced abstraction may make one developer faster while making the entire system harder to understand.&lt;/p&gt;
+
+&lt;p&gt;The more efficiently implementation is generated, the more carefully teams must distinguish completed code from a defensible production change.&lt;/p&gt;
+
+&lt;p&gt;A better question is not:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;How much code did the team create?&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;It is:&lt;br /&gt;
+&lt;code&gt;How many high-quality engineering decisions did the team successfully convert into reliable outcomes?&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  The Five-R Review: How a Change Defends Its Place in Production
+&lt;/h2&gt;
+
+&lt;p&gt;To evaluate AI-generated or AI-assisted changes, I use five dimensions: &lt;strong&gt;Reason, Reach, Reversibility, Resilience, and Reviewability&lt;/strong&gt;.&lt;/p&gt;
+&lt;h3&gt;
+  
+  
+  1. Reason
+&lt;/h3&gt;
+
+&lt;p&gt;Why should this change exist?&lt;/p&gt;
+
+&lt;p&gt;The answer should describe the problem, not merely the requested implementation.&lt;/p&gt;
+
+&lt;p&gt;Weak reasoning:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;Add Redis caching to improve performance.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Stronger reasoning:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;Product-detail requests repeatedly retrieve identical reference data from a high-latency dependency. The dependency contributes significantly to response time, and the data can tolerate five minutes of staleness.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The stronger explanation makes the proposed solution testable. It also allows the team to consider alternatives such as local caching, request consolidation, precomputation, or dependency optimization.&lt;/p&gt;
+
+&lt;p&gt;AI is very effective at implementing a clearly defined solution. It is less reliable when the underlying problem has not been defined correctly.&lt;/p&gt;
+&lt;h3&gt;
+  
+  
+  2. Reach
+&lt;/h3&gt;
+
+&lt;p&gt;How far can the change travel through the system?&lt;/p&gt;
+
+&lt;p&gt;A five-line configuration update can affect dozens of services. A schema change can influence producers, consumers, analytics jobs, data-retention policies, and incident-response procedures.&lt;/p&gt;
+
+&lt;p&gt;Reach includes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Direct dependencies&lt;/li&gt;
+&lt;li&gt;Indirect consumers&lt;/li&gt;
+&lt;li&gt;Shared infrastructure&lt;/li&gt;
+&lt;li&gt;Data contracts&lt;/li&gt;
+&lt;li&gt;Security boundaries&lt;/li&gt;
+&lt;li&gt;Operational processes&lt;/li&gt;
+&lt;li&gt;Customer-facing behavior&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The size of a code change does not determine its blast radius.&lt;br /&gt;
+A short change can have enormous reach.&lt;/p&gt;
+&lt;h3&gt;
+  
+  
+  3. Reversibility
+&lt;/h3&gt;
+
+&lt;p&gt;Can the change be safely undone?&lt;/p&gt;
+
+&lt;p&gt;Teams often discuss deployment but spend less time designing rollback.&lt;/p&gt;
+
+&lt;p&gt;A reversible change may require:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Feature flags&lt;/li&gt;
+&lt;li&gt;Backward-compatible schemas&lt;/li&gt;
+&lt;li&gt;Versioned APIs&lt;/li&gt;
+&lt;li&gt;Dual reads or writes&lt;/li&gt;
+&lt;li&gt;Gradual traffic migration&lt;/li&gt;
+&lt;li&gt;Data-repair procedures&lt;/li&gt;
+&lt;li&gt;Explicit rollback validation&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Rollback should not be treated as a button that magically restores the previous state. Once data has changed, events have been emitted, or customers have taken actions, returning to the previous software version may not restore the previous system state.&lt;/p&gt;
+
+&lt;p&gt;The safest changes are designed for reversal before deployment begins.&lt;/p&gt;
+&lt;h3&gt;
+  
+  
+  4. Resilience
+&lt;/h3&gt;
+
+&lt;p&gt;How does the change behave when its assumptions fail?&lt;/p&gt;
+
+&lt;p&gt;Happy-path implementation is becoming increasingly easy to generate. Production engineering is largely about everything outside the happy path.&lt;/p&gt;
+
+&lt;p&gt;Ask what happens when:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;A dependency becomes slow&lt;/li&gt;
+&lt;li&gt;A response arrives twice&lt;/li&gt;
+&lt;li&gt;Messages are processed out of order&lt;/li&gt;
+&lt;li&gt;A deployment is only partially completed&lt;/li&gt;
+&lt;li&gt;Data is stale&lt;/li&gt;
+&lt;li&gt;Credentials expire&lt;/li&gt;
+&lt;li&gt;A region becomes unavailable&lt;/li&gt;
+&lt;li&gt;A request succeeds but acknowledgment fails&lt;/li&gt;
+&lt;li&gt;An operator manually intervenes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;An AI-generated solution may include retries, fallbacks, or exception handling. That does not mean those mechanisms are correct for the business operation.&lt;/p&gt;
+
+&lt;p&gt;Resilience is not the presence of defensive code. It is the ability of the system to preserve acceptable behavior under failure.&lt;/p&gt;
+&lt;h3&gt;
+  
+  
+  5. Reviewability
+&lt;/h3&gt;
+
+&lt;p&gt;Can another engineer understand and validate the change?&lt;/p&gt;
+
+&lt;p&gt;Generated code often looks polished. That can make it more dangerous, because readability may be mistaken for correctness.&lt;/p&gt;
+
+&lt;p&gt;A reviewable change should make its intent and assumptions visible.&lt;/p&gt;
+
+&lt;p&gt;It should answer:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;What problem is being solved?&lt;/li&gt;
+&lt;li&gt;What alternatives were considered?&lt;/li&gt;
+&lt;li&gt;Which services and data flows are affected?&lt;/li&gt;
+&lt;li&gt;What could fail?&lt;/li&gt;
+&lt;li&gt;How will the change be monitored?&lt;/li&gt;
+&lt;li&gt;What evidence will demonstrate success?&lt;/li&gt;
+&lt;li&gt;How will the team recover if the assumptions are wrong?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The goal is not to create more documentation around every small change. The goal is to ensure that the complexity of the explanation matches the risk of the decision.&lt;/p&gt;
+&lt;h2&gt;
+  
+  
+  A Pull Request Should Make the Case for the Change
+&lt;/h2&gt;
+
+&lt;p&gt;As AI contributes more of the implementation, the pull request should become more explicit about the engineering case behind the change. Reviewers should not have to reconstruct purpose, assumptions, blast radius, and recovery strategy from generated code alone.&lt;/p&gt;
+
+&lt;p&gt;A useful AI-assisted pull request could include structured information such as:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;change_intent&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;problem&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Repeated&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;latency&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;from&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;reference-data&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;retrieval"&lt;/span&gt;
+  &lt;span class="na"&gt;expected_outcome&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Reduce&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;p95&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;response&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;time&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;without&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;affecting&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;freshness&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;requirements"&lt;/span&gt;
+
+&lt;span class="na"&gt;affected_components&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;product-api&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;reference-data-service&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;cache-cluster&lt;/span&gt;
+
+&lt;span class="na"&gt;key_assumptions&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Reference&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;data&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;can&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;be&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;five&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;minutes&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;stale"&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Cache&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;misses&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;can&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;safely&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;fall&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;back&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;to&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;the&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;source&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;service"&lt;/span&gt;
+
+&lt;span class="na"&gt;failure_modes&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;stale data&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;cache unavailability&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;request amplification during cache recovery&lt;/span&gt;
+
+&lt;span class="na"&gt;deployment&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;strategy&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;gradual&lt;/span&gt;
+  &lt;span class="na"&gt;feature_flag&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+
+&lt;span class="na"&gt;rollback&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;method&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;disable_feature_flag&lt;/span&gt;
+  &lt;span class="na"&gt;data_repair_required&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+
+&lt;span class="na"&gt;verification&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;p95_latency&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;cache_hit_rate&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;source_service_request_volume&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="s"&gt;error_rate&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This does not need to become mandatory bureaucracy for every repository.&lt;/p&gt;
+
+&lt;p&gt;However, for material production changes, information like this helps reviewers evaluate the decision instead of spending all their time reconstructing intent from generated code.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Experienced Engineers Will Define What a Defensible Change Requires
+&lt;/h2&gt;
+
+&lt;p&gt;AI does not make experienced engineers irrelevant. It changes how their experience creates value.&lt;/p&gt;
+
+&lt;p&gt;Senior engineers will increasingly need to define:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Architectural constraints&lt;/li&gt;
+&lt;li&gt;Acceptable implementation patterns&lt;/li&gt;
+&lt;li&gt;Data ownership&lt;/li&gt;
+&lt;li&gt;Security boundaries&lt;/li&gt;
+&lt;li&gt;Reliability expectations&lt;/li&gt;
+&lt;li&gt;Deployment policies&lt;/li&gt;
+&lt;li&gt;Evaluation criteria&lt;/li&gt;
+&lt;li&gt;Escalation conditions&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In other words, senior engineers will spend less time explaining exactly how every function should be written and more time defining the environment within which implementation can happen safely.&lt;/p&gt;
+
+&lt;p&gt;This is a shift from writing instructions for code toward establishing policies for systems.&lt;/p&gt;
+
+&lt;p&gt;For example, rather than reviewing every retry implementation independently, an organization might establish that:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Only idempotent operations can be retried automatically&lt;/li&gt;
+&lt;li&gt;Retry budgets must be shared across call chains&lt;/li&gt;
+&lt;li&gt;Backoff and jitter are mandatory&lt;/li&gt;
+&lt;li&gt;Retries must stop during specific overload conditions&lt;/li&gt;
+&lt;li&gt;Every retryable operation must expose attempt-level metrics&lt;/li&gt;
+&lt;li&gt;Business operations with financial impact require deduplication controls&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;AI tools can then generate code within those boundaries. The purpose of these boundaries is not to limit AI-assisted development. It is to make the evidence required for approval predictable and repeatable.&lt;/p&gt;
+
+&lt;p&gt;The better the boundaries, the more useful the automation becomes.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  A Defensible Change Begins with a Defensible Problem Statement
+&lt;/h2&gt;
+
+&lt;p&gt;Prompting is often discussed as a new technical skill. But the deeper capability is not learning a collection of prompt templates.&lt;/p&gt;
+
+&lt;p&gt;It is learning how to frame engineering problems precisely.&lt;/p&gt;
+
+&lt;p&gt;Compare these two requests:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;Build a scalable order-processing service.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;And:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;Design an event-driven order-processing service that supports duplicate delivery, preserves per-order sequencing, isolates failures by seller, and allows individual workflow steps to be replayed without repeating completed financial operations.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The second request produces a better result because it contains better engineering thinking.&lt;/p&gt;
+
+&lt;p&gt;AI amplifies the quality or weakness of the engineering case presented to it.&lt;/p&gt;
+
+&lt;p&gt;When the question contains vague assumptions, missing constraints, or an incorrect understanding of the problem, the generated implementation may amplify those weaknesses as well.&lt;/p&gt;
+
+&lt;p&gt;The critical capability is not merely knowing what to ask AI.&lt;/p&gt;
+
+&lt;p&gt;It is knowing what the system requires.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What Engineering Teams Should Measure
+&lt;/h2&gt;
+
+&lt;p&gt;As AI-assisted development expands, teams should pay closer attention to outcome and decision-quality metrics.&lt;/p&gt;
+
+&lt;p&gt;Useful measurements include:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Change failure rate&lt;/li&gt;
+&lt;li&gt;Rollback frequency&lt;/li&gt;
+&lt;li&gt;Production defects per meaningful change&lt;/li&gt;
+&lt;li&gt;Time from pull-request creation to confident approval&lt;/li&gt;
+&lt;li&gt;Incidents caused by misunderstood dependencies&lt;/li&gt;
+&lt;li&gt;Percentage of changes using safe rollout mechanisms&lt;/li&gt;
+&lt;li&gt;Mean time to detect incorrect assumptions&lt;/li&gt;
+&lt;li&gt;Repeat incidents from previously addressed failure patterns&lt;/li&gt;
+&lt;li&gt;Maintenance effort created by recently delivered features&lt;/li&gt;
+&lt;li&gt;Time required for a new engineer to understand a changed component&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;AI should reduce mechanical work without increasing operational uncertainty.&lt;/p&gt;
+
+&lt;p&gt;A team that generates code faster but creates more incidents, more review congestion, and more architectural inconsistency has not improved its engineering system. It has moved work downstream.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Production Does Not Care Who Wrote the Code
+&lt;/h2&gt;
+
+&lt;p&gt;AI-assisted development changes how quickly an implementation can appear. It does not change what production requires.&lt;/p&gt;
+
+&lt;p&gt;A change must still justify why it exists. It must identify how far its effects can travel, preserve a credible path to reversal, behave acceptably when assumptions fail, and remain understandable after the original author has moved on.&lt;/p&gt;
+
+&lt;p&gt;The Five-R Review is not intended to burden every pull request with unnecessary process. Its purpose is to match the depth of evaluation to the potential consequences of the change.&lt;/p&gt;
+
+&lt;p&gt;A low-risk update may defend itself with a few clear answers. A high-impact change may require architecture review, staged rollout, operational evidence, security analysis, and explicit recovery planning.&lt;/p&gt;
+
+&lt;p&gt;The implementation may come from an engineer, an AI assistant, or a combination of both. Production does not evaluate authorship.&lt;/p&gt;
+
+&lt;p&gt;It reveals whether the reasoning behind the change was strong enough.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What Is Missing from Your Review Process?
+&lt;/h2&gt;
+
+&lt;p&gt;Which part of the Five-R Review is most frequently missing from AI-assisted changes on your team: &lt;strong&gt;Reason, Reach, Reversibility, Resilience or Reviewability&lt;/strong&gt;?&lt;/p&gt;</description>
+      <link>https://dev.to/karanratra07/the-change-must-defend-itself-a-five-r-review-for-ai-generated-code-3eep</link>
+      <pubDate>Sat, 18 Jul 2026 05:09:07 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/karanratra07/the-change-must-defend-itself-a-five-r-review-for-ai-generated-code-3eep</guid>
+    </item>
+    <item>
+      <title>[翻訳] The Same RTX 5090, but the GPU Sat Idle — a CPU-Bound Go Solver and the Case for L2 Cache</title>
+      <description>&lt;p&gt;This is the second in a short series that benchmarks a single &lt;strong&gt;RTX 5090&lt;/strong&gt; by re-running published Go &lt;strong&gt;solvers&lt;/strong&gt; — programs that don't just &lt;em&gt;play&lt;/em&gt; Go but &lt;em&gt;prove&lt;/em&gt; the outcome under perfect play. The &lt;a href="https://soy-tuber.github.io/killallgo-rtx5090/" rel="noopener noreferrer"&gt;first installment&lt;/a&gt; was GPU-bound. This one is the mirror image: the graphics card sits almost idle while the &lt;strong&gt;CPU&lt;/strong&gt; does all the work. So this piece is really about a CPU — and one number on it in particular.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What's being solved
+&lt;/h2&gt;
+
+&lt;p&gt;117 classic &lt;strong&gt;life-and-death&lt;/strong&gt; puzzles from Cho Chikun's well-known encyclopedia. Each asks one yes/no question: under perfect play, does this group &lt;em&gt;live&lt;/em&gt; or &lt;em&gt;die&lt;/em&gt;? You don't need to read Go — what matters is that the solver &lt;strong&gt;proves&lt;/strong&gt; the answer exhaustively rather than guessing a good move. Five-minute budget per problem.&lt;/p&gt;
+
+&lt;p&gt;I rebuilt the &lt;strong&gt;RZS-TT&lt;/strong&gt; solver from Shih et al. (&lt;em&gt;A Study of Solving Life-and-Death Problems in Go Using Relevance-Zone Based Solvers&lt;/em&gt;, IEEE Transactions on Games 2025; &lt;a href="https://github.com/rlglab/study-LD-RZ" rel="noopener noreferrer"&gt;rlglab/study-LD-RZ&lt;/a&gt;) and ran the full set on one RTX 5090 + Core Ultra 9 285K, using the paper's own config and 5-minute limit. The paper's reference machine was a single GTX 1080Ti with a &lt;strong&gt;Xeon E5-2683 v3&lt;/strong&gt; — about a decade older on both the GPU and the CPU.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The GPU is a spectator
+&lt;/h2&gt;
+
+&lt;p&gt;The network guiding this solver is &lt;strong&gt;tiny&lt;/strong&gt;: 765,523 parameters, a 3.7 MB file. Across the entire ~11-hour run the RTX 5090 sat at about &lt;strong&gt;23% utilization&lt;/strong&gt; (measured; it never rose above ~27%). The GPU is not the bottleneck. The hot path is all on the CPU: expanding "relevance zones," matching Go-shape patterns, and — above all — pounding a &lt;strong&gt;transposition table&lt;/strong&gt;, a giant hash of already-proven positions. That access pattern is random and pointer-chasing: latency-bound work whose speed is dictated by the &lt;strong&gt;cache hierarchy&lt;/strong&gt;, not by FLOPS.&lt;/p&gt;
+
+&lt;p&gt;So when the solver proves more problems inside the same 5-minute budget, the honest question is not "what did the 5090 do?" — it's "what changed on the CPU in ten years?"&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The numbers (with the caches lined up)
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;                          This run (Core Ultra 9 285K)   Paper (Xeon E5-2683 v3)
+Microarchitecture         Arrow Lake / Lion Cove (2024)  Haswell-EP (2014)
+Search threads used       2 of 24 cores                  2 of 14 cores
+L2 cache  PER CORE        3 MB                           256 KB      &amp;lt;-- ~12x
+L1 data   PER CORE        48 KB                          32 KB
+L3 cache  (shared)        36 MB                          35 MB       (basically flat)
+GPU utilization           ~23%  (idle, RTX 5090)         --  (GTX 1080Ti)
+Problems proven (RZS-TT)  84 / 117  (72%)                68 / 106  (64%)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;(The problem sets differ — 117 vs the paper's 106 — so compare the &lt;em&gt;rate&lt;/em&gt;, 72% vs 64%.)&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The case for L2
+&lt;/h2&gt;
+
+&lt;p&gt;Look at which cache actually grew. The big shared &lt;strong&gt;L3 is essentially unchanged&lt;/strong&gt; (35 → 36 MB). Clock and IPC rose too, of course. But the standout is &lt;strong&gt;private L2 per core: 256 KB → 3 MB, about 12×&lt;/strong&gt; (measured on this machine via &lt;code&gt;sysfs&lt;/code&gt;; the hypervisor flattens Arrow Lake's hybrid P/E layout, but each core the solver runs on presents a private 3 MB L2).&lt;/p&gt;
+
+&lt;p&gt;Why that matters for &lt;em&gt;this&lt;/em&gt; workload: a life-and-death proof search spends its time chasing entries in a transposition table that churns constantly. On Haswell, two search threads shared just 512 KB of L2 between them, so the hot part of that table spilled out to L3 and DRAM almost immediately — every spill is a stall. On Arrow Lake, each of the two threads gets its own &lt;strong&gt;3 MB&lt;/strong&gt; of fast L2: roughly &lt;strong&gt;6 MB of hot working set&lt;/strong&gt; now living a cache level closer to the core. For latency-bound pointer-chasing, that is exactly the lever that turns "ran out of time at 5 minutes" into "proved it with seconds to spare." The fact that the &lt;em&gt;shared&lt;/em&gt; L3 barely moved, while the &lt;em&gt;private&lt;/em&gt; L2 grew 12×, is what points the finger specifically at L2 rather than at raw memory bandwidth.&lt;/p&gt;
+
+&lt;p&gt;To be clear, this is a &lt;strong&gt;hypothesis, not a measurement&lt;/strong&gt;. The clean proof would be an L2 miss-rate comparison between the two machines — but hardware performance counters aren't exposed under WSL2, so I can't show cache-miss deltas here. What I can show is the access pattern (cache-latency-bound), the size contrast (12× L2, flat L3), and the outcome (more proofs in the same wall-clock budget). L2 is the leading suspect; higher clocks, a wider core, and DDR5 latency all contribute as well.&lt;/p&gt;
+
+&lt;p&gt;Either way, the headline framing has to be honest: this is a &lt;strong&gt;CPU-generation&lt;/strong&gt; benchmark — Haswell 2014 to Arrow Lake 2024 — with the GPU nearly idle. Calling it "5090 vs 1080Ti" would be marketing, not measurement.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Same card, opposite bottleneck
+&lt;/h2&gt;
+
+&lt;p&gt;This is why running &lt;em&gt;both&lt;/em&gt; solvers on one machine is worth it. The &lt;a href="https://soy-tuber.github.io/killallgo-rtx5090/" rel="noopener noreferrer"&gt;killall-go solver&lt;/a&gt; used a bigger network and leaned GPU-bound, so there a clean per-worker GPU number fell out (~2× throughput). Same RTX 5090, opposite bottleneck. &lt;strong&gt;What a benchmark measures depends entirely on where the slow part is&lt;/strong&gt; — and "I bought a 5090" tells you almost nothing until you know that.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Reproducibility and the frontier
+&lt;/h2&gt;
+
+&lt;p&gt;Proof search is parallel and non-deterministic, so I ran the full set three times (two complete passes plus a single-threaded re-run of the borderline cases). 77 problems solved in &lt;strong&gt;both&lt;/strong&gt; full passes; just 5 sit right at the 5-minute cliff and flip with the random seed. &lt;strong&gt;33 problems went unproven in every run&lt;/strong&gt; — the genuine frontier: 3 from volume 1, and 30 in volume 2's hardest section. Those need something smarter than raw compute.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What's next
+&lt;/h2&gt;
+
+&lt;p&gt;A follow-up runs the &lt;em&gt;pattern-table&lt;/em&gt; variant (RZS-PT) on the same machine. Only the algorithm changes — same CPU, same GPU, same problems — so it cleanly separates the &lt;strong&gt;hardware&lt;/strong&gt; contribution from the &lt;strong&gt;algorithm&lt;/strong&gt; contribution, completing a 2×2 matrix (old/new hardware × TT/PT algorithm) with no cross-machine confound.&lt;/p&gt;
+
+&lt;p&gt;Reproduction of &lt;a href="https://github.com/rlglab/study-LD-RZ" rel="noopener noreferrer"&gt;rlglab/study-LD-RZ&lt;/a&gt; (Shih, Wu, Wei, Hsu, Guei, Wu — IEEE ToG 2025) — full credit to the original authors; this work only swaps the hardware underneath and measures the difference.&lt;/p&gt;</description>
+      <link>https://dev.to/soytuber/the-same-rtx-5090-but-the-gpu-sat-idle-a-cpu-bound-go-solver-and-the-case-for-l2-cache-4k7l</link>
+      <pubDate>Sat, 18 Jul 2026 05:08:27 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/soytuber/the-same-rtx-5090-but-the-gpu-sat-idle-a-cpu-bound-go-solver-and-the-case-for-l2-cache-4k7l</guid>
+    </item>
+    <item>
+      <title>[翻訳] Fully Custom Claude Code Status Line: A JSON-Driven 3-Line Readout of Quota, Cost, and Health</title>
+      <description>&lt;p&gt;This is part of my "Claude Code environment" series. Last time I wrote about the &lt;a href="https://zenn.dev/bokuwalily/articles/codex-worktree-swarm" rel="noopener noreferrer"&gt;Codex worktree swarm&lt;/a&gt;, a setup that gets Codex and Claude Code collaborating. This time the topic is something far less flashy but that you look at every single turn: &lt;strong&gt;customizing the status line&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Claude Code can print a single status line at the bottom of the window. By default it shows little more than the model name. Using the feature that lets you point &lt;code&gt;statusLine.command&lt;/code&gt; in &lt;code&gt;settings.json&lt;/code&gt; at an arbitrary shell script, I built a version that &lt;strong&gt;formats your 5h/7d plan quota, context usage, session cost, and automation health into three lines&lt;/strong&gt; — and I'll walk through the whole implementation. The nice part is that the quota numbers &lt;strong&gt;flow in directly from stdin&lt;/strong&gt;, so no API calls and no auth are required.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The problem: an unattended job goes haywire and you never notice in the terminal
+&lt;/h2&gt;
+
+&lt;p&gt;Once I started running &lt;code&gt;autopilot.sh&lt;/code&gt; overnight, I kept hitting the same accident: "the 5h block quota is at zero by morning, so every job after that got SKIPPED." The issue was that &lt;strong&gt;checking cost or quota meant running &lt;code&gt;ccusage&lt;/code&gt; every time&lt;/strong&gt;. Because checking was a hassle, I stopped checking, and I noticed problems too late.&lt;/p&gt;
+
+&lt;p&gt;The ideal state is "one glance at the screen tells me my current plan consumption." If I can just put that on Claude Code's status line, I don't even need to open a terminal.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The &lt;code&gt;settings.json&lt;/code&gt; config: how JSON drives it
+&lt;/h2&gt;
+
+&lt;p&gt;Lines 269–274 of &lt;code&gt;~/.claude/settings.json&lt;/code&gt; are just this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight json"&gt;&lt;code&gt;&lt;span class="nl"&gt;"statusLine"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"command"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"command"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"~/.claude/scripts/statusline.sh"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"padding"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;With &lt;code&gt;type: "command"&lt;/code&gt;, every turn Claude Code launches that command and &lt;strong&gt;pipes JSON into stdin&lt;/strong&gt;. Standard output is displayed verbatim as the status line.&lt;/p&gt;
+
+&lt;p&gt;So what's in that stdin? The actual fields are:&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Path&lt;/th&gt;
+&lt;th&gt;Contents&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.rate_limits.five_hour.used_percentage&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;5h block usage rate (0–100)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.rate_limits.five_hour.resets_at&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Reset time (UNIX epoch)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.rate_limits.seven_day.used_percentage&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;7-day block usage rate&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.rate_limits.seven_day.resets_at&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;7-day reset time (UNIX epoch)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.context_window.used_percentage&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Context usage rate (pre-computed)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.cost.total_cost_usd&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Current session cost (USD)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.model.display_name&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Model name&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.effort.level&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Effort level&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; &lt;code&gt;rate_limits&lt;/code&gt; only appears &lt;strong&gt;after the first API response&lt;/strong&gt; for subscription members. Before the first turn it's empty, so the script needs to fall back to &lt;code&gt;--&lt;/code&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  &lt;code&gt;statusline.sh&lt;/code&gt;: reading stdin and falling back
+&lt;/h2&gt;
+
+&lt;p&gt;At the top of the script it reads stdin and, if it's valid JSON, caches it to &lt;code&gt;/tmp/cc-statusline-last.json&lt;/code&gt;.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;RAW_INPUT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;cat &lt;/span&gt;2&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;'%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$RAW_INPUT&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; | jq &lt;span class="nt"&gt;-e&lt;/span&gt; &lt;span class="s1"&gt;'type == "object" and length &amp;gt; 0'&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt;/dev/null 2&amp;gt;&amp;amp;1&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then
+  &lt;/span&gt;&lt;span class="nv"&gt;INPUT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$RAW_INPUT&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;'%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$INPUT&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; /tmp/cc-statusline-last.json 2&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;true
+&lt;/span&gt;&lt;span class="k"&gt;elif&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-s&lt;/span&gt; /tmp/cc-statusline-last.json &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then
+  &lt;/span&gt;&lt;span class="nv"&gt;INPUT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;cat&lt;/span&gt; /tmp/cc-statusline-last.json 2&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s1"&gt;'{}'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="k"&gt;else
+  &lt;/span&gt;&lt;span class="nv"&gt;INPUT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;'{}'&lt;/span&gt;
+&lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Even when stdin is empty (e.g. when another tool references it), it can read back from the cache. &lt;code&gt;claude-limits-segment.sh&lt;/code&gt; is set up to receive this cache path via the &lt;code&gt;CLAUDE_STATUSLINE_JSON&lt;/code&gt; environment variable:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;STATUS_JSON&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;CLAUDE_STATUSLINE_JSON&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="p"&gt;/tmp/cc-statusline-last.json&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Hide the jq call behind a helper function:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;j&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;'%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$INPUT&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; | jq &lt;span class="nt"&gt;-r&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; 2&amp;gt;/dev/null&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Fetching plan quota and context is just this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;CTX&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;j &lt;span class="s1"&gt;'.context_window.used_percentage // empty'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;H5&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;j &lt;span class="s1"&gt;'.rate_limits.five_hour.used_percentage // empty'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;H5R&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;j &lt;span class="s1"&gt;'.rate_limits.five_hour.resets_at // empty'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;D7&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;j &lt;span class="s1"&gt;'.rate_limits.seven_day.used_percentage // empty'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;D7R&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;j &lt;span class="s1"&gt;'.rate_limits.seven_day.resets_at // empty'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;SESSION_USD&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;j &lt;span class="s1"&gt;'.cost.total_cost_usd // 0'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Color coding: two thresholds at 50% and 80%
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;pcolor()&lt;/code&gt; converts a number to an ANSI color:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;pcolor&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="nb"&gt;local &lt;/span&gt;&lt;span class="nv"&gt;n&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;1&lt;/span&gt;&lt;span class="p"&gt;%%.*&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-z&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$n&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;'%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$DIM&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$n&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="nt"&gt;-ge&lt;/span&gt; 80 &lt;span class="o"&gt;]&lt;/span&gt; 2&amp;gt;/dev/null&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then &lt;/span&gt;&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;'%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$RED&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="k"&gt;elif&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$n&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="nt"&gt;-ge&lt;/span&gt; 50 &lt;span class="o"&gt;]&lt;/span&gt; 2&amp;gt;/dev/null&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then &lt;/span&gt;&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;'%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$YEL&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="k"&gt;else &lt;/span&gt;&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;'%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$GRN&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;fi&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Under 50% → green&lt;/strong&gt; (comfortable)&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;50–79% → yellow&lt;/strong&gt; (caution)&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;80%+ → red&lt;/strong&gt; (danger zone)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Apply this to all three: context, 5h, and 7d:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;CTXC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;pcolor &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$CTX&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;C5&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;pcolor &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$H5&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;C7&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;pcolor &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$D7&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Assembling the three lines
+&lt;/h2&gt;
+
+&lt;p&gt;The spec in the script's comments maps directly to the final output:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;line1: 📁 dir   ⌥ branch
+line2: 🤖 model·effort   🧠 ctx%   🕐 5h N% ⏪reset   📅 7d N% ⏪reset
+line3: 💴 session ≈¥x   今日 ≈¥y   &amp;lt;health&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;In code:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;L1&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;DIM&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;📁&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; &lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;CYAN&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;%s&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;%s%s"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$DIRNAME&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$BR&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$WT&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;L2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;MAG&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;🤖 %s%s&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;  &lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;DIM&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;·&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;  &lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;CTXC&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;🧠 ctx %s&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;  &lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;DIM&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;·&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;  &lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;C5&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;🕐 5h %s&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;%b  &lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;DIM&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;·&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;  &lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;C7&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;📅 7d %s&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;%b"&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$MODEL&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$EFF&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;pct &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$CTX&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;pct &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$H5&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$R5&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;pct &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$D7&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$R7&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;L3&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;DIM&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;💴 session&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; %s   &lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;DIM&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;今日&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;R&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; %s  %s%b"&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;yen &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$SESSION_USD&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;yen &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$DAY_USD&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HEALTH&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$PROJ_HEALTH_SEG&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+
+&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s2"&gt;"%b&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s2"&gt;%b&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s2"&gt;%b"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$L1&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$L2&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$L3&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Reset times are converted from epoch with &lt;code&gt;date -r&lt;/code&gt;. The 5h uses &lt;code&gt;HH:MM&lt;/code&gt;, and the 7d uses &lt;code&gt;M/D HH:MM&lt;/code&gt; (since it can cross day boundaries):&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;clk&lt;span class="o"&gt;()&lt;/span&gt;  &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-n&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;date&lt;/span&gt; &lt;span class="nt"&gt;-r&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"+%H:%M"&lt;/span&gt; 2&amp;gt;/dev/null&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+mdhm&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-n&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;date&lt;/span&gt; &lt;span class="nt"&gt;-r&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="s2"&gt;"+%-m/%-d %H:%M"&lt;/span&gt; 2&amp;gt;/dev/null&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Today's cost: 2-minute cache plus background refresh
+&lt;/h2&gt;
+
+&lt;p&gt;The 5h block quota comes straight from stdin, but &lt;strong&gt;today's total cost&lt;/strong&gt; requires an external command, &lt;code&gt;ccusage daily&lt;/code&gt;. Calling it every turn feels slow, so I use a 2-minute cache plus background refresh:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;NEED&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;true
+&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-f&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$DAY_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then
+  &lt;/span&gt;&lt;span class="nv"&gt;AGE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$((&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;date&lt;/span&gt; +%s&lt;span class="si"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;stat&lt;/span&gt; &lt;span class="nt"&gt;-f&lt;/span&gt; %m &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$DAY_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; 2&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;echo &lt;/span&gt;0&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="k"&gt;))&lt;/span&gt;
+  &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$AGE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="nt"&gt;-lt&lt;/span&gt; 120 &lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nv"&gt;NEED&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;false
+&lt;/span&gt;&lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$NEED&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$CCUSAGE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; daily &lt;span class="nt"&gt;--json&lt;/span&gt; 2&amp;gt;/dev/null &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;DAY_CACHE&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;.tmp"&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;mv&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;DAY_CACHE&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;.tmp"&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$DAY_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &amp;amp;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The &lt;code&gt;&amp;amp;&lt;/code&gt; launches it in the background, while the foreground reads immediately from the cache. The display can lag by up to 2 minutes, but the status line never freezes. The atomic &lt;code&gt;tmp&lt;/code&gt;→&lt;code&gt;mv&lt;/code&gt; swap also prevents corruption from reading a half-written file.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Health icon: reading with zero subprocesses
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;automation-health.sh&lt;/code&gt; checks the success/failure of every launchd job, so it's expensive to start. Calling it every turn produces noticeable lag. The solution is the same pattern — &lt;strong&gt;5-minute cache plus background refresh&lt;/strong&gt;:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;HEALTH_CACHE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"/tmp/cc-health-cache"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nv"&gt;HEALTH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;""&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-f&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HEALTH_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then
+  &lt;/span&gt;&lt;span class="nv"&gt;HAGE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$((&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;date&lt;/span&gt; +%s&lt;span class="si"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;stat&lt;/span&gt; &lt;span class="nt"&gt;-f&lt;/span&gt; %m &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HEALTH_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; 2&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;echo &lt;/span&gt;0&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="k"&gt;))&lt;/span&gt;
+  &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HAGE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="nt"&gt;-lt&lt;/span&gt; 300 &lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nv"&gt;HEALTH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;cat&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HEALTH_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; 2&amp;gt;/dev/null&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;fi
+if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-z&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HEALTH&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+  &lt;span class="o"&gt;(&lt;/span&gt; &lt;span class="nv"&gt;h&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;~/.claude/scripts/automation-health.sh 2&amp;gt;&amp;amp;1 | &lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-oE&lt;/span&gt; &lt;span class="s2"&gt;"ALL GREEN|WARN|FAIL"&lt;/span&gt; | &lt;span class="nb"&gt;head&lt;/span&gt; &lt;span class="nt"&gt;-1&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$h&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt;
+      &lt;span class="s2"&gt;"ALL GREEN"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"🟢"&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HEALTH_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="p"&gt;;;&lt;/span&gt;
+      &lt;span class="s2"&gt;"WARN"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;      &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"🟡"&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HEALTH_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="p"&gt;;;&lt;/span&gt;
+      &lt;span class="s2"&gt;"FAIL"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;      &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"🔴"&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HEALTH_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="p"&gt;;;&lt;/span&gt;
+      &lt;span class="k"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;           &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"⚫"&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HEALTH_CACHE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="p"&gt;;;&lt;/span&gt;
+    &lt;span class="k"&gt;esac&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &amp;amp;
+  &lt;span class="nv"&gt;HEALTH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"·"&lt;/span&gt;   &lt;span class="c"&gt;# show a middle dot while updating&lt;/span&gt;
+&lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;While the cache is valid, it just &lt;code&gt;cat&lt;/code&gt;s the file. Zero subprocesses. If it's expired, it fires the refresh into the background with &lt;code&gt;&amp;amp;&lt;/code&gt; and shows &lt;code&gt;·&lt;/code&gt; (a middle dot) in the meantime. By the next turn the cache is updated and it switches to an icon.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;project-health-latest.md&lt;/code&gt; (the project health report) follows the same philosophy — resolve everything by just reading a file:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;PH_FILE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;&lt;span class="s2"&gt;/.claude/logs/project-health-latest.md"&lt;/span&gt;
+&lt;span class="nv"&gt;PH_WARN&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-oE&lt;/span&gt; &lt;span class="s1"&gt;'^## Warnings \([0-9]+\)'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$PH_FILE&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; 2&amp;gt;/dev/null | &lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-oE&lt;/span&gt; &lt;span class="s1"&gt;'[0-9]+'&lt;/span&gt; | &lt;span class="nb"&gt;head&lt;/span&gt; &lt;span class="nt"&gt;-1&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;It picks up the warning count with grep, showing 🟢 if 0 and 🟡/🔴 if there are any. No external process is started.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; "The status line script is called every turn." Startup cost adds up. The rule is: &lt;strong&gt;the only things done synchronously are &lt;code&gt;jq&lt;/code&gt; and ANSI formatting&lt;/strong&gt;; everything else is offloaded to a cache or the background.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  &lt;code&gt;claude-limits-segment.sh&lt;/code&gt;: carving out a component for other tools
+&lt;/h2&gt;
+
+&lt;p&gt;Separately from &lt;code&gt;statusline.sh&lt;/code&gt;, I also keep a small script that returns just the plan quota. It's used by things like &lt;code&gt;autopilot.sh&lt;/code&gt; to check "does the plan have room right now?":&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;STATUS_JSON&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;CLAUDE_STATUSLINE_JSON&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="p"&gt;/tmp/cc-statusline-last.json&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+
+&lt;span class="nv"&gt;h5&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;jq_field &lt;span class="s1"&gt;'.rate_limits.five_hour.used_percentage'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;h5r&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;jq_field &lt;span class="s1"&gt;'.rate_limits.five_hour.resets_at'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;d7&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;jq_field &lt;span class="s1"&gt;'.rate_limits.seven_day.used_percentage'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;d7r&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;jq_field &lt;span class="s1"&gt;'.rate_limits.seven_day.resets_at'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+
+&lt;span class="nv"&gt;stale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;''&lt;/span&gt;
+&lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$age&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="nt"&gt;-gt&lt;/span&gt; 600 &lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nv"&gt;stale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;'*'&lt;/span&gt;   &lt;span class="c"&gt;# mark caches older than 10 minutes&lt;/span&gt;
+
+&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;'🕐 5h %s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;pct &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$h5&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-n&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$r5&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;' ⏪%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$r5&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;' · 📅 7d %s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;pct &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$d7&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-n&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$r7&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;' ⏪%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$r7&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s1"&gt;'%s'&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$stale&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;It references the very same &lt;code&gt;/tmp/cc-statusline-last.json&lt;/code&gt; that &lt;code&gt;statusline.sh&lt;/code&gt; wrote. If the cache is older than 10 minutes, it appends a &lt;code&gt;*&lt;/code&gt; to make staleness visible.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Pitfalls I hit
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;&lt;code&gt;rate_limits&lt;/code&gt; always looks empty&lt;/strong&gt; → before the first turn it genuinely doesn't exist. Without &lt;code&gt;// empty&lt;/code&gt; to fall back on null, &lt;code&gt;jq&lt;/code&gt; returns an empty string and &lt;code&gt;pcolor&lt;/code&gt; dies.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Reset times can't be converted to local time&lt;/strong&gt; → macOS's &lt;code&gt;date -r&lt;/code&gt; is the BSD version, with different syntax from Linux's &lt;code&gt;date -d @epoch&lt;/code&gt;. &lt;code&gt;stat -f %m&lt;/code&gt; is the same story. Using this on Linux requires rewriting.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Calling &lt;code&gt;ccusage&lt;/code&gt; every turn freezes the terminal&lt;/strong&gt; → solved with a 2-minute cache plus background refresh. The atomic swap via a &lt;code&gt;tmp&lt;/code&gt; file is also essential.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;&lt;code&gt;automation-health.sh&lt;/code&gt; is heavy to start and causes lag&lt;/strong&gt; → offload to a 5-minute cache plus background. Show &lt;code&gt;·&lt;/code&gt; while updating.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Some terminals let ANSI color codes interfere with output&lt;/strong&gt; → using &lt;code&gt;printf "%b"&lt;/code&gt; for the status line output expands the escapes correctly. &lt;code&gt;echo -e&lt;/code&gt; is not portable.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Can't get the git branch inside a worktree&lt;/strong&gt; → without making the working directory explicit with &lt;code&gt;git -C "$REAL_CWD"&lt;/code&gt;, it references the main repo instead.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Summary
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Just specifying &lt;code&gt;statusLine.command&lt;/code&gt; in &lt;code&gt;settings.json&lt;/code&gt; delivers JSON stdin every turn.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;rate_limits&lt;/code&gt;, &lt;code&gt;context_window&lt;/code&gt;, and &lt;code&gt;cost.total_cost_usd&lt;/code&gt; can be read straight from stdin with no API call.&lt;/li&gt;
+&lt;li&gt;Color coding is handled by &lt;code&gt;pcolor()&lt;/code&gt; with two thresholds at 50% and 80%.&lt;/li&gt;
+&lt;li&gt;Offload heavy work (ccusage, health check) to a cache plus background. Keep the synchronous path to &lt;code&gt;jq&lt;/code&gt; and string formatting only.&lt;/li&gt;
+&lt;li&gt;The atomic &lt;code&gt;tmp&lt;/code&gt;→&lt;code&gt;mv&lt;/code&gt; swap prevents cache reads from being corrupted.&lt;/li&gt;
+&lt;li&gt;Carving out a component script (&lt;code&gt;claude-limits-segment.sh&lt;/code&gt;) makes it easy to reuse from other automation.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Next time I plan to write about the internals of the automation health check (&lt;code&gt;automation-health.sh&lt;/code&gt;) shown on this status line — a setup that lists the liveness of launchd jobs, script exit codes, and the last successful run time.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;Written by **Lily&lt;/em&gt;* — I ship iOS apps and automate my content stack with Claude Code.&lt;br /&gt;
+Follow along: &lt;a href="https://bokuwalily.com" rel="noopener noreferrer"&gt;Portfolio&lt;/a&gt; · &lt;a href="https://x.com/bokuwalily" rel="noopener noreferrer"&gt;X&lt;/a&gt; · &lt;a href="https://github.com/bokuwalily" rel="noopener noreferrer"&gt;GitHub&lt;/a&gt;*&lt;/p&gt;</description>
+      <link>https://dev.to/bokuwalily/fully-custom-claude-code-status-line-a-json-driven-3-line-readout-of-quota-cost-and-health-56d6</link>
+      <pubDate>Sat, 18 Jul 2026 05:00:05 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/bokuwalily/fully-custom-claude-code-status-line-a-json-driven-3-line-readout-of-quota-cost-and-health-56d6</guid>
+    </item>
+    <item>
+      <title>[翻訳] Hallmark Is Racing to 12K Stars for a Reason</title>
+      <description>&lt;h1&gt;
+  
+  
+  Hallmark Is Racing to 12K Stars for a Reason
+&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/nutlope/hallmark" rel="noopener noreferrer"&gt;Nutlope/hallmark&lt;/a&gt; hit 12,200 GitHub stars this week -- gaining 1,486 in a single day -- and claimed the &lt;a href="https://trendshift.io/repositories/33587" rel="noopener noreferrer"&gt;#1 trending repository spot on Trendshift&lt;/a&gt; on July 15, 2026. It is an anti-AI-slop design skill for Claude Code, Cursor, and Codex built by Hassan El Mghari at Together AI. One command installs it: &lt;code&gt;npx skills add nutlope/hallmark&lt;/code&gt;. The star velocity is not hype. It is a demand signal: developers have stopped asking whether AI can write code and started asking who controls the quality of what it ships.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Read the full version with charts and embedded sources on &lt;a href="https://agentconn.com/blog/hallmark-anti-slop-skill-2026" rel="noopener noreferrer"&gt;AgentConn&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;That shift -- from capability to control -- is the real story. Hallmark is the fastest-growing single artifact in the agent-skill ecosystem not because it does something new, but because it does something developers have been manually patching around for eighteen months: it runs 57 deterministic quality gates on every AI-generated page before that page leaves the build loop. The value in AI coding is migrating from models to the skill and tooling layer on top of them, and it is the open ecosystem -- not the labs -- building it.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://x.com/nutlope/status/2056754959819915459" rel="noopener noreferrer"&gt;&lt;img alt="Hassan El Mghari on X announcing Hallmark" height="975" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5anwriyz30av53npbgn3.png" width="800" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;a href="https://x.com/nutlope/status/2056754959819915459" rel="noopener noreferrer"&gt;View original post on X -&amp;gt;&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  What Hallmark Actually Does
+&lt;/h2&gt;
+
+&lt;p&gt;Hallmark is not a component library. It is an instruction file -- a SKILL.md with a references directory -- that constrains how a coding agent generates frontend output. When you install it, your agent gains four verbs:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Build&lt;/strong&gt; (default). Give Hallmark a brief -- "landing page for a developer tool" or "dashboard for a logistics app" -- and it asks three clarifying questions, selects a macrostructure (one of 21 named whole-page shapes like Bento Grid, Marquee Hero, Long Document, or Workbench), applies a theme, and generates the page. Before it hands you the output, it runs every line through the 57-gate slop test. Anything that trips a gate gets regenerated.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Audit&lt;/strong&gt;. Point it at an existing page -- &lt;code&gt;hallmark audit src/app/page.tsx&lt;/code&gt; -- and it scores your code against the full anti-pattern catalogue without changing a line. You get a punch list of what makes your UI look AI-generated: repeated border-radius values, identical card heights, Inter-at-400-everywhere, purple-gradient-on-dark-background, the full taxonomy of tells.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Redesign&lt;/strong&gt;. This verb throws out the visual structure but preserves your copy, information architecture, and brand. It rebuilds the page with a completely different fingerprint. Two redesigns of the same page look like two different sites, not two themes applied to one template.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Study&lt;/strong&gt;. Paste a screenshot or URL of a site you admire -- &lt;code&gt;hallmark study https://linear.app&lt;/code&gt; -- and it extracts the design DNA: macrostructure, typography pairing, color anchor, spacing rhythm. The output is a portable &lt;code&gt;design.md&lt;/code&gt; that you can feed into future builds. No pixel-perfect cloning. Design language transfer.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://x.com/nutlope/status/2056754961539637450" rel="noopener noreferrer"&gt;&lt;img alt="Hassan El Mghari on X explaining Hallmark's 4 commands" height="984" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9c81nwep8knlt7dpbpi9.png" width="800" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;a href="https://x.com/nutlope/status/2056754961539637450" rel="noopener noreferrer"&gt;View original post on X -&amp;gt;&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/nutlope/hallmark" rel="noopener noreferrer"&gt;&lt;img alt="Nutlope/hallmark GitHub repository" height="525" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5ftd10nw93xrlrxksfm4.png" width="800" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;a href="https://github.com/nutlope/hallmark" rel="noopener noreferrer"&gt;View on GitHub -&amp;gt;&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;  
+  
+&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  The 57 Gates: What Gets Caught
+&lt;/h2&gt;
+
+&lt;p&gt;The slop test is not a vague checklist. It is 57 specific, deterministic checks organized across six axes -- Philosophy, Hierarchy, Execution, Specificity, Restraint, and Variety. Every gate is binary: pass or regenerate.&lt;/p&gt;
+
+&lt;p&gt;Here is a sample of what trips the test:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Typography caps.&lt;/strong&gt; If every heading uses the same weight, the gate fails. Hallmark enforces deliberate typographic hierarchy -- display vs. body vs. caption -- with minimum two weights and two size scales in every build.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Color anchor drift.&lt;/strong&gt; The skill locks a primary color anchor plus a narrow supporting palette. Generic "blue-500 everywhere" fails. Each theme defines an HSL-based system with documented contrast ratios (APCA and WCAG).&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Card uniformity.&lt;/strong&gt; Identical card heights, identical border radii, identical padding -- the most reliable visual fingerprint of AI output -- trips the variety gate. Hallmark enforces at least two distinct card treatments per page.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Motion defaults.&lt;/strong&gt; CSS &lt;code&gt;ease-in-out&lt;/code&gt; on everything is a slop tell. The skill requires spring physics or intentional easing curves, with &lt;code&gt;prefers-reduced-motion&lt;/code&gt; always respected.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Honest copy.&lt;/strong&gt; Fabricated metrics ("10,000+ happy customers" on a page that launched yesterday) trip a specific gate. Hallmark enforces placeholder-honest content when real data is unavailable.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Chrome traps.&lt;/strong&gt; Fake browser windows, fake IDE screenshots, fake terminal outputs rendered as decoration -- all fail. The skill catalogs 12 specific chrome anti-patterns and blocks every one.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Before the slop test runs, a pre-emit self-critique scores the output 1-5 on each of the six axes. Anything below 3 on any axis triggers a full revision pass before the gates even run. The critique is embedded as a CSS comment in the final output -- you can read it to understand the agent's reasoning.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Quick audit command:&lt;/strong&gt; Run &lt;code&gt;hallmark audit src/&lt;/code&gt; on any existing project to get a slop score without changing a line of code. The output lists every gate that fails with specific remediation steps.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  22 Themes, 21 Macrostructures, Zero Color Swaps
+&lt;/h2&gt;
+
+&lt;p&gt;The criticism most people level at theming systems -- "they are just color swaps" -- does not apply here because Hallmark themes are not CSS variable packs. Each theme defines a complete design system: typography pairing (specific font stacks, not generic categories), color anchor with derived palette, spacing rhythm, motion character, and component treatment defaults.&lt;/p&gt;
+
+&lt;p&gt;The 22 themes are organized across four genres:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Editorial&lt;/strong&gt; (12 themes): Specimen, Atelier, Brutal, Newsprint, Studio, Manifesto, Almanac, Garden, Riso, Sport, Editorial, Carnival&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Modern-Minimal&lt;/strong&gt; (2 themes): Coral, Cobalt&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Atmospheric&lt;/strong&gt; (5 themes): Bloom, Midnight, Terminal, Aurora, Lumen&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Playful&lt;/strong&gt; (1 theme): Hum&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Carnival uses grotesque sans-serif with high contrast and bold color blocking. Cobalt uses Space Grotesk with mono-paired technical precision. Hum uses Plus Jakarta Sans for warm humanist roundness. These are not color swaps -- they are fundamentally different design languages.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href="https://x.com/nutlope/status/2062226108154618268" rel="noopener noreferrer"&gt;v1.1 release&lt;/a&gt; added the four newest themes (Carnival, Lumen, Hum, Cobalt) plus more slop detectors and a redesign-mode overhaul. The live showcase at &lt;a href="https://www.usehallmark.com/" rel="noopener noreferrer"&gt;usehallmark.com&lt;/a&gt; lets you press T to cycle through all 22 themes on any page -- proof that the same content renders as genuinely different sites under each theme.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://x.com/nutlope/status/2062226108154618268" rel="noopener noreferrer"&gt;&lt;img alt="Hassan El Mghari on X announcing Hallmark v1.1" height="1131" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fk5gekobtjk4wwworvc5g.png" width="800" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;a href="https://x.com/nutlope/status/2062226108154618268" rel="noopener noreferrer"&gt;View original post on X -&amp;gt;&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Macrostructures are equally important. Hallmark defines 21 named whole-page shapes -- Bento Grid, Marquee Hero, Long Document, Workbench, Asymmetric Split, and sixteen more -- that determine the spatial bones of a page before any content or styling is applied. The agent selects the macrostructure based on the brief's content type, not randomly. A SaaS pricing page gets a different skeleton than a developer documentation portal, which gets a different skeleton than an event landing page.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Growth Anatomy: From Launch to 12K Stars in Eight Weeks
+&lt;/h2&gt;
+
+&lt;p&gt;Hassan El Mghari &lt;a href="https://x.com/nutlope/status/2056754959819915459" rel="noopener noreferrer"&gt;launched Hallmark on May 19, 2026&lt;/a&gt; with a single tweet and a GitHub repo. Within 24 hours, &lt;a href="https://x.com/nutlope/status/2057167106718699545" rel="noopener noreferrer"&gt;it had 1,000 installs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://x.com/nutlope/status/2057167106718699545" rel="noopener noreferrer"&gt;&lt;img alt="Hassan El Mghari on X -- Hallmark 1K installs in 24 hours" height="1090" src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frow4prdt6dyel1bcupdp.png" width="800" /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;a href="https://x.com/nutlope/status/2057167106718699545" rel="noopener noreferrer"&gt;View original post on X -&amp;gt;&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The growth arc tells a story about demand timing:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Week 1&lt;/strong&gt; (May 19-25): Launch, 1K installs, early adopter wave from Hassan's existing audience (he built roomGPT, llama-ocr, and other viral open-source projects at Together AI)&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Week 4&lt;/strong&gt; (June ~15): Crossed 3K stars as the first round of tutorial content hit YouTube and dev blogs&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Week 6&lt;/strong&gt; (July 1): v1.1 release with 4 new themes, redesign mode overhaul, and additional slop detectors accelerated growth past 5K&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Week 8&lt;/strong&gt; (July 14-17): Hit #1 trending on Trendshift, #2 on GitHub Trending globally, 1,486 stars in a single day, currently at 12,200&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That trajectory maps directly onto the broader &lt;a href="https://agentconn.com/blog/agent-skills-new-dotfiles-repos-racing-250k-stars-2026" rel="noopener noreferrer"&gt;agent-skill explosion&lt;/a&gt;. When obra/superpowers holds 252K stars and mattpocock/skills holds 165K, the ecosystem is clearly signaling that the skill layer is where practitioners are investing. Hallmark is the design-quality vertical of that wave.&lt;/p&gt;
+
+&lt;p&gt;  
+  
+&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  How to Wire Hallmark into Your Workflow
+&lt;/h2&gt;
+
+&lt;h3&gt;
+  
+  
+  Claude Code
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# Install (one command)&lt;/span&gt;
+npx skills add nutlope/hallmark
+
+&lt;span class="c"&gt;# The skill lands in ~/.claude/skills/hallmark/&lt;/span&gt;
+&lt;span class="c"&gt;# Claude Code auto-discovers it on next session&lt;/span&gt;
+
+&lt;span class="c"&gt;# Build a new page&lt;/span&gt;
+&lt;span class="c"&gt;# Just describe what you want -- hallmark activates automatically:&lt;/span&gt;
+&lt;span class="s2"&gt;"Build a landing page for a developer analytics tool"&lt;/span&gt;
+
+&lt;span class="c"&gt;# Audit an existing page&lt;/span&gt;
+&lt;span class="s2"&gt;"hallmark audit src/app/page.tsx"&lt;/span&gt;
+
+&lt;span class="c"&gt;# Redesign without changing copy&lt;/span&gt;
+&lt;span class="s2"&gt;"hallmark redesign src/app/landing.tsx"&lt;/span&gt;
+
+&lt;span class="c"&gt;# Study a reference site&lt;/span&gt;
+&lt;span class="s2"&gt;"hallmark study https://linear.app"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h3&gt;
+  
+  
+  Cursor
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# Install&lt;/span&gt;
+npx skills add nutlope/hallmark
+
+&lt;span class="c"&gt;# Or manually copy to .cursor/rules/hallmark.mdc&lt;/span&gt;
+&lt;span class="c"&gt;# Cursor reads it as a rule file&lt;/span&gt;
+
+&lt;span class="c"&gt;# Same four verbs work in Cursor's composer&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h3&gt;
+  
+  
+  Codex (OpenAI)
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# Install&lt;/span&gt;
+npx skills add nutlope/hallmark
+
+&lt;span class="c"&gt;# Or copy to ~/.codex/skills/hallmark/ or .codex/skills/hallmark/&lt;/span&gt;
+&lt;span class="c"&gt;# Codex picks it up from either location&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Pro tip -- chain audit with CI.&lt;/strong&gt; Add &lt;code&gt;hallmark audit src/&lt;/code&gt; as a pre-commit hook or CI step. The audit outputs a machine-readable score. Set a threshold (no gate failures allowed) and block deploys that ship slop. This turns hallmark from a generation-time tool into a continuous quality gate.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3&gt;
+  
+  
+  Pre-Flight: What Hallmark Checks Before It Builds
+&lt;/h3&gt;
+
+&lt;p&gt;Before any design work, Hallmark runs a pre-flight scan that checks six sources in your project:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;design.md&lt;/strong&gt; -- any locked design system files&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Font stacks&lt;/strong&gt; -- what is already imported&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Color palettes&lt;/strong&gt; -- existing CSS custom properties&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Motion libraries&lt;/strong&gt; -- Framer Motion, GSAP, or CSS-only&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Spacing scales&lt;/strong&gt; -- your current spacing tokens&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Framework type&lt;/strong&gt; -- React, Vue, Svelte, plain HTML&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Results are stored in &lt;code&gt;.hallmark/preflight.json&lt;/code&gt;. This means Hallmark respects your existing design decisions rather than overwriting them. If you already have a color palette defined, it works within that palette. If you have Framer Motion installed, it uses spring physics. The skill adapts to your stack rather than imposing one.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  The Contrarian Case: Is This a Bandaid?
+&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;The counter-argument worth considering:&lt;/strong&gt; If frontier models had better taste, you would not need 57 gates to catch slop. Together AI building this is, at some level, an admission that their own models -- and everyone else's -- have a design-quality ceiling that instruction-level prompting cannot fix.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The strongest version of the argument: as models improve (Claude 5, GPT-5, Gemini 2.5 Pro), the aesthetic floor will rise. The patterns Hallmark catches -- Inter everywhere, purple gradients, identical cards -- are training-data artifacts. Better training data and RLHF on design quality will reduce them. When that happens, 57 gates checking for patterns that no longer appear becomes dead weight in your skill directory.&lt;/p&gt;
+
+&lt;p&gt;There are two responses to this, and both have merit:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;First, models improve slower than practitioners need.&lt;/strong&gt; The slop problem is real today. Teams shipping AI-generated frontends today need a quality gate today. Waiting for models to develop better taste is like waiting for compilers to eliminate the need for linters -- it could happen, but you are shipping code now.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Second, the skill layer does something models architecturally cannot: enforce variety.&lt;/strong&gt; A model's output is a probability distribution. Without constraints, it will always gravitate toward the mode of its training data -- the most common patterns. Hallmark's macrostructure selection and theme system are explicit mechanisms for pushing output away from the mode. Even a model with perfect "taste" would still converge on a narrow set of preferred patterns. The skill layer provides structural diversity that is orthogonal to model quality.&lt;/p&gt;
+
+&lt;p&gt;The real risk is different: &lt;strong&gt;skill proliferation.&lt;/strong&gt; If every design agency ships their own 57-gate slop test, the ecosystem fragments. Hallmark's MIT license and the &lt;code&gt;study&lt;/code&gt; verb (which lets you extract design DNA without coupling to the skill) suggest Hassan is aware of this. But whether Hallmark becomes the standard or one of twelve competing standards remains an open question -- exactly the same &lt;a href="https://agentconn.com/blog/agent-skills-new-dotfiles-repos-racing-250k-stars-2026" rel="noopener noreferrer"&gt;fragmentation risk&lt;/a&gt; that applies to the broader skill ecosystem.&lt;/p&gt;
+
+&lt;p&gt;  
+  
+&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  What This Means for You
+&lt;/h2&gt;
+
+&lt;p&gt;The actionable takeaway is straightforward:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;If you generate any frontend with an AI coding agent, install Hallmark today.&lt;/strong&gt; One command, zero configuration. The audit verb alone -- which scores your existing pages without changing them -- is worth the install. Run it against your current codebase and see how many slop tells your agent has been shipping.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;If you run a team, wire audit into your CI pipeline.&lt;/strong&gt; The gate-based architecture means you can set a threshold and block deployments that fail. This is the same pattern as ESLint or Prettier -- deterministic quality enforcement at the tool level, not relying on individual discipline.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;If you are evaluating the agent-skill ecosystem:&lt;/strong&gt; Hallmark's growth is a signal that the value in AI coding is migrating from the model layer to the &lt;a href="https://agentconn.com/blog/agent-harness-not-model-guardrail-stack-2026" rel="noopener noreferrer"&gt;harness and tooling layer&lt;/a&gt;. The companies and teams that invest in skill curation, quality gates, and output control will outperform those that rely on raw model capability. The &lt;a href="https://agentconn.com/blog/agent-config-skills-supply-chain-attack-surface-2026" rel="noopener noreferrer"&gt;security implications&lt;/a&gt; of running third-party skills are real -- vet what you install -- but the productivity case is proven.&lt;/p&gt;
+
+&lt;p&gt;The community is voting with stars: 12,200 and counting. The question is no longer whether AI can write your frontend. It is whether your frontend deserves a quality gate. Hallmark says yes.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Originally published at &lt;a href="https://agentconn.com/blog/hallmark-anti-slop-skill-2026" rel="noopener noreferrer"&gt;AgentConn&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/max_quimby/hallmark-is-racing-to-12k-stars-for-a-reason-4jll</link>
+      <pubDate>Sat, 18 Jul 2026 04:52:16 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/max_quimby/hallmark-is-racing-to-12k-stars-for-a-reason-4jll</guid>
+    </item>
+    <item>
+      <title>[翻訳] How to verify AI citations instead of trusting ranking screenshots</title>
+      <description>&lt;p&gt;AI visibility work is often reduced to a single question: “What position did my brand get?”&lt;/p&gt;
+
+&lt;p&gt;That is a useful signal, but it is not enough to understand whether an answer is actually helping a user. A stronger measurement process separates at least three things:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Mention&lt;/strong&gt; — Is the brand or product named?&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Citation&lt;/strong&gt; — Does the answer link to, or rely on, a source from the brand?&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Context&lt;/strong&gt; — Is the mention accurate and relevant to the question?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A practical test can be built with a small, stable prompt set. Keep the prompts tied to real customer questions, record the model and date, and save the complete answer rather than only a screenshot. Then review the cited URLs and classify each result as owned, competitor, community, or other third-party source.&lt;/p&gt;
+
+&lt;p&gt;The next step is to compare the answer with the source it cites. A citation may exist while the surrounding description is outdated, too broad, or missing the product’s most useful qualification. This is where manual review matters: visibility is not the same as accuracy.&lt;/p&gt;
+
+&lt;p&gt;For repeatable monitoring, track:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;the exact prompt and location;&lt;/li&gt;
+&lt;li&gt;the model or answer engine;&lt;/li&gt;
+&lt;li&gt;whether the brand was mentioned;&lt;/li&gt;
+&lt;li&gt;which sources were cited;&lt;/li&gt;
+&lt;li&gt;whether the citation was relevant;&lt;/li&gt;
+&lt;li&gt;what changed since the previous check.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;It is also worth checking competitor gaps. If competitors are repeatedly cited for a question and your site is absent, the gap may be caused by unclear documentation, weak topical coverage, or a missing page—not simply a ranking problem.&lt;/p&gt;
+
+&lt;p&gt;I use &lt;a href="https://answervisibilitylab.com" rel="noopener noreferrer"&gt;Answer Visibility Lab&lt;/a&gt; as a lightweight way to inspect AI visibility signals and citation patterns. The output should be treated as an observation aid, not a guarantee of rankings or future model behavior.&lt;/p&gt;
+
+&lt;p&gt;The most useful report is therefore not “we ranked third.” It is “here is the answer, here are the cited sources, here is what was accurate, and here is the next page or proof point we should improve.”&lt;/p&gt;</description>
+      <link>https://dev.to/david_bob/how-to-verify-ai-citations-instead-of-trusting-ranking-screenshots-4g8b</link>
+      <pubDate>Sat, 18 Jul 2026 04:46:50 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/david_bob/how-to-verify-ai-citations-instead-of-trusting-ranking-screenshots-4g8b</guid>
+    </item>
+    <item>
+      <title>[翻訳] Observation is not proof: three local operational evidence tools</title>
+      <description>&lt;p&gt;Operational tools often collapse very different claims into one reassuring word: “verified.” A timer is listed, so the job must have run. A directory hash matches, so the handoff must be authentic. Two form exports differ, so the report should show every submitted value.&lt;/p&gt;
+
+&lt;p&gt;Those conclusions are stronger than the evidence.&lt;/p&gt;
+
+&lt;p&gt;I built three small local tools that keep the claim boundary visible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;TimerProof&lt;/strong&gt; inventories cron and systemd timer evidence;&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Dropcheck&lt;/strong&gt; records and compares best-effort directory observations; and&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;FormDelta&lt;/strong&gt; summarizes flat-record snapshot changes without printing submitted values or record keys.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  TimerProof: configuration and manager state are not job success
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href="https://codeberg.org/automa-tan/timerproof" rel="noopener noreferrer"&gt;TimerProof&lt;/a&gt; is a read-only Linux CLI and API for classic cron entries and systemd timers.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight console"&gt;&lt;code&gt;&lt;span class="go"&gt;node bin/timerproof.js
+node bin/timerproof.js --json --scope system
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The report separates configured schedule evidence, manager snapshots, inaccessible views, unsupported cron grammar, and unknowns. Cron command text is omitted unless &lt;code&gt;--include-commands&lt;/code&gt; is explicitly supplied.&lt;/p&gt;
+
+&lt;p&gt;A supported cron expression matching the observed host-local minute is only eligibility evidence. A systemd last-trigger timestamp means the timer manager recorded a trigger; it does not prove that the activated service started or succeeded. Unit-file enablement is not runtime state.&lt;/p&gt;
+
+&lt;p&gt;TimerProof does not run jobs, mutate scheduler state, inspect journal history, contact network services, or infer command outcomes.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Dropcheck: a receipt is an observation, not authenticity
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href="https://codeberg.org/automa-tan/dropcheck" rel="noopener noreferrer"&gt;Dropcheck&lt;/a&gt; scans regular files in a directory with streamed SHA-256 and records relative paths and byte sizes. A later &lt;code&gt;check&lt;/code&gt; compares the current observation with that receipt.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight console"&gt;&lt;code&gt;&lt;span class="gp"&gt;dropcheck scan ./handoff &amp;gt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;handoff.receipt.json
+&lt;span class="go"&gt;dropcheck check handoff.receipt.json ./handoff
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;It reports added, removed, and changed regular files; warns about symlinks and special entries without following them; flags likely accidental handoff content such as VCS metadata and &lt;code&gt;.env&lt;/code&gt; variants; and detects many observable scan races through identity and metadata checks.&lt;/p&gt;
+
+&lt;p&gt;The receipt is still best-effort. It is not signed, atomic, fresh, replay-resistant, or proof that the directory came from a trusted party. Dropcheck does not upload, copy, delete, authenticate, or modify the input directory.&lt;/p&gt;
+
+&lt;p&gt;That distinction makes the receipt useful as a local handoff comparison without turning it into an authenticity claim it cannot support.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  FormDelta: compare structure without echoing records
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href="https://codeberg.org/automa-tan/formdelta" rel="noopener noreferrer"&gt;FormDelta&lt;/a&gt; compares two local JSON arrays of flat records using an explicit key field.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight console"&gt;&lt;code&gt;&lt;span class="go"&gt;formdelta --key id before.json after.json
+formdelta --key id --format json before.json after.json
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;It reports:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;schema fields and observed primitive-type changes;&lt;/li&gt;
+&lt;li&gt;aggregate added, removed, changed, and unchanged record counts; and&lt;/li&gt;
+&lt;li&gt;field-level counts across matched records, including value changes, blanking, presence changes, and type changes.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;It does &lt;strong&gt;not&lt;/strong&gt; print submitted values or record key values. There are no hashes, truncated identifiers, or pseudonyms that could become linkable across reports. Field names remain structural metadata, so a report still needs protection when those names are sensitive.&lt;/p&gt;
+
+&lt;p&gt;FormDelta intentionally rejects nested objects and arrays rather than pretending to understand arbitrary application data.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Match the evidence to the decision
+&lt;/h2&gt;
+
+&lt;p&gt;These tools are useful when the next step depends on a narrow question:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;“What schedule evidence can this host expose right now?”&lt;/li&gt;
+&lt;li&gt;“Did the regular files I can observe change since this receipt?”&lt;/li&gt;
+&lt;li&gt;“How did the structure and aggregate content of these flat records change?”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;They are less useful when the real question is stronger:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;“Did the job complete successfully?”&lt;/li&gt;
+&lt;li&gt;“Is this directory authentic and untampered?”&lt;/li&gt;
+&lt;li&gt;“Which person's exact answer changed?”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Those stronger questions need different evidence and, often, different trust boundaries.&lt;/p&gt;
+
+&lt;p&gt;All three projects are open source, local-only, and have no project-operated service or telemetry:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;TimerProof: &lt;a href="https://codeberg.org/automa-tan/timerproof" rel="noopener noreferrer"&gt;https://codeberg.org/automa-tan/timerproof&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;Dropcheck: &lt;a href="https://codeberg.org/automa-tan/dropcheck" rel="noopener noreferrer"&gt;https://codeberg.org/automa-tan/dropcheck&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;FormDelta: &lt;a href="https://codeberg.org/automa-tan/formdelta" rel="noopener noreferrer"&gt;https://codeberg.org/automa-tan/formdelta&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I am interested in other places where a small report could make the boundary between observation and proof more explicit.&lt;/p&gt;</description>
+      <link>https://dev.to/nekoautomata/observation-is-not-proof-three-local-operational-evidence-tools-2cmf</link>
+      <pubDate>Sat, 18 Jul 2026 04:46:17 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/nekoautomata/observation-is-not-proof-three-local-operational-evidence-tools-2cmf</guid>
+    </item>
+    <item>
+      <title>[翻訳] A practical way to evaluate AI coding assistants</title>
+      <description>&lt;p&gt;When a team compares AI coding assistants, the hardest part is usually not finding a longer feature list. It is deciding which tool fits the way the team actually works.&lt;/p&gt;
+
+&lt;p&gt;A lightweight evaluation can focus on five questions:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Repository context&lt;/strong&gt; — Can the assistant understand the project structure, conventions, and existing APIs without repeated prompting?&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Task quality&lt;/strong&gt; — Does it help with small, verifiable tasks such as tests, refactors, documentation, and bug isolation?&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Reviewability&lt;/strong&gt; — Are the generated changes easy to inspect, explain, and reject when they are wrong?&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Security and privacy&lt;/strong&gt; — What code is sent to the service, how is it retained, and what controls exist for sensitive repositories?&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Workflow fit&lt;/strong&gt; — Does it work where the team already codes, or does it create another disconnected step?&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;I also like to test the same small task across several assistants. Keep the prompt, repository context, acceptance criteria, and time limit consistent. Then compare the result on correctness, review effort, and maintainability—not just the first draft.&lt;/p&gt;
+
+&lt;p&gt;A useful test set might include:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;writing a unit test for an existing function;&lt;/li&gt;
+&lt;li&gt;explaining an unfamiliar module;&lt;/li&gt;
+&lt;li&gt;proposing a small refactor with no behavior change;&lt;/li&gt;
+&lt;li&gt;turning an issue description into an implementation checklist;&lt;/li&gt;
+&lt;li&gt;identifying edge cases in an input parser.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For teams that want a concise starting point, I keep a public &lt;a href="https://ai-coding-tools-guide.vercel.app/" rel="noopener noreferrer"&gt;AI Coding Tools Guide&lt;/a&gt; with practical notes on use cases, workflows, and developer fit. It is best used as a shortlist, followed by testing the tools against your own repository and policies.&lt;/p&gt;
+
+&lt;p&gt;The goal is not to find the assistant with the most impressive demo. It is to find the one that reduces useful engineering work while keeping human review in the loop.&lt;/p&gt;</description>
+      <link>https://dev.to/david_bob/a-practical-way-to-evaluate-ai-coding-assistants-5ecg</link>
+      <pubDate>Sat, 18 Jul 2026 04:46:13 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/david_bob/a-practical-way-to-evaluate-ai-coding-assistants-5ecg</guid>
+    </item>
+    <item>
       <title>[翻訳] 96のクラウドサービス監視から見えた、統一されたステータスページの欠如と教訓</title>
       <description>開発者がOutageDeckというツールを作成し、96のクラウド・SaaSプロバイダーの公式ステータスページを一元管理することで、ステータス情報の形式が統一されていない問題に直面した。
 AWSのUTF-16エンコーディングやSlackの独自API、Stripeのレガシーフィードなど、各プロバイダーが異なる形式でステータス情報を提供しており、タイムスタンプの遅延やデータの信頼性も課題となっている。
