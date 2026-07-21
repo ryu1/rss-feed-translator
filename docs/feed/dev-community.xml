@@ -5,6 +5,2290 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] I Built a Slot-Filling Onboarding Bot. It Leaked a Validation Error Into the Chat</title>
+      <description>&lt;p&gt;I was building an onboarding flow: a new user lands, a chat window asks them three things - what problem they're solving, what their idea is, who the user is - and once all three are answered, the app needs &lt;code&gt;{ problem, idea, targetUser }&lt;/code&gt; as a clean, validated object. Not a transcript. Not "probably in there somewhere." An actual object my code could pass to the next step without re-reading prose.&lt;/p&gt;
+
+&lt;p&gt;My first pass was the obvious one: after every user reply, try to extract the object, check if it validated, and if it didn't, ask the model for a follow-up question. It worked right up until the extraction step threw partway through a conversation - a &lt;code&gt;SchemaViolationError&lt;/code&gt; with actual validation details in it - and I hadn't wrapped that path carefully enough. The raw error text got forwarded straight into the chat window as if it were the bot's next question. A user saw &lt;code&gt;"idea": expected string, received undefined&lt;/code&gt; where a friendly follow-up question should have been.&lt;/p&gt;
+
+&lt;p&gt;I fixed that specific leak with a try/catch. Then found a second one a day later in a different code path. That's when I stopped patching leaks one at a time and looked at whether the tool I was already using (&lt;a href="https://github.com/aviasoletechnologies/shapecraft" rel="noopener noreferrer"&gt;shapecraft&lt;/a&gt;) had a mode built for exactly this shape of problem, instead of me re-deriving "never let internal errors reach the user" by hand, one bug at a time.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The actual design problem
+&lt;/h2&gt;
+
+&lt;p&gt;It's not really "extract after every message and retry." It's two completely different concerns that I'd tangled into one loop:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Having a conversation&lt;/strong&gt; - a model asking natural questions, probing vague answers, deciding when it has enough. That's chat. It should never be schema-constrained, because forcing JSON-shaped output mid-conversation is exactly how you get a bot that "helpfully" outputs a stray &lt;code&gt;{...}&lt;/code&gt; into the chat.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Producing a validated object, once, at the end&lt;/strong&gt; - a completely separate concern from the conversation itself.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Conflating them means every turn is a place validation &lt;em&gt;could&lt;/em&gt; fail and leak. Separating them means there's exactly &lt;strong&gt;one&lt;/strong&gt; place validation happens - after the conversation is over - and exactly one rule to enforce: nothing generated internally at that step is ever routed back into the chat.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  &lt;code&gt;turnaround&lt;/code&gt; mode
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;generate(..., { turnaround: true })&lt;/code&gt; is built around that split. The model drives the conversation entirely through &lt;code&gt;systemPrompt&lt;/code&gt; - what to ask, when to probe a vague answer, when it's satisfied. Shapecraft's only job during collection is to relay the model's reply and carry the transcript forward:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;generate&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@aviasole/shapecraft&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;FACILITATOR&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
+  &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Ask exactly one focused question at a time to learn: (1) what problem are we solving, &lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
+  &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;(2) what the idea is, (3) who the user is. Probe vague answers for specifics. &lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
+  &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;When - and only when - you have clear answers to all three, reply with exactly &amp;lt;&amp;lt;&amp;lt;COMPLETE&amp;gt;&amp;gt;&amp;gt; and nothing else.&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;r&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nf"&gt;generate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;model&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;OnboardingSchema&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Hi&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;systemPrompt&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;FACILITATOR&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;turnaround&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt; &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="nx"&gt;console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;r&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;message&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// "What problem are you trying to solve?" - the model's own words, forwarded verbatim&lt;/span&gt;
+
+&lt;span class="nx"&gt;r&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nf"&gt;generate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;model&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;OnboardingSchema&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;Onboarding takes too long&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;systemPrompt&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;FACILITATOR&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="na"&gt;turnaround&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;memory&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;r&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;memory&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="c1"&gt;// thread the running transcript back in&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="nx"&gt;console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;r&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;message&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// "What's your idea to fix that?"&lt;/span&gt;
+
+&lt;span class="c1"&gt;// ...more turns, same pattern...&lt;/span&gt;
+
+&lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;r&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;status&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;complete&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nx"&gt;console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;r&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;data&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// { problem, idea, targetUser } - validated once, here, never mid-conversation&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;code&gt;memory&lt;/code&gt; is a plain JSON-serializable object - just the transcript plus a turn count - so a stateless HTTP handler can persist it between requests and rehydrate it on the next one, which is the actual shape a real chat backend needs anyway.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The completion sentinel
+&lt;/h2&gt;
+
+&lt;p&gt;The model signals "I'm done" by replying with a literal &lt;code&gt;&amp;lt;&amp;lt;&amp;lt;COMPLETE&amp;gt;&amp;gt;&amp;gt;&lt;/code&gt; instead of another question. That's the trigger for a single, separate &lt;code&gt;generate()&lt;/code&gt; call - a normal structured extraction pass over the whole transcript, not part of the conversation the user sees. I liked this over having the model just emit JSON directly once it thinks it's done, for the same reason my original leak happened: raw or premature JSON has no business anywhere near the user-facing chat, and "is this the sentinel string" is a trivial check instead of a fragile "does this look like JSON" guess.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The rule that actually fixes my bug
+&lt;/h2&gt;
+
+&lt;p&gt;Every response from a &lt;code&gt;turnaround&lt;/code&gt; call is one of two shapes: &lt;code&gt;{ status: "collecting", message }&lt;/code&gt; where &lt;code&gt;message&lt;/code&gt; is &lt;em&gt;only ever the model's own conversational text&lt;/em&gt;, or &lt;code&gt;{ status: "complete", data }&lt;/code&gt; where &lt;code&gt;data&lt;/code&gt; is only ever produced by the end-of-conversation extraction pass. There is no third path where something shapecraft generated internally ends up in &lt;code&gt;message&lt;/code&gt;. If that end-of-conversation extraction fails validation, it throws a real, terminal error out of &lt;code&gt;generate()&lt;/code&gt; - it does not get wrapped into a fake follow-up question, and the user is never re-interrogated for answers already sitting in the transcript.&lt;/p&gt;
+
+&lt;p&gt;That last part surprised me at first - I expected "validation failed, so ask again." But if the user's answers are already in the transcript, a validation failure at the end means &lt;em&gt;my&lt;/em&gt; extraction step is broken, not that the user needs to repeat themselves. Re-asking would be asking the wrong party to fix the wrong problem.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Where that leaves it
+&lt;/h2&gt;
+
+&lt;p&gt;My onboarding bot now has exactly one place structured data gets produced, and exactly zero places an internal error can masquerade as a chat message:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;generate&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;@aviasole/shapecraft&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Repo's at &lt;a href="https://github.com/aviasoletechnologies/shapecraft" rel="noopener noreferrer"&gt;github.com/aviasoletechnologies/shapecraft&lt;/a&gt;, package is &lt;code&gt;@aviasole/shapecraft&lt;/code&gt; on npm. If you've ever had a slot-filling bot leak something internal into the chat window - curious how you caught it.&lt;/p&gt;</description>
+      <link>https://dev.to/yatindavra23/i-built-a-slot-filling-onboarding-bot-it-leaked-a-validation-error-into-the-chat-e4g</link>
+      <pubDate>Tue, 21 Jul 2026 05:40:28 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/yatindavra23/i-built-a-slot-filling-onboarding-bot-it-leaked-a-validation-error-into-the-chat-e4g</guid>
+    </item>
+    <item>
+      <title>[翻訳] Research repository on the Theory of Asymmetric Flow, mathematical models, algorithms, and computational simulations.</title>
+      <description>&lt;h2&gt;
+  
+  
+  🔬 Theory of Asymmetric Flow
+&lt;/h2&gt;
+
+&lt;h2&gt;
+  
+  
+  Reference Implementation
+&lt;/h2&gt;
+
+&lt;h3&gt;
+  
+  
+  La Pekillada
+&lt;/h3&gt;
+
+&lt;p&gt;**Asymmetric Flow &amp;amp; Geometric Absorption Algorithm&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  📌 Overview
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;La Pekillada&lt;/strong&gt; is the first reference implementation of the &lt;strong&gt;Asymmetric Flow &amp;amp; Geometric Absorption Algorithm&lt;/strong&gt;, developed to study the behavior of the &lt;strong&gt;Theory of Asymmetric Flow&lt;/strong&gt; through computational simulation.&lt;/p&gt;
+
+&lt;p&gt;Created and documented by:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;@Jaypsmall&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Project name:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;La Pekillada&lt;/strong&gt;&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🧠 Theoretical Foundation
+&lt;/h2&gt;
+
+&lt;p&gt;This repository is based on the &lt;strong&gt;Theory of Asymmetric Flow&lt;/strong&gt;, a theoretical framework that studies the dynamic redistribution of exposure across multiple independent variables.&lt;/p&gt;
+
+&lt;p&gt;The theory proposes that the collective behavior of a multi-variable system should be analyzed as a whole rather than as isolated variables.&lt;/p&gt;
+
+&lt;p&gt;The theoretical framework is intentionally independent of any specific implementation, application domain, initial capital, iteration limit, or execution environment. Such constraints belong exclusively to particular algorithms and computational implementations derived from the theory.&lt;/p&gt;
+
+&lt;p&gt;The &lt;strong&gt;Asymmetric Flow &amp;amp; Geometric Absorption Algorithm&lt;/strong&gt; provides a mathematical implementation of this theoretical framework.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;La Pekillada&lt;/strong&gt; is the first reference implementation created to experimentally evaluate the theory under controlled simulations.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🧩 Concept
+&lt;/h2&gt;
+
+&lt;p&gt;The algorithm is based on a &lt;strong&gt;dynamic asymmetric redistribution model&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Three independent variables operate simultaneously.&lt;/li&gt;
+&lt;li&gt;The successful variable returns to minimum exposure.&lt;/li&gt;
+&lt;li&gt;The unsuccessful variables increase their exposure progressively.&lt;/li&gt;
+&lt;li&gt;The system studies whether accumulated exposure can be absorbed by future positive events.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The objective is to analyze the behavior of progressive allocation systems under different statistical conditions.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  ⚙️ Algorithm Logic
+&lt;/h2&gt;
+
+&lt;p&gt;The model follows these rules.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Initial State
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;A = 1
+B = 1
+C = 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Each variable starts with the minimum exposure unit.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Event Resolution
+&lt;/h2&gt;
+
+&lt;p&gt;When an event occurs:&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Winning Variable
+&lt;/h3&gt;
+
+&lt;p&gt;The winning variable returns to the minimum value.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Winner = 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Losing Variables
+&lt;/h3&gt;
+
+&lt;p&gt;The losing variables increase.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Loser = Loser × 2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Example:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Initial
+
+A = 1
+B = 1
+C = 1
+
+Event
+
+A wins
+
+New state
+
+A = 1
+B = 2
+C = 2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h2&gt;
+  
+  
+  📊 Mathematical Model
+&lt;/h2&gt;
+
+&lt;p&gt;The system studies:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Exposure accumulation&lt;/li&gt;
+&lt;li&gt;Capital consumption&lt;/li&gt;
+&lt;li&gt;Geometric progression&lt;/li&gt;
+&lt;li&gt;Variance impact&lt;/li&gt;
+&lt;li&gt;Recovery behaviour&lt;/li&gt;
+&lt;li&gt;Maximum risk thresholds&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Main variables:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;R = Available Resources
+
+E = Exposure Level
+
+V = Variance
+
+T = Number of Iterations
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🔬 Simulation Environment
+&lt;/h2&gt;
+
+&lt;p&gt;The repository works as a mathematical laboratory.&lt;/p&gt;
+
+&lt;p&gt;Possible experiments:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;100 rounds&lt;/li&gt;
+&lt;li&gt;1,000 rounds&lt;/li&gt;
+&lt;li&gt;100,000 rounds&lt;/li&gt;
+&lt;li&gt;Monte Carlo simulations&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Metrics evaluated:&lt;/p&gt;
+
+&lt;p&gt;✅ Final balance&lt;/p&gt;
+
+&lt;p&gt;✅ Maximum exposure reached&lt;/p&gt;
+
+&lt;p&gt;✅ Maximum drawdown&lt;/p&gt;
+
+&lt;p&gt;✅ Recovery periods&lt;/p&gt;
+
+&lt;p&gt;✅ System stability&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🛡️ Risk Analysis
+&lt;/h2&gt;
+
+&lt;p&gt;This project does not claim guaranteed profitability.&lt;/p&gt;
+
+&lt;p&gt;The model studies the point where:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Geometric growth exceeds available capital.&lt;/li&gt;
+&lt;li&gt;External limits affect execution.&lt;/li&gt;
+&lt;li&gt;Variance creates extreme scenarios.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Important factors:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Starting capital&lt;/li&gt;
+&lt;li&gt;Maximum allowed exposure&lt;/li&gt;
+&lt;li&gt;Number of iterations&lt;/li&gt;
+&lt;li&gt;External constraints&lt;/li&gt;
+&lt;/ul&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🧪 Experimental Validation
+&lt;/h2&gt;
+
+&lt;p&gt;Validation is performed through:&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Monte Carlo Analysis
+&lt;/h2&gt;
+
+&lt;p&gt;Thousands of independent simulations can be executed to measure:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Probability distribution&lt;/li&gt;
+&lt;li&gt;Average results&lt;/li&gt;
+&lt;li&gt;Extreme events&lt;/li&gt;
+&lt;li&gt;Risk of exhaustion&lt;/li&gt;
+&lt;/ul&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  📂 Project Structure
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;theory-of-asymmetric-flow/
+
+│
+├── LICENSE
+├── AUTHORS.md
+├── README.md
+├── main.py
+├── simulator.py
+│
+├── results/
+│   └── simulations.csv
+│
+└── docs/
+    ├── THEORY.md
+    ├── THESIS.md
+    ├── MATHEMATICAL_MODEL.md
+    └── SIMULATION_RESULTS.md
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🚀 Usage
+&lt;/h2&gt;
+
+&lt;p&gt;Clone repository:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;git clone https://github.com/Jaypsmall/theory-of-asymmetric-flow
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Run simulation:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;python main.py
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Configure parameters:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="n"&gt;ROUNDS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;
+&lt;span class="n"&gt;INITIAL_CAPITAL&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10000&lt;/span&gt;
+&lt;span class="n"&gt;INITIAL_UNIT&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🔮 Future Development
+&lt;/h2&gt;
+
+&lt;p&gt;Possible improvements:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Real-time visualization&lt;/li&gt;
+&lt;li&gt;Statistical dashboard&lt;/li&gt;
+&lt;li&gt;Monte Carlo engine&lt;/li&gt;
+&lt;li&gt;Risk heatmaps&lt;/li&gt;
+&lt;li&gt;Probability analysis&lt;/li&gt;
+&lt;li&gt;Machine learning pattern detection&lt;/li&gt;
+&lt;/ul&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  📚 Documentation
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;📖 &lt;a href="//docs/THEORY.md"&gt;Theory of Asymmetric Flow&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;📘 &lt;a href="//docs/THESIS.md"&gt;Complete Thesis&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  🏛 Repository Architecture
+&lt;/h2&gt;
+
+&lt;p&gt;This repository is organized into four conceptual layers.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  1. Theory of Asymmetric Flow
+&lt;/h2&gt;
+
+&lt;p&gt;The conceptual framework.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  2. Asymmetric Flow &amp;amp; Geometric Absorption Algorithm
+&lt;/h2&gt;
+
+&lt;p&gt;The mathematical algorithm derived from the theory.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  3. La Pekillada
+&lt;/h2&gt;
+
+&lt;p&gt;The first reference implementation.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  4. Python Simulation
+&lt;/h2&gt;
+
+&lt;p&gt;Computational experiments used to evaluate the implementation under controlled conditions.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  📜 Project Information
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Theory&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Theory of Asymmetric Flow&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Reference Algorithm&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Asymmetric Flow &amp;amp; Geometric Absorption Algorithm&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Reference Implementation&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;La Pekillada&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Creator&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;@Jaypsmall&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Experimental mathematical theory, computational model, and simulation framework.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Status&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Research and development.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  📄 License
+&lt;/h1&gt;
+
+&lt;p&gt;&lt;strong&gt;Copyright © 2026 Jaypsmall. All Rights Reserved.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This repository contains original theoretical work, mathematical models, algorithms, software implementations, documentation, simulations, and related materials created by the author.&lt;/p&gt;
+
+&lt;p&gt;No part of this repository may be copied, reproduced, modified, redistributed, incorporated into another project, or used for commercial purposes without the prior written permission of the author.&lt;/p&gt;
+
+&lt;p&gt;For licensing inquiries:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/Jaypsmall" rel="noopener noreferrer"&gt;https://github.com/Jaypsmall&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;See the &lt;strong&gt;LICENSE&lt;/strong&gt; file for the complete license terms.&lt;/p&gt;
+
+
+
+
+&lt;h1&gt;
+  
+  
+  ⚠️ Disclaimer
+&lt;/h1&gt;
+
+&lt;p&gt;This repository presents an experimental mathematical framework intended for research, simulation, and educational purposes.&lt;/p&gt;
+
+&lt;p&gt;The computational models and implementations are designed to explore theoretical behavior under controlled simulations and should not be interpreted as guarantees of real-world performance.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;© 2026 @Jaypsmall&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/Jaypsmall/theory-of-asymmetric-flow" rel="noopener noreferrer"&gt;https://github.com/Jaypsmall/theory-of-asymmetric-flow&lt;/a&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/architect_d4d/research-repository-on-the-theory-of-asymmetric-flow-mathematical-models-algorithms-and-b14</link>
+      <pubDate>Tue, 21 Jul 2026 05:38:49 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/architect_d4d/research-repository-on-the-theory-of-asymmetric-flow-mathematical-models-algorithms-and-b14</guid>
+    </item>
+    <item>
+      <title>[翻訳] Java &amp; AI: What Developers Need to Know</title>
+      <description>&lt;h2&gt;
+  
+  
+  Why Your CRaC Restores Fail in Production: Debugging Resource Leaks with JDK 26 JFR Events
+&lt;/h2&gt;
+
+&lt;p&gt;With scale-to-zero Java microservices dominating cloud-native architectures in 2026, Project CRaC (Coordinated Restore at Checkpoint) has become the de facto standard for sub-millisecond startup times. But blindly snapshotting running JVMs without auditing open files, sockets, and threads is a recipe for silent restore failures and catastrophic production outages.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;If you're prepping for interviews, I've been building &lt;a href="https://javalld.com" rel="noopener noreferrer"&gt;javalld.com&lt;/a&gt; — real machine coding problems with full execution traces.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  Why Most Developers Get This Wrong
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Treating CRaC like GC:&lt;/strong&gt; Assuming the JVM will magically clean up active TCP connections or file handles during a checkpoint.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Leaking Sockets:&lt;/strong&gt; Leaving database connection pools active, which causes the CRaC runtime to throw a hard &lt;code&gt;CheckpointException&lt;/code&gt; and abort the freeze.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Silent Restore Failures:&lt;/strong&gt; Failing to write idempotent recovery hooks, resulting in deadlocks and broken state when the JVM wakes up in a cloned environment.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  The Right Way
+&lt;/h2&gt;
+
+&lt;p&gt;You must design your resource lifecycle hooks to be strictly idempotent, utilizing JDK 26's new native JFR events to audit and verify clean state transitions before freeze.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Implement the &lt;code&gt;org.crac.Resource&lt;/code&gt; interface defensively, ensuring &lt;code&gt;beforeCheckpoint&lt;/code&gt; and &lt;code&gt;afterRestore&lt;/code&gt; can run multiple times without throwing errors.&lt;/li&gt;
+&lt;li&gt;Leverage the newly introduced JDK 26 &lt;code&gt;jdk.Checkpoint&lt;/code&gt; and &lt;code&gt;jdk.Restore&lt;/code&gt; JFR events to profile freeze duration and pinpoint exactly which class blocked the operation.&lt;/li&gt;
+&lt;li&gt;Use a centralized &lt;code&gt;ResourceReleaser&lt;/code&gt; coordinator to gracefully drain active HTTP requests and close open file descriptors before the checkpoint engine kicks in.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Show Me The Code
+&lt;/h2&gt;
+
+&lt;p&gt;Here is how to implement a clean, idempotent database pool resource that safely registers with the CRaC context:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight java"&gt;&lt;code&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;IdempotentDbPool&lt;/span&gt; &lt;span class="kd"&gt;implements&lt;/span&gt; &lt;span class="n"&gt;org&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;crac&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;Resource&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="nc"&gt;HikariDataSource&lt;/span&gt; &lt;span class="n"&gt;ds&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;beforeCheckpoint&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Context&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;?&lt;/span&gt; &lt;span class="kd"&gt;extends&lt;/span&gt; &lt;span class="nc"&gt;Resource&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ds&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;ds&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isClosed&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;ds&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// Prevent socket leaks during checkpoint&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;afterRestore&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Context&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;?&lt;/span&gt; &lt;span class="kd"&gt;extends&lt;/span&gt; &lt;span class="nc"&gt;Resource&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ds&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="n"&gt;ds&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isClosed&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ds&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;initHikariPool&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// Idempotent re-initialization&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Key Takeaways
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Zero-Socket Policy:&lt;/strong&gt; Every network socket and file descriptor must be closed before checkpointing, or the JVM will refuse to freeze.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;JDK 26 JFR is Mandatory:&lt;/strong&gt; Use the new native flight recorder events to trace exactly which thread or resource blocked a restore operation.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Idempotency Over Everything:&lt;/strong&gt; Assume &lt;code&gt;afterRestore&lt;/code&gt; can be called in a cloned environment and design your initialization hooks accordingly.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;---JSON&lt;br /&gt;
+{"title": "Why Your CRaC Restores Fail in Production: Debugging Resource Leaks with JDK 26 JFR Events", "tags": ["java", "programming", "concurrency", "computerscience"]}&lt;br /&gt;
+---END&lt;/p&gt;</description>
+      <link>https://dev.to/machinecodingmaster/java-ai-what-developers-need-to-know-46pj</link>
+      <pubDate>Tue, 21 Jul 2026 05:36:09 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/machinecodingmaster/java-ai-what-developers-need-to-know-46pj</guid>
+    </item>
+    <item>
+      <title>[翻訳] hollowtest 0.5.1: quieter JS on real suites</title>
+      <description>&lt;p&gt;&lt;a href="https://github.com/SybilGambleyyu/hollowtest" rel="noopener noreferrer"&gt;hollowtest&lt;/a&gt; 0.5.1 is a noise-reduction patch for the new JS/TS engine.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What was wrong
+&lt;/h2&gt;
+
+&lt;p&gt;On a large Vitest suite (&lt;a href="https://github.com/colinhacks/zod" rel="noopener noreferrer"&gt;zod&lt;/a&gt;), first-pass scanning treated &lt;strong&gt;type-level tests&lt;/strong&gt; as hollow: &lt;code&gt;expectTypeOf&lt;/code&gt;, &lt;code&gt;assertType&lt;/code&gt;, &lt;code&gt;util.assertEqual&amp;lt;A,B&amp;gt;(…)&lt;/code&gt;, &lt;code&gt;@ts-expect-error&lt;/code&gt; bodies, and helpers like &lt;code&gt;expectMethodMatch(...)&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Those are real checks — just not &lt;code&gt;expect(value).toBe(...)&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What changed
+&lt;/h2&gt;
+
+&lt;p&gt;The JS classifier now treats as &lt;strong&gt;non-hollow&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;expectTypeOf&lt;/code&gt; / &lt;code&gt;assertType&lt;/code&gt; / &lt;code&gt;assertEqual&amp;lt;…&amp;gt;&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;@ts-expect-error&lt;/code&gt; / &lt;code&gt;@ts-ignore&lt;/code&gt; type-expectation tests&lt;/li&gt;
+&lt;li&gt;Named helpers: &lt;code&gt;expectFoo&lt;/code&gt;, &lt;code&gt;assertBar&lt;/code&gt;, &lt;code&gt;*Assert&lt;/code&gt;, &lt;code&gt;*Expect&lt;/code&gt;, …&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Result
+&lt;/h2&gt;
+
+&lt;p&gt;Rough dogfood on zod (~1850 collected tests): findings dropped from the mid-hundreds to ~&lt;strong&gt;7%&lt;/strong&gt;, mostly intentional smoke tests that only call &lt;code&gt;.parse()&lt;/code&gt; and rely on throw-on-fail (still HT001 by design — use a baseline if you want them quiet).&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;is&lt;/code&gt; (sindresorhus): 63 tests, &lt;strong&gt;0&lt;/strong&gt; findings.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;pip &lt;span class="nb"&gt;install&lt;/span&gt; &lt;span class="nt"&gt;-U&lt;/span&gt; git+https://github.com/SybilGambleyyu/hollowtest.git@v0.5.1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href="https://github.com/SybilGambleyyu/hollowtest/releases/tag/v0.5.1" rel="noopener noreferrer"&gt;v0.5.1&lt;/a&gt; · &lt;a href="https://dev.to/hollowtest-0-5/"&gt;0.5 intro&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</description>
+      <link>https://dev.to/sybilgambleyyu/hollowtest-051-quieter-js-on-real-suites-10ie</link>
+      <pubDate>Tue, 21 Jul 2026 05:35:19 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sybilgambleyyu/hollowtest-051-quieter-js-on-real-suites-10ie</guid>
+    </item>
+    <item>
+      <title>[翻訳] hollowtest 0.4: pytest plugin and baseline mode</title>
+      <description>&lt;p&gt;&lt;a href="https://github.com/SybilGambleyyu/hollowtest" rel="noopener noreferrer"&gt;hollowtest&lt;/a&gt; 0.4.0 is about &lt;strong&gt;adoption&lt;/strong&gt; — drop it into the test run you already have, and land it on a large suite without fixing everything on day one.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  pytest plugin
+&lt;/h2&gt;
+
+&lt;p&gt;Same package, new entry point:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;pip &lt;span class="nb"&gt;install &lt;/span&gt;git+https://github.com/SybilGambleyyu/hollowtest.git@v0.4.0
+pytest &lt;span class="nt"&gt;--hollowtest&lt;/span&gt;
+pytest &lt;span class="nt"&gt;--hollowtest&lt;/span&gt; &lt;span class="nt"&gt;--hollowtest-fail-on&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;warning
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight toml"&gt;&lt;code&gt;&lt;span class="nn"&gt;[tool.pytest.ini_options]&lt;/span&gt;
+&lt;span class="py"&gt;addopts&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;"--hollowtest"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="py"&gt;"--hollowtest-fail-on&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="err"&gt;error&lt;/span&gt;&lt;span class="s"&gt;"]&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;After collection, hollowtest scans the modules pytest collected and fails the session if hollow tests cross your threshold. One process, one CI step.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Baseline mode
+&lt;/h2&gt;
+
+&lt;p&gt;Mature repos often already have a few weak smoke tests. Baseline freezes them so only &lt;strong&gt;new&lt;/strong&gt; hollow tests fail:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;hollowtest tests/ &lt;span class="nt"&gt;--update-baseline&lt;/span&gt; .hollowtest-baseline.json
+git add .hollowtest-baseline.json
+
+&lt;span class="c"&gt;# CI&lt;/span&gt;
+hollowtest tests/ &lt;span class="nt"&gt;--baseline&lt;/span&gt; .hollowtest-baseline.json &lt;span class="nt"&gt;--fail-on&lt;/span&gt; warning
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Keys are &lt;code&gt;(path, test_name, rule_id)&lt;/code&gt;. Fix a test → remove its line (or regenerate). Agents that add empty &lt;code&gt;test_*&lt;/code&gt; stubs get caught immediately.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Also
+&lt;/h2&gt;
+
+&lt;p&gt;Text summaries now include rule tallies: &lt;code&gt;3 finding(s) … [HT001×1, HT005×2]&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Get it
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Release: &lt;a href="https://github.com/SybilGambleyyu/hollowtest/releases/tag/v0.4.0" rel="noopener noreferrer"&gt;v0.4.0&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;Prior: &lt;a href="https://dev.to/hollowtest-0-3/"&gt;0.3&lt;/a&gt;, &lt;a href="https://dev.to/hollowtest-0-2/"&gt;0.2&lt;/a&gt;, &lt;a href="https://dev.to/hollowtest/"&gt;intro&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</description>
+      <link>https://dev.to/sybilgambleyyu/hollowtest-04-pytest-plugin-and-baseline-mode-3mj0</link>
+      <pubDate>Tue, 21 Jul 2026 05:24:05 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sybilgambleyyu/hollowtest-04-pytest-plugin-and-baseline-mode-3mj0</guid>
+    </item>
+    <item>
+      <title>[翻訳] hollowtest 0.3: git-changed, SARIF, pre-commit, GitHub Action</title>
+      <description>&lt;p&gt;&lt;a href="https://github.com/SybilGambleyyu/hollowtest" rel="noopener noreferrer"&gt;hollowtest&lt;/a&gt; 0.3.0 is about &lt;strong&gt;putting the scanner where AI-written tests actually land&lt;/strong&gt; — the pre-commit hook, the PR, and code scanning.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Git-aware scanning
+&lt;/h2&gt;
+
+&lt;p&gt;Agents and humans both benefit from only checking what changed:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;hollowtest &lt;span class="nt"&gt;--git-changed&lt;/span&gt;          &lt;span class="c"&gt;# vs HEAD + untracked&lt;/span&gt;
+hollowtest &lt;span class="nt"&gt;--staged&lt;/span&gt;               &lt;span class="c"&gt;# index only (pre-commit)&lt;/span&gt;
+hollowtest &lt;span class="nt"&gt;--git-changed&lt;/span&gt; &lt;span class="nt"&gt;--base&lt;/span&gt; origin/main
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;No changed Python files → exit 0. Fits tight edit loops without re-scanning a huge suite.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  SARIF + GitHub Action
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;hollowtest tests/ &lt;span class="nt"&gt;--format&lt;/span&gt; sarif &lt;span class="nt"&gt;-o&lt;/span&gt; hollowtest.sarif
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Or use the composite action:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;uses&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;SybilGambleyyu/hollowtest@v0.3.0&lt;/span&gt;
+  &lt;span class="na"&gt;with&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;path&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;tests&lt;/span&gt;
+    &lt;span class="na"&gt;fail-on&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;warning&lt;/span&gt;
+    &lt;span class="na"&gt;sarif&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;hollowtest.sarif&lt;/span&gt;
+&lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;uses&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;github/codeql-action/upload-sarif@v3&lt;/span&gt;
+  &lt;span class="na"&gt;if&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;always()&lt;/span&gt;
+  &lt;span class="na"&gt;with&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;sarif_file&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;hollowtest.sarif&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  pre-commit
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="na"&gt;repos&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;repo&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;https://github.com/SybilGambleyyu/hollowtest&lt;/span&gt;
+    &lt;span class="na"&gt;rev&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;v0.3.0&lt;/span&gt;
+    &lt;span class="na"&gt;hooks&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;id&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;hollowtest&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  HT003 tweak
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;assert result is None&lt;/code&gt; is usually the behaviour under test. Only &lt;code&gt;assert result is not None&lt;/code&gt; (and friends) counts as hollow presence theater now.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Get it
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;pip &lt;span class="nb"&gt;install&lt;/span&gt; &lt;span class="nt"&gt;-U&lt;/span&gt; git+https://github.com/SybilGambleyyu/hollowtest.git@v0.3.0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;ul&gt;
+&lt;li&gt;Release: &lt;a href="https://github.com/SybilGambleyyu/hollowtest/releases/tag/v0.3.0" rel="noopener noreferrer"&gt;v0.3.0&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;Earlier: &lt;a href="https://dev.to/hollowtest-0-2/"&gt;0.2&lt;/a&gt;, &lt;a href="https://dev.to/hollowtest/"&gt;intro&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</description>
+      <link>https://dev.to/sybilgambleyyu/hollowtest-03-git-changed-sarif-pre-commit-github-action-283l</link>
+      <pubDate>Tue, 21 Jul 2026 05:20:11 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sybilgambleyyu/hollowtest-03-git-changed-sarif-pre-commit-github-action-283l</guid>
+    </item>
+    <item>
+      <title>[翻訳] OIDC Authentication Succeeded, but npm Publish Returned 404 — Here’s What Happened</title>
+      <description>&lt;p&gt;Last week I published a new npm package, &lt;code&gt;hakoniwa-term&lt;/code&gt;.&lt;/p&gt;
+
+
+&lt;div class="crayons-card c-embed text-styles text-styles--secondary"&gt;
+    &lt;div class="c-embed__content"&gt;
+      &lt;div class="c-embed__body flex items-center justify-between"&gt;
+        &lt;a class="c-link fw-bold flex items-center" href="https://www.npmjs.com/package/hakoniwa-term" rel="noopener noreferrer"&gt;
+          &lt;span class="mr-2"&gt;npmjs.com&lt;/span&gt;
+          
+
+        &lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;I did the first publish manually and set a GitHub Actions workflow to automate the publish process.&lt;/p&gt;
+
+&lt;p&gt;After adding a GitHub Actions workflow so that creating a release would automatically publish the latest package to npm, I registered my repository information on the npm side to use OIDC authentication. I had already done the same setup for another package called hyouji, so the configuration itself went smoothly. However, when I actually created a release, even though OIDC authentication worked fine, the npm publish step aborted with a 404 error.&lt;/p&gt;
+
+&lt;p&gt;What GitHub Actions showed me.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;npm ERR! 404 Not Found - PUT https://registry.npmjs.org/hakoniwa-term
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+&lt;p&gt;I checked the information of my package with &lt;code&gt;npm view&lt;/code&gt;&lt;br /&gt;
+&lt;/p&gt;
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;npm view hakoniwa-term
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+&lt;p&gt;The return verified that the package is existing and its maintainers is me. Also, I checked the package URL a couple of times.&lt;/p&gt;
+
+
+&lt;div class="crayons-card c-embed text-styles text-styles--secondary"&gt;
+    &lt;div class="c-embed__content"&gt;
+      &lt;div class="c-embed__body flex items-center justify-between"&gt;
+        &lt;a class="c-link fw-bold flex items-center" href="https://www.npmjs.com/package/hakoniwa-term" rel="noopener noreferrer"&gt;
+          &lt;span class="mr-2"&gt;npmjs.com&lt;/span&gt;
+          
+
+        &lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+
+
+&lt;p&gt;However, the above URL works as expected and all info on the npm page is what I expected.&lt;/p&gt;
+
+&lt;p&gt;I tried to find out the issue with Gemini 3.5 Flash but it kept asking the same questions to me and couldn't find out a solution for my issue.&lt;/p&gt;
+
+&lt;p&gt;Today, I tried to fix the issue ChatGPT, and it told me that my case is very weird since you don't have any issue on OIDC authentication but the error shows 404. Basically, if you have any issue on the authentication part, it would be 403 so that means your issue isn't about authentication.&lt;br /&gt;
+Then it asked me about &lt;code&gt;Trusted Publisher&lt;/code&gt; but it said your settings looked fine. Finally, it suggested me to &lt;code&gt;re-create Trusted Publisher setting&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;I did it then everything worked as expected lol.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Conclusion
+&lt;/h2&gt;
+
+&lt;p&gt;In the end, the problem wasn’t my workflow, my package configuration, or OIDC itself — it was the Trusted Publisher setup. Even though everything looked correct and OIDC authentication was succeeding, npm still returned a 404 during publish. Re‑creating the Trusted Publisher configuration instantly resolved the issue.&lt;/p&gt;
+
+&lt;p&gt;It was a good reminder that when npm’s registry behaves strangely — especially when authentication succeeds but publishing doesn’t — the Trusted Publisher settings can silently fall out of sync. Resetting them is sometimes the fastest path forward.&lt;/p&gt;
+
+&lt;p&gt;Now the release workflow works exactly as intended, and future publishes will be fully automated.&lt;/p&gt;</description>
+      <link>https://dev.to/0xkoji/oidc-authentication-succeeded-but-npm-publish-returned-404-heres-what-happened-6ei</link>
+      <pubDate>Tue, 21 Jul 2026 05:19:07 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/0xkoji/oidc-authentication-succeeded-but-npm-publish-returned-404-heres-what-happened-6ei</guid>
+    </item>
+    <item>
+      <title>[翻訳] hollowtest 0.2: config, suppressions, and less noise</title>
+      <description>&lt;p&gt;&lt;a href="https://github.com/SybilGambleyyu/hollowtest" rel="noopener noreferrer"&gt;hollowtest&lt;/a&gt; 0.2.0 is out — a hardening pass after running the scanner on real, high-quality suites.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What changed
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Config and suppressions.&lt;/strong&gt; You can now ignore rules project-wide via &lt;code&gt;.hollowtest.toml&lt;/code&gt; or &lt;code&gt;[tool.hollowtest]&lt;/code&gt; in &lt;code&gt;pyproject.toml&lt;/code&gt;, exclude fixture trees, and silence individual tests with &lt;code&gt;# hollowtest: ignore&lt;/code&gt; (or &lt;code&gt;# noqa: HT003&lt;/code&gt;). &lt;code&gt;hollowtest --init&lt;/code&gt; writes a starter file.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;HT006.&lt;/strong&gt; Type-check theater — tests that only do &lt;code&gt;isinstance(x, dict)&lt;/code&gt; or &lt;code&gt;assertIsInstance&lt;/code&gt; — is now a first-class warning. Still fine when paired with a real value assertion.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Fewer false positives.&lt;/strong&gt; The first release treated &lt;code&gt;assert client.trust_env&lt;/code&gt; like hollow “existence” checking. Boolean &lt;strong&gt;attribute&lt;/strong&gt; checks are real assertions; the AI hollow pattern is almost always &lt;code&gt;assert result is not None&lt;/code&gt; or a bare &lt;code&gt;assert result&lt;/code&gt;. HT003 now reflects that.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Discovery.&lt;/strong&gt; Methods on &lt;code&gt;unittest.TestCase&lt;/code&gt; subclasses are collected even when the class is not named &lt;code&gt;Test*&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Noise check
+&lt;/h2&gt;
+
+&lt;p&gt;Against current main branches (ballpark):&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Suite&lt;/th&gt;
+&lt;th&gt;Tests&lt;/th&gt;
+&lt;th&gt;Findings&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;httpx&lt;/td&gt;
+&lt;td&gt;539&lt;/td&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;click&lt;/td&gt;
+&lt;td&gt;524&lt;/td&gt;
+&lt;td&gt;15&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;hollowtest itself&lt;/td&gt;
+&lt;td&gt;41&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;Most remaining hits are genuinely weak smoke tests (close-without-assert, type-only wiring checks). That is the intended zone: useful signal without drowning a mature project.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Upgrade
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;pip &lt;span class="nb"&gt;install&lt;/span&gt; &lt;span class="nt"&gt;-U&lt;/span&gt; git+https://github.com/SybilGambleyyu/hollowtest.git
+hollowtest tests/ &lt;span class="nt"&gt;--fail-on&lt;/span&gt; warning
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Release notes: &lt;a href="https://github.com/SybilGambleyyu/hollowtest/releases/tag/v0.2.0" rel="noopener noreferrer"&gt;v0.2.0&lt;/a&gt;. Original write-up: &lt;a href="https://dev.to/hollowtest/"&gt;hollowtest: find tests that pass but prove nothing&lt;/a&gt;.&lt;/p&gt;</description>
+      <link>https://dev.to/sybilgambleyyu/hollowtest-02-config-suppressions-and-less-noise-33bd</link>
+      <pubDate>Tue, 21 Jul 2026 05:16:03 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sybilgambleyyu/hollowtest-02-config-suppressions-and-less-noise-33bd</guid>
+    </item>
+    <item>
+      <title>[翻訳] Why I Ditched Cloud APIs for Edge ML: Building a 100% Offline AI Photo Studio</title>
+      <description>&lt;p&gt;The standard playbook for building AI applications today is almost always the same: wrap a cloud API, charge a subscription, and send user data to a remote server.&lt;/p&gt;
+
+&lt;p&gt;When I set out to build an AI-powered image processing utility, I wanted to do the exact opposite. I wanted to see if I could build a professional-grade tool that handles heavy machine learning tasks entirely on-device, with zero data transmission liabilities.&lt;/p&gt;
+
+&lt;p&gt;The result is &lt;strong&gt;ProEnhanceX&lt;/strong&gt;, an Android photo studio built entirely around privacy-first edge computing. Here is a look at the architecture I used to pull it off, and the challenges of moving ML pipelines away from the cloud and directly into the users' hands.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Architecture: ONNX and Native FFI
+&lt;/h2&gt;
+
+&lt;p&gt;To eliminate the need for cloud servers, the core pipeline executes all machine learning models locally using an ONNX runtime environment.&lt;/p&gt;
+
+&lt;p&gt;Running inference on mobile hardware is tricky. You are fighting thermal throttling, battery drain, and memory limits. To keep the application responsive and ensure the image filters process instantly, I couldn't rely on standard high-level implementations.&lt;/p&gt;
+
+&lt;p&gt;Instead, I implemented native FFI (Foreign Function Interface) library bindings. Working through the Dart package API for the ONNX runtime required strict handling of data types and memory management to bridge the native C++ execution seamlessly. It took significant tuning, but offloading the heavy lifting via FFI allowed the UI to remain perfectly smooth while complex ML tasks run in the background.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Training on Kaggle and Mobile Quantization
+&lt;/h2&gt;
+
+&lt;p&gt;You do not need a massive server farm to build effective ML tools. For several of the custom filters, I utilized Kaggle's free GPU environments to train and fine-tune the architectures. Kaggle notebooks provided a highly accessible sandbox to iterate on model weights and test different computer vision approaches without burning through expensive cloud compute credits.&lt;/p&gt;
+
+&lt;p&gt;However, a model trained on a desktop-class GPU cannot simply be dropped into an Android app. The raw models were far too large and compute-heavy. To make them viable for edge deployment, I had to aggressively quantize them before export. By converting the neural network weights from standard 32-bit floating-point (FP32) down to smaller precision formats like INT8, I drastically reduced the memory footprint and accelerated inference time. Exporting these quantized models to the ONNX format was the exact bridge needed to move them from a Kaggle notebook directly onto the user's phone.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Reality of Edge ML Optimization
+&lt;/h2&gt;
+
+&lt;p&gt;Building for the edge is a balancing act between speed and quality, and it doesn't always go smoothly.&lt;/p&gt;
+
+&lt;p&gt;A great example from this project was my implementation of a guided image filter. I spent a significant amount of time writing what I thought was a highly optimized, leaner algorithm specifically for mobile constraints. It ran faster, but when I finally ran comparative evaluations, the algorithmic changes had noticeably degraded the output quality compared to my prior baseline.&lt;/p&gt;
+
+&lt;p&gt;I had to completely scrap the "optimized" version, revert to the original pipeline, and find performance gains elsewhere. It was a harsh reminder that when you are building photo enhancement tools, you cannot sacrifice output fidelity just to shave a few milliseconds off the execution time.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Try It Out
+&lt;/h2&gt;
+
+&lt;p&gt;If you are interested in mobile ML, privacy-first apps, or just need a solid photo editor, I would love for you to check it out.&lt;/p&gt;
+
+&lt;p&gt;You can download ProEnhanceX on the Google Play Store here:&lt;br /&gt;
+&lt;a href="https://play.google.com/store/apps/details?id=com.enhancex.aistudio" rel="noopener noreferrer"&gt;ProEnhanceX on Google Play&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I am currently monitoring how the localized models handle edge cases across different Android hardware profiles. If you have any questions about implementing local ONNX runtimes, quantizing models for mobile, or dealing with native FFI bindings, let me know in the comments!&lt;/p&gt;</description>
+      <link>https://dev.to/swawon_mondal_4b5e4ff7c47/why-i-ditched-cloud-apis-for-edge-ml-building-a-100-offline-ai-photo-studio-556p</link>
+      <pubDate>Tue, 21 Jul 2026 05:13:17 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/swawon_mondal_4b5e4ff7c47/why-i-ditched-cloud-apis-for-edge-ml-building-a-100-offline-ai-photo-studio-556p</guid>
+    </item>
+    <item>
+      <title>[翻訳] Why your AI agent needs more than just an OpenAI API key</title>
+      <description>&lt;p&gt;I’ve spent a lot of time watching the 'context switching tax' kill developer productivity. You’re in Cursor, deep in a refactor, and you realize you need to generate a quick diagram or run some OCR on a documentation screenshot. Instead of staying in your flow, you find yourself opening a browser, navigating to a different UI, prompting it, downloading the result, and uploading it back into your IDE context. It’s broken.&lt;/p&gt;
+
+&lt;p&gt;The Model Context Protocol (MCP) was supposed to fix this by letting agents 'use' tools. But most people are still treating MCP like they treat basic API integrations: one server for chat, one for images, one for embeddings. That fragmentation is just moving the mess from your browser tabs to your &lt;code&gt;claude_desktop_config.json&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;I recently started using the DeepInfra MCP server via Vinkius because it tackles a specific problem I’ve been seeing: how do you give an agent massive, multi-modal capability without managing a single GPU or writing custom integration logic for every new model that drops on GitHub?&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  The Infrastructure Gap: Serverless vs. Local Heavy Lifting
+&lt;/h3&gt;
+
+&lt;p&gt;We've all been there. You want to run Llama 3.3-70B or DeepSeek-V3 locally because you think it’s 'safer' or more private, and then you spend three hours fighting with CUDA drivers, Python environments, and quantized weights that barely fit in your VRAM. Or worse, you try to manage a fleet of specialized inference endpoints for different tasks like text, image, and embeddings.&lt;/p&gt;
+
+&lt;p&gt;The DeepInfra MCP server changes the math here by using serverless LLM inference. It’s not about having 'another API'; it's about providing an agent with a massive library of models through a unified toolset. When you use the &lt;code&gt;create_chat_completion&lt;/code&gt; tool, you aren't limited to just one model. You can instruct your agent to swap between DeepSeek-V3 for complex logic and Llama 3.3 for quick summaries, all within the same conversation context.&lt;/p&gt;
+
+&lt;p&gt;This isn't about marketing 'speed.' It’s about removing the friction of model selection from your manual workflow. The infrastructure handles the heavy lifting; you just provide the prompt via the tool call.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Breaking Down the Toolset: More than just Chatting
+&lt;/h3&gt;
+
+&lt;p&gt;If you only skim the documentation for this server, you'll think it’s just a wrapper for OpenAI-style completions. That’s where most people miss the real architectural advantage. If you look closer at what DeepInfra actually exposes via MCP, there are three distinct layers of utility here:&lt;/p&gt;
+
+&lt;h4&gt;
+  
+  
+  1. The Multimodal Pipeline (&lt;code&gt;generate_image&lt;/code&gt;)
+&lt;/h4&gt;
+
+&lt;p&gt;One of the biggest friction points in agentic workflows is the 'visual gap.' You can ask Claude to write code for a UI component, but it can't easily 'see' or 'create' assets without you manually intervening. Integrating &lt;code&gt;black-forest-labs/FLUX-1-schnell&lt;/code&gt; directly into your workflow via the &lt;code&gt;generate_image&lt;/code&gt; tool means your agent becomes an asset generator.&lt;/p&gt;
+
+&lt;p&gt;You can literally prompt: "Create a high-quality cyberpunk city image using FLUX and then use its description to generate the CSS for this hero component." The agent executes the tool, gets the URL, and follows up with the code. The loop is closed. No browser tabs involved.&lt;/p&gt;
+
+&lt;h4&gt;
+  
+  
+  2. Semantic Memory via Embeddings (&lt;code&gt;create_embedding&lt;/code&gt;)
+&lt;/h4&gt;
+
+&lt;p&gt;This is where we move from 'chatting' to 'engineering.' If you’re building RAG (Retrieval-Augmented Generation) pipelines or even just trying to give your agent a better way to search through local documentation, you need vectors. The &lt;code&gt;create_embedding&lt;/code&gt; tool allows your agent to take text and convert it into high-dimensional vectors using models like &lt;code&gt;BAAI/bge-large-en-v1.5&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Instead of just pasting massive blocks of text into a prompt (which is expensive and hits context limits), the agent can participate in the embedding process itself. It becomes part of the data pipeline, creating chunks that are ready for semantic search.&lt;/p&gt;
+
+&lt;h4&gt;
+  
+  
+  3. The 'Non-Standard' Problem (&lt;code&gt;run_native_inference&lt;/code&gt;)
+&lt;/h4&gt;
+
+&lt;p&gt;This is the most important tool in this server, and it’s the one everyone skips over. Most developers only think in terms of the OpenAI spec—chat completions, images, embeddings. But real-world automation often requires models that don't follow that neat little structure: Whisper for speech-to-text, specialized OCR models, or custom video generation deployments.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;run_native_inference&lt;/code&gt; tool is a catch-all. It allows the agent to call into DeepInfra’s infrastructure for tasks that are technically 'out of spec' for standard chat APIs. If you need to transcribe an audio file or run an OCR task on a complex PDF, this provides the bridge. This turns your AI agent from a text processor into a multi-modal automation engine.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  The Production Reality: Security and Ease of Use
+&lt;/h3&gt;
+
+&lt;p&gt;I’ve seen too many 'cool' MCP tutorials that end with a developer spending two hours trying to configure an OAuth callback or debugging why their local Python environment can't find the DeepInfra library. It kills the momentum.&lt;/p&gt;
+
+&lt;p&gt;This is exactly why Vinkius exists. I built it to bridge the gap between "I have this capability" and "I am actually using it in production." The setup for the DeepInfinfra server on Vinkius is: subscribe, grab your token, and paste it into Claude or Cursor. That’s it.&lt;/p&gt;
+
+&lt;p&gt;But more importantly, we address the 'security elephant' in the room. When you give an AI agent access to tools that can trigger image generation or complex inference, you are essentially giving it a way to run code/requests on your behalf. Every execution context in Vinkius runs in an isolated V8 sandbox with eight distinct governance policies—DLP (Data Loss Prevention), SSRN prevention, and HMAC audit chains. When your agent is calling DeepInfra, it’s doing so within a controlled environment that prevents the 'hallucinated' tool calls from becoming security vulnerabilities.&lt;/p&gt;
+
+&lt;p&gt;You can check out the full implementation details here: &lt;a href="https://vinkius.com/mcp/deepinfra-serverless-llm-inference" rel="noopener noreferrer"&gt;https://vinkius.com/mcp/deepinfra-serverless-llm-inference&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Final Thoughts
+&lt;/h3&gt;
+
+&lt;p&gt;We are moving away from the era of 'Chatbots' and into the era of 'Agentic Workflows.' In that era, the value isn't in how well you can talk to an LLM; it’s in what tools that LLM can leverage to complete a task end-to-end.&lt;/p&gt;
+
+&lt;p&gt;If your MCP setup is just a collection of isolated chat windows, you aren't actually using agents—you're just using a better way to copy and paste. Tools like the DeepInfra server allow you to build unified, multi-modal workflows that include vision, semantic search, and specialized inference in a single, secure connection point.&lt;/p&gt;
+
+&lt;p&gt;Stop managing infrastructure and start building workflows.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;MCPs are the music of AI Agents. We built the catalog. Discover &lt;a href="https://vinkius.com" rel="noopener noreferrer"&gt;Vinkius MCP Catalog&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/renato_marinho/why-your-ai-agent-needs-more-than-just-an-openai-api-key-8j8</link>
+      <pubDate>Tue, 21 Jul 2026 05:11:56 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/renato_marinho/why-your-ai-agent-needs-more-than-just-an-openai-api-key-8j8</guid>
+    </item>
+    <item>
+      <title>[翻訳] Optimizing RAG at Scale: Chunking, Retrieval, and the Bayesian Search That Cut Latency 40%</title>
+      <description>&lt;h1&gt;
+  
+  
+  Optimizing RAG at Scale: Chunking, Retrieval, and the Bayesian Search That Cut Latency 40%
+&lt;/h1&gt;
+
+&lt;p&gt;&lt;em&gt;How we moved from "semantic search + hope" to a measured, tunable retrieval pipeline with 95% recall@10&lt;/em&gt;&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  The RAG Reality Check
+&lt;/h2&gt;
+
+&lt;p&gt;Everyone ships RAG the same way: chunk by 512 tokens, embed with &lt;code&gt;text-embedding-3-small&lt;/code&gt;, top-k=5, stuff into context. It works for demos.&lt;/p&gt;
+
+&lt;p&gt;Then you hit production:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Legal contracts: 512 tokens splits clauses mid-sentence&lt;/li&gt;
+&lt;li&gt;API docs: 1000-token chunks drown signal in noise&lt;/li&gt;
+&lt;li&gt;Customer tickets: Conversational context needs overlap, not fixed windows&lt;/li&gt;
+&lt;li&gt;Latency: 500ms embedding + 200ms vector search + 300ms LLM = 1s+ per query&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We rebuilt our retrieval layer from first principles. Here's what actually moves metrics.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Chunking: One Size Fits None
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="c1"&gt;# rag/chunking.py
+&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;abc&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ABC&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;abstractmethod&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;dataclasses&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;dataclass&lt;/span&gt;
+
+&lt;span class="nd"&gt;@dataclass&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Chunk&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;
+    &lt;span class="n"&gt;metadata&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;
+    &lt;span class="n"&gt;token_count&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;
+    &lt;span class="n"&gt;chunk_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;ChunkingStrategy&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ABC&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="nd"&gt;@abstractmethod&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;chunk&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;document&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;metadata&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Chunk&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt; &lt;span class="bp"&gt;...&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;FixedTokenChunker&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ChunkingStrategy&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;Baseline. Good for homogeneous content.&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;chunk_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;512&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;overlap&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;chunk_size&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;chunk_size&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;overlap&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;overlap&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;RecursiveChunker&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ChunkingStrategy&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;Respects structure: markdown headers, code blocks, paragraphs.&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;separators&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;## &lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;### &lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="se"&gt;\n\n&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt; &lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;chunk_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;512&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;separators&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;separators&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;chunk_size&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;chunk_size&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;SemanticChunker&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ChunkingStrategy&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;Uses embedding similarity to find natural boundaries.&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;text-embedding-3-small&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;threshold&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.7&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;threshold&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;threshold&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;AgenticChunker&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ChunkingStrategy&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;LLM decides boundaries. Expensive but highest quality for complex docs.&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;gpt-4o-mini&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;Our production config by document type:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Document Type&lt;/th&gt;
+&lt;th&gt;Strategy&lt;/th&gt;
+&lt;th&gt;Chunk Size&lt;/th&gt;
+&lt;th&gt;Overlap&lt;/th&gt;
+&lt;th&gt;Recall@10&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Legal contracts&lt;/td&gt;
+&lt;td&gt;Recursive (clause-aware)&lt;/td&gt;
+&lt;td&gt;1024&lt;/td&gt;
+&lt;td&gt;100&lt;/td&gt;
+&lt;td&gt;94%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;API reference&lt;/td&gt;
+&lt;td&gt;Recursive (function-aware)&lt;/td&gt;
+&lt;td&gt;768&lt;/td&gt;
+&lt;td&gt;50&lt;/td&gt;
+&lt;td&gt;96%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Support tickets&lt;/td&gt;
+&lt;td&gt;Semantic + conversation turns&lt;/td&gt;
+&lt;td&gt;512&lt;/td&gt;
+&lt;td&gt;75&lt;/td&gt;
+&lt;td&gt;91%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Internal wiki&lt;/td&gt;
+&lt;td&gt;Agentic (LLM)&lt;/td&gt;
+&lt;td&gt;1500&lt;/td&gt;
+&lt;td&gt;200&lt;/td&gt;
+&lt;td&gt;97%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;h2&gt;
+  
+  
+  Hybrid Retrieval: BM25 + Vector + Rerank
+&lt;/h2&gt;
+
+&lt;p&gt;Pure vector search misses exact matches (error codes, function names). Pure BM25 misses semantic matches. Hybrid wins.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="c1"&gt;# rag/retrieval.py
+&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;HybridRetriever&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vector_store&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bm25_index&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;reranker&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;weights&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;0.4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.3&lt;/span&gt;&lt;span class="p"&gt;)):&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;vector_store&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bm25&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bm25_index&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reranker&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;reranker&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;weights&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;weights&lt;/span&gt;  &lt;span class="c1"&gt;# vector, bm25, reranker
+&lt;/span&gt;
+    &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;retrieve&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;final_k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="c1"&gt;# Stage 1: Parallel retrieval
+&lt;/span&gt;        &lt;span class="n"&gt;vector_results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;bm25_results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bm25&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="c1"&gt;# Stage 2: Reciprocal Rank Fusion
+&lt;/span&gt;        &lt;span class="n"&gt;fused&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;_rrf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;vector_results&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bm25_results&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="c1"&gt;# Stage 3: Cross-encoder rerank (top 50 → top 5)
+&lt;/span&gt;        &lt;span class="n"&gt;reranked&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reranker&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;rerank&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;fused&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;reranked&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="n"&gt;final_k&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;_rrf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;result_lists&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;60&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;Reciprocal Rank Fusion — no score calibration needed.&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;
+        &lt;span class="n"&gt;scores&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;defaultdict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;result_lists&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;rank&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;doc&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nf"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+                &lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;doc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;rank&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nf"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;items&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;Why cross-encoder rerank?&lt;/strong&gt; Bi-encoder (embedding) similarity ≈ 0.75 correlation with relevance. Cross-encoder ≈ 0.92. The 50→5 funnel costs 50ms but gains 15% recall.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Query Transformation: Don't Search What User Asked
+&lt;/h2&gt;
+
+&lt;p&gt;Users ask badly. Transform first.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="c1"&gt;# rag/query_transform.py
+&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;QueryTransformer&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;llm_model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;gpt-4o-mini&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;llm&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;instructor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;from_openai&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;AsyncOpenAI&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+    &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;expand&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
+        &lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;Generate multiple search queries from one user question.&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;
+
+        &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;QuerySet&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;BaseModel&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="n"&gt;queries&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Field&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;min_length&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;max_length&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="n"&gt;reasoning&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;
+
+        &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;llm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;chat&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;completions&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;response_model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;QuerySet&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;messages&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+                &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;role&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;system&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;content&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;
+Generate diverse search queries that collectively cover the user&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;s intent.
+Include: exact phrasing, synonyms, broader/narrower, hypothetical answer.
+&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+                &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;role&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;user&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;content&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Original: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;Context: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+            &lt;span class="p"&gt;],&lt;/span&gt;
+            &lt;span class="n"&gt;temperature&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;queries&lt;/span&gt;
+
+    &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;decompose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
+        &lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;Break multi-hop questions into sub-questions.&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;
+
+        &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;SubQuestions&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;BaseModel&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="n"&gt;questions&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+            &lt;span class="n"&gt;needs_synthesis&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;bool&lt;/span&gt;
+
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;llm&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;chat&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;completions&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;response_model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;SubQuestions&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;messages&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[...],&lt;/span&gt;
+        &lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;Query expansion results:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Single query recall@10: 78%&lt;/li&gt;
+&lt;li&gt;3 expanded queries (union): 94%&lt;/li&gt;
+&lt;li&gt;5 expanded queries (union): 96%&lt;/li&gt;
+&lt;li&gt;Cost: 3-5x embedding calls, but parallelizable&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Bayesian Optimization: Stop Guessing Hyperparameters
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;chunk_size=512&lt;/code&gt;, &lt;code&gt;top_k=5&lt;/code&gt;, &lt;code&gt;similarity_threshold=0.7&lt;/code&gt; — who chose these?&lt;/p&gt;
+
+&lt;p&gt;We treat retrieval as a black-box function &lt;code&gt;f(chunk_size, overlap, top_k, weights) → recall@10, latency&lt;/code&gt; and optimize with Bayesian search.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="c1"&gt;# rag/optimization.py
+&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;optuna&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;dataclasses&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;dataclass&lt;/span&gt;
+
+&lt;span class="nd"&gt;@dataclass&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;RetrievalConfig&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;chunk_size&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;
+    &lt;span class="n"&gt;overlap&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;
+    &lt;span class="n"&gt;top_k&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;
+    &lt;span class="n"&gt;vector_weight&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;
+    &lt;span class="n"&gt;bm25_weight&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;
+    &lt;span class="n"&gt;rerank_top_k&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;objective&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;trial&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;optuna&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Trial&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
+    &lt;span class="n"&gt;config&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;RetrievalConfig&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;chunk_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;trial&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;suggest_categorical&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;chunk_size&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;256&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;512&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;768&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1024&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1536&lt;/span&gt;&lt;span class="p"&gt;]),&lt;/span&gt;
+        &lt;span class="n"&gt;overlap&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;trial&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;suggest_int&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;overlap&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;step&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="n"&gt;top_k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;trial&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;suggest_int&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;top_k&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;step&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="n"&gt;vector_weight&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;trial&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;suggest_float&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;vector_weight&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.8&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="n"&gt;bm25_weight&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;trial&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;suggest_float&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;bm25_weight&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.8&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+        &lt;span class="n"&gt;rerank_top_k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;trial&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;suggest_int&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;rerank_top_k&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;step&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Evaluate on golden set (200 queries)
+&lt;/span&gt;    &lt;span class="n"&gt;recall&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;latency&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;evaluate_config&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;golden_set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Multi-objective: maximize recall, minimize latency
+&lt;/span&gt;    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;recall&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;latency&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt;  &lt;span class="c1"&gt;# seconds
+&lt;/span&gt;
+&lt;span class="n"&gt;study&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;optuna&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;create_study&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;directions&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;maximize&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;minimize&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="n"&gt;sampler&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;optuna&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;samplers&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;TPESampler&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;multivariate&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;study&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;optimize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;objective&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;n_trials&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;3600&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;# 1 hour
+&lt;/span&gt;
+&lt;span class="c1"&gt;# Pareto frontier gives you the tradeoff curve
+&lt;/span&gt;&lt;span class="n"&gt;pareto&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;study&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;trials&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;TrialState&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;COMPLETE&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;Our Pareto frontier (legal docs, 200-query golden set):&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Config&lt;/th&gt;
+&lt;th&gt;Recall@10&lt;/th&gt;
+&lt;th&gt;Latency (p95)&lt;/th&gt;
+&lt;th&gt;Use Case&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Conservative&lt;/td&gt;
+&lt;td&gt;91%&lt;/td&gt;
+&lt;td&gt;180ms&lt;/td&gt;
+&lt;td&gt;High-throughput API&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Balanced (prod)&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;95%&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;320ms&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;Default&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Aggressive&lt;/td&gt;
+&lt;td&gt;97%&lt;/td&gt;
+&lt;td&gt;580ms&lt;/td&gt;
+&lt;td&gt;High-stakes legal/medical&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;h2&gt;
+  
+  
+  Production Metrics Dashboard
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="c1"&gt;# rag/metrics.py
+&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;prometheus_client&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Histogram&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Counter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Gauge&lt;/span&gt;
+
+&lt;span class="n"&gt;RETRIEVAL_LATENCY&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Histogram&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;rag_retrieval_latency_seconds&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;End-to-end retrieval time&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;RECALL_AT_K&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Gauge&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;rag_recall_at_k&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Recall@k on golden set&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;k&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="n"&gt;QUERY_EXPANSION_COUNT&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Counter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;rag_query_expansions_total&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Number of expanded queries&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;RERANKER_LATENCY&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Histogram&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;rag_reranker_latency_seconds&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Cross-encoder rerank time&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;InstrumentedRetriever&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HybridRetriever&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;retrieve&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;final_k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;RETRIEVAL_LATENCY&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;time&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+            &lt;span class="n"&gt;expanded&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;transformer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;expand&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="n"&gt;QUERY_EXPANSION_COUNT&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;inc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;expanded&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+            &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nf"&gt;super&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="nf"&gt;retrieve&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;expanded&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;final_k&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+            &lt;span class="c1"&gt;# Track recall on sampled golden queries (1% of traffic)
+&lt;/span&gt;            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;random&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mf"&gt;0.01&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;RECALL_AT_K&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;labels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;k&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;_eval_recall&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Results: 6 Months of Iteration
+&lt;/h2&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Metric&lt;/th&gt;
+&lt;th&gt;Baseline (naive)&lt;/th&gt;
+&lt;th&gt;Optimized&lt;/th&gt;
+&lt;th&gt;Improvement&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Recall@10&lt;/td&gt;
+&lt;td&gt;78%&lt;/td&gt;
+&lt;td&gt;95%&lt;/td&gt;
+&lt;td&gt;+17 pp&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Latency p95&lt;/td&gt;
+&lt;td&gt;850ms&lt;/td&gt;
+&lt;td&gt;320ms&lt;/td&gt;
+&lt;td&gt;-62%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Hallucination rate&lt;/td&gt;
+&lt;td&gt;12%&lt;/td&gt;
+&lt;td&gt;3%&lt;/td&gt;
+&lt;td&gt;-75%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Cost/query&lt;/td&gt;
+&lt;td&gt;$0.008&lt;/td&gt;
+&lt;td&gt;$0.005&lt;/td&gt;
+&lt;td&gt;-38%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;h2&gt;
+  
+  
+  The Checklist for Your RAG
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;[ ] &lt;strong&gt;Chunk by document structure&lt;/strong&gt;, not fixed tokens&lt;/li&gt;
+&lt;li&gt;[ ] &lt;strong&gt;Hybrid retrieval&lt;/strong&gt; (BM25 + vector + rerank) — never single modality&lt;/li&gt;
+&lt;li&gt;[ ] &lt;strong&gt;Query expansion&lt;/strong&gt; for ambiguous/short queries&lt;/li&gt;
+&lt;li&gt;[ ] &lt;strong&gt;Golden dataset&lt;/strong&gt; with stratified cases (version it in Git)&lt;/li&gt;
+&lt;li&gt;[ ] &lt;strong&gt;Bayesian optimization&lt;/strong&gt; of hyperparams (re-run monthly)&lt;/li&gt;
+&lt;li&gt;[ ] &lt;strong&gt;Instrumentation&lt;/strong&gt; on every retrieval (latency, recall sampling)&lt;/li&gt;
+&lt;li&gt;[ ] &lt;strong&gt;A/B framework&lt;/strong&gt; for retrieval changes (feature flags)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  The Mental Shift
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Retrieval is infrastructure, not afterthought.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Treat chunking strategies as first-class code (versioned, tested, reviewed)&lt;/li&gt;
+&lt;li&gt;Golden dataset = your most valuable IP (curate it religiously)&lt;/li&gt;
+&lt;li&gt;Every retrieval change = eval run (enforced by CI)&lt;/li&gt;
+&lt;li&gt;Regression alerts = paging alerts (not email digests)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Your users don't care about your embedding model. They care that the answer is right. Automated evaluation is how you guarantee that at scale.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;Code: &lt;a href="https://github.com/yourname/rag-eval-framework" rel="noopener noreferrer"&gt;github.com/yourname/rag-eval-framework&lt;/a&gt; | &lt;br /&gt;
+Discussion: &lt;a href="https://news.ycombinator.com/" rel="noopener noreferrer"&gt;Hacker News&lt;/a&gt; | &lt;br /&gt;
+Follow: &lt;a href="https://twitter.com/yourname" rel="noopener noreferrer"&gt;@yourname&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/imus_d7584cbc8ee9b0336256/optimizing-rag-at-scale-chunking-retrieval-and-the-bayesian-search-that-cut-latency-40-4o8l</link>
+      <pubDate>Tue, 21 Jul 2026 05:10:14 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/imus_d7584cbc8ee9b0336256/optimizing-rag-at-scale-chunking-retrieval-and-the-bayesian-search-that-cut-latency-40-4o8l</guid>
+    </item>
+    <item>
+      <title>[翻訳] Building Production-Grade LLM Evaluation Pipelines: From Vibes to Metrics</title>
+      <description>&lt;h1&gt;
+  
+  
+  Building Production-Grade LLM Evaluation Pipelines: From Vibes to Metrics
+&lt;/h1&gt;
+
+&lt;p&gt;&lt;em&gt;How we replaced "looks good to me" with automated evaluation catching 92% of hallucinations before deployment&lt;/em&gt;&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  The Problem: Why "Vibe Checks" Fail in Production
+&lt;/h2&gt;
+
+&lt;p&gt;Three months ago, our team shipped a RAG-based customer support assistant. It worked great in testing — we'd ask it questions, read the answers, and say "yeah, that looks right."&lt;/p&gt;
+
+&lt;p&gt;Then it hit production.&lt;/p&gt;
+
+&lt;p&gt;A customer asked about their billing cycle. The assistant confidently cited a policy that didn't exist. Another asked about API rate limits and got numbers from a competitor's documentation. By the time we caught it, 500+ users had seen hallucinated responses.&lt;/p&gt;
+
+&lt;p&gt;The post-mortem was brutal: we had &lt;strong&gt;zero automated evaluation&lt;/strong&gt;. Our test process was literally "ask 5 questions, read answers, thumbs up."&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What Production Evaluation Actually Needs
+&lt;/h2&gt;
+
+&lt;p&gt;Academic benchmarks (MMLU, HellaSwag) don't tell you if &lt;em&gt;your&lt;/em&gt; system works for &lt;em&gt;your&lt;/em&gt; use case. Production evaluation needs:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Domain-specific judges&lt;/strong&gt; — Your criteria, not generic "helpfulness"&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Speed&lt;/strong&gt; — Evaluation must run in CI/CD, not overnight&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Regression detection&lt;/strong&gt; — Know immediately when a prompt change breaks things&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;CI/CD integration&lt;/strong&gt; — Block merges that degrade quality&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Golden dataset management&lt;/strong&gt; — Versioned, stratified, growing test cases&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2&gt;
+  
+  
+  Architecture: The Evaluation Pipeline
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;┌─────────────┐     ┌──────────────┐     ┌────────────────────┐     ┌──────────────┐
+│ Test Cases  │────▶│  LLM Under   │────▶│   Judge Ensemble   │────▶│  Metrics &amp;amp;   │
+│ (Golden Set)│     │   Test       │     │  - Faithfulness    │     │  Regression  │
+└─────────────┘     └──────────────┘     │  - Instruction F.  │     │  Detection   │
+                                          │  - JSON Schema     │     └──────┬───────┘
+                                          │  - Custom LLM      │            ▼
+                                          └────────────────────┘     ┌──────────────┐
+                                                                    │  Dashboard/  │
+                                                                    │  PR Comments │
+                                                                    └──────────────┘
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h3&gt;
+  
+  
+  Core Abstractions
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="c1"&gt;# eval/base.py
+&lt;/span&gt;&lt;span class="nd"&gt;@dataclass&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;frozen&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;TestCase&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;
+    &lt;span class="nb"&gt;input&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Any&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Any&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;
+    &lt;span class="n"&gt;tags&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;field&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;default_factory&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;# ["edge-case", "long-context"]
+&lt;/span&gt;
+&lt;span class="nd"&gt;@dataclass&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;frozen&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;EvaluationResult&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;test_case_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;
+    &lt;span class="n"&gt;judge_name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;
+    &lt;span class="n"&gt;score&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;
+    &lt;span class="n"&gt;passed&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;bool&lt;/span&gt;
+    &lt;span class="n"&gt;reasoning&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Judge&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ABC&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="nd"&gt;@abstractmethod&lt;/span&gt;
+    &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;evaluate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;test_case&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;TestCase&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;Any&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;EvaluationResult&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="bp"&gt;...&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;EvaluationHarness&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;judges&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;Judge&lt;/span&gt;&lt;span class="p"&gt;]):&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;judges&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;judges&lt;/span&gt;
+
+    &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;evaluate_all&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;test_cases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;generate_fn&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;concurrency&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="c1"&gt;# Runs all cases through all judges with controlled concurrency
+&lt;/span&gt;        &lt;span class="bp"&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  The Judge Ensemble: Beyond RAGAS
+&lt;/h2&gt;
+
+&lt;p&gt;RAGAS gives you faithfulness and answer relevance. But production needs more:&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Judge&lt;/th&gt;
+&lt;th&gt;Purpose&lt;/th&gt;
+&lt;th&gt;Type&lt;/th&gt;
+&lt;th&gt;Threshold&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Faithfulness&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Answer contradicts retrieved context?&lt;/td&gt;
+&lt;td&gt;LLM&lt;/td&gt;
+&lt;td&gt;0.8&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Instruction Following&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;All prompt constraints satisfied?&lt;/td&gt;
+&lt;td&gt;LLM&lt;/td&gt;
+&lt;td&gt;0.9&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;JSON Schema&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Valid structured output?&lt;/td&gt;
+&lt;td&gt;Deterministic&lt;/td&gt;
+&lt;td&gt;1.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Safety&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;PII, harmful content, policy violations&lt;/td&gt;
+&lt;td&gt;LLM&lt;/td&gt;
+&lt;td&gt;1.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Domain Expert&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Medical/legal/financial accuracy&lt;/td&gt;
+&lt;td&gt;LLM (few-shot)&lt;/td&gt;
+&lt;td&gt;0.85&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;h3&gt;
+  
+  
+  Custom LLM Judge with Few-Shot
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="c1"&gt;# eval/judges.py
+&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;LLMJudge&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Judge&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;criteria&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;gpt-4o-mini&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;few_shot_examples&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;criteria&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;criteria&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;few_shot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;few_shot_examples&lt;/span&gt; &lt;span class="ow"&gt;or&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+
+    &lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;evaluate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;test_case&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;instructor&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;from_openai&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;AsyncOpenAI&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+        &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Output&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;BaseModel&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="n"&gt;score&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Field&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ge&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;le&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="n"&gt;reasoning&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;
+            &lt;span class="n"&gt;passed&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;bool&lt;/span&gt;
+
+        &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;chat&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;completions&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;response_model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Output&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;messages&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+                &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;role&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;system&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;content&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;_system_prompt&lt;/span&gt;&lt;span class="p"&gt;()},&lt;/span&gt;
+                &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;_few_shot_messages&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt;
+                &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;role&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;user&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;content&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;_build_prompt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;test_case&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="p"&gt;)},&lt;/span&gt;
+            &lt;span class="p"&gt;],&lt;/span&gt;
+            &lt;span class="n"&gt;temperature&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nc"&gt;EvaluationResult&lt;/span&gt;&lt;span class="p"&gt;(...)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h3&gt;
+  
+  
+  Faithfulness Judge (Production-Ready)
+&lt;/h3&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;create_faithfulness_judge&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;LLMJudge&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nc"&gt;LLMJudge&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;faithfulness&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;criteria&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;
+Evaluate whether the ANSWER is faithful to the CONTEXT.
+- Score 1.0: All claims in answer are directly supported by context
+- Score 0.5: Some claims unsupported but not contradictory
+- Score 0.0: Answer contains claims directly contradicted by context
+&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;threshold&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0.8&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;few_shot_examples&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+            &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;input&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+                    &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;context&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Company founded in 2019. Revenue $10M in 2023.&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;answer&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;The company was founded in 2019 and reached $10M revenue in 2023.&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+                &lt;span class="p"&gt;},&lt;/span&gt;
+                &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;output&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;score&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;reasoning&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;All claims supported&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;passed&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+            &lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;input&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+                    &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;context&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Product launched in January 2024.&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;answer&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;The product launched in March 2024 after extensive beta testing.&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+                &lt;span class="p"&gt;},&lt;/span&gt;
+                &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;output&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;score&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;reasoning&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Contradicts launch date&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;passed&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="bp"&gt;False&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+            &lt;span class="p"&gt;},&lt;/span&gt;
+        &lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Golden Dataset Strategy
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Don't start with 1000 cases.&lt;/strong&gt; Start with 50 real production cases.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;# eval/golden_set.jsonl
+{"id": "support-001", "input": {"question": "How do I reset my password?", "context": "..."}, "expected": {"answer": "Use the 'Forgot Password' link..."}, "tags": ["basic", "auth"]}
+{"id": "support-042", "input": {"question": "Why was I charged twice?", "context": "..."}, "expected": null, "tags": ["billing", "edge-case"]}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;strong&gt;Stratification matters:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;40% basic/happy-path&lt;/li&gt;
+&lt;li&gt;30% edge cases (ambiguous, multi-step)&lt;/li&gt;
+&lt;li&gt;20% adversarial (injection, off-topic)&lt;/li&gt;
+&lt;li&gt;10% multilingual/long-context&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Version your dataset:&lt;/strong&gt; Git-track it. Every production failure becomes a new test case.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Regression Detection That Works
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;regression_report&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;baseline&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Any&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
+    &lt;span class="n"&gt;current&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;summary&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;report&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;judge_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;metrics&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;items&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;judge_name&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;baseline&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;continue&lt;/span&gt;
+
+        &lt;span class="n"&gt;baseline_mean&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;baseline&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;judge_name&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;current_mean&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;metrics&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;mean_score&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;current_mean&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;baseline_mean&lt;/span&gt;
+
+        &lt;span class="c1"&gt;# Statistical test (simplified - use proper stats in prod)
+&lt;/span&gt;        &lt;span class="n"&gt;report&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;judge_name&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;baseline&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;baseline_mean&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;current&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;current_mean&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;delta&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;diff&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;regressed&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;diff&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;0.05&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;  &lt;span class="c1"&gt;# 5% drop = regression
+&lt;/span&gt;            &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;improved&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;diff&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mf"&gt;0.02&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;report&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  CI/CD Integration: GitHub Actions
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="c1"&gt;# .github/workflows/llm-eval.yml&lt;/span&gt;
+&lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;LLM Evaluation&lt;/span&gt;
+&lt;span class="na"&gt;on&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;pull_request&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;paths&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'&lt;/span&gt;&lt;span class="s"&gt;prompts/**'&lt;/span&gt;&lt;span class="pi"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'&lt;/span&gt;&lt;span class="s"&gt;eval/**'&lt;/span&gt;&lt;span class="pi"&gt;]&lt;/span&gt;
+  &lt;span class="na"&gt;schedule&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'&lt;/span&gt;&lt;span class="s"&gt;0&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;2&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;*&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;*&lt;/span&gt;&lt;span class="nv"&gt; &lt;/span&gt;&lt;span class="s"&gt;*'&lt;/span&gt;&lt;span class="pi"&gt;]&lt;/span&gt;  &lt;span class="c1"&gt;# Nightly&lt;/span&gt;
+
+&lt;span class="na"&gt;jobs&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="na"&gt;evaluate&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="na"&gt;runs-on&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;ubuntu-latest&lt;/span&gt;
+    &lt;span class="na"&gt;steps&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;uses&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;actions/checkout@v4&lt;/span&gt;
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;uses&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;actions/setup-python@v5&lt;/span&gt;
+        &lt;span class="na"&gt;with&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;{&lt;/span&gt;&lt;span class="nv"&gt;python-version&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'&lt;/span&gt;&lt;span class="s"&gt;3.11'&lt;/span&gt;&lt;span class="pi"&gt;}&lt;/span&gt;
+
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Install deps&lt;/span&gt;
+        &lt;span class="na"&gt;run&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;pip install -e .[dev]&lt;/span&gt;
+
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Run evaluation&lt;/span&gt;
+        &lt;span class="na"&gt;env&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+          &lt;span class="na"&gt;OPENAI_API_KEY&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;${{ secrets.OPENAI_API_KEY }}&lt;/span&gt;
+        &lt;span class="na"&gt;run&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;|&lt;/span&gt;
+          &lt;span class="s"&gt;python -m eval.run_suite --config config.yaml --output results.json&lt;/span&gt;
+
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Check regressions&lt;/span&gt;
+        &lt;span class="na"&gt;run&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;|&lt;/span&gt;
+          &lt;span class="s"&gt;python -m eval.check_regression --baseline baseline.json --current results.json&lt;/span&gt;
+
+      &lt;span class="pi"&gt;-&lt;/span&gt; &lt;span class="na"&gt;name&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Comment PR&lt;/span&gt;
+        &lt;span class="na"&gt;if&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;github.event_name == 'pull_request'&lt;/span&gt;
+        &lt;span class="na"&gt;uses&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;actions/github-script@v7&lt;/span&gt;
+        &lt;span class="na"&gt;with&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+          &lt;span class="na"&gt;script&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="pi"&gt;|&lt;/span&gt;
+            &lt;span class="s"&gt;const results = JSON.parse(fs.readFileSync('results.json'));&lt;/span&gt;
+            &lt;span class="s"&gt;const body = `## LLM Evaluation Results&lt;/span&gt;
+            &lt;span class="s"&gt;| Judge | Pass Rate | Mean Score |&lt;/span&gt;
+            &lt;span class="s"&gt;|-------|-----------|------------|&lt;/span&gt;
+            &lt;span class="s"&gt;${Object.entries(results.summary).map(([k,v]) =&amp;gt; &lt;/span&gt;
+              &lt;span class="s"&gt;`| ${k} | ${(v.pass_rate*100).toFixed(1)}% | ${v.mean_score.toFixed(3)} |`).join('\n')}&lt;/span&gt;
+            &lt;span class="s"&gt;`;&lt;/span&gt;
+            &lt;span class="s"&gt;github.rest.issues.createComment({&lt;/span&gt;
+              &lt;span class="s"&gt;issue_number: context.issue.number,&lt;/span&gt;
+              &lt;span class="s"&gt;owner: context.repo.owner,&lt;/span&gt;
+              &lt;span class="s"&gt;repo: context.repo.repo,&lt;/span&gt;
+              &lt;span class="s"&gt;body&lt;/span&gt;
+            &lt;span class="s"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Results: 6 Months of Production Evaluation
+&lt;/h2&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Metric&lt;/th&gt;
+&lt;th&gt;Before&lt;/th&gt;
+&lt;th&gt;After&lt;/th&gt;
+&lt;th&gt;Change&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Hallucination catch rate&lt;/td&gt;
+&lt;td&gt;~67% (human)&lt;/td&gt;
+&lt;td&gt;92% (auto)&lt;/td&gt;
+&lt;td&gt;+25%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Prompt iteration cycle&lt;/td&gt;
+&lt;td&gt;2 hours&lt;/td&gt;
+&lt;td&gt;15 minutes&lt;/td&gt;
+&lt;td&gt;8x faster&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Production incidents&lt;/td&gt;
+&lt;td&gt;3/month&lt;/td&gt;
+&lt;td&gt;0.2/month&lt;/td&gt;
+&lt;td&gt;15x reduction&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Regression detection&lt;/td&gt;
+&lt;td&gt;Manual (days)&lt;/td&gt;
+&lt;td&gt;Automated (minutes)&lt;/td&gt;
+&lt;td&gt;—&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;h2&gt;
+  
+  
+  Open Source Tooling We Built
+&lt;/h2&gt;
+
+&lt;p&gt;All MIT licensed, production-hardened:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;&lt;code&gt;llm-eval-harness&lt;/code&gt;&lt;/strong&gt; — Core framework (this article's code)&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;&lt;code&gt;prompt-registry&lt;/code&gt;&lt;/strong&gt; — Git-based prompt versioning with eval history&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;&lt;code&gt;eval-dashboard&lt;/code&gt;&lt;/strong&gt; — Real-time monitoring with alerting&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Getting Started Today (5 Minutes)
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;pip &lt;span class="nb"&gt;install &lt;/span&gt;llm-eval-harness
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;eval.harness&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;EvaluationHarness&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;eval.judges&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;create_faithfulness_judge&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;create_instruction_following_judge&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;eval.base&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;TestCase&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 1. Define 10 real test cases from your logs
+&lt;/span&gt;&lt;span class="n"&gt;cases&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="nc"&gt;TestCase&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;1&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;input&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;question&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;...&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;answer&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;...&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="n"&gt;tags&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;basic&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]),&lt;/span&gt;
+    &lt;span class="c1"&gt;# ...
+&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 2. Build judge ensemble
+&lt;/span&gt;&lt;span class="n"&gt;judges&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="nf"&gt;create_faithfulness_judge&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt;
+    &lt;span class="nf"&gt;create_instruction_following_judge&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt;
+    &lt;span class="c1"&gt;# Add your domain-specific judges
+&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 3. Run
+&lt;/span&gt;&lt;span class="n"&gt;harness&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;EvaluationHarness&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;judges&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="n"&gt;harness&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;evaluate_all&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;your_llm_function&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;harness&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;summary&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 4. Save baseline
+&lt;/span&gt;&lt;span class="n"&gt;harness&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;save_baseline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;baseline.json&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 5. Add to CI — done
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  The Mental Shift
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Evaluation is infrastructure, not afterthought.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Treat judges as first-class code (versioned, tested, reviewed)&lt;/li&gt;
+&lt;li&gt;Golden dataset = your most valuable IP (curate it religiously)&lt;/li&gt;
+&lt;li&gt;Every prompt change = eval run (enforced by CI)&lt;/li&gt;
+&lt;li&gt;Regression alerts = paging alerts (not email digests)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Your users don't care about your prompt engineering cleverness. They care that the answer is right. Automated evaluation is how you guarantee that at scale.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;Code: &lt;a href="https://github.com/yourname/llm-eval-harness" rel="noopener noreferrer"&gt;github.com/yourname/llm-eval-harness&lt;/a&gt; | &lt;br /&gt;
+Discussion: &lt;a href="https://news.ycombinator.com/" rel="noopener noreferrer"&gt;Hacker News&lt;/a&gt; | &lt;br /&gt;
+Follow: &lt;a href="https://twitter.com/yourname" rel="noopener noreferrer"&gt;@yourname&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/imus_d7584cbc8ee9b0336256/building-production-grade-llm-evaluation-pipelines-from-vibes-to-metrics-1c77</link>
+      <pubDate>Tue, 21 Jul 2026 05:10:12 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/imus_d7584cbc8ee9b0336256/building-production-grade-llm-evaluation-pipelines-from-vibes-to-metrics-1c77</guid>
+    </item>
+    <item>
       <title>[翻訳] AIコード分析でバグレビューを自動調査——レビュー分類から根本原因特定まで</title>
       <description>アプリレビューとクラッシュを監視するCLIツール「AppPulse」に、PydanticAIエージェントを使ったコード分析機能を追加。従来の「何が問題か」の分類から「コードのどこが原因か」「何を変えるべきか」まで自動的に特定できるように拡張した。
 レポマップの事前生成やツールの段階的制限により、LLMのAPI呼び出しを40+回から8-12回に削減し効率化。Grok BuildやClaude Codeなど複数のAIツールをプラグイン可能なバックエンド設計で統合し、段階的な分析処理（探索→構造化）を実現した。
@@ -1821,118 +4105,6 @@ Node.jsのコード例、フロントエンド実装、エラーハンドリン�
       <pubDate>Fri, 03 Jul 2026 02:00:21 +0000</pubDate>
       <source>DEV Community</source>
       <guid isPermaLink="false">https://dev.to/mage0535/stop-your-ai-agent-forgetting-everything-between-sessions-2a7p</guid>
-    </item>
-    <item>
-      <title>[翻訳] Qwenを使ったメモリ管理エージェント：同じプロンプトから3つの異なる回答を引き出す</title>
-      <description>医療用ケアアシスタントにおいて、AIエージェントの記憶管理を「データ保存」から「決定層」へと転換し、安全性と有用性を両立させるERINYSというメモリガバナンスシステムを開発。\n6つのシグナル（機密性、古さ、矛盾、重要性、最新性、関連性）に基づき、記憶を4つの状態（選別・矛盾・降格・ブロック）に分類することで、個人識別情報の漏洩を防ぎながら詳細で信頼性の高い回答を生成。\nQwen CloudのAPIとDashScopeを活用してデモアプリケーションを構築し、決定論的で監査可能なポリシーにより、医療分野で必要とされる説明責任と安全性を実現。</description>
-      <link>https://dev.to/ghostyai_aionexo/one-prompt-three-memories-building-a-memory-governance-agent-with-qwen-2pal</link>
-      <pubDate>Fri, 03 Jul 2026 01:57:01 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/ghostyai_aionexo/one-prompt-three-memories-building-a-memory-governance-agent-with-qwen-2pal</guid>
-    </item>
-    <item>
-      <title>[翻訳] 300以上の無料ウェブツールを広告なし・登録不要で一つにまとめたサイト</title>
-      <description>開発者が日々使う小さなウェブツール（JSON整形、単位変換など）を探すたびに広告やログイン要求に困り、理想的なツール集を自作した。
-「yourhack.ai」という300以上の無料ツールディレクトリで、広告なし・登録不要・データはブラウザ内で完結する完全プライベート仕様を実現した。
-Cloudflare Workerを使った シンプルなレジストリ設計により、新規ツール追加のコストを最小化しながら運営・拡張が容易な仕組みを構築した。</description>
-      <link>https://dev.to/codelong888/i-put-300-free-web-tools-in-one-place-with-no-ads-and-no-signup-1cf6</link>
-      <pubDate>Fri, 03 Jul 2026 01:51:49 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/codelong888/i-put-300-free-web-tools-in-one-place-with-no-ads-and-no-signup-1cf6</guid>
-    </item>
-    <item>
-      <title>[翻訳] Codexを調整管理者に変える—プロンプトエンジニアリング手法</title>
-      <description>AIコーディングエージェントを単一のチャットウィンドウとして扱うのではなく、オーケストレーション管理者として機能させるアプローチを紹介。\n管理スレッドが作業を複数のワーカースレッドに分割し、進捗確認、テスト実行、PR管理、フィードバック対応など一連のループを自動化する仕組みを提案。\n定義されたプロンプトテンプレートを使用することで、人間のプロジェクト管理負担を軽減しながらAIの信頼性と追跡可能性を確保するパターンを解説。</description>
-      <link>https://dev.to/shreyshah/steal-my-prompt-to-turn-codex-into-an-orchestration-manager-53fe</link>
-      <pubDate>Fri, 03 Jul 2026 01:50:14 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/shreyshah/steal-my-prompt-to-turn-codex-into-an-orchestration-manager-53fe</guid>
-    </item>
-    <item>
-      <title>[翻訳] Linuxカーネル開発を極める50の低レベルプログラミング問題集</title>
-      <description>システムプログラマーやカーネル開発者向けに、Linuxカーネルのデータ構造(kfifo、slab、rbtree)、デバイスドライバ、状態機械など実践的なプログラミングパターンを50個の問題として体系化。
-メモリ管理、並行処理プリミティブ、UART/USB/プロトコルパーサーなど、低レベル抽象化を習得するための課題で、システム設計面接対策や組込みファームウェア開発に活用可能。
-CMakeベースのビルドシステムとGoogleTestによる検証フレームワークを備え、高信頼性システムプログラミングに必要な境界条件制御とメモリ効率を実装する力を養成。</description>
-      <link>https://dev.to/shaifurcodes/50-low-level-primitives-to-master-linux-systems-kernel-engineering-543m</link>
-      <pubDate>Fri, 03 Jul 2026 01:49:49 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/shaifurcodes/50-low-level-primitives-to-master-linux-systems-kernel-engineering-543m</guid>
-    </item>
-    <item>
-      <title>[翻訳] メンバーシップ制限のあるWordPressサイトで検索モーダルを実装する</title>
-      <description>WordPress検索機能にメンバーシップによるアクセス制限を組み込む際の実装方法を紹介。REST APIエンドポイントでアクセス制御を厳密に行い、ログアウトユーザーには有料コンテンツのタイトルを表示しない工夫が核となる。
-フロントエンドではデバウンス処理とAbortControllerでリクエスト競合を防ぎ、XSS対策としてHTML特殊文字をエスケープする。キャッシュレイヤーもアクセス制御の対象にしないと、異なるユーザーに間違ったフィルタリング結果が配信される危険がある。
-モバイル対応ではテーマの内部要素を無理に修正するのではなく、独立した要素として配置することで問題を解決。全体的には目に見えない部分のセキュリティと堅牢性の実装が、実際のプロダクション構築では最も重要な作業になる。</description>
-      <link>https://dev.to/highcenburg/building-a-search-modal-for-a-membership-gated-wordpress-site-b92</link>
-      <pubDate>Thu, 02 Jul 2026 02:36:34 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/highcenburg/building-a-search-modal-for-a-membership-gated-wordpress-site-b92</guid>
-    </item>
-    <item>
-      <title>[翻訳] Grafana + Loki + Promtail + Prometheusを使った完全なログ監視ガイド</title>
-      <description>Grafana、Loki、Promtail、Prometheusを組み合わせた包括的な監視スタックの構築方法を解説しており、Docker Composeで各コンポーネントを簡単にデプロイできます。
-Lokiでログを一元管理し、Promtailで複数のWildFlyサーバーからログを収集し、Prometheusでメトリクスを収集してGrafanaで可視化するアーキテクチャを紹介しています。
-設定ファイルの詳細な解説、データソースの設定、ログ・メトリクスのクエリ例、アラート設定、トラブルシューティング、本番環境のベストプラクティスが網羅されています。</description>
-      <link>https://dev.to/edivan/monitoramento-de-logs-com-grafana-loki-promtail-prometheus-25a8</link>
-      <pubDate>Thu, 02 Jul 2026 02:25:26 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/edivan/monitoramento-de-logs-com-grafana-loki-promtail-prometheus-25a8</guid>
-    </item>
-    <item>
-      <title>[翻訳] 共有クラウドインスタンスの請求を細分化へ——HiFXのDBStewardがデータベース単位の正確なコスト配分を実現</title>
-      <description>AWSなどのマネージドデータベースサービスはインスタンス単位で請求されるため、複数のデータベースが共存する場合、個別のコスト把握が不可能という問題がある。
-HiFXが開発したDBStewardは、データベースエンジン内のメトリクス（CPU、I/O、ディスク使用量など）を計測し、重み付けして各データベースの公正な費用配分を算出する。
-この仕組みにより、コスト可視化が実現され、チーム間の適切なチャージバック、ノイジーネイバー問題の解決、SaaS事業者の正確なコスト把握が可能になる。</description>
-      <link>https://dev.to/hifx_itservices_/the-aws-bill-says-4000-it-wont-tell-you-which-database-owes-what-5b2</link>
-      <pubDate>Thu, 02 Jul 2026 02:17:37 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/hifx_itservices_/the-aws-bill-says-4000-it-wont-tell-you-which-database-owes-what-5b2</guid>
-    </item>
-    <item>
-      <title>[翻訳] Whisper と GPT を使ってポッドキャスト音声を自動チャプター化する低コスト方法</title>
-      <description>長い音声ファイルから自動的にポッドキャストのチャプターを生成する方法を紹介。Whisper で正確なタイムスタンプ付き文字起こしを取得し、GPT-4o-mini で章立てを作成することで、OpenAI の利用料金を抑える。\n低コスト化のポイントは、モデル選択を適切に行うこと、セグメントを要約してから送信すること、文字起こし結果をキャッシュすることの3つ。各 AI ツールをそれぞれの強みに応じて役割分担させることで、コストと精度の両立が実現できる。\n実装コード例も含め、具体的な手法と工夫が紹介されており、実務レベルの AI 自動化プロジェクトで即活用できる内容となっている。</description>
-      <link>https://dev.to/felipegazolla/transcrevendo-audio-e-gerando-capitulos-com-ia-whisper-gpt-sem-estourar-o-custo-3lk6</link>
-      <pubDate>Thu, 02 Jul 2026 02:10:56 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/felipegazolla/transcrevendo-audio-e-gerando-capitulos-com-ia-whisper-gpt-sem-estourar-o-custo-3lk6</guid>
-    </item>
-    <item>
-      <title>[翻訳] 有名なプログラマーが株で130万元の損失を認め炎上：技術力と投資成功は別問題</title>
-      <description>技術バックグラウンドを持つ有名プログラマーが1年間の株式投資で約130万元の損失を公開承認し、SNSで話題になった。
-記事は、技術力が投資優位性に直結しない理由を分析し、情報非対称性とリスク管理の重要性を指摘している。
-自媒体インフルエンサーが投資経験をコンテンツ化する傾向と、一般投資家への潜在的な悪影響について考察している。</description>
-      <link>https://dev.to/cindyching0101/wang-hong-cheng-shi-she-ji-shi-hui-ying-chao-gu-nian-kui-130wan-dang-liu-liang-zhu-ti-zou-jin-san-hu-xu-shi-kui-sun-ye-cheng-liao-nei-rong-3ld4</link>
-      <pubDate>Thu, 02 Jul 2026 02:09:24 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/cindyching0101/wang-hong-cheng-shi-she-ji-shi-hui-ying-chao-gu-nian-kui-130wan-dang-liu-liang-zhu-ti-zou-jin-san-hu-xu-shi-kui-sun-ye-cheng-liao-nei-rong-3ld4</guid>
-    </item>
-    <item>
-      <title>[翻訳] LANで簡単にシェルを共有できるツール――SSHの設定不要で1コマンド実行</title>
-      <description>SSHサーバーの設定なしに、1コマンドでLAN上の別のマシンからシェルにアクセスできるツール「cmux-ssh-here」を紹介。
-実行するとワンタイムトークン認証のSSHサーバーが起動し、リンクやQRコード、ssh://URIなど複数の接続方法を提供する。
- セキュリティはトークン方式で3分ごとにローテーション、信頼されたLAN内での一時的な使用を想定している。</description>
-      <link>https://dev.to/viktor_9132305bf4ca8f79ae/share-a-shell-over-your-lan-in-one-command-no-ssh-setup-3p33</link>
-      <pubDate>Thu, 02 Jul 2026 02:08:43 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/viktor_9132305bf4ca8f79ae/share-a-shell-over-your-lan-in-one-command-no-ssh-setup-3p33</guid>
-    </item>
-    <item>
-      <title>[翻訳] ユーザーを失わせたREST APIの5つの過ちと修正方法</title>
-      <description>開発者が最初のパブリックAPIで犯した5つの重大な設計ミス（不適切なHTTPステータスコード、バージョニングなし、レート制限なし、エラー形式の不統一、ページネーション未実装）と具体的な修正方法を紹介。
-これらの問題を解決することで、新規パートナーの統合時間が3日から4時間に短縮され、APIに関するサポートチケットが70%削減されるなど、ユーザー体験が大幅に改善された。
-APIはユーザーにとって製品の真のインターフェースであり、適切な設計こそが利用者の満足度とビジネス成功に直結することを強調。</description>
-      <link>https://dev.to/sirmax/5-rest-api-mistakes-that-cost-me-users-and-how-to-fix-them-57gi</link>
-      <pubDate>Thu, 02 Jul 2026 02:02:39 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/sirmax/5-rest-api-mistakes-that-cost-me-users-and-how-to-fix-them-57gi</guid>
-    </item>
-    <item>
-      <title>[翻訳] PostgreSQL、MongoDB、Cassandra：マルチノード環境での選択ガイド</title>
-      <description>複数ノード環境では、単一ノードでの性能差は無視できるほどネットワーク遅延が支配的になる。各データベースは遅延時にの選択肢が異なり、PostgreSQLはCP（一貫性優先）、MongoDBは柔軟に設定可能、CassandraはAP（可用性優先）を採用している。\n書き込み性能ではCassandraが最適で、PostgreSQLはCitusで対応、MongoDBはシャーディングで対応する。トランザクションはPostgresQLが最強力で、MongoDBは限定的、Cassandraはサポートなし。\n新規プロダクトではPostgreSQLから始め、具体的な要件に応じてMongoDBまたはCassandraへの移行を検討することが推奨される。</description>
-      <link>https://dev.to/priteshsurana/postgresql-vs-mongodb-vs-cassandra-multi-node-and-how-to-choose-370a</link>
-      <pubDate>Thu, 02 Jul 2026 02:01:37 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/priteshsurana/postgresql-vs-mongodb-vs-cassandra-multi-node-and-how-to-choose-370a</guid>
     </item>
   </channel>
 </rss>
