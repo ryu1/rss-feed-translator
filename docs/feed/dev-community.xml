@@ -5,6 +5,2385 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] Two AI models that attack each other beat one that agrees with itself</title>
+      <description>&lt;h1&gt;
+  
+  
+  Two AI models that attack each other beat one that agrees with itself
+&lt;/h1&gt;
+
+&lt;p&gt;Four times I asked the same question.&lt;/p&gt;
+
+&lt;p&gt;Four times I got a confident answer. All four were wrong.&lt;/p&gt;
+
+&lt;p&gt;Not vague. Not hedged. Each one arrived with the tone of something settled, and each one was produced the same way, by the same reasoning, looking in the same place.&lt;/p&gt;
+
+&lt;p&gt;We solved this exact problem in software a long time ago. Code review exists because one pair of eyes misses things. A pull request exists so somebody who did not write the change is the one who reads it.&lt;/p&gt;
+
+&lt;p&gt;Then we started asking a machine to check its own work, and quietly dropped the entire principle.&lt;/p&gt;
+
+&lt;p&gt;You have probably done what I did next. Reworded the question. Started a fresh session. Turned the thinking effort up. Asked it to double check itself.&lt;/p&gt;
+
+&lt;p&gt;None of that helps, and I took an embarrassingly long time to understand why.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Running it twice is one eye used twice
+&lt;/h2&gt;
+
+&lt;p&gt;When your model answers the same way twice, that feels like corroboration. Nothing about it is.&lt;/p&gt;
+
+&lt;p&gt;You are watching the same failure arrive a second time, wearing the confidence of agreement.&lt;/p&gt;
+
+&lt;p&gt;A model has a shape to how it searches, what it treats as evidence, what it forgets to check. Run it again and you get that same shape back. If the blind spot caused the first wrong answer, the blind spot causes the second one, and now two answers match and you believe them more.&lt;/p&gt;
+
+&lt;p&gt;Four attempts sharing one blind spot is one eye used four times.&lt;/p&gt;
+
+&lt;p&gt;So the fix had nothing to do with better questions. What I needed was a different pair of eyes, from a model trained differently, failing differently.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Two tools that had never spoken to each other
+&lt;/h2&gt;
+
+&lt;p&gt;I already had both installed. Most of us do in 2026.&lt;/p&gt;
+
+&lt;p&gt;They sat on the same machine for months, doing separate work, never once checking each other. Two capable colleagues in the same building who had never been introduced.&lt;/p&gt;
+
+&lt;p&gt;So I introduced them, and set one rule that changed everything about how useful this is.&lt;/p&gt;
+
+&lt;p&gt;Ask the other model to refute. Never to review.&lt;/p&gt;
+
+&lt;p&gt;That distinction sounds small and carries the whole thing. A reviewer looks for agreement, and models are agreeable by construction. Ask one to review and you get "this looks solid, here are two small suggestions". Ask one to find where the reasoning breaks, and to default to broken when uncertain, and you get something you can actually use.&lt;/p&gt;
+
+&lt;p&gt;First time I ran it properly, the answer came back in a single line and took apart something I had been quietly proud of for a week.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Making it fire without me
+&lt;/h2&gt;
+
+&lt;p&gt;Here is the awkward truth about self-checking. The moment you most need a second opinion is exactly the moment you are least likely to ask for one, because you are confident.&lt;/p&gt;
+
+&lt;p&gt;I was never going to remember to invoke this while being wrong. Nobody is.&lt;/p&gt;
+
+&lt;p&gt;So the trigger runs on my frustration instead of my judgement.&lt;/p&gt;
+
+&lt;p&gt;When I am irritated, or repeating myself, or typing the same complaint in capital letters, that pattern is a reliable tell that the machine is confidently off and I have noticed before it has. Those moments now demand a cross-model check before any further answer. Two of them in one session and the check stops being optional.&lt;/p&gt;
+
+&lt;p&gt;I want to be honest that this catches the problem late. The trigger fires after the damage, never before it. Anyone selling you frustration detection as prevention is selling you something. The loop shortens from four wrong answers down to one, which is worth having, and the first wrong answer still lands.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What makes a naive second opinion worthless
+&lt;/h2&gt;
+
+&lt;p&gt;Here is the part I would have missed entirely, found only because I turned the method on itself.&lt;/p&gt;
+
+&lt;p&gt;I described the setup to the rival model and asked it to attack the design. That attack found something real.&lt;/p&gt;
+
+&lt;p&gt;When the first model writes the summary that the second model reviews, the first model launders its own error. The summary frames the problem defensively. Out goes the exact output that broke. In comes a slightly softer question, one the first model is more comfortable answering. You get agreement, and the agreement is worthless, because the real question was never asked.&lt;/p&gt;
+
+&lt;p&gt;So the handoff carries the unedited original. The exact broken output, word for word. The exact correction, word for word. What correct would concretely look like. No summaries anywhere in that chain.&lt;/p&gt;
+
+&lt;p&gt;That single change separates a second opinion from a rubber stamp, and I would not have found it without asking the tool to attack the thing that consults the tool.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What nine rounds actually looked like
+&lt;/h2&gt;
+
+&lt;p&gt;One day. Nine cross-model consultations. Seven of them ended with me being corrected.&lt;/p&gt;
+
+&lt;p&gt;Seven. On my own work, in my own domain, where I was confident enough to have shipped without asking.&lt;/p&gt;
+
+&lt;p&gt;Three of the things it caught.&lt;/p&gt;
+
+&lt;p&gt;I proposed a guard that would inspect written code for a layout problem. Reading source text cannot compute what a screen actually renders, so the guard would fire on healthy code, miss real breakage, and get switched off inside a week. Correct on every count. I rebuilt it to check something a machine can genuinely verify.&lt;/p&gt;
+
+&lt;p&gt;I proposed measuring a screenshot to find a display bug. Its answer pointed out that the thing being measured already knows its own dimensions exactly, so inferring them from pixels throws away precision I already had. Correct again.&lt;/p&gt;
+
+&lt;p&gt;And when I asked it to attack the consultation system itself, it opened with "it mostly fails" and then explained why, accurately, on two of four counts.&lt;/p&gt;
+
+&lt;p&gt;A tool willing to tell you your idea mostly fails is worth more than one telling you it looks solid.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Corrections that repeat become permanent
+&lt;/h2&gt;
+
+&lt;p&gt;Every round gets logged. Agreed, disagreed, corrected.&lt;/p&gt;
+
+&lt;p&gt;The log has one purpose. A pattern needs enough rounds before its shape becomes visible.&lt;/p&gt;
+
+&lt;p&gt;When the other model corrects me twice on the same class of thing, bad luck stops being the explanation. That is a blind spot with a shape, and it graduates into a permanent check that runs whether or not I remember to ask.&lt;/p&gt;
+
+&lt;p&gt;There is the compounding part. One correction fixes one mistake. A correction that repeats builds something catching the next twenty.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What this is honestly worth
+&lt;/h2&gt;
+
+&lt;p&gt;This will not stop you being wrong. Nothing does.&lt;/p&gt;
+
+&lt;p&gt;What it shortens is how long you stay wrong, and it makes the expensive kind of wrong, the confident kind that ships to a client, much rarer.&lt;/p&gt;
+
+&lt;p&gt;The cost is a habit and a little humility. You have to be willing to hear a rival tool say no about work you were proud of, then agree with it out loud rather than quietly picking your own answer.&lt;/p&gt;
+
+&lt;p&gt;If two of these tools already sit on your machine doing separate work, you are one rule away from a real check. Ask the other one to attack. Give it the raw evidence, never your version of events. Reconcile in the open, including when you lose.&lt;/p&gt;
+
+&lt;p&gt;Mine has told me I was wrong seven times today.&lt;/p&gt;
+
+&lt;p&gt;Best day it has ever given me.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Your turn
+&lt;/h2&gt;
+
+&lt;p&gt;When did an AI last tell you no.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  If this was useful
+&lt;/h2&gt;
+
+&lt;p&gt;I work through this in public, the wins and the freezes both, mostly on &lt;a href="https://www.linkedin.com/in/mirzajhanzaib/" rel="noopener noreferrer"&gt;LinkedIn&lt;/a&gt; and &lt;a href="https://www.youtube.com/@mirzaiqbal" rel="noopener noreferrer"&gt;YouTube&lt;/a&gt;. If the real version of building in the open is useful to you, that is where it lives. Find me on &lt;a href="https://x.com/mirzajhanzaib" rel="noopener noreferrer"&gt;X&lt;/a&gt;, &lt;a href="https://github.com/mjmirza" rel="noopener noreferrer"&gt;GitHub&lt;/a&gt;, and the work at &lt;a href="https://next8n.com" rel="noopener noreferrer"&gt;next8n.com&lt;/a&gt;.&lt;/p&gt;</description>
+      <link>https://dev.to/mjmirza/two-ai-models-that-attack-each-other-beat-one-that-agrees-with-itself-4hk2</link>
+      <pubDate>Wed, 22 Jul 2026 05:38:01 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/mjmirza/two-ai-models-that-attack-each-other-beat-one-that-agrees-with-itself-4hk2</guid>
+    </item>
+    <item>
+      <title>[翻訳] Init User Engine – A gamified, frontend-first user system for WordPress</title>
+      <description>&lt;p&gt;&lt;strong&gt;Init User Engine&lt;/strong&gt; is a lightweight, no-bloat user system for modern WordPress sites. It replaces the default profile/login experience with a full gamification layer — EXP &amp;amp; levels, a Coin/Cash wallet, daily check-in, VIP membership, referrals, and an inbox — all rendered through a fast, modal-driven frontend powered by the REST API.&lt;/p&gt;
+
+&lt;p&gt;No jQuery. Minimal settings. Smart by default.&lt;/p&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Why Init User Engine?
+&lt;/h3&gt;
+
+&lt;p&gt;Most "membership" or "points" plugins for WordPress are heavy, admin-ajax-based, and hard to theme. Init User Engine takes the opposite approach: everything dynamic — avatar, dashboard, check-in, inbox, VIP purchase — is rendered client-side in pure Vanilla JS and talks to a clean REST API. Drop in one shortcode and you get a full gamified account system on top of native WordPress users.&lt;/p&gt;
+
+&lt;p&gt;It's the core user system behind the &lt;a href="https://en.inithtml.com/init-plugin-suite-minimalist-powerful-and-free-wordpress-plugins/" rel="noopener noreferrer"&gt;Init Plugin Suite&lt;/a&gt; — the same minimalist, performance-first philosophy as &lt;a href="https://wordpress.org/plugins/init-live-search/" rel="noopener noreferrer"&gt;Init Live Search&lt;/a&gt;.&lt;/p&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Features at a Glance
+&lt;/h3&gt;
+
+&lt;h4&gt;
+  
+  
+  Gamified Progression
+&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;EXP &amp;amp; Level system with fully hookable progression logic&lt;/li&gt;
+&lt;li&gt;Coin &amp;amp; Cash wallet with transaction logs (dedicated DB tables, not user meta)&lt;/li&gt;
+&lt;li&gt;Daily check-in with streak milestones and an online-time bonus timer&lt;/li&gt;
+&lt;li&gt;Daily task list, extensible via filter&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;
+  
+  
+  Frontend-First UX
+&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;One shortcode: &lt;code&gt;[init_user_engine]&lt;/code&gt; — avatar button + full modal dashboard&lt;/li&gt;
+&lt;li&gt;Avatar system with upload, live preview, and revert-to-default support&lt;/li&gt;
+&lt;li&gt;Login/Register modals for logged-out visitors, with custom redirect URLs&lt;/li&gt;
+&lt;li&gt;Pure Vanilla JS — no jQuery, no server-rendered admin-ajax round trips&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;
+  
+  
+  Monetization &amp;amp; Retention
+&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;VIP membership, purchased with in-site Coin, with configurable duration tiers (including lifetime)&lt;/li&gt;
+&lt;li&gt;VIP bonus system — extra Coin/EXP percentage for VIP members&lt;/li&gt;
+&lt;li&gt;Redeem Code / Gift Code module — generate single-use or bulk codes, redeem for rewards&lt;/li&gt;
+&lt;li&gt;Referral module with cookie-based signup tracking and rewards for both sides&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;
+  
+  
+  Communication
+&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Built-in inbox with pagination, category filters (System, Rewards, Activity...), read/claim/delete&lt;/li&gt;
+&lt;li&gt;Admin panel to send notifications to selected users or the whole member base, with priority and expiration&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;
+  
+  
+  Built for Developers
+&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;REST API for every feature — register, check-in, claim reward, inbox, VIP purchase, redeem code, profile, and more&lt;/li&gt;
+&lt;li&gt;Deep set of action/filter hooks: modify EXP curves, VIP prices, referral rewards, theme colors, VIP body classes, and more&lt;/li&gt;
+&lt;li&gt;Transaction and EXP logs stored in dedicated tables with &lt;code&gt;wp_cache&lt;/code&gt; support and true paginated queries — built to scale, not just to demo&lt;/li&gt;
+&lt;/ul&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Core Modules
+&lt;/h3&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Module&lt;/th&gt;
+&lt;th&gt;What it does&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;EXP &amp;amp; Level&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Award EXP via hook, auto level-up, customizable EXP curve per level&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Wallet (Coin/Cash)&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Dual-currency system with full transaction history&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Check-in&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Daily rewards, streak milestones, online-duration bonus&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;VIP&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Coin-based purchase, expiry tracking, bonus % on rewards&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Referral&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Cookie-based tracking, rewards for referrer and new user&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Redeem Code&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Single-use or bulk gift codes redeemable for Coin/Cash&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Inbox&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Filterable, paginated notification center per user&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Admin Notify&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Send targeted or broadcast messages from wp-admin&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  REST API
+&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Base:&lt;/strong&gt; &lt;code&gt;/wp-json/inituser/v1/&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Endpoint&lt;/th&gt;
+&lt;th&gt;Purpose&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;POST /register&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Create a new user account&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;POST /checkin&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Daily check-in&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;POST /claim-reward&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Claim reward after online duration&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;GET /transactions&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Coin/Cash transaction log&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;GET /exp-log&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;EXP log&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;GET /inbox&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Inbox messages&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;POST /vip/purchase&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Purchase VIP package&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;GET /referral-log&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Referral history&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;POST /avatar&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Upload new avatar&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;GET /profile/me&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Current user profile&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;POST /exchange&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Convert Cash → Coin&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;POST /redeem-code&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Redeem a gift code&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;👉 Full endpoint list in the &lt;a href="https://github.com/brokensmile2103/init-user-engine" rel="noopener noreferrer"&gt;plugin readme&lt;/a&gt;.&lt;/p&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Developer Hooks
+&lt;/h3&gt;
+
+&lt;p&gt;Init User Engine ships with a wide surface of filters and actions so you're never stuck waiting on a plugin update to customize behavior:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight php"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Change how much EXP is required per level&lt;/span&gt;
+&lt;span class="nf"&gt;add_filter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s1"&gt;'init_plugin_suite_user_engine_exp_required'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nv"&gt;$required&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;$level&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nv"&gt;$level&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;// React to a level-up&lt;/span&gt;
+&lt;span class="nf"&gt;add_action&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s1"&gt;'init_plugin_suite_user_engine_level_up'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nv"&gt;$user_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;$new_level&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// send a custom notification, unlock content, etc.&lt;/span&gt;
+&lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Other notable hooks include filters for VIP pricing, referral rewards, check-in milestones, daily tasks, theme colors, and VIP-related body classes — plus actions for EXP/Coin changes, referral completion, and admin notifications.&lt;/p&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Where Data Lives
+&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;user_meta&lt;/code&gt; — EXP, level, Coin, Cash, VIP, referral&lt;/li&gt;
+&lt;li&gt;Dedicated DB tables — transaction log and EXP log (migrated off user meta for scalability as of v1.5.0)&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;wp_init_user_engine_inbox&lt;/code&gt; — inbox messages&lt;/li&gt;
+&lt;/ul&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Installation
+&lt;/h3&gt;
+
+&lt;p&gt;Install via &lt;a href="https://wordpress.org/plugins/init-user-engine/" rel="noopener noreferrer"&gt;WordPress.org&lt;/a&gt; or:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;git clone https://github.com/brokensmile2103/init-user-engine.git
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Then:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Activate the plugin&lt;/li&gt;
+&lt;li&gt;Drop &lt;code&gt;[init_user_engine]&lt;/code&gt; into any page, post, or template&lt;/li&gt;
+&lt;li&gt;Configure theme color, currency labels, and reward values under &lt;strong&gt;Settings → Init User Engine&lt;/strong&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;That's it — modals and logic load automatically.&lt;/p&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  Part of the Init Plugin Suite
+&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Init User Engine&lt;/strong&gt; is part of the &lt;a href="https://en.inithtml.com/init-plugin-suite-minimalist-powerful-and-free-wordpress-plugins/" rel="noopener noreferrer"&gt;Init Plugin Suite&lt;/a&gt; — a set of minimalist, high-performance plugins built for WordPress developers and creators who value speed, flexibility, and clarity.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;Thanks for reading. Got feedback or questions?&lt;/strong&gt;&lt;br /&gt;
+→ &lt;a href="https://en.inithtml.com/plugin/init-user-engine/" rel="noopener noreferrer"&gt;Project Page&lt;/a&gt;&lt;br /&gt;
+→ &lt;a href="https://github.com/brokensmile2103/init-user-engine" rel="noopener noreferrer"&gt;GitHub&lt;/a&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/brokensmile2103/init-user-engine-a-gamified-frontend-first-user-system-for-wordpress-57m7</link>
+      <pubDate>Wed, 22 Jul 2026 05:37:11 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/brokensmile2103/init-user-engine-a-gamified-frontend-first-user-system-for-wordpress-57m7</guid>
+    </item>
+    <item>
+      <title>[翻訳] Understanding Vector Databases: A Beginner's Guide to Embeddings and Similarity Search</title>
+      <description>&lt;p&gt;Vector databases are changing the game for AI applications, but what exactly are they? How do they enable similarity search and what are the key concepts to understand when working with embeddings?&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Introduction to Vector Databases
+&lt;/h2&gt;
+
+&lt;p&gt;Vector databases are a new type of database that stores data as vectors, which are lists of numbers that represent the features of an object. This allows for efficient similarity search, which is the ability to find objects that are similar to a given object. To understand why this is useful, think of a music streaming service that wants to recommend songs to a user based on their listening history. A vector database can store the features of each song, such as the genre, tempo, and mood, and then find songs that are similar to the user's favorite songs.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Import the required libraries&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;faiss&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;faiss&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;AWS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;aws-sdk&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Create a vector database using Faiss&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;faiss&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;IndexFlatL2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;128&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// 128 is the dimension of the vectors&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;blockquote&gt;
+&lt;p&gt;The key takeaway here is that vector databases are not just a new type of NoSQL database, but a fundamental shift in how we store and query data.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  What are Embeddings?
+&lt;/h2&gt;
+
+&lt;p&gt;An embedding is a list of numbers that captures the meaning of an object, such as a word, an image, or a song. For example, a word embedding might represent the word "dog" as a list of numbers that capture its semantic meaning, such as its relationship to other words like "animal" and "pet". Embeddings are used in vector databases to enable similarity search.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Define a function to generate embeddings for a list of words&lt;/span&gt;
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;generateEmbeddings&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;words&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;[]):&lt;/span&gt; &lt;span class="kr"&gt;number&lt;/span&gt;&lt;span class="p"&gt;[][]&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// Use a library like TensorFlow or PyTorch to generate the embeddings&lt;/span&gt;
+  &lt;span class="c1"&gt;// For simplicity, let's assume we have a function called getWordEmbedding&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;words&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;word&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;getWordEmbedding&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;word&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Generate embeddings for a list of words&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;words&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;dog&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;cat&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;bird&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;embeddings&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;generateEmbeddings&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;words&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;blockquote&gt;
+&lt;p&gt;In plain English, an embedding is like a fingerprint that captures the unique characteristics of an object, allowing us to compare and find similar objects.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  Similarity Search in Vector Databases
+&lt;/h2&gt;
+
+&lt;p&gt;Similarity search is the ability to find objects that are similar to a given object. In a vector database, this is done by calculating the distance between the vector representations of the objects. The most similar objects will have the smallest distance between their vectors.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Define a function to perform similarity search&lt;/span&gt;
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;similaritySearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;index&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;faiss&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;IndexFlatL2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;number&lt;/span&gt;&lt;span class="p"&gt;[]):&lt;/span&gt; &lt;span class="nx"&gt;number&lt;/span&gt;&lt;span class="p"&gt;[][]&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// Use the Faiss library to perform the search&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;distances&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Float32Array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// 10 is the number of nearest neighbors to return&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;ids&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Int32Array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="nx"&gt;index&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;distances&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;ids&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;ids&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;index&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;reconstruct&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;id&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Perform similarity search&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;vector&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt; &lt;span class="c1"&gt;// Example vector&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;similarVectors&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;similaritySearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;index&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;blockquote&gt;
+&lt;p&gt;A helpful tip is to use a library like Faiss to perform similarity search, as it provides optimized functions for calculating distances and finding nearest neighbors.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  Use Cases for Vector Databases
+&lt;/h2&gt;
+
+&lt;p&gt;Vector databases have many use cases, including image and video search, natural language processing, and recommendation systems. For example, a company like Netflix might use a vector database to store the features of each movie and TV show, and then recommend content to users based on their viewing history.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Define a function to recommend movies based on a user's viewing history&lt;/span&gt;
+&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;recommendMovies&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;userHistory&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;[]):&lt;/span&gt; &lt;span class="kr"&gt;string&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// Use a vector database to store the features of each movie&lt;/span&gt;
+  &lt;span class="c1"&gt;// For simplicity, let's assume we have a function called getMovieFeatures&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;movieFeatures&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;getMovieFeatures&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="c1"&gt;// Calculate the similarity between the user's history and the movie features&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;similarMovies&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;similaritySearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;movieFeatures&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;userHistory&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;similarMovies&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Recommend movies to a user&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;userHistory&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Movie1&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Movie2&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Movie3&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;recommendedMovies&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;recommendMovies&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;userHistory&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;blockquote&gt;
+&lt;p&gt;The key takeaway here is that vector databases enable efficient similarity search, which is useful in many real-world applications.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  Implementation and Integration
+&lt;/h2&gt;
+
+&lt;p&gt;To implement a vector database, you can use a library like Faiss and integrate it with a cloud service like AWS Lambda. This allows you to perform similarity search on a large dataset and return the results to a user.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Import the required libraries&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;AWS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;aws-sdk&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;faiss&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;faiss&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Create an AWS Lambda function to perform similarity search&lt;/span&gt;
+&lt;span class="nx"&gt;exports&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;handler&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;async &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;event&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// Get the vector to search for&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;vector&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;event&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="c1"&gt;// Create a Faiss index&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;faiss&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;IndexFlatL2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;128&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="c1"&gt;// Add the vectors to the index&lt;/span&gt;
+  &lt;span class="nx"&gt;index&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="c1"&gt;// Perform the search&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;similarVectors&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;similaritySearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;index&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="c1"&gt;// Return the results&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="na"&gt;statusCode&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="na"&gt;body&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;JSON&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;stringify&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;similarVectors&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+  &lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;blockquote&gt;
+&lt;p&gt;In plain English, implementing a vector database involves storing the features of objects as vectors and using a library like Faiss to perform similarity search.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  The Takeaway
+&lt;/h2&gt;
+
+&lt;p&gt;Here are the key takeaways from this guide:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Vector databases store data as vectors, which are lists of numbers that represent the features of an object.&lt;/li&gt;
+&lt;li&gt;Embeddings are lists of numbers that capture the meaning of an object, such as a word, an image, or a song.&lt;/li&gt;
+&lt;li&gt;Similarity search is the ability to find objects that are similar to a given object, and is performed by calculating the distance between the vector representations of the objects.&lt;/li&gt;
+&lt;li&gt;Vector databases have many use cases, including image and video search, natural language processing, and recommendation systems.&lt;/li&gt;
+&lt;li&gt;Implementing a vector database involves storing the features of objects as vectors and using a library like Faiss to perform similarity search.&lt;/li&gt;
+&lt;li&gt;Proper data normalization and handling of high-dimensional data are crucial when working with vector databases.
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// A final example to reinforce the concepts&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;finalExample&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// Define a function to generate embeddings for a list of images&lt;/span&gt;
+  &lt;span class="na"&gt;generateImageEmbeddings&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="na"&gt;images&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;string&lt;/span&gt;&lt;span class="p"&gt;[])&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// Use a library like TensorFlow or PyTorch to generate the embeddings&lt;/span&gt;
+    &lt;span class="c1"&gt;// For simplicity, let's assume we have a function called getImageEmbedding&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;images&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;image&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;getImageEmbedding&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;image&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="c1"&gt;// Generate embeddings for a list of images&lt;/span&gt;
+  &lt;span class="na"&gt;images&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Image1&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Image2&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Image3&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+  &lt;span class="na"&gt;embeddings&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;generateImageEmbeddings&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Image1&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Image2&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Image3&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;]),&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Transparency notice&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This article was generated by an AI system using &lt;a href="https://groq.com" rel="noopener noreferrer"&gt;Groq&lt;/a&gt; (LLaMA 3.3 70B).&lt;br /&gt;
+The topic was scouted from live AWS and Node.js ecosystem signals, and the content —&lt;br /&gt;
+including all code examples — was written autonomously without human editing.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Published:&lt;/strong&gt; 2026-07-22 · &lt;strong&gt;Primary focus:&lt;/strong&gt; VectorDatabases&lt;/p&gt;
+
+&lt;p&gt;All code blocks are intended to be correct and runnable, but please verify them&lt;br /&gt;
+against the official &lt;a href="https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/" rel="noopener noreferrer"&gt;AWS SDK v3 docs&lt;/a&gt;&lt;br /&gt;
+before using in production.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Find an error? Drop a comment — corrections are always welcome.&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+      <link>https://dev.to/dineshgowtham/understanding-vector-databases-a-beginners-guide-to-embeddings-and-similarity-search-30i8</link>
+      <pubDate>Wed, 22 Jul 2026 05:33:57 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/dineshgowtham/understanding-vector-databases-a-beginners-guide-to-embeddings-and-similarity-search-30i8</guid>
+    </item>
+    <item>
+      <title>[翻訳] I built an AI-powered video speed controller for online courses</title>
+      <description>&lt;p&gt;I was taking 12 online courses in 3 months. Python, machine learning, web development — all while working full-time.&lt;/p&gt;
+
+&lt;p&gt;Every platform had a different video player. Udemy's speed control had 4 steps. Coursera's shortcuts were different. LinkedIn Learning didn't remember my settings. I was spending more time fighting the players than actually learning.&lt;/p&gt;
+
+&lt;p&gt;So I built CourseSpeed.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What it does
+&lt;/h2&gt;
+
+&lt;p&gt;CourseSpeed is a Chrome extension that gives you:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Precision speed control (0.25x–16x) with per-platform memory — Coursera stays at 1.5x, Udemy at 1.75x&lt;/li&gt;
+&lt;li&gt;AI study notes — one click captures audio and generates timestamp-linked notes you can export anywhere&lt;/li&gt;
+&lt;li&gt;Learning analytics — shows your real efficiency, not just "hours watched"&lt;/li&gt;
+&lt;li&gt;Keyboard shortcuts for everything — no mouse needed&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  The tech stack
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Manifest V3 Chrome extension&lt;/li&gt;
+&lt;li&gt;Vanilla JS (no framework — extension needs to be fast and lightweight)&lt;/li&gt;
+&lt;li&gt;AI note generation via speech-to-text + LLM summarization&lt;/li&gt;
+&lt;li&gt;All data stored locally in Chrome storage — zero server costs&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  What I learned
+&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Chrome's MV3 migration is painful but worth it.&lt;/strong&gt; Service workers replace background pages, and the new API surface takes time to learn.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Course platforms don't want you to control speed.&lt;/strong&gt; Most of them strip or override custom speed controls. Getting CourseSpeed to work across Udemy, Coursera, LinkedIn Learning, and Skillshare required per-platform DOM manipulation strategies.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Science backs this up.&lt;/strong&gt; Murphy et al. (2022) found 2x speed causes no significant learning loss. Watching a lecture twice at 2x produces better retention than once at normal speed. I built CourseSpeed on this research — not assumptions.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2&gt;
+  
+  
+  The results so far
+&lt;/h2&gt;
+
+&lt;p&gt;CourseSpeed just launched on Product Hunt and has active users on the Chrome Web Store. The most requested feature so far: per-platform speed presets (already built).&lt;/p&gt;
+
+&lt;p&gt;If you take online courses and want to learn faster without losing comprehension, try it out:&lt;/p&gt;
+
+&lt;p&gt;👉 &lt;a href="https://joycraft.dev/coursespeed" rel="noopener noreferrer"&gt;https://joycraft.dev/coursespeed&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Ask me anything about building Chrome extensions, the MV3 migration, or the science of video speed learning.&lt;/p&gt;</description>
+      <link>https://dev.to/claytonchow/i-built-an-ai-powered-video-speed-controller-for-online-courses-46ia</link>
+      <pubDate>Wed, 22 Jul 2026 05:32:24 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/claytonchow/i-built-an-ai-powered-video-speed-controller-for-online-courses-46ia</guid>
+    </item>
+    <item>
+      <title>[翻訳] Why Scheduling a Fire Department Is Harder Than Scheduling Almost Anything Else</title>
+      <description>&lt;p&gt;Most scheduling software is glorified graph paper. You've got people, you've got time slots, you drag one onto the other. That works fine for a coffee shop or a dentist's office.&lt;/p&gt;
+
+&lt;p&gt;Then you look at how a fire department actually runs, and the whole model falls apart.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The shifts alone will break your brain
+&lt;/h2&gt;
+
+&lt;p&gt;Firefighters don't work nine-to-five. They work rotations with names like &lt;strong&gt;24/48&lt;/strong&gt; — on for 24 hours, off for 48 — or the &lt;strong&gt;Kelly schedule&lt;/strong&gt;, where crews cycle through on- and off-days in a pattern that repeats over weeks, not days. Some departments run 48/96. Some layer in "Kelly days" specifically to keep weekly hours under overtime thresholds.&lt;/p&gt;
+
+&lt;p&gt;Now try representing that in a normal calendar app. You can't just say "Alice works Mondays." Alice works a repeating pattern that drifts across the whole month, never lands on the same weekday twice in a row, and has to stay perfectly in sync with the two other shifts covering her station. This is exactly the rotation logic that &lt;a href="https://angeltrack.com/features/fire-department-scheduling-software/" rel="noopener noreferrer"&gt;fire department scheduling software&lt;/a&gt; is built around — the kind of pattern a generic tool simply can't express.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Coverage is non-negotiable, and that changes everything
+&lt;/h2&gt;
+
+&lt;p&gt;In most workplaces, if someone calls in sick, the day is a little rougher and everyone moves on. In a fire department, a station must be staffed. There's no "we'll be a bit short today." A missing firefighter isn't an inconvenience — it's a truck that can't roll.&lt;/p&gt;
+
+&lt;p&gt;That one rule cascades into everything. You need minimum-staffing enforcement on every apparatus. You need to know instantly who's qualified to fill a gap, because you can't backfill a paramedic slot with someone who isn't certified. You need rank and certification visible at a glance, not buried three clicks deep. The right system treats coverage as a hard rule it defends automatically — not a detail a human has to hold in their head at 2 AM.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Overtime is where money and fairness collide
+&lt;/h2&gt;
+
+&lt;p&gt;Here's the part that keeps administrators up at night. When you're constantly filling gaps, someone has to work the extra hours — and how you hand out that overtime is a budget problem and a fairness problem at the same time.&lt;/p&gt;
+
+&lt;p&gt;Call whoever's easiest to reach every time, and you'll burn out your most reliable people while quietly torching the overtime budget. Departments need those hours spread equitably, tracked automatically, and defensible when someone asks, "Why did they get called and I didn't?" Purpose-built tools log all of it — who was offered what, who accepted, who's owed — so overtime becomes a record instead of an argument.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Certifications, licenses, and everything that expires
+&lt;/h2&gt;
+
+&lt;p&gt;A firefighter isn't a generic unit of labor. One's a paramedic, one's an EMT, one's a hazmat tech, one's a driver/operator. Every one of those qualifications carries an expiration date — and scheduling someone whose certification lapsed isn't just a mistake, it's a liability.&lt;/p&gt;
+
+&lt;p&gt;So the software has to know more than who's available. It has to know who's qualified right now, flag credentials before they lapse, and refuse to drop an unqualified person into a slot that legally requires certification. That's a whole layer of intelligence a calendar grid was never built to carry.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Everyone needs to see it, from the chief to the rookie
+&lt;/h2&gt;
+
+&lt;p&gt;This isn't one admin quietly managing a calendar. The chief needs the big picture. Captains need their own station. Individual firefighters need to check their upcoming shifts, swap with a colleague, or request time off — from a phone, at any hour.&lt;/p&gt;
+
+&lt;p&gt;That means real-time updates and self-service shift trades that still respect every coverage and certification rule underneath. When a swap goes through, the system has to instantly re-verify that coverage still holds. The good tools make that invisible. The bad ones make it someone's problem in the middle of the night.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The takeaway
+&lt;/h2&gt;
+
+&lt;p&gt;Scheduling a fire department isn't a calendar problem. It's a constraint problem stacked on a fairness problem stacked on a compliance problem — running in real time, where the cost of getting it wrong is measured in response times.&lt;/p&gt;
+
+&lt;p&gt;That's why departments don't run this on spreadsheets. Some jobs are too important to improvise.&lt;/p&gt;</description>
+      <link>https://dev.to/james_clark/why-scheduling-a-fire-department-is-harder-than-scheduling-almost-anything-else-1529</link>
+      <pubDate>Wed, 22 Jul 2026 05:23:12 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/james_clark/why-scheduling-a-fire-department-is-harder-than-scheduling-almost-anything-else-1529</guid>
+    </item>
+    <item>
+      <title>[翻訳] Is That API Really Serving the Model It Claims? A Reproducible Fingerprint Test</title>
+      <description>&lt;p&gt;An API can return a valid response, use the model name you requested, and still leave an important question unanswered:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Is the endpoint behaving like the model it claims to serve?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A single answer cannot settle this. Style guessing is unreliable, benchmark prompts are easy to overfit, and providers can update models without notice. A useful test needs to be cheap, repeatable, and honest about uncertainty.&lt;/p&gt;
+
+&lt;p&gt;This is the workflow we are using for the AllRouter Public Model Fingerprint Lab. AllRouter is not treated as the judge. It is one endpoint under the same public test.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The idea: compare distributions, not prose
+&lt;/h2&gt;
+
+&lt;p&gt;The paper &lt;a href="https://arxiv.org/abs/2607.10252" rel="noopener noreferrer"&gt;One Token Is Enough&lt;/a&gt; shows that models have surprisingly stable preferences when they answer simple one-token questions repeatedly.&lt;/p&gt;
+
+&lt;p&gt;Ask for a random number, color, letter, city, or coin flip 25 times. One answer means almost nothing. The distribution across many answers is a behavioral fingerprint.&lt;/p&gt;
+
+&lt;p&gt;A practical audit looks like this:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Select 8 or more task-language cells.&lt;/li&gt;
+&lt;li&gt;Sample each cell repeatedly at a fixed temperature.&lt;/li&gt;
+&lt;li&gt;Normalize the one-word answers.&lt;/li&gt;
+&lt;li&gt;Compare the observed distributions with a trusted reference using Jensen-Shannon divergence.&lt;/li&gt;
+&lt;li&gt;Repeat the run on another day before drawing a strong conclusion.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The paper reports an equal error rate of about 10.6% with 8 cells and about 7.3% with 40 cells. That is useful evidence, not perfect identification.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Four verdicts, not a binary accusation
+&lt;/h2&gt;
+
+&lt;p&gt;The open-source implementation we are using reports four states:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;match&lt;/code&gt;: behavior is statistically consistent with the reference.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;uncertain&lt;/code&gt;: the result is in the gray zone; collect more samples or repeat later.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;mismatch&lt;/code&gt;: behavior differs substantially; investigate before concluding why.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;insufficient&lt;/code&gt;: there are not enough valid comparable samples.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A mismatch does &lt;strong&gt;not&lt;/strong&gt; prove fraud. Model updates, quantization, hidden system prompts, reasoning fallbacks, and load-balancing across several backends can all move the fingerprint.&lt;/p&gt;
+
+&lt;p&gt;That limitation is part of the result, not fine print.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Run the test locally
+&lt;/h2&gt;
+
+&lt;p&gt;The MIT-licensed &lt;a href="https://github.com/ToseaAI/llm-fingerprint-detector" rel="noopener noreferrer"&gt;llm-fingerprint-detector&lt;/a&gt; provides a TypeScript CLI and library for OpenAI-compatible endpoints.&lt;/p&gt;
+
+&lt;p&gt;The fixed experiment definitions, public report schema, and blank result card are in the &lt;a href="https://github.com/allrouter369-droid/routine-coding-proof-log/tree/main/model-fingerprint-lab" rel="noopener noreferrer"&gt;public protocol directory&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Keep the API key in a local environment variable. Do not paste it into a form, chat, issue, or public log.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;git clone https://github.com/ToseaAI/llm-fingerprint-detector.git
+&lt;span class="nb"&gt;cd &lt;/span&gt;llm-fingerprint-detector
+npm &lt;span class="nb"&gt;install
+&lt;/span&gt;npm run build
+
+&lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;LLM_FINGERPRINT_API_KEY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;'your-local-key'&lt;/span&gt;
+
+node dist/cli.js fingerprint &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--base-url&lt;/span&gt; https://your-endpoint.example.com/v1 &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--model&lt;/span&gt; your-model-id &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--out&lt;/span&gt; observed.json
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;To verify against a trusted reference:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;node dist/cli.js verify &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--base-url&lt;/span&gt; https://your-endpoint.example.com/v1 &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--model&lt;/span&gt; your-model-id &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="nt"&gt;--reference&lt;/span&gt; trusted-reference.json
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Record the model ID, test-set version, timestamp, temperature, sample count, comparable cells, mean JSD, split-half consistency, warnings, and a hash of the response summary. Never publish the key or private prompts.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The test I want providers to publish
+&lt;/h2&gt;
+
+&lt;p&gt;A provider should not publish only a green badge. A useful public report should include:&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Field&lt;/th&gt;
+&lt;th&gt;Why it matters&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Test-set version&lt;/td&gt;
+&lt;td&gt;Prevents silent changes to the experiment&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Collection time&lt;/td&gt;
+&lt;td&gt;Makes model updates and drift visible&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Declared model ID&lt;/td&gt;
+&lt;td&gt;Defines the claim being tested&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Mean JSD and comparable cells&lt;/td&gt;
+&lt;td&gt;Shows the basis for the verdict&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Split-half JSD&lt;/td&gt;
+&lt;td&gt;Reveals whether the endpoint disagrees with itself&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Error and invalid-sample rates&lt;/td&gt;
+&lt;td&gt;Exposes reliability problems&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Reproduction command&lt;/td&gt;
+&lt;td&gt;Lets a third party repeat the run&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Limitations&lt;/td&gt;
+&lt;td&gt;Prevents overclaiming&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;We will run the same test on AllRouter at a fixed time for seven days and publish match, uncertain, mismatch, or insufficient without forcing a positive conclusion.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why this can be more useful than a generic benchmark
+&lt;/h2&gt;
+
+&lt;p&gt;Benchmarks ask whether a model is capable. A routing audit asks whether the endpoint stays consistent with the model and configuration you chose.&lt;/p&gt;
+
+&lt;p&gt;That matters for coding agents. A silent route change can alter formatting discipline, tool-use behavior, latency, refusal boundaries, and the amount of review a patch needs. Even when a response is syntactically valid, the workflow cost can change.&lt;/p&gt;
+
+&lt;p&gt;The identity test should therefore sit next to a small task suite:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;preserve a public API during a refactor;&lt;/li&gt;
+&lt;li&gt;handle missing configuration explicitly;&lt;/li&gt;
+&lt;li&gt;follow a strict JSON schema;&lt;/li&gt;
+&lt;li&gt;separate risk analysis from the edit;&lt;/li&gt;
+&lt;li&gt;keep the diff inside the requested boundary.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The fingerprint tells you whether behavior changed. The task suite tells you whether that change matters to your workflow.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Re-run the same experiment on AllRouter
+&lt;/h2&gt;
+
+&lt;p&gt;If you want to compare the same OpenAI-compatible workflow on AllRouter, use the campaign-specific entry below:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://allrouter.ai/register?aff=qjpC&amp;amp;utm_source=devto&amp;amp;utm_campaign=fingerprint_lab&amp;amp;utm_content=AR-FP-001" rel="noopener noreferrer"&gt;Run the same test on AllRouter&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The goal is not “trust this router.” The goal is the opposite: &lt;strong&gt;make the result reproducible enough that trust is not the only evidence available.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;In the next report, we will publish the seven-day drift format, including latency, error rate, split-half consistency, and the exact decision thresholds.&lt;/p&gt;</description>
+      <link>https://dev.to/zephyrelabs369/is-that-api-really-serving-the-model-it-claims-a-reproducible-fingerprint-test-5d0f</link>
+      <pubDate>Wed, 22 Jul 2026 05:13:29 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/zephyrelabs369/is-that-api-really-serving-the-model-it-claims-a-reproducible-fingerprint-test-5d0f</guid>
+    </item>
+    <item>
+      <title>[翻訳] Reading EU Bank Transactions With Python and PSD2 — Without Buying an eIDAS Certificate</title>
+      <description>&lt;p&gt;If you've tried to build anything with European bank APIs, you probably hit the same wall I did: the certificate requirement. PSD2 says you need an eIDAS QWAC certificate to talk to banks directly, and those aren't cheap or quick to obtain.&lt;/p&gt;
+
+&lt;p&gt;But there's a path that skips the certificate entirely. I'll show you how it works — with real code you can run today.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The short version
+&lt;/h2&gt;
+
+&lt;p&gt;Instead of obtaining your own eIDAS certificate and registering as a Third Party Provider with every bank, you use an &lt;strong&gt;Account Information Service Provider (AISP)&lt;/strong&gt; that already has the certificate. Your app talks to their API; they talk to the banks. You never touch a certificate.&lt;/p&gt;
+
+&lt;p&gt;The trade-off: you depend on an intermediary. But for most indie projects, small businesses, and personal-finance tools, that's a perfectly reasonable trade. You get bank data via a clean REST API instead of fighting with mutual TLS and per-bank registration.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What you'll need
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Python 3.8+ (stdlib only, no pip installs needed for the basics)&lt;/li&gt;
+&lt;li&gt;An API key from an AISP provider&lt;/li&gt;
+&lt;li&gt;A bank account in a supported EU country&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I'm the maintainer of &lt;a href="https://open-banking.io" rel="noopener noreferrer"&gt;open-banking.io&lt;/a&gt;, so I'll use our API as the example — but the pattern is the same for any PSD2 AISP (Enable Banking, Salt Edge, Tink, etc.). Pick whichever fits your coverage and budget.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Step 1: Get your API key
+&lt;/h2&gt;
+
+&lt;p&gt;Sign up, grab your API key. Store it as an environment variable:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;export &lt;/span&gt;&lt;span class="nv"&gt;OBI_API_KEY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"***"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Never hardcode it. If you commit it to git, rotate immediately.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Step 2: Initiate a bank connection
+&lt;/h2&gt;
+
+&lt;p&gt;Your user needs to consent to sharing their data. This redirects them to their bank's login page:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;urllib.request&lt;/span&gt;
+
+&lt;span class="n"&gt;API_BASE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;https://api.open-banking.io/v1&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+&lt;span class="n"&gt;API_KEY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;env&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="n"&gt;EY&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;]
+
+def create_session(bank_id: str, return_url: str) -&amp;gt; dict:
+    &lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;Start a bank connection. Returns a consent URL for the user.&lt;/span&gt;&lt;span class="sh"&gt;"""&lt;/span&gt;&lt;span class="s"&gt;
+    payload = json.dumps({
+        &lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;bank_id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;: bank_id,
+        &lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;return_url&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;: return_url,
+    }).encode()
+
+    req = urllib.request.Request(
+        f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;API_BASE&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;sessions&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;,
+        data=payload,
+        headers={
+            &lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;Authorization&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;: f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;Bearer&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;API_KEY&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;,
+            &lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;Content&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Type&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;: &lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;application&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;,
+        },
+        method=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;POST&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;,
+    )
+
+    with urllib.request.urlopen(req) as resp:
+        return json.loads(resp.read())
+
+# Example: connect to a Danish bank
+result = create_session(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;nordea&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;dk&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;, &lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="n"&gt;yourapp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;callback&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;)
+print(f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="n"&gt;Send&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;consent_url&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;]}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;)
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The user visits &lt;code&gt;consent_url&lt;/code&gt;, logs into their bank, and approves. They're redirected back to your &lt;code&gt;return_url&lt;/code&gt; with a session token.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Step 3: Fetch accounts and balances
+&lt;/h2&gt;
+
+&lt;p&gt;Once the session is authorized:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;get_accounts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;session_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;req&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;urllib&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Request&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;API_BASE&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/sessions/&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;session_id&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/accounts&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;headers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Authorization&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Bearer &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;API_KEY&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+    &lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;urllib&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;urlopen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;resp&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;loads&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;resp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;read&lt;/span&gt;&lt;span class="p"&gt;())[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;accounts&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;get_balance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;session_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;account_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;req&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;urllib&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Request&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;API_BASE&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/sessions/&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;session_id&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/accounts/&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;account_id&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/balance&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;headers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Authorization&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Bearer &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;API_KEY&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+    &lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;urllib&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;urlopen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;resp&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;loads&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;resp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;read&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+&lt;span class="n"&gt;accounts&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;get_accounts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;session_id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;acct&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;accounts&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;bal&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;get_balance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;session_id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;acct&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+    &lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;acct&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;name&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;bal&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;amount&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt; &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;bal&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;currency&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 4: Fetch transactions
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;get_transactions&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;session_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;account_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;req&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;urllib&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Request&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;API_BASE&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/sessions/&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;session_id&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/accounts/&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;account_id&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt;/transactions&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;headers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Authorization&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Bearer &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;API_KEY&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;
+    &lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;urllib&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;urlopen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;resp&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;loads&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;resp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;read&lt;/span&gt;&lt;span class="p"&gt;())[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;transactions&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;txn&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nf"&gt;get_transactions&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;session_id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;accounts&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]):&lt;/span&gt;
+    &lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;txn&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;date&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt; | &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;txn&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;amount&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="si"&gt;:&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s"&gt; | &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;txn&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="s"&gt;description&lt;/span&gt;&lt;span class="sh"&gt;'&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="si"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;That's it. You're reading live bank data without ever touching a certificate.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Gotchas worth knowing
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Consent expiry.&lt;/strong&gt; PSD2 consents expire (typically 90 days, varies by bank). You'll need to re-authorize periodically. Build that into your app's flow — don't assume a session lasts forever.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Booked vs pending.&lt;/strong&gt; Transactions come in two flavors. &lt;code&gt;booked&lt;/code&gt; transactions are finalized; &lt;code&gt;pending&lt;/code&gt; are provisional and may change or disappear. If you're building a budgeting tool, track &lt;code&gt;booked&lt;/code&gt; as your source of truth and dedupe carefully — the same transaction can appear in both lists during the settlement window.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Bank coverage gaps.&lt;/strong&gt; No AISP covers every EU bank. Before committing, check the provider's coverage list for the banks your users actually need. Smaller regional banks are often the gap.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Rate limits.&lt;/strong&gt; PSD2 APIs enforce per-consent access frequency limits (typically 4x/day for transactions). Cache aggressively. Don't poll in a loop.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Privacy model.&lt;/strong&gt; Some providers store your transaction data server-side. Others (like ours) use client-held encryption keys so the provider literally can't read user data. If you're building for GDPR-conscious users, check which model you're getting.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  When you &lt;em&gt;should&lt;/em&gt; get the certificate
+&lt;/h2&gt;
+
+&lt;p&gt;If you're building a regulated financial product at scale — processing payments (PIS), doing credit checks, or serving thousands of users across many banks — get your own eIDAS certificate and go direct. The intermediary adds latency, cost per call, and a dependency you don't want at scale.&lt;/p&gt;
+
+&lt;p&gt;But for personal projects, small SaaS tools, internal dashboards, and anything where you just need to &lt;em&gt;read&lt;/em&gt; account data without the enterprise overhead: the AISP path is the pragmatic choice.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;Disclosure: I'm John, the maintainer of &lt;a href="https://open-banking.io" rel="noopener noreferrer"&gt;open-banking.io&lt;/a&gt; — a certificate-free PSD2 account information service for EU banks. The code above works with our API, but the pattern applies to any compliant AISP. Questions? Find me in the comments.&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/johnfrandsen/reading-eu-bank-transactions-with-python-and-psd2-without-buying-an-eidas-certificate-io3</link>
+      <pubDate>Wed, 22 Jul 2026 05:09:27 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/johnfrandsen/reading-eu-bank-transactions-with-python-and-psd2-without-buying-an-eidas-certificate-io3</guid>
+    </item>
+    <item>
+      <title>[翻訳] Automate Spotify and YouTube Playlists - Chapter 3: Setting Up YouTube</title>
+      <description>&lt;p&gt;Spotify is sorted. Now we go to YouTube's side.&lt;/p&gt;
+
+&lt;p&gt;The goal of this chapter is simple: get a YouTube API key and find the ID of the YouTube playlist we want to mirror. Two things. That's it.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  A Quick Word on the YouTube API
+&lt;/h2&gt;
+
+&lt;p&gt;YouTube is owned by Google, so the YouTube API lives inside Google's developer platform. Don't let that intimidate you — you're logging in with the same Google account you use for Gmail or Google Drive. Nothing new to create.&lt;/p&gt;
+
+&lt;p&gt;The YouTube Data API has a &lt;strong&gt;free tier&lt;/strong&gt; that gives you 10,000 units per day. Reading a playlist of 100 songs costs about 200 units. So unless you're syncing 50 playlists a day, you'll never hit the limit. We're well within free territory.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 1: Go to Google Cloud Console
+&lt;/h2&gt;
+
+&lt;p&gt;Open your browser and go to &lt;a href="https://console.cloud.google.com" rel="noopener noreferrer"&gt;console.cloud.google.com&lt;/a&gt;. Log in with your Google account.&lt;/p&gt;
+
+&lt;p&gt;If this is your first time here, Google will ask you to agree to their Terms of Service. Accept and continue.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 2: Create a Project
+&lt;/h2&gt;
+
+&lt;p&gt;Google organises everything into "projects." Think of a project as a folder for your app. We need to create one.&lt;/p&gt;
+
+&lt;p&gt;At the very top of the page, you'll see a dropdown that probably says "Select a project." Click it, then click &lt;strong&gt;New Project&lt;/strong&gt; in the top right of the popup.&lt;/p&gt;
+
+&lt;p&gt;Give it a name — something like &lt;code&gt;youtube-to-spotify&lt;/code&gt; works fine. Leave the organisation field as is and click &lt;strong&gt;Create&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Google will take a few seconds to create it. Once done, make sure your new project is selected in that top dropdown before continuing.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 3: Enable the YouTube Data API
+&lt;/h2&gt;
+
+&lt;p&gt;With your project selected, use the search bar at the top of the page and type &lt;strong&gt;"YouTube Data API v3"&lt;/strong&gt;. Click on the result that says exactly that.&lt;/p&gt;
+
+&lt;p&gt;You'll land on an API overview page. Click the blue &lt;strong&gt;Enable&lt;/strong&gt; button.&lt;/p&gt;
+
+&lt;p&gt;After a moment, the page will refresh and show you the API is now enabled. You should see a dashboard with some quota charts — all zeros for now, which is correct.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 4: Create an API Key
+&lt;/h2&gt;
+
+&lt;p&gt;Now we need an actual key. In the left sidebar, click &lt;strong&gt;Credentials&lt;/strong&gt;. Then click &lt;strong&gt;+ Create Credentials&lt;/strong&gt; at the top and choose &lt;strong&gt;API key&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Google will generate a key immediately and show it to you in a popup. It looks something like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;AIzaSyD3x8Kv2mNpQr7wLtYhJfUcX9vBsE1oRk
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Copy it. This is your &lt;code&gt;API_KEY&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Restrict the Key (Recommended)
+&lt;/h3&gt;
+
+&lt;p&gt;After copying it, click &lt;strong&gt;Edit API key&lt;/strong&gt; in that same popup. Under "API restrictions," select &lt;strong&gt;Restrict key&lt;/strong&gt;, then choose &lt;strong&gt;YouTube Data API v3&lt;/strong&gt; from the dropdown. Click &lt;strong&gt;Save&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;This means your key only works for YouTube — if someone somehow got hold of it, they couldn't use it anywhere else. It takes 30 seconds and it's good practice.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  Step 5: Find Your YouTube Playlist ID
+&lt;/h2&gt;
+
+&lt;p&gt;Go to &lt;a href="https://youtube.com" rel="noopener noreferrer"&gt;youtube.com&lt;/a&gt; and open the playlist you want to mirror on Spotify.&lt;/p&gt;
+
+&lt;p&gt;Look at the URL in your browser's address bar. It will look something like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;https://www.youtube.com/playlist?list=PLGBuKfnErZlAkaUUy57-mR97f8SBgMNHh
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The part after &lt;code&gt;list=&lt;/code&gt; is your Playlist ID. In this example, that's &lt;code&gt;PLGBuKfnErZlAkaUUy57-mR97f8SBgMNHh&lt;/code&gt;. That's the &lt;a href="https://www.youtube.com/playlist?list=PLGBuKfnErZlAkaUUy57-mR97f8SBgMNHh" rel="noopener noreferrer"&gt;70's Music Hits Playlist - Best of 70s Music Classics&lt;/a&gt; by Redlist Decades — the one we'll be using throughout this series.&lt;/p&gt;
+
+&lt;p&gt;Copy that. That's all you need from YouTube.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;One thing to note: the playlist needs to be &lt;strong&gt;public&lt;/strong&gt; or &lt;strong&gt;unlisted&lt;/strong&gt; for the API to read it. If it's set to private, the script won't be able to see it. You can change the visibility in YouTube Studio under your playlist settings.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  What You Have Now
+&lt;/h2&gt;
+
+&lt;p&gt;Between Chapters 2 and 3, you've collected everything the script needs to run. Here's the full list:&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Variable&lt;/th&gt;
+&lt;th&gt;What it is&lt;/th&gt;
+&lt;th&gt;Where you got it&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;CLIENT_ID&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Spotify app ID&lt;/td&gt;
+&lt;td&gt;Spotify Developer Dashboard&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;CLIENT_SECRET&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Spotify app secret&lt;/td&gt;
+&lt;td&gt;Spotify Developer Dashboard&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;REFRESH_TOKEN&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Long-lived Spotify login token&lt;/td&gt;
+&lt;td&gt;curl/PowerShell command in Chapter 2&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;SPOTIFY_PLAYLIST_ID&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Your Spotify playlist to write to&lt;/td&gt;
+&lt;td&gt;Spotify share link&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;API_KEY&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;YouTube Data API key&lt;/td&gt;
+&lt;td&gt;Google Cloud Console&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;YOUTUBE_PLAYLIST_ID&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;PLGBuKfnErZlAkaUUy57-mR97f8SBgMNHh&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;YouTube playlist URL&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;Six values. That's the whole configuration. No more accounts, no more dashboards. From Chapter 4 onward, it's all code.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  What's Next?
+&lt;/h2&gt;
+
+&lt;p&gt;In Chapter 4, we write the script. We'll walk through each file — what it does, how it works, and why — in plain English. No assumed knowledge.&lt;/p&gt;
+
+&lt;p&gt;See you there.&lt;/p&gt;</description>
+      <link>https://dev.to/towernter/automate-spotify-and-youtube-playlists-chapter-3-setting-up-youtube-1mfb</link>
+      <pubDate>Wed, 22 Jul 2026 05:05:40 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/towernter/automate-spotify-and-youtube-playlists-chapter-3-setting-up-youtube-1mfb</guid>
+    </item>
+    <item>
+      <title>[翻訳] Denying the Worm: Detecting SANDWORM_MODE and the Emerging Class of AI Toolchain Supply Chain Attacks</title>
+      <description>&lt;p&gt;SANDWORM_MODE represents a sophisticated multi-stage npm supply chain worm discovered in early 2026. Unlike traditional attacks, it specifically targets modern AI-augmented development environments, including tools like GitHub Copilot and Cursor. By exploiting the integration between AI coding assistants and CI/CD pipelines, the worm successfully harvests credentials, propagates through package registries, and establishes persistence within developer environments.&lt;/p&gt;
+
+&lt;p&gt;The infection chain operates in three distinct stages, starting with an obfuscated loader that bypasses static analysis. After performing initial reconnaissance and harvesting sensitive data like cryptocurrency keys and npm tokens, the worm deploys its full capability suite. This includes the registration of rogue MCP servers to compromise AI assistants and a destructive 'dead switch' that shreds user files if exfiltration fails. Detection engineering efforts focus on identifying anomalous Node.js process behaviors and ancestry.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;strong&gt;&lt;a href="https://www.crowdstrike.com/en-us/blog/denying-the-worm-sandworm-mode-and-ai-toolchain-supply-chain-attacks/" rel="noopener noreferrer"&gt;Read Full Article&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/mark0_617b45cda9782a/denying-the-worm-detecting-sandwormmode-and-the-emerging-class-of-ai-toolchain-supply-chain-39hn</link>
+      <pubDate>Wed, 22 Jul 2026 05:04:23 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/mark0_617b45cda9782a/denying-the-worm-detecting-sandwormmode-and-the-emerging-class-of-ai-toolchain-supply-chain-39hn</guid>
+    </item>
+    <item>
+      <title>[翻訳] monday.com's API now returns 200 users instead of your whole account — the 2026-07 version flip that fails silently</title>
+      <description>&lt;p&gt;If you sync users out of monday.com — an SSO deprovisioning job, an HR-to-monday roster sync, a SCIM-ish reconciliation script, a dashboard that counts seats, anything that runs &lt;code&gt;query { users { id email } }&lt;/code&gt; — there's a change that went live on &lt;strong&gt;July 1, 2026&lt;/strong&gt; and fails in the worst way: it returns a 200, valid JSON, and the wrong number of users.&lt;/p&gt;
+
+&lt;p&gt;monday.com versions its API by date. Version &lt;code&gt;2026-07&lt;/code&gt; entered release-candidate on April 1, 2026 and became the &lt;strong&gt;Current&lt;/strong&gt; (default stable) version on &lt;strong&gt;July 1, 2026&lt;/strong&gt;. The detail that makes this silent is monday's own documented default:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;If you don't pass an &lt;code&gt;API-Version&lt;/code&gt; header, your app will always get the &lt;strong&gt;Current&lt;/strong&gt; version.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;So every integration that doesn't pin an explicit version — and a lot of them don't, because the SDKs make it optional — rolled onto &lt;code&gt;2026-07&lt;/code&gt; on July 1 with &lt;strong&gt;no deploy, no changelog read, no error&lt;/strong&gt;. Integrations pinned to an older version aren't safe either: when monday deprecates a version, requests to it &lt;a href="https://developer.monday.com/api-reference/docs/api-versioning" rel="noopener noreferrer"&gt;fall forward to the Maintenance version&lt;/a&gt; (that's exactly what the February 15, 2026 deprecation did — it routed &lt;code&gt;2025-01&lt;/code&gt; and &lt;code&gt;2024-10&lt;/code&gt; to &lt;code&gt;2025-04&lt;/code&gt;). Either path lands you on the new &lt;code&gt;Query.users&lt;/code&gt; behavior eventually.&lt;/p&gt;
+
+&lt;p&gt;And the &lt;code&gt;2026-07&lt;/code&gt; release is a full overhaul of the User entity. Most of it is documented as a breaking change. The parts that bite are the ones that &lt;em&gt;don't&lt;/em&gt; break loudly.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What changed in &lt;code&gt;Query.users&lt;/code&gt;
+&lt;/h2&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Surface&lt;/th&gt;
+&lt;th&gt;Before &lt;code&gt;2026-07&lt;/code&gt;
+&lt;/th&gt;
+&lt;th&gt;
+&lt;code&gt;2026-07&lt;/code&gt; (Current since Jul 1)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;No &lt;code&gt;limit&lt;/code&gt; argument&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;all&lt;/strong&gt; matching users returned&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;200&lt;/strong&gt; users returned&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Maximum &lt;code&gt;limit&lt;/code&gt;
+&lt;/td&gt;
+&lt;td&gt;unbounded&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;1000&lt;/strong&gt; (over that → error)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;created_at&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;
+&lt;code&gt;Date&lt;/code&gt; (&lt;code&gt;2024-01-15&lt;/code&gt;)&lt;/td&gt;
+&lt;td&gt;
+&lt;code&gt;ISO8601DateTime!&lt;/code&gt; (&lt;code&gt;2024-01-15T09:30:00Z&lt;/code&gt;, non-null)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;birthday&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;Date&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;String&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;utc_hours_diff&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;Int&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;Float&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;code&gt;emails&lt;/code&gt; argument&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;[String]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;
+&lt;code&gt;[String!]&lt;/code&gt; (nulls in the array now rejected)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;code&gt;is_admin&lt;/code&gt;, &lt;code&gt;is_guest&lt;/code&gt;, &lt;code&gt;is_view_only&lt;/code&gt;, &lt;code&gt;is_pending&lt;/code&gt;, &lt;code&gt;enabled&lt;/code&gt;, &lt;code&gt;is_verified&lt;/code&gt;
+&lt;/td&gt;
+&lt;td&gt;present&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;deprecated&lt;/strong&gt; (removed in &lt;code&gt;2026-10&lt;/code&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;code&gt;kind&lt;/code&gt;, &lt;code&gt;newest_first&lt;/code&gt;, &lt;code&gt;non_active&lt;/code&gt; arguments&lt;/td&gt;
+&lt;td&gt;present&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;deprecated&lt;/strong&gt; → &lt;code&gt;user_kind&lt;/code&gt;, &lt;code&gt;sort&lt;/code&gt;, &lt;code&gt;status&lt;/code&gt; (removed in &lt;code&gt;2026-10&lt;/code&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;The headline is the first row. The rest stack on top of it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  1. &lt;code&gt;Query.users&lt;/code&gt; without a &lt;code&gt;limit&lt;/code&gt; silently caps at 200
+&lt;/h2&gt;
+
+&lt;p&gt;This is the query that's in everyone's codebase:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight graphql"&gt;&lt;code&gt;&lt;span class="k"&gt;query&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="n"&gt;users&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="n"&gt;email&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Before &lt;code&gt;2026-07&lt;/code&gt;, that returned every user in the account. As of July 1 it returns the first &lt;strong&gt;200&lt;/strong&gt; and stops — no &lt;code&gt;nextPageToken&lt;/code&gt;-style signal in the response telling you there's more, no error, no warning header. A 700-seat account syncs 200 users and silently drops 500.&lt;/p&gt;
+
+&lt;p&gt;Think about what runs that query:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;SSO / SCIM deprovisioning.&lt;/strong&gt; A nightly job pulls the monday user list, diffs it against the IdP, and disables anyone who left. After July 1 it only ever sees the first 200 users — so offboarded people in the tail of the list &lt;strong&gt;never get deprovisioned&lt;/strong&gt;. That's not a cosmetic bug; it's dangling access to a system of record.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Seat / license reconciliation.&lt;/strong&gt; Finance counts &lt;code&gt;users&lt;/code&gt; to true-up billing. The count quietly drops to 200 and the numbers look &lt;em&gt;better&lt;/em&gt;, so nobody investigates.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;HR roster sync.&lt;/strong&gt; New hires past the 200th user never appear downstream.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The fix is explicit pagination — you now have to page with &lt;code&gt;limit&lt;/code&gt; and &lt;code&gt;page&lt;/code&gt;:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight graphql"&gt;&lt;code&gt;&lt;span class="k"&gt;query&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;$page&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nb"&gt;Int&lt;/span&gt;&lt;span class="p"&gt;!)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="n"&gt;users&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;1000&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;page&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;$page&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="n"&gt;email&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;…and loop until a page comes back with fewer than &lt;code&gt;limit&lt;/code&gt; rows. Note &lt;code&gt;limit&lt;/code&gt; itself is now capped at &lt;strong&gt;1000&lt;/strong&gt;; asking for more is one of the few things here that &lt;em&gt;does&lt;/em&gt; error, which is at least honest.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  2. Three scalar type changes that parse fine and store wrong
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;created_at&lt;/code&gt; went from a bare &lt;code&gt;Date&lt;/code&gt; to a non-null &lt;code&gt;ISO8601DateTime!&lt;/code&gt;. The field name didn't change, it's still a JSON string, the query still returns 200 — but the &lt;em&gt;value&lt;/em&gt; went from &lt;code&gt;2024-01-15&lt;/code&gt; to &lt;code&gt;2024-01-15T09:30:00Z&lt;/code&gt;. Anything that:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;writes it into a &lt;code&gt;DATE&lt;/code&gt; column (now you're truncating or erroring on the time component, depending on the driver),&lt;/li&gt;
+&lt;li&gt;does string equality against a stored &lt;code&gt;YYYY-MM-DD&lt;/code&gt;,&lt;/li&gt;
+&lt;li&gt;or parses with a format string that doesn't expect a &lt;code&gt;T&lt;/code&gt;/&lt;code&gt;Z&lt;/code&gt;,&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;now silently mismatches. Date-range filters that compare &lt;code&gt;created_at &amp;gt;= '2024-01-15'&lt;/code&gt; as strings can flip results because &lt;code&gt;'2024-01-15T09:30:00Z' &amp;gt; '2024-01-15'&lt;/code&gt; lexically.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;utc_hours_diff&lt;/code&gt; went from &lt;code&gt;Int&lt;/code&gt; to &lt;code&gt;Float&lt;/code&gt;. The whole point is half-hour and 45-minute offsets — India is &lt;code&gt;5.5&lt;/code&gt;, Nepal &lt;code&gt;5.75&lt;/code&gt;. Code that did &lt;code&gt;parseInt&lt;/code&gt;, integer math, or unmarshalled into a Go &lt;code&gt;int&lt;/code&gt; / Java &lt;code&gt;int&lt;/code&gt; either drops the fraction silently or, in strict-typed clients, throws on the decimal. A "schedule this user's reminder in their timezone" feature is now off by 30 minutes for a chunk of the planet.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;birthday&lt;/code&gt; went &lt;code&gt;Date&lt;/code&gt; → &lt;code&gt;String&lt;/code&gt;. Looser, but the same shape of trap: code expecting a parseable date object gets a free-form string.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  3. The second shoe: &lt;code&gt;2026-10&lt;/code&gt; removes the fields you're still reading
+&lt;/h2&gt;
+
+&lt;p&gt;In &lt;code&gt;2026-07&lt;/code&gt; the old User fields are &lt;strong&gt;deprecated but still work&lt;/strong&gt;. That's the trap — your code keeps reading them, your tests stay green, and the migration looks done. On the &lt;code&gt;2026-10&lt;/code&gt; version they're removed outright:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Permission booleans&lt;/strong&gt; &lt;code&gt;is_admin&lt;/code&gt;, &lt;code&gt;is_guest&lt;/code&gt;, &lt;code&gt;is_view_only&lt;/code&gt;, &lt;code&gt;is_pending&lt;/code&gt;, &lt;code&gt;enabled&lt;/code&gt;, &lt;code&gt;is_verified&lt;/code&gt; → replaced by a single &lt;code&gt;status&lt;/code&gt; (a &lt;code&gt;UserStatus&lt;/code&gt; enum) plus &lt;code&gt;user_kind&lt;/code&gt;. A access-control check like &lt;code&gt;if (user.is_admin)&lt;/code&gt; either starts erroring on an unknown field (loud, if your client validates the schema) or — with permissive clients and fragment spreads — reads &lt;code&gt;null&lt;/code&gt;/&lt;code&gt;undefined&lt;/code&gt; and &lt;strong&gt;treats an admin as a non-admin&lt;/strong&gt;, or vice-versa. Either direction is a security-relevant silent failure.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Photo fields&lt;/strong&gt; &lt;code&gt;photo_original&lt;/code&gt;, &lt;code&gt;photo_thumb&lt;/code&gt;, &lt;code&gt;photo_thumb_small&lt;/code&gt;, &lt;code&gt;photo_tiny&lt;/code&gt;, &lt;code&gt;photo_small&lt;/code&gt; → replaced by a nested &lt;code&gt;photo_url { original thumb tiny ... }&lt;/code&gt; object. Avatars silently 404 / go blank.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Argument renames&lt;/strong&gt; &lt;code&gt;kind&lt;/code&gt; → &lt;code&gt;user_kind&lt;/code&gt;, &lt;code&gt;newest_first&lt;/code&gt; → &lt;code&gt;sort&lt;/code&gt;, &lt;code&gt;non_active&lt;/code&gt; → &lt;code&gt;status&lt;/code&gt;. A query filtering &lt;code&gt;users(non_active: true)&lt;/code&gt; to find deactivated accounts keeps working through the &lt;code&gt;2026-07&lt;/code&gt; window, then loses the argument in &lt;code&gt;2026-10&lt;/code&gt; — and depending on how your client handles an unknown argument, you either error or &lt;strong&gt;silently get the unfiltered set&lt;/strong&gt; (active users where you expected inactive).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you only fix the 200-cap and stop, you've bought three months. The field removals are the same migration; do them now.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What to grep for
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# monday user queries with no limit (the 200-cap)&lt;/span&gt;
+&lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-rEi&lt;/span&gt; &lt;span class="s1"&gt;'users\s*(\([^)]*\))?\s*\{'&lt;/span&gt; src/ | &lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-vi&lt;/span&gt; &lt;span class="s1"&gt;'limit'&lt;/span&gt;
+
+&lt;span class="c"&gt;# Deprecated permission booleans removed in 2026-10&lt;/span&gt;
+&lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-rE&lt;/span&gt; &lt;span class="s1"&gt;'is_admin|is_guest|is_view_only|is_pending|is_verified|\.enabled'&lt;/span&gt; src/
+
+&lt;span class="c"&gt;# Deprecated photo fields -&amp;gt; photo_url { ... }&lt;/span&gt;
+&lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-rE&lt;/span&gt; &lt;span class="s1"&gt;'photo_(original|thumb|thumb_small|tiny|small)'&lt;/span&gt; src/
+
+&lt;span class="c"&gt;# Deprecated query arguments&lt;/span&gt;
+&lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-rEw&lt;/span&gt; &lt;span class="s1"&gt;'kind|newest_first|non_active'&lt;/span&gt; src/
+
+&lt;span class="c"&gt;# created_at parsed/stored as a bare date&lt;/span&gt;
+&lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-rE&lt;/span&gt; &lt;span class="s1"&gt;'created_at'&lt;/span&gt; src/ | &lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-iE&lt;/span&gt; &lt;span class="s1"&gt;'date|split|substr|strftime|DATE'&lt;/span&gt;
+
+&lt;span class="c"&gt;# And the root cause: requests that never pin a version&lt;/span&gt;
+&lt;span class="nb"&gt;grep&lt;/span&gt; &lt;span class="nt"&gt;-rEi&lt;/span&gt; &lt;span class="s1"&gt;'api-version|monday.*version'&lt;/span&gt; src/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The non-grep audit is the connector check: any Make, Zapier, n8n, Workato, or homegrown job hitting &lt;code&gt;api.monday.com/v2&lt;/code&gt; that doesn't set an explicit &lt;code&gt;API-Version&lt;/code&gt; header is, by monday's own rule, running on &lt;code&gt;2026-07&lt;/code&gt; right now.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why this one lands silently
+&lt;/h2&gt;
+
+&lt;p&gt;Pin an explicit &lt;code&gt;API-Version&lt;/code&gt; header and none of this touches you until &lt;em&gt;you&lt;/em&gt; decide to move — that's the entire point of date-based versioning, and monday tells you to do it. But the default for an unversioned request isn't "stay where you are," it's "always get Current." So the integrations most exposed are the ones nobody's looked at in a year: the quiet nightly sync that's worked since 2024 and has no version header because it predates versioning.&lt;/p&gt;
+
+&lt;p&gt;Every failure here returns &lt;strong&gt;200 OK with syntactically perfect, semantically incomplete&lt;/strong&gt; data. The user list parses. The count is a plausible number. The deprovisioning job exits zero. The healthcheck that asserts "last call was 2xx" stays green. The only loud signal — asking for &lt;code&gt;limit&lt;/code&gt; over 1000, or hitting a removed field on a strict client — is the &lt;em&gt;least&lt;/em&gt; likely path. The likely path is a roster that quietly got shorter on July 1 and a deprovisioning gap nobody will notice until an audit.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;FlareCanary watches the response shapes of the APIs you depend on and tells you when a default limit changes, when a scalar like &lt;code&gt;created_at&lt;/code&gt; starts carrying a time component, or when a field you read every night quietly disappears. monday's &lt;code&gt;2026-07&lt;/code&gt; version flip is exactly the kind of 200-OK-but-wrong transition that slips past healthchecks and Sentry alike. &lt;a href="https://flarecanary.com" rel="noopener noreferrer"&gt;flarecanary.com&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</description>
+      <link>https://dev.to/flarecanary/mondaycoms-api-now-returns-200-users-instead-of-your-whole-account-the-2026-07-version-flip-5c49</link>
+      <pubDate>Wed, 22 Jul 2026 05:00:38 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/flarecanary/mondaycoms-api-now-returns-200-users-instead-of-your-whole-account-the-2026-07-version-flip-5c49</guid>
+    </item>
+    <item>
+      <title>[翻訳] Your Claude Code Setup Gets Bloated If You Ignore It — Weekly Auto-Slimming by Watching Injected Bytes, Agent Count, and Frustration Words</title>
+      <description>&lt;p&gt;This is the next installment in my "Claude Code environment" series. Combined with the &lt;a href="https://zenn.dev/bokuwalily/articles/substep-idempotent-marker" rel="noopener noreferrer"&gt;idempotent marker implementation&lt;/a&gt; from the previous article, I've come to realize that more than half of the reasons an autonomous loop won't stop come down to one thing: &lt;strong&gt;environment decay&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;A Claude Code setup &lt;strong&gt;gets fat if you leave it alone&lt;/strong&gt;. The rules balloon, agents you thought you'd retired come back to life, and hooks keep misfiring. The only thing you actually notice is a vague "this feels sluggish" or "it keeps making the same mistake," and then you burn time hunting down the cause. This article is about a system that measures that decay every week, &lt;strong&gt;lets &lt;code&gt;claude -p&lt;/code&gt; fix it, and then confirms the improvement with an independent re-measurement after the fix&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The problem: 99 "retired" agents were still being injected
+&lt;/h2&gt;
+
+&lt;p&gt;This is a real incident I hit during a performance audit on 2026-07-11.&lt;/p&gt;
+
+&lt;p&gt;I'd tidied up &lt;code&gt;~/.claude/agents/&lt;/code&gt; several times. I'd manually moved agent definitions I no longer used into &lt;code&gt;agents-archive/&lt;/code&gt; and figured I was done. But when I actually measured, &lt;code&gt;agents_loaded&lt;/code&gt; was still stuck at 99. The culprit was dot-directories (&lt;code&gt;.deprecated/&lt;/code&gt;, &lt;code&gt;.backup/&lt;/code&gt;, and the like). &lt;code&gt;find&lt;/code&gt;'s default behavior recurses into dot-directories too. &lt;strong&gt;They looked deleted, but every single one was still being loaded through the hidden directories.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This real incident is what prompted me to write &lt;code&gt;cc-self-audit.sh&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Five metrics
+&lt;/h2&gt;
+
+&lt;p&gt;The script's &lt;code&gt;collect()&lt;/code&gt; function grabs five metrics every run.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# ~/.claude/scripts/cc-self-audit.sh（collect関数より）&lt;/span&gt;
+
+&lt;span class="c"&gt;# --- 静的 ---&lt;/span&gt;
+&lt;span class="nv"&gt;inject_bytes&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$((&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="si"&gt;$(&lt;/span&gt;find &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;&lt;span class="s2"&gt;/.claude/rules"&lt;/span&gt; &lt;span class="nt"&gt;-name&lt;/span&gt; &lt;span class="s1"&gt;'*.md'&lt;/span&gt; &lt;span class="nt"&gt;-print0&lt;/span&gt; 2&amp;gt;/dev/null | xargs &lt;span class="nt"&gt;-0&lt;/span&gt; &lt;span class="nb"&gt;cat &lt;/span&gt;2&amp;gt;/dev/null | &lt;span class="nb"&gt;wc&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;cat&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;&lt;span class="s2"&gt;/.claude/CLAUDE.md"&lt;/span&gt; 2&amp;gt;/dev/null | &lt;span class="nb"&gt;wc&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;cat&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;&lt;span class="s2"&gt;/CLAUDE.md"&lt;/span&gt; 2&amp;gt;/dev/null | &lt;span class="nb"&gt;wc&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+  &lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;cat&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;&lt;span class="s2"&gt;/.claude/projects/-Users-matsubara/memory/MEMORY.md"&lt;/span&gt; 2&amp;gt;/dev/null | &lt;span class="nb"&gt;wc&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt; &lt;span class="k"&gt;))&lt;/span&gt;
+&lt;span class="nv"&gt;agents_loaded&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;find &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;&lt;span class="s2"&gt;/.claude/agents"&lt;/span&gt; &lt;span class="nt"&gt;-name&lt;/span&gt; &lt;span class="s1"&gt;'*.md'&lt;/span&gt; 2&amp;gt;/dev/null | &lt;span class="nb"&gt;wc&lt;/span&gt; &lt;span class="nt"&gt;-l&lt;/span&gt; | &lt;span class="nb"&gt;tr&lt;/span&gt; &lt;span class="nt"&gt;-d&lt;/span&gt; &lt;span class="s1"&gt;' '&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+
+&lt;span class="c"&gt;# --- 動的（前回実行以降のtranscriptのみ・最大200ファイル）---&lt;/span&gt;
+&lt;span class="nv"&gt;stopspam&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$files&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; | xargs /usr/bin/grep &lt;span class="nt"&gt;-h&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt; &lt;span class="s1"&gt;'セルフ監査未実施。実装'&lt;/span&gt; 2&amp;gt;/dev/null | &lt;span class="nb"&gt;awk&lt;/span&gt; &lt;span class="s1"&gt;'{s+=$1} END{print s+0}'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;frustration&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$files&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; | xargs /usr/bin/grep &lt;span class="nt"&gt;-h&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt; &lt;span class="nt"&gt;-E&lt;/span&gt; &lt;span class="s1"&gt;'何回も言|いい加減にし|嘘つ|舐めんな|なんで治らん|最悪やろ|頭悪い'&lt;/span&gt; 2&amp;gt;/dev/null | &lt;span class="nb"&gt;awk&lt;/span&gt; &lt;span class="s1"&gt;'{s+=$1} END{print s+0}'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;toolerr&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$files&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; | xargs /usr/bin/grep &lt;span class="nt"&gt;-h&lt;/span&gt; &lt;span class="nt"&gt;-o&lt;/span&gt; &lt;span class="nt"&gt;-c&lt;/span&gt; &lt;span class="s1"&gt;'"is_error":true'&lt;/span&gt; 2&amp;gt;/dev/null | &lt;span class="nb"&gt;awk&lt;/span&gt; &lt;span class="s1"&gt;'{s+=$1} END{print s+0}'&lt;/span&gt;&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Metric&lt;/th&gt;
+&lt;th&gt;Meaning&lt;/th&gt;
+&lt;th&gt;Threshold&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;inject_bytes&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Total bytes of rules + CLAUDE.md + MEMORY.md&lt;/td&gt;
+&lt;td&gt;40,000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;agents_loaded&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Total .md count under &lt;code&gt;~/.claude/agents/&lt;/code&gt; (recursion including dot-dirs)&lt;/td&gt;
+&lt;td&gt;60&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;stopspam&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Number of times the audit hook fired / week&lt;/td&gt;
+&lt;td&gt;15&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;frustration&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Occurrences of frustration words in transcripts / week&lt;/td&gt;
+&lt;td&gt;8&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;toolerr&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Count of &lt;code&gt;"is_error":true&lt;/code&gt; in transcripts / week&lt;/td&gt;
+&lt;td&gt;400&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;The two static metrics are proxy variables for &lt;strong&gt;injection cost&lt;/strong&gt;, and the three dynamic metrics are proxy variables for &lt;strong&gt;experience quality&lt;/strong&gt;. The frustration-word detection may look out of place, but if I'm scolding it repeatedly, that means it's repeating the same failure — and those failures often stem from environment problems (misfiring hooks, rotted memory, broken tools).&lt;/p&gt;
+
+&lt;p&gt;The thresholds can be overridden with env variables.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;TH_INJECT_BYTES&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;SELF_AUDIT_TH_INJECT&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="nv"&gt;40000&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="nv"&gt;TH_AGENTS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;SELF_AUDIT_TH_AGENTS&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="nv"&gt;60&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="nv"&gt;TH_STOPSPAM&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;SELF_AUDIT_TH_STOPSPAM&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="nv"&gt;15&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="nv"&gt;TH_FRUSTRATION&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;SELF_AUDIT_TH_FRUST&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="nv"&gt;8&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="nv"&gt;TH_TOOLERR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;SELF_AUDIT_TH_TOOLERR&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="nv"&gt;400&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  When a threshold is exceeded, &lt;code&gt;claude -p&lt;/code&gt; fixes itself
+&lt;/h2&gt;
+
+&lt;p&gt;If every metric is under its threshold, it just posts a one-line &lt;code&gt;✅ GREEN&lt;/code&gt; to Discord and exits. If any is over, it calls &lt;code&gt;claude -p&lt;/code&gt; to fix it.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;BREACH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$METRICS&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; | breaches&lt;span class="si"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-z&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$BREACH&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then
+  &lt;/span&gt;log &lt;span class="s2"&gt;"GREEN"&lt;/span&gt;
+  &lt;span class="nb"&gt;touch&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$LASTRUN&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  notify &lt;span class="s2"&gt;"✅ CC自己監査: 正常 (&lt;/span&gt;&lt;span class="nv"&gt;$METRICS&lt;/span&gt;&lt;span class="s2"&gt;)"&lt;/span&gt;
+  &lt;span class="nb"&gt;exit &lt;/span&gt;0
+&lt;span class="k"&gt;fi
+
+&lt;/span&gt;log &lt;span class="s2"&gt;"RED: &lt;/span&gt;&lt;span class="nv"&gt;$BREACH&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$DRY&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"1"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then &lt;/span&gt;log &lt;span class="s2"&gt;"DRY=1: 修正スキップ"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nb"&gt;touch&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$LASTRUN&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nb"&gt;exit &lt;/span&gt;0&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The prompt passed to &lt;code&gt;claude -p&lt;/code&gt; has a remediation policy embedded for each decay pattern.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nv"&gt;PROMPT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"...
+## 指示
+1. ~/.claude 内だけを調査・修正する（プロジェクトコード・secret・plist削除は禁止）
+2. 既知の劣化パターンと正典:
+   - agents_loaded超過 → ~/.claude/agents/ 配下の退避漏れ（ドットdirも読み込まれる）を ~/.claude/agents-archive/ へ移動
+   - inject_bytes超過 → 肥大したrules/MEMORY.mdを圧縮（フル版は ~/.claude/rules-archive/ へ。リンクは全維持し索引整合を検証）
+   - stopspam超過 → ~/.claude/hooks/self_audit_stop.sh の抑制ロジックを点検
+   - frustration/toolerr超過 → 該当transcriptをgrepして繰り返し失敗の真因を特定し、hook/スキル/メモリで再発防止を仕込む
+3. 変更は1件ずつ &lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;CHANGELOG&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; に「日時/対象/理由/戻し方」を追記
+4. 修正後に必ず 'bash ~/.claude/scripts/cc-self-audit.sh --collect-only' を実行し改善を数値で確認
+..."&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;I restrict it to filesystem operations only with &lt;code&gt;--allowedTools "Read,Write,Edit,Bash,Grep,Glob"&lt;/code&gt;, and cap it at max-turns 50 and a 20-minute wall clock (&lt;code&gt;FIX_TIMEOUT=1200&lt;/code&gt;).&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;&lt;br /&gt;
+Having claude run &lt;code&gt;--collect-only&lt;/code&gt; itself inside the fix loop is strictly "a confirmation as part of the remediation procedure." The final verdict of the audit is made by the outer, independent re-measurement. The key to the design is not taking the inner confirmation at face value.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  A "don't trust self-reporting" fail-closed design
+&lt;/h2&gt;
+
+&lt;p&gt;Even when &lt;code&gt;claude -p&lt;/code&gt; says "fixed it," I don't believe it right away. The outer harness &lt;strong&gt;calls &lt;code&gt;collect()&lt;/code&gt; again to re-measure the numbers&lt;/strong&gt;.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# 独立再計測（自己申告は信じない）&lt;/span&gt;
+&lt;span class="nv"&gt;AFTER&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;collect&lt;span class="si"&gt;)&lt;/span&gt;
+log &lt;span class="s2"&gt;"after: &lt;/span&gt;&lt;span class="nv"&gt;$AFTER&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$AFTER&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$HISTORY&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="nv"&gt;STILL&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$AFTER&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; | breaches&lt;span class="si"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;touch&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$LASTRUN&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nt"&gt;-z&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$STILL&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then
+  &lt;/span&gt;notify &lt;span class="s2"&gt;"🔧 CC自己監査: 劣化検知→自己修正済み。前:[&lt;/span&gt;&lt;span class="nv"&gt;$BREACH&lt;/span&gt;&lt;span class="s2"&gt;] 後:全緑。詳細=&lt;/span&gt;&lt;span class="nv"&gt;$CHANGELOG&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="k"&gt;else
+  &lt;/span&gt;notify &lt;span class="s2"&gt;"🚨 CC自己監査: 自己修正後も残存 [&lt;/span&gt;&lt;span class="nv"&gt;$STILL&lt;/span&gt;&lt;span class="s2"&gt;]。要確認: &lt;/span&gt;&lt;span class="nv"&gt;$LOG&lt;/span&gt;&lt;span class="s2"&gt; / &lt;/span&gt;&lt;span class="nv"&gt;$CHANGELOG&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;If a violation still remains after the fix, it flies off to Discord with a &lt;code&gt;🚨&lt;/code&gt; and hands it over to a human. &lt;strong&gt;Trust only the OS's measured values, not self-reporting&lt;/strong&gt; — that's the core of fail-closed.&lt;/p&gt;
+
+&lt;p&gt;All measured values are stacked one record per line in &lt;code&gt;~/.claude/self-audit/history.jsonl&lt;/code&gt;, and the prompt handed to claude also includes the most recent 5 entries as a trend. By looking at the magnitude of change — "it was 30KB last week but 51KB this week" — I can distinguish a one-off outlier from a continuous increase.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Weekly launch via launchd, Sundays at 8:30
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight xml"&gt;&lt;code&gt;&lt;span class="c"&gt;&amp;lt;!-- ~/Library/LaunchAgents/com.lily.cc-self-audit.plist --&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;key&amp;gt;&lt;/span&gt;StartCalendarInterval&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;dict&amp;gt;&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;lt;key&amp;gt;&lt;/span&gt;Weekday&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;integer&amp;gt;&lt;/span&gt;0&lt;span class="nt"&gt;&amp;lt;/integer&amp;gt;&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;lt;key&amp;gt;&lt;/span&gt;Hour&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;integer&amp;gt;&lt;/span&gt;8&lt;span class="nt"&gt;&amp;lt;/integer&amp;gt;&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;lt;key&amp;gt;&lt;/span&gt;Minute&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;integer&amp;gt;&lt;/span&gt;30&lt;span class="nt"&gt;&amp;lt;/integer&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/dict&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;key&amp;gt;&lt;/span&gt;RunAtLoad&lt;span class="nt"&gt;&amp;lt;/key&amp;gt;&amp;lt;false/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Weekday=0 is Sunday. I set &lt;code&gt;RunAtLoad&lt;/code&gt; to false to prevent it from running immediately right after registering with launchd. I include &lt;code&gt;~/.local/bin&lt;/code&gt; in the environment variable &lt;code&gt;PATH&lt;/code&gt; and place a &lt;code&gt;claude&lt;/code&gt; shim there.&lt;/p&gt;
+
+&lt;p&gt;There are two modes for manual runs.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;# 計測だけ（claudeを呼ばない）&lt;/span&gt;
+~/.claude/scripts/cc-self-audit.sh &lt;span class="nt"&gt;--collect-only&lt;/span&gt;
+
+&lt;span class="c"&gt;# ドライラン（違反表示のみ・修正なし）&lt;/span&gt;
+&lt;span class="nv"&gt;SELF_AUDIT_DRY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1 ~/.claude/scripts/cc-self-audit.sh
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Before putting it into production, I always eyeballed the metrics with &lt;code&gt;DRY=1&lt;/code&gt; first, then enabled it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Pitfalls I hit
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Dot-dirs get caught by &lt;code&gt;find&lt;/code&gt;&lt;/strong&gt; → &lt;code&gt;~/.claude/agents/.deprecated/&lt;/code&gt; and the like became recursion targets, so agents I thought I'd retired kept getting counted. The root cause of the real incident.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;The transcript &lt;code&gt;find&lt;/code&gt; is slow&lt;/strong&gt; → Unless you cap the number of files with &lt;code&gt;head -200&lt;/code&gt; and exclude empty files with &lt;code&gt;-size +100k&lt;/code&gt;, the first run of the weekend takes over 3 minutes.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;The frustration-word regex mixes in Japanese&lt;/strong&gt; → Unless you set &lt;code&gt;LANG=en_US.UTF-8&lt;/code&gt; at the top, &lt;code&gt;grep -E&lt;/code&gt; misbehaves on multibyte characters.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;&lt;code&gt;claude -p&lt;/code&gt; isn't on the PATH&lt;/strong&gt; → launchd's minimal PATH was missing &lt;code&gt;~/.local/bin&lt;/code&gt;. Solved by explicitly adding it to the plist's EnvironmentVariables.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Making claude do the post-fix re-measurement internally turns it into self-grading&lt;/strong&gt; → The outer &lt;code&gt;collect()&lt;/code&gt; call is mandatory. The inner confirmation stays limited to "part of the remediation procedure."&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Warning&lt;/strong&gt;&lt;br /&gt;
+As the comment says — &lt;code&gt;bash 3.2 compatible, fail-open&lt;/code&gt; — the audit script itself is designed so that nothing breaks even if it crashes. It uses &lt;code&gt;set -uo pipefail&lt;/code&gt;, each individual measurement swallows errors with &lt;code&gt;2&amp;gt;/dev/null || true&lt;/code&gt;, and in the worst case the measured value becomes 0 and gets treated as "GREEN." Having the main system die because of an audit failure would be putting the cart before the horse.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;
+  
+  
+  Summary
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;A Claude Code setup accumulates decay that, if left alone, can be measured across five metrics: &lt;strong&gt;inject_bytes, agent count, hook spam, frustration words, and tool failures&lt;/strong&gt;
+&lt;/li&gt;
+&lt;li&gt;When a threshold is exceeded, &lt;code&gt;claude -p&lt;/code&gt; fixes only what's inside &lt;code&gt;~/.claude&lt;/code&gt;, and records it in the change log (&lt;code&gt;self-audit-changes.log&lt;/code&gt;) with a "how to revert" note&lt;/li&gt;
+&lt;li&gt;After the fix, an &lt;strong&gt;outer independent re-measurement&lt;/strong&gt; verifies the improvement numerically. A self-reported "fixed it" alone is not treated as done&lt;/li&gt;
+&lt;li&gt;Weekly launch via launchd, Sundays at 8:30. You can manually check with &lt;code&gt;--collect-only&lt;/code&gt; and &lt;code&gt;DRY=1&lt;/code&gt;
+&lt;/li&gt;
+&lt;li&gt;The script itself is fail-open (an audit failure won't break the environment), while the target of self-repair is fail-closed (if a violation remains after the fix, it escalates to a human)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Next time, I'll write about &lt;strong&gt;how I trimmed down the inject_bytes overage&lt;/strong&gt; that this audit loop detected — a pipeline that compresses the rules and auto-slims them every week.&lt;/p&gt;
+
+
+
+
+&lt;p&gt;&lt;em&gt;Written by **Lily&lt;/em&gt;* — I ship iOS apps and automate my content stack with Claude Code.&lt;br /&gt;
+Follow along: &lt;a href="https://bokuwalily.com" rel="noopener noreferrer"&gt;Portfolio&lt;/a&gt; · &lt;a href="https://x.com/bokuwalily" rel="noopener noreferrer"&gt;X&lt;/a&gt; · &lt;a href="https://github.com/bokuwalily" rel="noopener noreferrer"&gt;GitHub&lt;/a&gt;*&lt;/p&gt;</description>
+      <link>https://dev.to/bokuwalily/your-claude-code-setup-gets-bloated-if-you-ignore-it-weekly-auto-slimming-by-watching-injected-3jki</link>
+      <pubDate>Wed, 22 Jul 2026 05:00:07 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/bokuwalily/your-claude-code-setup-gets-bloated-if-you-ignore-it-weekly-auto-slimming-by-watching-injected-3jki</guid>
+    </item>
+    <item>
+      <title>[翻訳] Can a Normal Person Mine Crypto? A Brutal Reality Check</title>
+      <description>&lt;p&gt;The internet is full of bad advice about passive income. Influencers still claim you can turn on an old laptop and mine crypto for huge profits.&lt;/p&gt;
+
+&lt;p&gt;That idea is completely false.&lt;/p&gt;
+
+&lt;p&gt;The mining industry grew up fast. The global network now runs on a massive scale. It instantly crushes normal home computers. Huge companies now build power stations next to dams just to stay in the game.&lt;/p&gt;
+
+&lt;p&gt;Does this mean a normal person is locked out? No. You can absolutely still mine digital coins at home. But the rules have changed completely. You cannot plug a gaming PC into your wall and expect to retire early. You must treat this operation exactly like a real factory business.&lt;/p&gt;
+
+&lt;p&gt;This guide cuts through the marketing noise. We explain how digital mining really works in plain terms. We look at the harsh electrical limits of your physical house. We also give you the exact steps to actually make a profit today.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Table of Contents
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+How Hash Generation Actually Works
+
+&lt;ul&gt;
+&lt;li&gt;The High-Speed Lottery Ticket Example&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+The Mobile Problem: Can You Use a Phone?
+
+&lt;ul&gt;
+&lt;li&gt;What Are Mobile Mining Apps Actually Doing?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+The Hardware Tiers: ASIC vs. GPU vs. CPU
+
+&lt;ul&gt;
+&lt;li&gt;1. ASIC Machines (The Industrial Standard)&lt;/li&gt;
+&lt;li&gt;2. Multi-GPU Rigs (The Middle Ground)&lt;/li&gt;
+&lt;li&gt;3. CPU Mining (The True Beginner Level)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+The Real Cost of Home Hardware
+
+&lt;ul&gt;
+&lt;li&gt;The Bedroom Circuit Breaker Problem&lt;/li&gt;
+&lt;li&gt;Heat and Noise Problems&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Is Home Crypto Mining Actually Legal?&lt;/li&gt;
+&lt;li&gt;
+How to Execute a Real Home Operation
+
+&lt;ul&gt;
+&lt;li&gt;Step 1: Audit Your True Power Costs&lt;/li&gt;
+&lt;li&gt;Step 2: Match Hardware to Your Budget&lt;/li&gt;
+&lt;li&gt;Step 3: Set Up a Cold Wallet&lt;/li&gt;
+&lt;li&gt;Step 4: Pick a Mining Pool&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+The Hidden Costs of Mining at Home
+
+&lt;ul&gt;
+&lt;li&gt;Internet Data Limits&lt;/li&gt;
+&lt;li&gt;Hardware Wear and Tear&lt;/li&gt;
+&lt;li&gt;Dust and Maintenance&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;The 3-Point Technical Audit for Retail Operators&lt;/li&gt;
+&lt;li&gt;Hardware Capability and Cost Comparison&lt;/li&gt;
+&lt;li&gt;The Bottom Line&lt;/li&gt;
+&lt;li&gt;References&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  How Hash Generation Actually Works
+&lt;/h2&gt;
+
+&lt;p&gt;Most guides use terrible examples to explain mining. They say computers “solve complex math puzzles.” That makes it sound like the computer uses logic or strategy to find an answer. That is completely wrong.&lt;/p&gt;
+
+&lt;p&gt;The network uses a cryptographic hash function. A hash function scrambles incoming data into a fixed string of random letters and numbers. You cannot guess it. You cannot reverse it.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  The High-Speed Lottery Ticket Example
+&lt;/h3&gt;
+
+&lt;p&gt;Stop thinking about math puzzles. Think of this process as a giant, global lottery machine.&lt;/p&gt;
+
+&lt;p&gt;The network demands a specific winning serial number to unlock the next block of data. Your hardware acts as a high-speed ticket printer. It prints billions of random serial numbers every single second. It checks each printed number against the network’s winning rule.&lt;/p&gt;
+
+&lt;p&gt;If the number fails, the machine throws it away. It instantly prints another one. It does this trillions of times per second. There is zero strategy involved. It is pure, brute-force speed. The faster your machine prints and checks tickets, the higher your chance of hitting the winning string.&lt;/p&gt;
+
+&lt;p&gt;When your machine finds the winning ticket, it proves it did the work. The network accepts the block. It then pays you the block reward.&lt;/p&gt;
+
+&lt;p&gt;This loop explains the massive electrical draw. The hardware runs at absolute maximum capacity. It does nothing but print and check random strings of text all day and night.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Mobile Problem: Can You Use a Phone?
+&lt;/h2&gt;
+
+&lt;p&gt;Retail investors constantly look for ways to mine crypto on their phones. They download the first app they find on an app store. They expect to make money while the phone sits in their pocket.&lt;/p&gt;
+
+&lt;p&gt;You need to face a hard technical fact. Mobile crypto mining is mathematically dead.&lt;/p&gt;
+
+&lt;p&gt;Modern Bitcoin machines push hundreds of Terahashes per second. A premium smartphone pushes barely a few Megahashes per second. An industrial mining rig is literally millions of times faster than your mobile phone.&lt;/p&gt;
+
+&lt;p&gt;If you try to run proof-of-work on a phone, you will not make a single penny. You will, however, completely destroy the hardware. The main processor will run too hot. The battery will break down, overheat, and physically swell up within weeks.&lt;/p&gt;
+
+&lt;p&gt;Apple and Google know this is dangerous. Both companies strictly ban real mining apps from their stores.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  What Are Mobile Mining Apps Actually Doing?
+&lt;/h3&gt;
+
+&lt;p&gt;If you find a mobile mining app today, it falls into one of two specific buckets:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Remote Cloud Dashboards:&lt;/strong&gt; The app just works as a remote control. You pay a company real money to rent a machine in a distant warehouse. The phone itself does no math. You just use the screen to check the status of that rented machine.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Fake Airdrop Games:&lt;/strong&gt; Many apps market themselves as mobile mining. But they do not use real computer work. You just open the app and press a button once a day to prove you are human. The network then hands you a token. This is just a marketing trick. It is not real cryptographic mining.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Do not melt your daily phone. If you want to operate a node, you must buy real hardware.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Hardware Tiers: ASIC vs. GPU vs. CPU
+&lt;/h2&gt;
+
+&lt;p&gt;To know what you can actually do at home, you must learn the hardware tiers. Different blockchains use different math rules. These rules decide exactly what equipment you must buy.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  1. ASIC Machines (The Industrial Standard)
+&lt;/h3&gt;
+
+&lt;p&gt;ASIC stands for Application-Specific Integrated Circuit. That is a long name for a very focused computer chip. Engineers build these physical chips to do exactly one task perfectly. A modern ASIC does nothing but mine Bitcoin. It cannot run a video game. It cannot open a web page.&lt;/p&gt;
+
+&lt;p&gt;Because they only do one thing, ASICs are highly efficient. They completely control heavy networks like Bitcoin and Dogecoin. If a specific coin allows ASIC machines, normal computers simply cannot compete anymore.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  2. Multi-GPU Rigs (The Middle Ground)
+&lt;/h3&gt;
+
+&lt;p&gt;Graphics Processing Units (GPUs) normally handle video data for high-end games. But their physical design handles massive math calculations perfectly. Developers created special rules, like the KawPow algorithm, to block ASIC chips from taking over.&lt;/p&gt;
+
+&lt;p&gt;Networks like Ravencoin (RVN) and Ethereum Classic (ETC) still reward graphics card users. You can build a home rig linking several premium graphics cards together. When market prices crash for one coin, you just point your software toward a better coin. This fast-switching power gives home users a big advantage over strict ASIC setups.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  3. CPU Mining (The True Beginner Level)
+&lt;/h3&gt;
+
+&lt;p&gt;Your standard desktop uses a Central Processing Unit (CPU). Think of it as a general brain that handles everyday computer tasks.&lt;/p&gt;
+
+&lt;p&gt;The Monero (XMR) team actively protects these basic processors. They write code that breaks the power of heavy industrial machines. Because of this, using your current gaming PC to mine Monero is the only real, zero-cost way to start. You use the parts you already own.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Real Cost of Home Hardware
+&lt;/h2&gt;
+
+&lt;p&gt;Most online guides focus on your local power rates. They completely ignore the physical limits of your home power grid. Let us look at a real, dangerous edge case.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  The Bedroom Circuit Breaker Problem
+&lt;/h3&gt;
+
+&lt;p&gt;A beginner buys a huge ASIC rig online. The box arrives. They plug it straight into a standard bedroom wall socket.&lt;/p&gt;
+
+&lt;p&gt;The room instantly goes black.&lt;/p&gt;
+
+&lt;p&gt;Why does this happen? Standard American home wiring pushes 120 volts through a 15-amp circuit breaker. Strict fire safety rules say you can only run continuous power at 80 percent of the total limit. That means a standard wall outlet maxes out safely at about 1,440 watts.&lt;/p&gt;
+
+&lt;p&gt;A current ASIC machine pulls over 3,500 watts continuously.&lt;/p&gt;
+
+&lt;p&gt;If you try to cheat these limits, you will melt the copper wires inside your walls. You will spark a house fire. You must hire a licensed electrician. They must run a dedicated 240-volt, 30-amp wire straight from your main breaker panel. You must treat this setup exactly like installing a massive electric oven in your living room.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Heat and Noise Problems
+&lt;/h3&gt;
+
+&lt;p&gt;Computer math creates massive heat waste. Running a 3,500-watt machine is exactly like running a 3,500-watt space heater with no off switch.&lt;/p&gt;
+
+&lt;p&gt;Your spare bedroom will reach 100°F (38°C) in just a few hours. You must build strong airflow systems. You need heavy fans to push that hot exhaust outside while pulling fresh cold air inside.&lt;/p&gt;
+
+&lt;p&gt;Also, these machines are incredibly loud. The cooling fans scream at nearly 80 decibels. Imagine running a large shop vacuum constantly in your hallway. You cannot live in the same room as exposed mining gear. You need isolated, sound-proof boxes or a separate garage space.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Is Home Crypto Mining Actually Legal?
+&lt;/h2&gt;
+
+&lt;p&gt;Beginners worry a lot about police or government crackdowns. They search constantly to find out if mining is illegal.&lt;/p&gt;
+
+&lt;p&gt;The real answer depends completely on your local power grid and how big your setup is.&lt;/p&gt;
+
+&lt;p&gt;Federal law in the United States completely protects private mining. You can run nodes safely. However, local city leaders care a lot about power stability and carbon rules. States like New York actively block massive commercial data centers that burn fossil fuels. But these commercial bans almost never impact a normal person running two rigs in a basement.&lt;/p&gt;
+
+&lt;p&gt;On a global level, the rules change sharply. Countries dealing with broken power grids outlaw the practice entirely. China is the most famous example. You must read your specific city utility rules before you turn on heavy equipment.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  How to Execute a Real Home Operation
+&lt;/h2&gt;
+
+&lt;p&gt;If you accept the physical limits and want to spend money, you need a strict plan. Do not guess on these steps.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Step 1: Audit Your True Power Costs
+&lt;/h3&gt;
+
+&lt;p&gt;Pull your physical paper utility bill. Ignore the estimated monthly average on the front page. Find the specific line that says “Price per kWh.” You must also add the delivery taxes and transmission fees to that number.&lt;/p&gt;
+
+&lt;p&gt;If your total, all-in cost sits above $0.10 per kWh, standard hardware will waste your money. High power costs mathematically guarantee a slow cash loss over a full year.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Step 2: Match Hardware to Your Budget
+&lt;/h3&gt;
+
+&lt;p&gt;Pick your equipment based on your cash and your voltage limits.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Do you have $5,000 and a 240V garage outlet? Buy an ASIC and mine Bitcoin.&lt;/li&gt;
+&lt;li&gt;Do you have $2,500 and want coin-switching freedom? Build a multi-GPU frame for Ethereum Classic.&lt;/li&gt;
+&lt;li&gt;Do you only have a standard gaming PC? Download a program like XMRig and point your CPU at the Monero network.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;
+  
+  
+  Step 3: Set Up a Cold Wallet
+&lt;/h3&gt;
+
+&lt;p&gt;Never send your daily block rewards to a public crypto exchange. Exchanges change their user deposit addresses without giving you any warning. If they update a wallet address while your rig is working, your daily payout vanishes forever. You must configure a private hardware wallet and make a permanent receiving address.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Step 4: Pick a Mining Pool
+&lt;/h3&gt;
+
+&lt;p&gt;Solo miners compete blindly against giant corporations. You could run a single home machine for ten years and never solve a block.&lt;/p&gt;
+
+&lt;p&gt;Instead, you must connect your hardware to an established mining pool. A pool merges your computer power with thousands of other normal people. When the combined group wins a block, the system splits the money fairly. It pays you based on the exact amount of hash power you provided. This creates a steady daily income.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Hidden Costs of Mining at Home
+&lt;/h2&gt;
+
+&lt;p&gt;Mining hardware is not a one-time purchase. You must plan for ongoing costs that eat into your profits. Most normal people ignore these extra fees until it is too late.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Internet Data Limits
+&lt;/h3&gt;
+
+&lt;p&gt;Your machines must talk to the global network every second. A single miner does not use massive amounts of gigabytes, but it requires a perfectly stable connection. If your home internet drops for ten minutes, your machines sit idle. You burn electricity but earn zero coins. You may need to pay for a premium, uncapped internet tier to guarantee zero downtime.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Hardware Wear and Tear
+&lt;/h3&gt;
+
+&lt;p&gt;These machines run at maximum heat, 24 hours a day, 365 days a year. Parts will break. Graphic card cooling fans die regularly. Power supply units burn out. You must keep a cash reserve ready to replace these parts quickly. Every day your machine waits for a replacement part is a day you lose money.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Dust and Maintenance
+&lt;/h3&gt;
+
+&lt;p&gt;Airflow is the lifeblood of your operation. If you put a machine in a dusty garage, the cooling fins will clog within a month. The machine will overheat and throttle its own speed to survive. You must physically clean your rigs with compressed air every few weeks. It requires active, hands-on labor.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The 3-Point Technical Audit for Retail Operators
+&lt;/h2&gt;
+
+&lt;p&gt;When you configure your software, you must aggressively watch three critical failure points.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Software Crashes:&lt;/strong&gt; Many miners adjust power settings to save money. Sometimes, this causes the local software to freeze. The dashboard shows zero work getting done, but the physical machine still pulls maximum power from the wall. You pay heavy power bills while securing zero assets. Always turn on automatic safety shut-offs in your system BIOS.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Trapdoor Pool Payouts:&lt;/strong&gt; Read the fine print before joining a pool. Many groups require a minimum balance before they send money to your wallet. If your small home rig only generates a tiny fraction of a coin monthly, your money stays trapped in their system for years. Always pick pools that offer very low minimum payouts.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Rising Difficulty Levels:&lt;/strong&gt; Profit margins change constantly. As more machines join the global network, the software automatically makes the math puzzle harder. Your exact same machine will suddenly produce fewer coins each day. Always plan your budget knowing that daily profits will slowly drop over time.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2&gt;
+  
+  
+  Hardware Capability and Cost Comparison
+&lt;/h2&gt;
+
+&lt;p&gt;To give you a clear view, here is a breakdown of current hardware classes. This shows their target coins and their real home viability.&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Hardware Type&lt;/th&gt;
+&lt;th&gt;Target Coin&lt;/th&gt;
+&lt;th&gt;Initial Cost&lt;/th&gt;
+&lt;th&gt;Home Viability&lt;/th&gt;
+&lt;th&gt;Heat and Noise Level&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Industrial ASIC&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Bitcoin (BTC)&lt;/td&gt;
+&lt;td&gt;$3,000 - $8,000&lt;/td&gt;
+&lt;td&gt;Very Low (Needs 240V)&lt;/td&gt;
+&lt;td&gt;Extreme&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Scrypt ASIC&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Dogecoin (DOGE)&lt;/td&gt;
+&lt;td&gt;$2,000 - $6,000&lt;/td&gt;
+&lt;td&gt;Very Low (Needs 240V)&lt;/td&gt;
+&lt;td&gt;Extreme&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Multi-GPU Rig&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Ethereum Classic&lt;/td&gt;
+&lt;td&gt;$1,500 - $4,000&lt;/td&gt;
+&lt;td&gt;Moderate (Runs on 120V)&lt;/td&gt;
+&lt;td&gt;High&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Desktop CPU&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Monero (XMR)&lt;/td&gt;
+&lt;td&gt;$300 - $1,000&lt;/td&gt;
+&lt;td&gt;Excellent (Normal PC)&lt;/td&gt;
+&lt;td&gt;Low&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Mobile Phone&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;None&lt;/td&gt;
+&lt;td&gt;$0 (Owned)&lt;/td&gt;
+&lt;td&gt;Zero (Melts phone)&lt;/td&gt;
+&lt;td&gt;Very High Risk&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;em&gt;Note: Hardware prices and network difficulties change daily based on global markets. Always check live prices before buying.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Bottom Line
+&lt;/h2&gt;
+
+&lt;p&gt;A normal person can absolutely participate in crypto networks from home. But you must drop the fantasy and look at industrial reality.&lt;/p&gt;
+
+&lt;p&gt;Making money through mobile phone apps is a complete technical lie. Pushing cheap laptops to their absolute limit will only give you melted plastic. Real, profitable home operations require treating your house exactly like a small data center.&lt;/p&gt;
+
+&lt;p&gt;You must secure cheap power. You must fix major heat problems. You must install proper 240V wiring if you buy large machines. If you do these physical steps perfectly, your hardware will work hard and print digital assets while you sleep. If you ignore the raw electrical math, you will just pay high power bills and lose your own money.&lt;/p&gt;
+
+
+
+
+&lt;h2&gt;
+  
+  
+  References
+&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;NiceHash: &lt;a href="https://www.nicehash.com/profitability-calculator" rel="noopener noreferrer"&gt;Analyzing Hardware Profitability Metrics&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;Hashrate Index: &lt;a href="https://data.hashrateindex.com/" rel="noopener noreferrer"&gt;Global Mining Data and Hashprice Metrics&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;The Monero Project: &lt;a href="https://www.getmonero.org/resources/moneropedia/randomx.html" rel="noopener noreferrer"&gt;Understanding RandomX CPU Mining Architecture&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;Braiins: [Comprehensive Guide to ASIC Operations(&lt;a href="https://braiins.com/blog" rel="noopener noreferrer"&gt;https://braiins.com/blog&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Original post: &lt;a href="https://blockpulseinsights.com/" rel="noopener noreferrer"&gt;Read similar posts&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;DISCLAIMER:&lt;/strong&gt; Buying crypto hardware involves massive financial risk and heavy upfront costs. Profits change wildly based on coin prices, global network difficulty, and local power rates. The hardware costs, power needs, and profit margins discussed in this technical review reflect general market data. This is not guaranteed financial advice. Always consult with a licensed residential electrician before you change your home power grid or install continuous-load hardware. We provide this material purely for educational study. Conduct deep personal research before taking any financial action.&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+      <link>https://dev.to/amanmundacollab/can-a-normal-person-mine-crypto-a-brutal-reality-check-4aa3</link>
+      <pubDate>Wed, 22 Jul 2026 04:59:48 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/amanmundacollab/can-a-normal-person-mine-crypto-a-brutal-reality-check-4aa3</guid>
+    </item>
+    <item>
       <title>[翻訳] macOSでRDPクライアントを選ぶ：MacからWindows機を管理して学んだこと</title>
       <description>macOSにはネイティブなRDPクライアントが無いため、Windowsマシンへのリモートアクセスにはサードパーティ製ツールが必要。
 単一のWindows機への接続なら公式のMicrosoft Remote Desktopで十分だが、複数サーバーやプロトコルを管理する場合、SSH・VNC・SFTPなど多くのプロトコルに対応した統合ツールの利用が効率的。
@@ -1825,120 +4204,6 @@ Prometheus、Grafana、Zipkinを活用した監視スタックにより、マイ
       <pubDate>Sat, 04 Jul 2026 01:26:10 +0000</pubDate>
       <source>DEV Community</source>
       <guid isPermaLink="false">https://dev.to/osman_ali_54da64a0b9cc49a/running-8-microservices-locally-with-one-command-a-devops-engineers-guide-to-spring-petclinic-569c</guid>
-    </item>
-    <item>
-      <title>[翻訳] AI API の最初の支払いはテストから始めよう—いきなり大金をチャージしてはダメ</title>
-      <description>AI API を使う際、初回の支払いは大きなウォレットチャージではなく、小さな制御されたテストから始めるべき。\nモデルID の誤り、APIキーの設定ミス、予想外のトークンコスト、SDK のリトライによる重複課金など、本格運用で起こりやすい問題を事前に検出できる。\n無料モデルでの動作確認→ログ検証→最小限の試験残高での有料テスト→詳細な費用記録確認という段階的なアプローチにより、大きなトラブルを避けられる。</description>
-      <link>https://dev.to/edward_li_71f26791eac62b8/your-first-ai-api-payment-should-be-a-test-not-a-wallet-1a69</link>
-      <pubDate>Sat, 04 Jul 2026 01:24:26 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/edward_li_71f26791eac62b8/your-first-ai-api-payment-should-be-a-test-not-a-wallet-1a69</guid>
-    </item>
-    <item>
-      <title>[翻訳] Playwrightで3秒でベクターPDFと300 DPI PNGを生成する方法</title>
-      <description>PlaywrightとHTMLテンプレートを使用して、サーバーサイドでカスタマイズされたベクターPDFポスターと高解像度PNG画像を高速生成できます。
-フォームからのデータをJavaScriptで注入し、3.5秒でA4ベクターPDF（1ページ）と300 DPI PNG（2480×3508px）の両形式をサポートしています。
-wkhtmltopdfやPuppeteerと比べてPlaywrightは信頼性と使いやすさに優れており、GitベースのテンプレートバージョニングとAdobeやCanvaなどのSaaS不要でコスト削減が実現できます。</description>
-      <link>https://dev.to/benmallessamohamedamine/vector-pdf-and-300-dpi-png-generated-in-3-seconds-with-playwright-complete-guide-4e56</link>
-      <pubDate>Sat, 04 Jul 2026 01:18:05 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/benmallessamohamedamine/vector-pdf-and-300-dpi-png-generated-in-3-seconds-with-playwright-complete-guide-4e56</guid>
-    </item>
-    <item>
-      <title>[翻訳] プロダクトマネージャーが理解できるSLOの設定方法</title>
-      <description>SLO（サービスレベル目標）を技術的な数値から、ビジネスインパクトに翻訳することで、プロダクトマネージャーが意思決定できるようにする。\n信頼性レベルと開発投資のトレードオフを明示的に示し、ユーザージャーニー単位でSLOを定義することで、エンジニアリングとプロダクト間の対話を実現する。\n月次レビュー会議とダッシュボードを通じて、エラーバジェットの消費状況を共有し、機能開発と信頼性の最適なバランスを取る。</description>
-      <link>https://dev.to/samson_tanimawo/slos-that-product-managers-actually-understand-5ap2</link>
-      <pubDate>Sat, 04 Jul 2026 01:16:55 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/samson_tanimawo/slos-that-product-managers-actually-understand-5ap2</guid>
-    </item>
-    <item>
-      <title>[翻訳] Arduinoの基本的なプログラミング入門</title>
-      <description>Arduinoプログラミングの基礎を解説したチュートリアルで、プログラム構造（setup・loop）、変数とデータ型、デジタル入出力、アナログ入力、制御フロー（if・for・while）の5つのテーマをカバーしています。
-各セクションでは概念の説明に加えて実践的なコード例（LED制御、ボタン入力、ポテンショメータでのLED調光など）が示されており、初心者でも理解しやすい内容になっています。
-Arduinoボードでセンサー制御やLED制御などの電子工作プロジェクトを始める際に必要な基本知識が網羅的に学べるリソースです。</description>
-      <link>https://dev.to/iztronics/codigos-basicos-en-arduino-56gb</link>
-      <pubDate>Sat, 04 Jul 2026 01:15:23 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/iztronics/codigos-basicos-en-arduino-56gb</guid>
-    </item>
-    <item>
-      <title>[翻訳] AIを活用してブラジルのオープンソースプロジェクトに実際のPRを提出してみた</title>
-      <description>AWS Community Day Brasíliaでのワークショップで、AIアシスタント「Kiro」を使って、ブラジル初のGitHub Sponsorshipを受けたPythonプロジェクト「ScanAPI」の実際のバグを修正し、本物のプルリクエストをライブで提出した。
-Dockerハブのイメージハッシュ依存関係チェックのバグに対して、Kiroの自動モード機能を使い、約5分でリポジトリのフォーク、ブランチ作成、Dockerfileの更新、GitHub Actionの設定まで一連のプロセスを完了した。
-AIを活用することでコード複雑性の障壁が下がり、未知のコードベースからPR提出まで数分で可能になることを実証し、「AIに腕を委ねても脳は自分で保つ」ことの重要性を強調した。</description>
-      <link>https://dev.to/pimenta/i-submitted-a-real-pr-to-a-brazilian-open-source-project-live-using-ai-as-my-right-hand-3hko</link>
-      <pubDate>Fri, 03 Jul 2026 02:15:19 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/pimenta/i-submitted-a-real-pr-to-a-brazilian-open-source-project-live-using-ai-as-my-right-hand-3hko</guid>
-    </item>
-    <item>
-      <title>[翻訳] WordPress納品前チェックリスト — クライアント引き渡し前に確認すべき項目と証拠の残し方</title>
-      <description>WordPress サイト納品時に見落としやすい問題（テストコンテンツの残存、開発環境 URL のハードコード、noindex 設定など）を事前に検出し、クライアントの信頼を損なわないための包括的なチェックリスト。
-コンテンツ、設定、セキュリティ、プラグイン管理など 6 つのカテゴリーに分けた実践的な確認項目を提示し、手作業でも自動化ツールでも実行できる方法を解説。
-納品後のトラブルを防ぐだけでなく、チェック実施を証明する納品レポートを作成・添付することで、クライアント関係を構築・維持することの重要性を強調。</description>
-      <link>https://dev.to/nokazehayato/wordpress-pre-launch-checklist-for-client-handoff-what-to-check-clean-up-and-prove-before-5ejd</link>
-      <pubDate>Fri, 03 Jul 2026 02:12:02 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/nokazehayato/wordpress-pre-launch-checklist-for-client-handoff-what-to-check-clean-up-and-prove-before-5ejd</guid>
-    </item>
-    <item>
-      <title>[翻訳] TypeScript 2026年版：非同期ジェネレータの型推論を完全解説</title>
-      <description>TypeScriptの非同期ジェネレータは、yield式への呼び出し元からの入力値を推論できないため、型推論が失敗し、`any`型が流入する問題がある。
-非同期ジェネレータは3つの型パラメータ（T：yield値、TReturn：戻り値、TNext：次の入力）で制御され、bidirectionalなデータフローにより型推論が不可能なため、明示的な`AsyncGenerator&lt;T, TReturn, TNext&gt;`アノテーションが必須。
-`for await...of`ループのみで使用する単純な非同期反復可能オブジェクトを除き、`.next()`で値を受け取るすべてのジェネレータに明示的な型注釈が必要で、これによって型安全性が大幅に向上する。</description>
-      <link>https://dev.to/jsmanifest/how-typescript-infers-types-through-async-generators-in-2026-54km</link>
-      <pubDate>Fri, 03 Jul 2026 02:09:57 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/jsmanifest/how-typescript-infers-types-through-async-generators-in-2026-54km</guid>
-    </item>
-    <item>
-      <title>[翻訳] 信頼性を重視するRAG評価ツール――判定できない場合は正直に棄却する</title>
-      <description>LLM-as-judgeの評価ツールは判定の信頼性が低いため、判定できない場合は正直に棄却すべきという課題に対応したRAG評価ツール「rag-triad」を紹介。
-検索失敗・ハルシネーション・見当違いの回答という3つの故障モードを区別し、それぞれに適した決定論的な検証方法を適用することで評価の精度を向上。
-評価者の最大の役割は自信過剰な誤りよりも、判定不可能な場合の正直な棄却にあり、キャリブレーション（確率の信頼性）を重視する評価アプローチ。</description>
-      <link>https://dev.to/monongahelahellbender/a-rag-evaluator-that-admits-what-it-cant-judge-ad2</link>
-      <pubDate>Fri, 03 Jul 2026 02:08:43 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/monongahelahellbender/a-rag-evaluator-that-admits-what-it-cant-judge-ad2</guid>
-    </item>
-    <item>
-      <title>[翻訳] Jujutsu (jj) — Gitを置き換えるのではなく補完する新しいバージョン管理ツール</title>
-      <description>JujutsuはGoogleのチームが開発した新しいバージョン管理システムで、既存のGitリポジトリ上で動作し、ステージングエリアの廃止、簡単なundo機能、より直感的なブランチ管理を実現している。
-Gitの20年の歴史で蓄積された設計上の問題点（ステージングエリアの複雑さ、rebaseやundoの困難さ、confictの扱い）を解決し、特に初心者にとって学習曲線がGitより低い。
-Rustで実装されており高速で、既存のGitユーザーは段階的に移行でき、jjで作業しながらgit pushで共有できるため、既存のGithub/GitLabワークフローと両立可能である。</description>
-      <link>https://dev.to/gophernment/jujutsu-jj-thaangeluuek-git-thiiaimaidmaaaethnthii-aetmaaetimetm-2i29</link>
-      <pubDate>Fri, 03 Jul 2026 02:04:43 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/gophernment/jujutsu-jj-thaangeluuek-git-thiiaimaidmaaaethnthii-aetmaaetimetm-2i29</guid>
-    </item>
-    <item>
-      <title>[翻訳] メール・電話・クレジットカード検証ツールと軽量API を無料公開（実MXレコード対応）</title>
-      <description>サイドプロジェクトで繰り返し必要になるメール・電話・カード番号の検証機能を、無料ツール化し軽量APIとして提供。
-メール検証ではタイポ修正やMXレコード配信可能性判定、電話はE.164形式化と35ヶ国対応、カードはLuhnチェックサムとブランド判定に対応。
-Cloudflare Workersで無料運用され、署名付きAPI呼び出しでJSON形式の結果が返される。</description>
-      <link>https://dev.to/choi_changhwan_a8cf9f164f/i-built-free-email-phone-card-validators-a-tiny-hosted-api-with-real-mx-deliverability-4mkd</link>
-      <pubDate>Fri, 03 Jul 2026 02:02:47 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/choi_changhwan_a8cf9f164f/i-built-free-email-phone-card-validators-a-tiny-hosted-api-with-real-mx-deliverability-4mkd</guid>
-    </item>
-    <item>
-      <title>[翻訳] AIチャットエンドポイントのストリーミング実装：レート制限との戦い</title>
-      <description>OpenAI APIをサーバーレス関数に統合したところレート制限に直面し、ユーザーは応答待機中に長時間スピナーを見つめることになった。
-Server-Sent Events（SSE）を使用したストリーミング実装により、APIレスポンスをチャンク単位でリアルタイム配信し、ユーザー体験と不要なAPI呼び出しを削減できた。
-Node.jsのコード例、フロントエンド実装、エラーハンドリング、接続管理のベストプラクティスを含む実装ガイド。</description>
-      <link>https://dev.to/__c1b9e06dc90a7e0a676b/building-a-streaming-ai-chat-endpoint-my-rate-limit-wake-up-call-4kig</link>
-      <pubDate>Fri, 03 Jul 2026 02:00:53 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/__c1b9e06dc90a7e0a676b/building-a-streaming-ai-chat-endpoint-my-rate-limit-wake-up-call-4kig</guid>
-    </item>
-    <item>
-      <title>[翻訳] AIエージェントのセッション間での記憶喪失を防ぐ方法</title>
-      <description>AIアシスタントがセッション終了時に前回の会話内容や設定を忘れてしまう問題を解決するオープンソースのメモリ機能が登場し、v3.5.1にアップデートされました。\nホットメモリ（即座の呼び出し）、ウォームメモリ（意味検索）、コールドメモリ（長期保存）の3階層メモリシステムでコンテキストを保持し、Hermes、Claude Code、Cursorなど複数のAIエージェントに対応します。\n新バージョンではWebhook対応（Telegram、Slack、DingTalk等）、Grafana連携、マルチエージェント対応など監視・運用機能が強化されており、MITライセンスでGitHubで公開されています。</description>
-      <link>https://dev.to/mage0535/stop-your-ai-agent-forgetting-everything-between-sessions-2a7p</link>
-      <pubDate>Fri, 03 Jul 2026 02:00:21 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/mage0535/stop-your-ai-agent-forgetting-everything-between-sessions-2a7p</guid>
     </item>
   </channel>
 </rss>
