@@ -5,70 +5,202 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
-      <title>[翻訳] Original Apollo 11 Guidance Computer source code for command and lunar modules</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://github.com/chrislgarry/Apollo-11"&gt;https://github.com/chrislgarry/Apollo-11&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49002166"&gt;https://news.ycombinator.com/item?id=49002166&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 7&lt;/p&gt;
-&lt;p&gt;# Comments: 0&lt;/p&gt;</description>
-      <link>https://github.com/chrislgarry/Apollo-11</link>
-      <pubDate>Wed, 22 Jul 2026 05:18:08 +0000</pubDate>
+      <title>[翻訳] BitTorrent方式で自宅から大規模言語モデルを実行する</title>
+      <description>Petalsプロジェクトは、BitTorrentのような分散ネットワークを活用して、大規模言語モデル（LLM）を家庭のコンピュータで実行できる技術を提供しています。
+複数のユーザーのマシンがネットワークで接続され、計算リソースと参加を共有することで、高額なハードウェア投資なしにLLMの利用が可能になります。
+これにより、AI技術の民主化と個人ユーザーによるLLMへのアクセス拡大を目指しています。</description>
+      <link>https://petals.dev/</link>
+      <pubDate>Thu, 23 Jul 2026 01:33:12 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49002166</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49015735</guid>
     </item>
     <item>
-      <title>[翻訳] Airglow browser lets users modify YouTube, Gmail and Spotify in real time</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://runtimewire.com/article/airglow-browser-lets-users-modify-youtube-gmail-and-spotify-in-real-time"&gt;https://runtimewire.com/article/airglow-browser-lets-users-modify-youtube-gmail-and-spotify-in-real-time&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49002010"&gt;https://news.ycombinator.com/item?id=49002010&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 6&lt;/p&gt;
-&lt;p&gt;# Comments: 0&lt;/p&gt;</description>
-      <link>https://runtimewire.com/article/airglow-browser-lets-users-modify-youtube-gmail-and-spotify-in-real-time</link>
-      <pubDate>Wed, 22 Jul 2026 04:48:59 +0000</pubDate>
+      <title>[翻訳] Coderbergが暗号資産プロジェクトを禁止</title>
+      <description>GitHubの代替として知られるオープンソースプラットフォーム「Codeberg」が、暗号資産関連プロジェクトの掲載を禁止することを決定。
+この決定はCodeberg組織の公式プルリクエストで提案され、プラットフォームの方針変更を示している。
+ブロックチェーンやNFT関連のプロジェクトなど、暗号資産に関連するリポジトリが対象となる見込み。</description>
+      <link>https://codeberg.org/Codeberg/org/pulls/1254</link>
+      <pubDate>Thu, 23 Jul 2026 01:06:56 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49002010</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49015588</guid>
     </item>
     <item>
-      <title>[翻訳] Kimi K3: second only to Fable 5 on AA-Briefcase</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://artificialanalysis.ai/articles/kimi-k3-agentic-knowledge-benchmark"&gt;https://artificialanalysis.ai/articles/kimi-k3-agentic-knowledge-benchmark&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49001930"&gt;https://news.ycombinator.com/item?id=49001930&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 14&lt;/p&gt;
-&lt;p&gt;# Comments: 0&lt;/p&gt;</description>
-      <link>https://artificialanalysis.ai/articles/kimi-k3-agentic-knowledge-benchmark</link>
-      <pubDate>Wed, 22 Jul 2026 04:33:44 +0000</pubDate>
+      <title>[翻訳] 子どもたちが大規模言語モデルのチャットボットと交流する際の擬人化</title>
+      <description>子どもたちがLLMチャットボットと対話する際に、AIに対して人間らしい特性を過度に帰属させる傾向について研究している。
+チャットボットが自然な会話を行うことで、子どもが感情を持つ存在として認識し、人間関係と同様の信頼や依存を形成する可能性がある。
+成長段階にある子どもの認知発達と心理に与える影響について、実証的な分析と考察を提供している。</description>
+      <link>https://arxiv.org/abs/2607.18250</link>
+      <pubDate>Wed, 22 Jul 2026 22:49:58 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49001930</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49014537</guid>
     </item>
     <item>
-      <title>[翻訳] Ten ways a check passes while the thing it checks is broken</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://phronesis.world/papers/ways-of-checking/"&gt;https://phronesis.world/papers/ways-of-checking/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49001775"&gt;https://news.ycombinator.com/item?id=49001775&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 11&lt;/p&gt;
-&lt;p&gt;# Comments: 1&lt;/p&gt;</description>
-      <link>https://phronesis.world/papers/ways-of-checking/</link>
-      <pubDate>Wed, 22 Jul 2026 04:11:18 +0000</pubDate>
+      <title>[翻訳] 400年以上の謎が解明へ：メディチ家の秘密がDNA検査で明かされる</title>
+      <description>メディチ家の長年の謎が、DNA検査とマラリア分析によって400年以上ぶりに解明される可能性が出てきた。
+科学者らが遺骨のDNA検査を実施し、歴史的な謎の真相に迫る研究が進行中である。
+この発見は、ルネサンス時代の著名な家族の歴史解明に大きな光を当てるものとなっている。</description>
+      <link>https://www.cnn.com/2026/07/15/science/medici-family-mystery-dna-malaria</link>
+      <pubDate>Wed, 22 Jul 2026 21:55:34 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49001775</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49014007</guid>
     </item>
     <item>
-      <title>[翻訳] Late.sh – a command-line Clubhouse for computer people</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://late.sh/"&gt;https://late.sh/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49001127"&gt;https://news.ycombinator.com/item?id=49001127&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 52&lt;/p&gt;
-&lt;p&gt;# Comments: 11&lt;/p&gt;</description>
-      <link>https://late.sh/</link>
-      <pubDate>Wed, 22 Jul 2026 02:32:30 +0000</pubDate>
+      <title>[翻訳] Text-to-SQLベンチマークは実世界のデータストアの課題に対応すべき</title>
+      <description>Text-to-SQLベンチマークの評価には、実世界のデータベースが持つ複雑性と課題への対応が不可欠である。
+現在のベンチマークは理想化された環境での評価に留まっており、実際の運用環境での性能とのギャップが存在する。
+より実践的で信頼性の高いText-to-SQL技術の開発には、実世界のデータストアの特性を反映したベンチマーク設計が必要である。</description>
+      <link>https://cacm.acm.org/blogcacm/if-you-think-you-can-do-real-world-text-to-sql/</link>
+      <pubDate>Wed, 22 Jul 2026 21:54:30 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49001127</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49013995</guid>
     </item>
     <item>
-      <title>[翻訳] LG to ban residential proxies from smart TV apps</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://krebsonsecurity.com/2026/07/lg-to-ban-residential-proxies-from-smart-tv-apps/"&gt;https://krebsonsecurity.com/2026/07/lg-to-ban-residential-proxies-from-smart-tv-apps/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49000864"&gt;https://news.ycombinator.com/item?id=49000864&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 146&lt;/p&gt;
-&lt;p&gt;# Comments: 106&lt;/p&gt;</description>
-      <link>https://krebsonsecurity.com/2026/07/lg-to-ban-residential-proxies-from-smart-tv-apps/</link>
-      <pubDate>Wed, 22 Jul 2026 01:52:31 +0000</pubDate>
+      <title>[翻訳] クリストファー・アレクサンダーの『パターン・ランゲージ』全253パターンを総まとめ</title>
+      <description>クリストファー・アレクサンダーの著作『A Pattern Language』に掲載されている253個のデザインパターンを一覧化・要約した記事。
+建築やソフトウェア設計の分野で影響を与えたパターンランゲージの全体像を把握できるリソース。
+Hacker Newsでは22ポイント、2件のコメントを獲得。</description>
+      <link>https://claytondorge.com/patterns-list</link>
+      <pubDate>Wed, 22 Jul 2026 21:48:44 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49000864</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49013924</guid>
+    </item>
+    <item>
+      <title>[翻訳] 柔軟な計算環境を実現するEmacsの可能性</title>
+      <description>Emacsを活用した「可塑的コンピューティング」（Malleable Computing）の概念と実装について解説する記事。
+ユーザーが自分のニーズに合わせてシステムをカスタマイズし、動的に拡張できる環境の重要性を論じている。
+Emacsの高い拡張性と柔軟性がこの理想的な計算環境の実現にどう貢献するかを紹介している。</description>
+      <link>http://yummymelon.com/devnull/malleable-computing-emacs-and-you.html</link>
+      <pubDate>Wed, 22 Jul 2026 21:15:26 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49013538</guid>
+    </item>
+    <item>
+      <title>[翻訳] Safari Technology Preview 248がリリース</title>
+      <description>WebKitプロジェクトがSafari Technology Preview 248をリリースしました。
+新機能や改善、バグ修正などが含まれています。
+Webkitの公式ブログで詳細な リリースノートが公開されています。</description>
+      <link>https://webkit.org/blog/18162/release-notes-for-safari-technology-preview-248/</link>
+      <pubDate>Wed, 22 Jul 2026 21:00:26 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49013356</guid>
+    </item>
+    <item>
+      <title>[翻訳] 採用試験のコード課題を検査したら、思わぬ仕掛けが隠されていた</title>
+      <description>求人面接の課題として提供されたプロジェクトに、悪意あるgit hookマルウェアが仕込まれていたケースについて。
+応募者がプロジェクトを調査した結果、単なる技術試験ではなく複雑な詐欺的仕組みが発見された。
+この事例は採用プロセスを悪用した新種のセキュリティ脅威の存在を示唆している。</description>
+      <link>https://citizendot.github.io/articles/fake-job-interview-git-hook-malware/</link>
+      <pubDate>Wed, 22 Jul 2026 20:33:44 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49013036</guid>
+    </item>
+    <item>
+      <title>[翻訳] Fairphone 6の広角カメラがLinuxで実験的にサポート</title>
+      <description>Fairphone 6のスマートフォンにおいて、広角カメラ機能がLinux環境で実験的なサポートを受けることになった。
+これはオープンソースコミュニティによるFairphoneデバイスのLinux互換性向上の取り組みの一環と考えられる。
+ユーザーは修復可能でカスタマイズ可能なスマートフォンでLinuxベースのOSをより充実した環境で利用できるようになる可能性がある。</description>
+      <link>https://nondescriptpointer.com/articles/fairphone-6-wide-camera-linux/</link>
+      <pubDate>Wed, 22 Jul 2026 20:16:01 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49012777</guid>
+    </item>
+    <item>
+      <title>[翻訳] テック業界の伝説的ジャーナリスト、ジョン・C・ドヴォラック氏が逝去</title>
+      <description>パイオニア的なテクノロジージャーナリストでポッドキャスター、ブロガーとして活躍したジョン・C・ドヴォラック氏が亡くなった。
+複数のテック系コミュニティでその訃報が報告されており、IT業界に大きな影響を与えた人物の死が惜しまれている。
+Hacker Newsでも558ポイント、179件のコメントが寄せられるなど、業界内での高い評価と影響力を示している。</description>
+      <link>https://twitter.com/na_announce/status/2079952538040672302</link>
+      <pubDate>Wed, 22 Jul 2026 19:22:19 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49012070</guid>
+    </item>
+    <item>
+      <title>[翻訳] 明確さの追求から神秘主義へ：SF創作における物語手法の転換</title>
+      <description>2012年に公開されたサイエンスフィクション作品『ささやく耳飾り』に関する考察記事。
+従来の説明的で明確なストーリーテリングから、謎や曖昧性を活かした神秘主義的なアプローチへの創作方法の転換について論じている。
+Hacker Newsで39ポイントの評価を獲得し、9件のコメント議論が行われた。</description>
+      <link>https://gwern.net/doc/fiction/science-fiction/2012-10-03-yvain-thewhisperingearring.html</link>
+      <pubDate>Wed, 22 Jul 2026 18:55:42 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49011687</guid>
+    </item>
+    <item>
+      <title>[翻訳] Cactus Hybrid：Gemma 4に自分の間違いを認識させる技術</title>
+      <description>Cactus社がGemma 4を拡張し、各回答に0～1の信頼度スコアを付与する仕組みを開発。信頼度が高い時はオンデバイスで処理し、低い時だけクラウドの大規模モデルに処理を振り分けることで、コストを削減しながら精度を維持。
+隠れ層の状態から間違う確率を予測する68kパラメータのプローブ層を追加し、従来のトークンエントロピーより精度の高い自信度信号(AUROC 0.814 vs 0.549)を実現。テキスト・画像・音声の12ベンチマークで検証済み。
+全ウェイトをHuggingFaceで公開し、Transformers、MLX、llama.cpp、Ollamaなど複数フレームワークでの実装をサポート。MITライセンス下で利用可能で、段階的な改善を進行中。</description>
+      <link>https://github.com/cactus-compute/cactus-hybrid</link>
+      <pubDate>Wed, 22 Jul 2026 17:56:29 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49010782</guid>
+    </item>
+    <item>
+      <title>[翻訳] SIMDについて誰もが知るべきこと</title>
+      <description>SIMDは単一命令で複数のデータを並列処理できる重要なコンピュータ技術である。
+パフォーマンス最適化やアルゴリズム設計を行う際にSIMDの基礎知識が必須となる。
+プログラマーがSIMDを理解することで、より効率的で高速なコード実装が可能になる。</description>
+      <link>https://mitchellh.com/writing/everyone-should-know-simd</link>
+      <pubDate>Wed, 22 Jul 2026 17:48:18 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49010648</guid>
+    </item>
+    <item>
+      <title>[翻訳] テレンス・タオがChatGPTで議論するヤコビアン予想の反例</title>
+      <description>著名な数学者テレンス・タオがChatGPTとヤコビアン予想に関する反例について対話した内容が公開されている。
+この会話はHacker Newsで大きな話題となり、622ポイント、380件のコメントを獲得している。
+AIと数学者による高度な数学的議論の事例として注目されている。</description>
+      <link>https://chatgpt.com/share/6a5fdc7a-d6f8-83e8-bbea-8deb42cfed56</link>
+      <pubDate>Wed, 22 Jul 2026 17:30:40 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49010345</guid>
+    </item>
+    <item>
+      <title>[翻訳] GigaToken: 言語モデルのトークン化を1000倍高速化</title>
+      <description>GitHubで公開されているGigaTokenというプロジェクトが、言語モデルのトークン化処理を大幅に高速化する技術を提供しています。
+Hacker Newsで374ポイント、72件のコメントを獲得し、開発者コミュニティで注目を集めています。
+この最適化により、大規模言語モデルの前処理パイプラインの効率が飛躍的に向上する可能性があります。</description>
+      <link>https://github.com/marcelroed/gigatoken/</link>
+      <pubDate>Wed, 22 Jul 2026 17:20:38 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49010167</guid>
+    </item>
+    <item>
+      <title>[翻訳] AI研究機関は「ペリカンマックス」戦略に走っているのか</title>
+      <description>AI研究機関が採用する新しい戦略や手法についての考察。
+ペリカンマックスというアプローチがAI開発の現場でどのように活用されているかを分析。
+このトレンドの有効性と業界への影響に関する議論。</description>
+      <link>https://dylancastillo.co/posts/pelicanmaxxing.html</link>
+      <pubDate>Wed, 22 Jul 2026 17:17:54 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49010129</guid>
+    </item>
+    <item>
+      <title>[翻訳] Unlayer：アプリにメール・ドキュメントビルダーを統合できるプラットフォーム</title>
+      <description>YC W22出身のUnlayerは、アプリケーションにメール、Webページ、ドキュメント作成機能を組み込むためのプラットフォーム。コード、ビジュアルエディタ、AIの3つの方法で、エディタ・レンダラー・テンプレート構築の負担なく実装可能。\nオープンソースのReactコンポーネント（Elements）、ドラッグ&amp;ドロップのビジュアルビルダー、構造化ドキュメント用のDocument Builderの3つを提供。AIエージェントが生成した保守性の高い構造化コンポーネントと、ノーコードでの編集フローを両立させることが特徴。\n開発者はGitで管理可能なテンプレートを作成でき、マーケターや顧客はビジュアルエディタで編集可能。メールのOutlookレンダリングなど複雑な運用課題をプラットフォーム側で処理し、企業はコア事業に集中できる。</description>
+      <link>https://unlayer.com</link>
+      <pubDate>Wed, 22 Jul 2026 16:02:03 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49008901</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIによるものづくりの可能性と課題</title>
+      <description>AIを活用したものづくりプロセスに関する技術的な考察と実践的なアプローチについて解説しています。
+AIの能力と限界を理解した上で、効果的な活用方法を探る記事として注目を集めています。
+276ポイント、110件のコメントを獲得し、技術コミュニティで活発な議論が行われています。</description>
+      <link>https://beej.us/blog/data/ai-making/</link>
+      <pubDate>Wed, 22 Jul 2026 15:33:48 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49008440</guid>
+    </item>
+    <item>
+      <title>[翻訳] Bento - PowerPoint全体を1つのHTMLファイルに。編集・表示・データ・協調作業すべてに対応</title>
+      <description>単一のHTMLファイルだけでスライドの編集・プレゼン・共有編集ができるツール「Bento」が開発されました。インストールやクラウドログインは不要で、すべてオフラインで動作します。
+メールやAirdropで共有でき、受け取った側もブラウザがあればそのまま編集・プレゼン・リアルタイム協作が可能。既存のPPTXファイルもClaude/ChatGPTで変換できます。
+クラウドは使わず、暗号化された中継サーバーのみで共有編集を実現。MIT ライセンスでGitHubで公開されており、reveal.jsなどのライブラリを組み合わせて構築されています。</description>
+      <link>https://bento.page/slides/</link>
+      <pubDate>Wed, 22 Jul 2026 15:19:23 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49008211</guid>
     </item>
     <item>
       <title>[翻訳] 幸福への10のステップ</title>
@@ -99,17 +231,6 @@ Avente社が提供するAIアニメ制作サービスの制作工程や手法を
       <pubDate>Wed, 22 Jul 2026 00:27:35 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=49000250</guid>
-    </item>
-    <item>
-      <title>[翻訳] It's a shame what's happened to radio</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://blog.jimgrey.net/2026/07/21/its-a-shame-whats-happened-to-radio-3/"&gt;https://blog.jimgrey.net/2026/07/21/its-a-shame-whats-happened-to-radio-3/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=48999825"&gt;https://news.ycombinator.com/item?id=48999825&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 67&lt;/p&gt;
-&lt;p&gt;# Comments: 60&lt;/p&gt;</description>
-      <link>https://blog.jimgrey.net/2026/07/21/its-a-shame-whats-happened-to-radio-3/</link>
-      <pubDate>Tue, 21 Jul 2026 23:33:31 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48999825</guid>
     </item>
     <item>
       <title>[翻訳] Kimi K3がFableと同等の性能を発揮、両者が最先端水準に</title>
@@ -1866,132 +1987,6 @@ Hacker Newsで高い関心を集め、434ポイント、160件のコメントで
       <pubDate>Tue, 14 Jul 2026 17:50:48 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48910545</guid>
-    </item>
-    <item>
-      <title>[翻訳] Kontigo（YC S24）がセキュリティ責任者を採用中</title>
-      <description>Y Combinator S24期採択企業のKontigoがセキュリティヘッドのポジションで採用を実施中。
-詳細は公式の採用ページで確認できる。
-Hacker Newsで共有されている求人情報。</description>
-      <link>https://www.ycombinator.com/companies/kontigo/jobs/uNttrlv-head-of-security</link>
-      <pubDate>Tue, 14 Jul 2026 17:00:17 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48909820</guid>
-    </item>
-    <item>
-      <title>[翻訳] 積み上がり続けるテクノロジーの複雑性</title>
-      <description>ソフトウェア開発における技術的負債と複雑性が継続的に増加している現状について考察した記事。
-開発者が新しい技術やフレームワークを追加し続けることで、システムの複雑さが指数関数的に増していく問題を指摘。
- テクノロジースタックの肥大化に対する実践的なアプローチと警告を提示している。</description>
-      <link>https://lucumr.pocoo.org/2026/7/13/the-tower-keeps-rising/</link>
-      <pubDate>Tue, 14 Jul 2026 16:57:54 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48909785</guid>
-    </item>
-    <item>
-      <title>[翻訳] Agnost AI：会話型AIエージェントのユーザーフィードバックを自動抽出するツール</title>
-      <description>チャットボットや音声AIエージェントの会話ログから、ユーザーの不満や機能要望などの行動信号を自動検出する分析プラットフォーム。
-従来のウェブアプリとは異なり、言語インターフェースを持つAIアシスタントには適切なメトリクスがないという課題を解決する。
-大規模な会話データをLLMに直接送るのではなく、埋め込みクラスタリングと機械学習を組み合わせることで効率的に分析を実現。</description>
-      <link>https://agnost.ai</link>
-      <pubDate>Tue, 14 Jul 2026 16:06:18 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48908950</guid>
-    </item>
-    <item>
-      <title>[翻訳] 名作の冒頭を毎日表示するブラウザ拡張機能</title>
-      <description>複数年かけて収集した名作の冒頭を毎日ブラウザで表示するツール。
-シンプルな背景に名作の冒頭を表示するデザインにこだわり、現在約60作品を収録。
-リフレッシュするたびに異なる名作の冒頭を楽しめる。</description>
-      <link>https://www.verbaprima.com/</link>
-      <pubDate>Tue, 14 Jul 2026 15:24:49 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48908271</guid>
-    </item>
-    <item>
-      <title>[翻訳] USB-Cへの徹底した移行を支持する立場</title>
-      <description>著者はUSB-Cの普及を強く支持し、複数の接続規格が存在することの非効率性を批判しています。
-デバイス間の互換性向上とユーザー体験の統一化により、USB-C標準化の重要性を主張しています。
-この記事はHacker Newsで164ポイントを獲得し、265件のコメントが寄せられるなど、活発な議論を生んでいます。</description>
-      <link>https://shkspr.mobi/blog/2026/07/im-a-usb-c-maximalist/</link>
-      <pubDate>Tue, 14 Jul 2026 15:20:36 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48908214</guid>
-    </item>
-    <item>
-      <title>[翻訳] AIに思考を委ねすぎていないか？</title>
-      <description>AIツールの急速な進化により、人間が意思決定や問題解決をAIに過度に依存する傾向が生じている。
-こうした思考の外部化は利便性をもたらす一方で、批判的思考力や創造性の低下につながる可能性がある。
-人間とAIの適切なバランスを取り、人間の認知能力を維持することの重要性が議論されている。</description>
-      <link>https://www.artfish.ai/p/offloading-thinking-to-ai</link>
-      <pubDate>Tue, 14 Jul 2026 15:18:13 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48908178</guid>
-    </item>
-    <item>
-      <title>[翻訳] セレーナ・ウィリアムズのフィットネストラッキングアプリ「Fit-Dex」</title>
-      <description>セレーナ・ウィリアムズが開発したフィットネス関連のWebアプリケーション「Fit-Dex」がNetlifyでホストされている。
-Hacker Newsで話題になっており、現在4ポイントの注目を集めている。
-テニスの伝説的選手による健康管理ツールとして関心が寄せられている。</description>
-      <link>https://serena-williams-fitdex.netlify.app/</link>
-      <pubDate>Tue, 14 Jul 2026 13:12:55 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48906339</guid>
-    </item>
-    <item>
-      <title>[翻訳] 守護天使：生産性とセキュリティを高めるLLMの個人化</title>
-      <description>大規模言語モデル(LLM)を個人の習慣や好みに合わせてカスタマイズすることで、生産性向上を実現する手法について論じている。\nユーザーのニーズに応じたLLMの個人化が、仕事効率の改善にどのような効果をもたらすかを探索している。\nセキュリティと利便性のバランスを取りながら、AIを個人用ツールとして活用する可能性を提案している。</description>
-      <link>https://gwern.net/guardian-angel</link>
-      <pubDate>Tue, 14 Jul 2026 12:50:29 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48906041</guid>
-    </item>
-    <item>
-      <title>[翻訳] ClaudeAIが「load-bearing」という表現を使うのを止めさせる方法</title>
-      <description>Claude AIが特定の表現を過度に使用する問題に対する対策方法についての記事。
-プロンプトエンジニアリングやシステムプロンプトの調整により、AIの出力をより自然にコントロールする技術を紹介。
-Hacker Newsで475ポイントを獲得し、523件のコメントが寄せられた注目の投稿。</description>
-      <link>https://jola.dev/posts/how-to-stop-claude-from-saying-load-bearing</link>
-      <pubDate>Tue, 14 Jul 2026 11:46:02 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48905248</guid>
-    </item>
-    <item>
-      <title>[翻訳] MorphoHDL：回路を成長させるためのミニマル言語</title>
-      <description>MorphoHDLは、デジタル回路設計を簡潔に記述できる新しいハードウェア記述言語。
-従来のHDL言語よりも最小限の構文で、より直感的に回路設計ができる。
-動的に回路を拡張・変更する「成長する回路」の概念をサポートしている。</description>
-      <link>https://paradigms-of-intelligence.github.io/morpho/</link>
-      <pubDate>Tue, 14 Jul 2026 01:17:30 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901126</guid>
-    </item>
-    <item>
-      <title>[翻訳] ESBMC-Arduino: Arduinoの形式検証で導入段階のギャップを埋める</title>
-      <description>ESBMC-Arduinoは、Arduinoデバイスに対する形式検証ツールであり、開発環境から実際の導入までのギャップを解消することを目的としている。
-形式検証により、Arduinoプログラムの正確性と安全性を数学的に保証することが可能になる。
-このツールは、組み込みシステム開発における品質向上とバグの早期発見に貢献する。</description>
-      <link>https://arxiv.org/abs/2607.08550</link>
-      <pubDate>Tue, 14 Jul 2026 00:58:55 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901020</guid>
-    </item>
-    <item>
-      <title>[翻訳] Gitの履歴コマンドはもっと活用されるべき機能</title>
-      <description>Gitの履歴コマンド（git history）は、開発者が見落としがちだが非常に有用な機能である。\nこのコマンドを使いこなすことで、コード変更の追跡やデバッグがより効率的になる。\n記事では、git historyの具体的な使用例と活用方法について詳しく解説している。</description>
-      <link>https://lalitm.com/post/git-history/</link>
-      <pubDate>Tue, 14 Jul 2026 00:57:11 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48901010</guid>
-    </item>
-    <item>
-      <title>[翻訳] SFFA対ハーバード裁判が大学入試制度に明かしたこと</title>
-      <description>SFFA（Students for Fair Admissions）がハーバード大学を相手に起こした訴訟が、米国の大学入試制度における差別的慣行を明るみに出した。
-裁判を通じて、アファーマティブアクションと人種を考慮した入試選考の実態が詳らかにされ、大学の入試プロセスに関する議論が加熱した。
-本判決は高等教育における公平性と多様性のバランスに関する重要な判例となり、今後の入試制度改革に大きな影響を与えることが予想される。</description>
-      <link>https://sorting-machine.pages.dev/</link>
-      <pubDate>Tue, 14 Jul 2026 00:26:43 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48900796</guid>
     </item>
   </channel>
 </rss>
