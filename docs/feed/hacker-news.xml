@@ -5,6 +5,28 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] Restructuring GitHub's bug bounty program</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://github.blog/security/next-chapter-restructuring-githubs-bug-bounty-program/"&gt;https://github.blog/security/next-chapter-restructuring-githubs-bug-bounty-program/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49016099"&gt;https://news.ycombinator.com/item?id=49016099&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 29&lt;/p&gt;
+&lt;p&gt;# Comments: 14&lt;/p&gt;</description>
+      <link>https://github.blog/security/next-chapter-restructuring-githubs-bug-bounty-program/</link>
+      <pubDate>Thu, 23 Jul 2026 02:28:23 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49016099</guid>
+    </item>
+    <item>
+      <title>[翻訳] Honey Bee Colony Monitoring via Audio IoT Sensors, Tensorgrams and RNNs</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://arxiv.org/abs/2607.20386"&gt;https://arxiv.org/abs/2607.20386&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49015878"&gt;https://news.ycombinator.com/item?id=49015878&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 13&lt;/p&gt;
+&lt;p&gt;# Comments: 0&lt;/p&gt;</description>
+      <link>https://arxiv.org/abs/2607.20386</link>
+      <pubDate>Thu, 23 Jul 2026 01:58:18 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49015878</guid>
+    </item>
+    <item>
       <title>[翻訳] BitTorrent方式で自宅から大規模言語モデルを実行する</title>
       <description>Petalsプロジェクトは、BitTorrentのような分散ネットワークを活用して、大規模言語モデル（LLM）を家庭のコンピュータで実行できる技術を提供しています。
 複数のユーザーのマシンがネットワークで接続され、計算リソースと参加を共有することで、高額なハードウェア投資なしにLLMの利用が可能になります。
@@ -201,6 +223,17 @@ AIの能力と限界を理解した上で、効果的な活用方法を探る記
       <pubDate>Wed, 22 Jul 2026 15:19:23 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=49008211</guid>
+    </item>
+    <item>
+      <title>[翻訳] Ghost Cut – or why Cut and Paste is broken everywhere</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://ishmael.textualize.io/blog/ghost-cut/"&gt;https://ishmael.textualize.io/blog/ghost-cut/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49007626"&gt;https://news.ycombinator.com/item?id=49007626&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 146&lt;/p&gt;
+&lt;p&gt;# Comments: 98&lt;/p&gt;</description>
+      <link>https://ishmael.textualize.io/blog/ghost-cut/</link>
+      <pubDate>Wed, 22 Jul 2026 14:43:28 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49007626</guid>
     </item>
     <item>
       <title>[翻訳] 幸福への10のステップ</title>
@@ -1957,36 +1990,6 @@ AI産業の継続的な成長と金融システムの安定性のバランスに
       <pubDate>Tue, 14 Jul 2026 21:15:51 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913050</guid>
-    </item>
-    <item>
-      <title>[翻訳] GoでHTMXを活用する方法</title>
-      <description>GoプログラマがHTMXフレームワークの実装方法と活用例について解説している記事。
-HTMXとGoの組み合わせによるモダンなウェブ開発手法に関する実践的な知見が紹介されている。
-Hacker Newsで110ポイントを獲得し、26件のコメントで活発に議論されている。</description>
-      <link>https://www.alexedwards.net/blog/how-i-use-htmx-with-go</link>
-      <pubDate>Tue, 14 Jul 2026 19:55:31 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48912175</guid>
-    </item>
-    <item>
-      <title>[翻訳] Cursor の脆弱性：完全公開がセキュリティ対策の最後の手段となった理由</title>
-      <description>開発者向けAIツール「Cursor」で発見された脆弱性に対し、セキュリティ研究者が完全公開による対応を余儀なくされた。
-従来の責任あるセキュリティ公開プロセスが機能しない状況で、脆弱性情報を全面開示することがユーザー保護の唯一の手段と判断された。
-このケースはセキュリティ業界における開示方針の限界と、企業の対応姿勢の重要性を浮き彫りにしている。</description>
-      <link>https://mindgard.ai/blog/cursor-0day-when-full-disclosure-becomes-the-only-protection-left</link>
-      <pubDate>Tue, 14 Jul 2026 17:58:35 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48910676</guid>
-    </item>
-    <item>
-      <title>[翻訳] Bonsai 27B：スマートフォンで動作する270億パラメータモデル</title>
-      <description>270億パラメータ規模の言語モデル「Bonsai 27B」がスマートフォン上での実行に対応。
-モデルの軽量化と最適化により、モバイルデバイスでの実用的なAI推論が可能に。
-Hacker Newsで高い関心を集め、434ポイント、160件のコメントで活発な議論が展開中。</description>
-      <link>https://prismml.com/news/bonsai-27b</link>
-      <pubDate>Tue, 14 Jul 2026 17:50:48 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48910545</guid>
     </item>
   </channel>
 </rss>
