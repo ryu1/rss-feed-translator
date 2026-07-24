@@ -5,6 +5,124 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] Pythonのオブジェクト指向プログラミング：継承とポリモーフィズムの実践ガイド</title>
+      <description>Pythonの継承（単一、多段階、多重継承）とメソッドオーバーライド、super()関数を使用して、コードの重複を避けクラス間で機能を共有・拡張する方法を学びます。
+ポリモーフィズムとダックタイピングの概念を理解し、異なるオブジェクト型に対して統一されたインターフェースで操作できる柔軟な設計パターンを習得できます。
+従業員管理システムの実装例を通じて、開発者、マネージャー、役員、技術リーダー、外部契約者などの異なる給与計算ロジックを一つのペイロールプロセッサで統一的に処理する実践的なOOPスキルを身に付けます。</description>
+      <link>https://dev.to/thirusakthi-dev/03-inheritance-polymorphism-3nl</link>
+      <pubDate>Fri, 24 Jul 2026 05:35:12 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/thirusakthi-dev/03-inheritance-polymorphism-3nl</guid>
+    </item>
+    <item>
+      <title>[翻訳] 236個のテストが成功したのに、リリースは壊れていた</title>
+      <description>タイムゾーンバグの修正後、ローカルでは全236テストがパスしたにもかかわらず、CI環境で実行すると複数のバグが露呈した事例。
+本来はタイムゾーン情報を無視して常にホストのローカル時間で計算していたコードが、修正により異なる環境での問題が明らかになり、さらにPython 3.8の互換性問題も発生した。
+開発環境と本番環境の差異（タイムゾーン、Pythonバージョン、依存モジュール）が隠れたバグの原因であり、リリース前に必ずCI環境での検証を実行することの重要性を説いている。</description>
+      <link>https://dev.to/jeromefromhk/236-tests-passed-the-release-was-still-broken-5j8</link>
+      <pubDate>Fri, 24 Jul 2026 05:31:18 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/jeromefromhk/236-tests-passed-the-release-was-still-broken-5j8</guid>
+    </item>
+    <item>
+      <title>[翻訳] Claude Code の利用制限通知が機能しなかった話</title>
+      <description>Claude Code の利用制限を検知する通知ツールに不具合が発生し、制限に達しても通知が来ないか、誤った通知が送られる問題が発生した。
+根本原因は非同期ファイル書き込みのレース条件と、エラーフィールドの多義性で、ペイロード優先やエラーコード確認で解決できた。
+テストが仮定を確認するだけで実際の動作を検証できていなかったため、本番環境でのロギングがバグ発見の鍵となった。</description>
+      <link>https://dev.to/jeromefromhk/claude-code-hit-its-limit-and-the-notification-never-came-4dd4</link>
+      <pubDate>Fri, 24 Jul 2026 05:30:57 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/jeromefromhk/claude-code-hit-its-limit-and-the-notification-never-came-4dd4</guid>
+    </item>
+    <item>
+      <title>[翻訳] JavaScriptのイベントループと並行処理モデルを初心者向けに解説</title>
+      <description>JavaScriptが単一スレッドながら複数のタスクを同時に処理できるのは、イベントループと並行処理モデルによるもので、コールスタック、Web API、マイクロタスクキュー、コールバックキューが連携して動作する。
+マイクロタスク（Promise.then()など）はコールバック（setTimeout()など）より優先度が高く、イベントループがコールスタック空時にマイクロタスクキューを先に処理してからコールバックキューを処理することで、複数タスクの効率的な実行を実現している。
+この仕組みを理解することで、async/awaitやAPI呼び出し、モダンフレームワークの非同期実行の動作原理が明確になり、より効率的な非同期コード記述が可能になる。</description>
+      <link>https://dev.to/sai_swaroopbijinapalli_5/js-eventloop-concurrency-model-6bn</link>
+      <pubDate>Fri, 24 Jul 2026 05:24:04 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sai_swaroopbijinapalli_5/js-eventloop-concurrency-model-6bn</guid>
+    </item>
+    <item>
+      <title>[翻訳] AI時代のプロジェクト見積もり：不確実性はどこへ消えたのか</title>
+      <description>AIがコード生成を担当するようになり、従来の3点推定法の各要素が大きく変わった。楽観値は大幅に改善された一方で、悲観値は予測が難しくなり、最も信頼していた最可能値も不確実性が増した。
+AIが削減した開発時間は、コードレビューや統合テストなど別の場所に移行するため、新たなリスク要因が生まれている。特にAI生成コードが一見正しく見えながら、システム統合時に問題が顕在化する点が最大の課題である。
+信頼できるデータが限定的な現状では、3点推定法の重要性はむしろ増しており、コード生成とレビュー・統合を別タスクとして分け、悲観値を保守的に設定することが推奨される。</description>
+      <link>https://dev.to/lukapeharda/how-do-you-estimate-a-project-when-ai-writes-the-code-58h3</link>
+      <pubDate>Fri, 24 Jul 2026 05:23:54 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/lukapeharda/how-do-you-estimate-a-project-when-ai-writes-the-code-58h3</guid>
+    </item>
+    <item>
+      <title>[翻訳] Solon AIのReActTraceでエージェント実行を可視化する</title>
+      <description>Solon v4.0.3のReActTraceは、ReActエージェント実行の完全な運用記録を提供し、推論ステップ数、ツール呼び出し数、計画の有無、実行状態などを一元管理します。
+ストリーミング、プラン進捗、待機状態といった機能により、UI更新やテレメトリ記録、承認フローなど本番環境での正確な監視と制御が可能になります。
+最終回答だけでなく実行過程全体を記録し、テレメトリアダプタで抽象化することで、安全で保守性の高いエージェント運用を実現できます。</description>
+      <link>https://dev.to/solonjava/reacttrace-in-solon-ai-turn-agent-runs-into-an-observable-boundary-3lj0</link>
+      <pubDate>Fri, 24 Jul 2026 05:18:24 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/solonjava/reacttrace-in-solon-ai-turn-agent-runs-into-an-observable-boundary-3lj0</guid>
+    </item>
+    <item>
+      <title>[翻訳] LiveKit、Deepgram、Grokを使ったリアルタイムAI面接分析パイプラインの構築</title>
+      <description>LiveKit、Deepgram、Grokを組み合わせることで、面接中の候補者の音声をリアルタイムで分析し、インタビュアーが事後レポートではなく現場で即座に評価スコアを確認できるシステムを実装。
+音声チャンク単位の分析により30～60秒ごとに認証スコアが更新され、話し方の自然さ、応答タイミング、会話の流暢性、言語的特徴の4つの項目を評価するとともに、AIが生成した定型句や怪しい統計情報などのパターンを検出。
+SupabaseのEdge Functions上で各チャンクを分析し、面接終了時に蓄積されたチャンク単位のスコア履歴から最終レポートを合成することで、効率的で正確な評価が可能に。</description>
+      <link>https://dev.to/patrickboxfordpartners/building-a-real-time-ai-interview-analysis-pipeline-with-livekit-deepgram-and-grok-1oj2</link>
+      <pubDate>Fri, 24 Jul 2026 05:16:38 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/patrickboxfordpartners/building-a-real-time-ai-interview-analysis-pipeline-with-livekit-deepgram-and-grok-1oj2</guid>
+    </item>
+    <item>
+      <title>[翻訳] スプレッドシートの変更をCI/CDで安全に管理するFormulaFenceツール</title>
+      <description>Excelなどのスプレッドシートの重要な計算式が意図せず変更されるのを防ぐため、FormulaFenceという新しいCLIツールが開発されました。
+本ツールは2つのワークブックを比較し、式から値への置き換えや式の変更、外部参照などを検出し、YAMLポリシーで定義されたルールに基づいて変更の妥当性を判定します。
+静的解析の限界を認識し、未対応の機能についても検出可能にすることで、レビュープロセスを透明かつ繰り返し可能にします。</description>
+      <link>https://dev.to/sybilgambleyyu/spreadsheet-changes-that-can-pass-ci-a66</link>
+      <pubDate>Fri, 24 Jul 2026 05:11:19 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/sybilgambleyyu/spreadsheet-changes-that-can-pass-ci-a66</guid>
+    </item>
+    <item>
+      <title>[翻訳] 認証エラーに見えたが、実はブラウザが守ってくれていた話</title>
+      <description>Angular フロントエンドと ASP.NET Core バックエンドの連携で、クロスオリジンリクエスト時に認証クッキーがブラウザによって自動削除される問題が発生。原因は CORS ポリシーの AllowCredentials 不足、デフォルトの SameSite=Lax、Angular の withCredentials 未設定の3つ。\nこれら3つの設定をすべて修正することで、5時間のデバッグが約10行の設定変更で解決。ブラウザはセキュリティ侵害を防ぐため、例外を発生させずに静かにクッキーを破棄する設計になっている。\n対処法：①CORS ポリシーで AllowCredentials()を明示、②Cookie の SameSite=None + Secure を設定、③Angular の HTTP リクエストに withCredentials: true を追加。</description>
+      <link>https://dev.to/prashuncodes/the-bug-that-looked-like-authentication-failure-but-was-actually-the-browser-protecting-me-3kk0</link>
+      <pubDate>Fri, 24 Jul 2026 05:06:14 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/prashuncodes/the-bug-that-looked-like-authentication-failure-but-was-actually-the-browser-protecting-me-3kk0</guid>
+    </item>
+    <item>
+      <title>[翻訳] Next.jsのReact Server ComponentsでJavaScriptバンドルを劇的に削減する</title>
+      <description>従来のSPA開発では大量のJavaScriptをブラウザに送信していましたが、Next.jsのReact Server Components(RSC)を使うことでサーバー側の重い処理をサーバーに留め、クライアント側への送信を最小化できます。
+Next.jsのApp Routerではデフォルトでコンポーネントがサーバーコンポーネントであり、date-fnsなどの重いライブラリやデータベース処理をサーバーで完結させることでユーザーのダウンロード対象から除外できます。
+対話機能が必要な部分のみ「use client」ディレクティブでクライアントコンポーネント化することで、バンドルサイズの削減、API層不要化、SEO改善、初期ロード高速化を実現できます。</description>
+      <link>https://dev.to/iprajapatiparesh/slash-your-js-bundle-react-server-components-in-nextjs-3jba</link>
+      <pubDate>Fri, 24 Jul 2026 05:06:09 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/iprajapatiparesh/slash-your-js-bundle-react-server-components-in-nextjs-3jba</guid>
+    </item>
+    <item>
+      <title>[翻訳] Spring Bootの「設定より規約」の考え方を徹底解説</title>
+      <description>Spring Bootは「設定より規約」(Convention over Configuration)という原則に基づき、開発者が細かい設定を行わなくても、標準的なルールに従うだけで自動的にアプリケーションを構成します。
+この原則により、XML設定やBean定義などの定型的な作業が大幅に削減され、開発効率が向上し、開発者はビジネスロジックの実装に集中できるようになります。
+記事では、この概念の説明、実装例、REST APIの構築方法、ベストプラクティスなど、Java 21を用いた具体的なコード例を交えて詳しく解説しています。</description>
+      <link>https://dev.to/realnamehidden1_61/explain-the-concept-of-convention-over-configuration-in-spring-boot-2gal</link>
+      <pubDate>Fri, 24 Jul 2026 05:05:41 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/realnamehidden1_61/explain-the-concept-of-convention-over-configuration-in-spring-boot-2gal</guid>
+    </item>
+    <item>
+      <title>[翻訳] Codexの使用状況トラッカーで廃止された5時間ウィンドウを復活させてはいけない</title>
+      <description>Codexの使用状況トラッカー設計では、プロバイダーから返された現在の期間（週単位）を表示し、廃止された5時間ウィンドウをUIに残してはいけない。
+ClaudeとCodexを組み合わせたダッシュボードでも各プロバイダーの更新状態、エラー、タイムスタンプを独立して管理し、一方の失敗がもう一方の成功を隠さないようにする必要がある。
+クォータとトークン使用量を分離し、未知のモデルは推定価格を付けず、推定API価値は実際の請求とは別の概念として扱うべきである。</description>
+      <link>https://dev.to/agentis/do-not-invent-a-5-hour-window-in-a-codex-usage-tracker-44od</link>
+      <pubDate>Fri, 24 Jul 2026 05:05:08 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/agentis/do-not-invent-a-5-hour-window-in-a-codex-usage-tracker-44od</guid>
+    </item>
+    <item>
       <title>[翻訳] 本番環境でのパフォーマンスチューニング：SaaS立ち上げ前の実践ガイド</title>
       <description>SaaS製品の立ち上げ前に、直感ではなくデータに基づいてパフォーマンスボトルネックを特定し、実際に測定してから最適化することが重要。
 データベースレイヤーではN+1クエリとインデックス欠落が主な問題であり、pg_stat_statementsとEXPLAIN ANALYZEで検出可能。
@@ -1825,122 +1943,6 @@ Linuxは参照カウント処理の修正、スタックカナリアの強化、
       <pubDate>Mon, 13 Jul 2026 05:31:59 +0000</pubDate>
       <source>DEV Community</source>
       <guid isPermaLink="false">https://dev.to/tammibriggs/building-horizon-turning-a-shelved-app-idea-into-a-live-voice-translator-in-one-weekend-4i7f</guid>
-    </item>
-    <item>
-      <title>[翻訳] MERN Stack学習145日目：Mongooseユーザーデータスキーマの実装と検証</title>
-      <description>MERN Stackプロジェクト「Sprintix」でMongooseを使用したユーザーデータモデル層の構築を完了し、スキーマの統合パラメータの検証に成功した。
-ユーザーアカウント情報に対する厳密なフィールド検証制約の設定や、メールの一意性チェックなど、セキュアなデータスキーマ設計を実装した。
-MongoDBのODMが空のサブドキュメントを自動削除する挙動を回避するため、minimize:falseオプションを設定し、ショッピングカートなどの動的追跡オブジェクトに対応させた。</description>
-      <link>https://dev.to/ali_hamza_589ec7b3eb6688d/day-145-of-learning-mern-stack-472p</link>
-      <pubDate>Mon, 13 Jul 2026 05:28:03 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/ali_hamza_589ec7b3eb6688d/day-145-of-learning-mern-stack-472p</guid>
-    </item>
-    <item>
-      <title>[翻訳] Gemini AIを使った究極のサッカー選手比較アプリ「FutboLeyendas」</title>
-      <description>サッカー史上最高の選手は誰かという議論をAIで決着させるWebアプリ。ReactとViteで構築され、ユーザーが重視する要素（得点力、ワールドカップ、プレースタイル、プレッシャー下での能力）をスライダーで調整できる。
-21人のサッカーレジェンドの実際の統計データと、ユーザーがカスタマイズした重み付けをGoogle Geminiに送信することで、客観的かつ詳細な判定を得られる仕組み。
-ダークテーマの洗練されたUI、リアルタイム属性調整、そしてAIによる中立的な判断が、感情的なサッカー議論を統計と人工知能の力で解決する。</description>
-      <link>https://dev.to/eliezer_josepolidorsola/futboleyendas-el-olimpo-del-futbol-con-gemini-ai-3phn</link>
-      <pubDate>Mon, 13 Jul 2026 05:27:39 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/eliezer_josepolidorsola/futboleyendas-el-olimpo-del-futbol-con-gemini-ai-3phn</guid>
-    </item>
-    <item>
-      <title>[翻訳] Spring PetClinicへのSpecmaticコントラクトテスト統合：シンプルなDELETEテストが教えてくれたテストアーキテクチャの課題</title>
-      <description>Spring PetClinic RESTプロジェクトへのSpecmaticコントラクトテスト導入により、APIのスキーマ違反だけでなく、テストインフラストラクチャ自体の制限が明らかになった経験を共有する記事。
-初期的には221シナリオ中7つのテスト失敗が発生し、POST /visitsの必須フィールド欠落（petId）とDELETEのデータ分離不足という2つの根本原因を特定した。
-DELETEテストの失敗は単なるスキーマ問題ではなく、テスト間でのデータベースリセット機能の欠如という構造的な課題であり、本当のテスト改善にはテストインフラの改革が必要であることを学んだ。</description>
-      <link>https://dev.to/krameshr/-integrating-specmatic-contract-testing-into-spring-petclinic-rest-what-a-simple-delete-test-5he1</link>
-      <pubDate>Mon, 13 Jul 2026 05:24:42 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/krameshr/-integrating-specmatic-contract-testing-into-spring-petclinic-rest-what-a-simple-delete-test-5he1</guid>
-    </item>
-    <item>
-      <title>[翻訳] システム障害への対処方法 - 検出後のアクション戦略を学ぶ</title>
-      <description>障害を検出するだけでは不十分で、その後の適切な対応（ハンドリング）が重要。リトライ、指数バックオフ、フォールバック、キュー、サーキットブレーカー、グレースフルデグラデーション、デッドレターキューという7つのツールと、それぞれの使い分けを実例とともに解説。\n特にリトライは冪等性のない支払い関連の処理では二重課金などの深刻な問題につながるため、失敗の種類に応じた正しいツール選択が必須。\nNode.jsの実装コード例を交えながら、キュー処理による非同期化やサーキットブレーカーによる無駄な呼び出し防止など、本番環境での障害対応の実践的なパターンを紹介。</description>
-      <link>https://dev.to/surajrkhonde/failure-engineering-explained-by-uncle-to-nephew-episode-4-failure-handling-1foe</link>
-      <pubDate>Mon, 13 Jul 2026 05:23:38 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/surajrkhonde/failure-engineering-explained-by-uncle-to-nephew-episode-4-failure-handling-1foe</guid>
-    </item>
-    <item>
-      <title>[翻訳] 戦略的なログ出力：デバッグの秘訣</title>
-      <description>本番環境でのバグ発生時、多くの開発者は無作為に修正を試みるか、パニックに陥るかのいずれかである。著者は戦略的なログ出力を学ぶことで、この問題を系統的に解決できるようになった。
-戦略的なログ出力とは、単にコードが特定のポイントに到達したことを記録するのではなく、その時点でのデータ状態、実行パス、環境コンテキストを意図的に記録することである。
-良いログには、文脈性・段階的追跡・セキュリティ配慮が必要であり、デバッグ完了後は削除すべきで、この方法論によってチーム内での問題解決も効率化される。</description>
-      <link>https://dev.to/zikthemaker/strategic-logging-the-debugging-skill-nobody-taught-me-1de2</link>
-      <pubDate>Sun, 05 Jul 2026 02:14:25 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/zikthemaker/strategic-logging-the-debugging-skill-nobody-taught-me-1de2</guid>
-    </item>
-    <item>
-      <title>[翻訳] PythonとスマートマネーコンセプトでMT5トレーディングボットを構築する方法</title>
-      <description>MetaTrader5とPythonを組み合わせ、スマートマネーコンセプト（Order Blocks、FVG、BOS）と機械学習を活用したトレーディングボットの設計と実装方法を解説。
-MQL5ではなくPythonを選択した理由は、豊富な機械学習ライブラリ、外部ツール連携の容易さ、デバッグ環境の優位性にあり、データ層・シグナル解析・リスク管理・注文執行の4つのコンポーネントで構成。
-ポジションサイズの正確な計算方法と200以上の取引データから学習した機械学習モデルにより、勝率の高いセットアップを自動判別し、過度に厳しいエントリー条件を緩和することで取引機会を増加させることが重要。</description>
-      <link>https://dev.to/nimnambui/how-i-built-an-mt5-trading-bot-with-python-and-smart-money-concept-2j5i</link>
-      <pubDate>Sun, 05 Jul 2026 01:57:18 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/nimnambui/how-i-built-an-mt5-trading-bot-with-python-and-smart-money-concept-2j5i</guid>
-    </item>
-    <item>
-      <title>[翻訳] AIスキル構築の10段階：プロンプトからビジネス閉ループまでの体系的フレームワーク</title>
-      <description>大規模言語モデルの活用が「会話型Q&amp;A」から「スキルベースの自動実行」へ進化する中、単純なプロンプトからビジネス全体の自動化システムまで10段階の段階的なスキル構築フレームワークを提示。\n第1層の純粋プロンプトから第10層のビジネス閉ループシステムまで、各段階で明確な機能境界・典型的な構造・評価基準を定義し、チームが現在位置を把握し次のステップを計画できるようにする。\nセキュリティガバナンス・多元データ検証・人間による承認メカニズム・マルチスキルオーケストレーションなどを段階的に組み込み、最終的にエンタープライズグレードのAIオペレーティングシステム構築を目指す実装ロードマップを提供。</description>
-      <link>https://dev.to/__b01666abd57fb7bb91f9/ten-layers-of-ai-skill-construction-a-systematic-framework-from-prompts-to-business-closed-loops-1k45</link>
-      <pubDate>Sun, 05 Jul 2026 01:52:03 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/__b01666abd57fb7bb91f9/ten-layers-of-ai-skill-construction-a-systematic-framework-from-prompts-to-business-closed-loops-1k45</guid>
-    </item>
-    <item>
-      <title>[翻訳] AI Guard Gateway v0.1.0：AIエンドポイントの乗っ取りとプロンプトインジェクション攻撃に対抗</title>
-      <description>AIモデルのAPI（OllamaやLiteLLMなど）が認証なしに公開されることで、エンドポイント乗っ取りやリソース枯渇といった深刻なセキュリティリスクが顕在化している。
-この脅威に対抗するため、開発者はAI Guard Gatewayという逆プロキシを開発し、API認証、レート制限、プロンプトインジェクション検出、個人情報マスキング、ポリシー管理など複数の防御層を実装した。
-プロジェクトは厳格な仕様駆動型開発（SDD）とセキュリティ監査を経ており、banditでの検査で重大度の高い脆弱性はゼロ件、CI/CDパイプラインで継続的に品質管理されている。</description>
-      <link>https://dev.to/magopredator/ai-guard-gateway-v010-mitigando-el-secuestro-de-endpoints-de-ia-y-la-inyeccion-de-prompts-o0a</link>
-      <pubDate>Sun, 05 Jul 2026 01:44:15 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/magopredator/ai-guard-gateway-v010-mitigando-el-secuestro-de-endpoints-de-ia-y-la-inyeccion-de-prompts-o0a</guid>
-    </item>
-    <item>
-      <title>[翻訳] Androidで完全オフラインのジオフェンシングエンジンを構築する</title>
-      <description>ライブラリでの恥ずかしい通知音の経験をきっかけに、プライバシーを重視し、バッテリー消費を最小化した完全オフラインのジオフェンシングアプリを開発した。
-GeofencingClientとPendingIntentを活用し、GPSラジオの過度な起動を防ぎながら、ローカルデータベース（Room）で状態を管理するハイブリッドアプローチを採用。
-製造業者ごとの位置情報サービスの動作差異やGPS信号の不安定性に対応するため、BOOT_COMPLETEDレシーバーの復旧ロジックと遅延バッファを実装することで、信頼性の高いシステムを実現。</description>
-      <link>https://dev.to/haseebthedev0/architecting-a-100-offline-geofencing-engine-for-android-4mib</link>
-      <pubDate>Sun, 05 Jul 2026 01:42:04 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/haseebthedev0/architecting-a-100-offline-geofencing-engine-for-android-4mib</guid>
-    </item>
-    <item>
-      <title>[翻訳] 99%のフィッシング対策訓練スコアが危険な理由</title>
-      <description>Verizon 2025年レポートでは、繰り返し訓練を受けた従業員のフィッシングクリック率の中央値が1.5%であり、訓練の効果がないことが判明した。
-攻撃者は訓練と同じテンプレートを学習しているため、フィッシング訓練は既知のテストに過ぎず、実際の攻撃（SEO中毒、ボイスフィッシング、内部不正など）には対応していない。
-防御側が標準化されたフレームワークを使用すると、攻撃者はそれを一度学習すれば複数の組織に対してスケーラブルな攻撃を展開でき、ツール間のギャップに隠れた脆弱性が存在する。</description>
-      <link>https://dev.to/eldor_zufarov_1966/your-phishing-simulation-score-is-99-heres-why-that-worries-me-36ff</link>
-      <pubDate>Sun, 05 Jul 2026 01:38:16 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/eldor_zufarov_1966/your-phishing-simulation-score-is-99-heres-why-that-worries-me-36ff</guid>
-    </item>
-    <item>
-      <title>[翻訳] ASP.NET Core IdentityとSupabase PostgreSQLを使った認証システムの構築 | .NET 9対応</title>
-      <description>ASP.NET Coreの認証機能をSupabaseの無料PostgreSQLデータベースと連携させ、Entity Framework CoreとNpgsqlを用いて完全な認証システムを構築するチュートリアル。
-ASP.NET Core Identityの設定からRazor Pagesを使用したユーザー登録・ログイン機能の実装、データベースマイグレーションの適用方法を学習できる。
-パスワード要件の設定やアプリケーションのセキュリティ対策を含む、実践的な認証実装の手順を段階的に解説。</description>
-      <link>https://dev.to/code_withvoran_73d5ce0b7/aspnet-core-identity-with-supabase-postgresql-login-registration-tutorial-net-9-4k8j</link>
-      <pubDate>Sun, 05 Jul 2026 01:37:30 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/code_withvoran_73d5ce0b7/aspnet-core-identity-with-supabase-postgresql-login-registration-tutorial-net-9-4k8j</guid>
-    </item>
-    <item>
-      <title>[翻訳] AgentGuard v0.5.5が関数間のセキュリティ脆弱性を検出—従来のスキャナが見落としていた問題を解決</title>
-      <description>従来のセキュリティスキャナは単一関数内の脆弱性しか検出できず、複数の関数を経由してLLMに汚染されたデータが渡される場合を見落としていました。
-AgentGuard v0.5.5は「対話的汚染分析」を導入し、関数境界を超えたデータの流れを追跡して、複数ホップのチェーン経由での脆弱性も検出できるようになりました。
-32個のベンチマークサンプルで100%検出、偽陽性0%を達成し、今後のフェーズでは複数ファイル対応とサニタイザ追跡を予定しています。</description>
-      <link>https://dev.to/dockfixlabs/across-function-boundaries-why-single-function-taint-analysis-fails-4cfb</link>
-      <pubDate>Sun, 05 Jul 2026 01:32:23 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/dockfixlabs/across-function-boundaries-why-single-function-taint-analysis-fails-4cfb</guid>
     </item>
   </channel>
 </rss>
