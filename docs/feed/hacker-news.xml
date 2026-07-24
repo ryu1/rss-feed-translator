@@ -5,26 +5,202 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
-      <title>[翻訳] Restructuring GitHub's bug bounty program</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://github.blog/security/next-chapter-restructuring-githubs-bug-bounty-program/"&gt;https://github.blog/security/next-chapter-restructuring-githubs-bug-bounty-program/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49016099"&gt;https://news.ycombinator.com/item?id=49016099&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 29&lt;/p&gt;
-&lt;p&gt;# Comments: 14&lt;/p&gt;</description>
-      <link>https://github.blog/security/next-chapter-restructuring-githubs-bug-bounty-program/</link>
-      <pubDate>Thu, 23 Jul 2026 02:28:23 +0000</pubDate>
+      <title>[翻訳] Visual 6502 - 伝説のCPUを視覚化するシミュレータ</title>
+      <description>1970年代の象徴的なマイクロプロセッサ「MOS 6502」の内部動作をインタラクティブに可視化したWebベースのシミュレータ。
+トランジスタレベルでの回路動作をリアルタイムで観察でき、古いコンピュータ技術を学習・研究できるツール。
+ハッカーニュースで高い関心を集め、コンピュータ史やCPuアーキテクチャ学習に有用なリソースとして注目されている。</description>
+      <link>http://visual6502.org/JSSim/index.html</link>
+      <pubDate>Thu, 23 Jul 2026 23:36:42 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49016099</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49029538</guid>
     </item>
     <item>
-      <title>[翻訳] Honey Bee Colony Monitoring via Audio IoT Sensors, Tensorgrams and RNNs</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://arxiv.org/abs/2607.20386"&gt;https://arxiv.org/abs/2607.20386&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49015878"&gt;https://news.ycombinator.com/item?id=49015878&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 13&lt;/p&gt;
-&lt;p&gt;# Comments: 0&lt;/p&gt;</description>
-      <link>https://arxiv.org/abs/2607.20386</link>
-      <pubDate>Thu, 23 Jul 2026 01:58:18 +0000</pubDate>
+      <title>[翻訳] 人工知能がもたらす人類滅亡シナリオの分類体系（2025年）</title>
+      <description>AIに関連する人類滅亡のリスクを体系的に分類・分析した研究論文。
+様々なシナリオにおけるAIの危険性と、それらが人類全体に及ぼす潜在的な影響を探求。
+AIの急速な発展に伴う存在的リスクについての学術的な議論と分類の枠組みを提示。</description>
+      <link>https://arxiv.org/abs/2507.09369</link>
+      <pubDate>Thu, 23 Jul 2026 22:51:13 +0000</pubDate>
       <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49015878</guid>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49029133</guid>
+    </item>
+    <item>
+      <title>[翻訳] Windows 98風のCSS フレームワーク「98.css」</title>
+      <description>懐かしいWindows 98のUIを再現するCSSフレームワークが話題に。
+ステータスバーやウィンドウなど、90年代のデザイン要素を簡単に実装できる。
+Hacker Newsで225ポイントを獲得し、43件のコメントで活発に議論されている。</description>
+      <link>https://jdan.github.io/98.css/#status-bar</link>
+      <pubDate>Thu, 23 Jul 2026 22:30:29 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49028927</guid>
+    </item>
+    <item>
+      <title>[翻訳] Dan Williamsを偲んで</title>
+      <description>Linuxカーネル開発者のDan Williamsが亡くなったことを悼む記事。
+カーネルコミュニティに大きな貢献を残した開発者の訃報。
+Linuxオープンソースコミュニティにおける重要な人物の喪失。</description>
+      <link>https://lwn.net/Articles/1084545/</link>
+      <pubDate>Thu, 23 Jul 2026 19:46:28 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49027052</guid>
+    </item>
+    <item>
+      <title>[翻訳] Echo：複数のオープンソースAIモデルを組み合わせてFableと同等の性能を1/3のコストで実現</title>
+      <description>複数のオープンウェイトAIモデルを動的に組み合わせるEchoというシステムを開発。リクエストごとに最適な計算量の割り当てとモデルの参加方法を決定することで、単一モデルより高い性能を実現。
+Fableと同等の評価結果をおよそ1/3の推論コストで達成し、異なるモデルが特定の問題で相補的に機能することを発見。
+現在はコーディングタスクやエージェント機能での検証を進めており、チャットインターフェースとOpenAI互換APIで実際に試用可能。</description>
+      <link>https://news.ycombinator.com/item?id=49026810</link>
+      <pubDate>Thu, 23 Jul 2026 19:26:01 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49026810</guid>
+    </item>
+    <item>
+      <title>[翻訳] ATPro上でのアプリケーション開発について</title>
+      <description>ATPro（分散型ソーシャルメディアプロトコル）を基盤とした開発の方法論や実装アプローチについて解説している記事。
+Hacker Newsで130ポイントを獲得し、59件のコメントが寄せられている注目の投稿。
+分散型SNS構築に関心のある開発者に向けた技術情報を提供している。</description>
+      <link>https://lukekanies.com/writing/building-on-atproto/</link>
+      <pubDate>Thu, 23 Jul 2026 18:23:50 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49025984</guid>
+    </item>
+    <item>
+      <title>[翻訳] レアアース元素の分離に向けた固体型「原子チャネル」技術</title>
+      <description>シカゴ大学の研究チームが、レアアース元素を分離・精製するための革新的な固体型チャネル技術を開発しました。
+この原子レベルのチャネル構造により、従来の化学的処理よりも環境負荷の低い方法で高純度のレアアース元素を抽出できるようになります。
+電子機器やクリーンエネルギー技術に不可欠なレアアース元素の精製プロセスの大幅な改善が期待されています。</description>
+      <link>https://pme.uchicago.edu/news-events/news/cleaner-route-purifying-rare-earth-elements</link>
+      <pubDate>Thu, 23 Jul 2026 18:13:03 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49025831</guid>
+    </item>
+    <item>
+      <title>[翻訳] Claude-thermosでClaudiのセッションを保ち続ける</title>
+      <description>Claude-thermosはClaudeのセッションを維持し続けるツール。
+GitHubで公開されており、Hacker Newsで71ポイントを獲得している。
+60件のコメントで活発な議論が行われている。</description>
+      <link>https://github.com/izeigerman/claude-thermos</link>
+      <pubDate>Thu, 23 Jul 2026 17:06:22 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49024882</guid>
+    </item>
+    <item>
+      <title>[翻訳] TheNumbers.comで何が起きたのか</title>
+      <description>映画興行データサイトTheNumbers.comに何らかの問題が発生した。
+サイトの変化や機能低下が業界関係者らの懸念を呼んでいる。
+データ提供サイトの経営変化がコンテンツ産業全体に影響を与える可能性が指摘されている。</description>
+      <link>https://stephenfollows.com/p/what-just-happened-to-thenumberscom-should-worry-us-all</link>
+      <pubDate>Thu, 23 Jul 2026 16:53:33 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49024691</guid>
+    </item>
+    <item>
+      <title>[翻訳] オープンソースAIに対する批判は妥当でない</title>
+      <description>オープンソースAIに対して向けられる一般的な批判論は論理的な根拠が不十分であることを主張している。
+この記事では、セキュリティやコントロールの懸念など、反対派が提示する主な議論の問題点を指摘している。
+オープンソースAIのメリットと、批判側の論拠の矛盾について分析・討論されている。</description>
+      <link>https://tombedor.dev/arguments-against-open-source-ai-are-very-bad/</link>
+      <pubDate>Thu, 23 Jul 2026 16:49:57 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49024643</guid>
+    </item>
+    <item>
+      <title>[翻訳] Screenpipe：あなたの作業を記録してAIエージェントに活用させるツール（YC S26）</title>
+      <description>画面と音声をローカルに記録し、AIエージェントに検索可能なメモリを提供することで、反復的なタスクの自動化を実現するアプリ。
+従来のビデオ録画+OCR方式ではなく、OSのイベント（アプリ切り替え、クリック、入力中断など）を検出して効率化し、ローカルSQLiteに索引化。
+個人利用は無料、商用利用はライセンス必須で、タスク自動化の発見やPersonal Wiki作成などの機能を提供。</description>
+      <link>https://news.ycombinator.com/item?id=49024620</link>
+      <pubDate>Thu, 23 Jul 2026 16:48:38 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49024620</guid>
+    </item>
+    <item>
+      <title>[翻訳] OneCLI – AIエージェント向けのオープンソース認証情報ゲートウェイ</title>
+      <description>OneCLIは、AIエージェントと外部サービス間に位置するネットワークゲートウェイで、認証情報をエージェントに直接渡さず、リクエストを仲介して管理する方式を提供します。
+リクエストのホスト/パスでマッチング、アクセス権限の検証、プレースホルダーを実際の認証情報に置き換えることで、エージェントが認証情報を記憶やファイルに保存することを防ぎます。
+Rustで実装されたプロキシ、Next.jsダッシュボード、AES-256-GCM暗号化により、あらゆるエージェントフレームワークで動作し、プロンプトインジェクション対策や人間による承認機能を備えています。</description>
+      <link>https://github.com/onecli/onecli</link>
+      <pubDate>Thu, 23 Jul 2026 15:42:40 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49023427</guid>
+    </item>
+    <item>
+      <title>[翻訳] ソフトウェアファクトリーが失敗する理由：エンジニアリング自動化だけでは不十分</title>
+      <description>ソフトウェアファクトリーの実装において、ハーネスエンジニアリングなどの技術的アプローチだけでは成功が難しい理由を解説した記事。
+自動化ツールやAIエージェントの導入だけでなく、組織的・プロセス的な課題への対応が重要であることを指摘。
+GitHubで公開されているドキュメントで、Hacker Newsで高い関心を集めている（178ポイント、147件のコメント）。</description>
+      <link>https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/wsff.md</link>
+      <pubDate>Thu, 23 Jul 2026 15:18:48 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49023019</guid>
+    </item>
+    <item>
+      <title>[翻訳] スタートアップ創業者が米国政府に対し、中国のオープンウェイトAI技術への規制強化に反対を表明</title>
+      <description>米国のスタートアップ創業者らが、中国製のオープンウェイトAI技術を規制や遮断しないよう米国政府に求める書簡を公開した。
+オープンウェイト型AIは誰でも利用可能な技術であり、過度な規制は米国の競争力低下につながると主張している。
+同書簡は多くの関心を集め、Hacker Newsでも高い評価を受けており、業界内で重要な議論になっている。</description>
+      <link>https://www.politico.com/news/2026/07/22/startup-founders-urge-trump-not-to-shut-off-chinese-open-weight-ai-01008992</link>
+      <pubDate>Thu, 23 Jul 2026 15:18:40 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49023016</guid>
+    </item>
+    <item>
+      <title>[翻訳] Palmier Pro – AI機能を備えたオープンソースのmacOS動画編集ツール</title>
+      <description>AIビデオ生成を内蔵したオープンソースのmacOS動画編集ツール「Palmier Pro」が公開。ローカルMCPサーバーを通じてClaudeなどのエージェントと連携し、プロジェクト管理、メディア編集、AI生成などの操作をAIが自動化できる。
+Swiftで開発され、SpeechAnalyzer、SigLIP2、beat_thisなどのモデルがローカルで動作。AI生成機能以外はログイン不要で、無料でAI生成クレジットも提供されている。
+開発者は、AIが創造的編集には向かないが、トランスクリプション等のパターンに基づいた粗編集は効果的と指摘。動画編集の機械的作業を自動化することで、より多くの人が創作できる環境を目指している。</description>
+      <link>https://github.com/palmier-io/palmier-pro</link>
+      <pubDate>Thu, 23 Jul 2026 15:11:37 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49022911</guid>
+    </item>
+    <item>
+      <title>[翻訳] C++でWebGPUを学ぶ</title>
+      <description>WebGPUをC++で実装・利用するための学習リソースが公開されている。
+Hacker Newsで84ポイントを獲得し、11件のコメントが寄せられている。
+WebGPU対応のグラフィックスプログラミング技術をC++で習得したい開発者向けの教材。</description>
+      <link>https://eliemichel.github.io/LearnWebGPU/</link>
+      <pubDate>Thu, 23 Jul 2026 14:55:32 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49022663</guid>
+    </item>
+    <item>
+      <title>[翻訳] Learn OpenGL - モダンOpenGLを学ぶための充実したチュートリアルリソース</title>
+      <description>モダンOpenGLの習得に特化した包括的なチュートリアルサイト。
+基礎から応用まで段階的に学べる豊富なコンテンツを提供。
+Hacker Newsで179ポイント、99件のコメントを獲得した人気リソース。</description>
+      <link>https://learnopengl.com/</link>
+      <pubDate>Thu, 23 Jul 2026 14:53:34 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49022634</guid>
+    </item>
+    <item>
+      <title>[翻訳] 手書きは脳に良い影響をもたらす</title>
+      <description>手書きによる学習や思考が脳機能に与える肯定的な影響についての記事。
+ニール・スティーブンソンが執筆した、デジタル化時代における手書きの価値に関する考察。
+Hacker Newsで高い関心を集め、多くのユーザーから議論が寄せられている。</description>
+      <link>https://nealstephenson.substack.com/p/writing-by-hand-is-good-for-your</link>
+      <pubDate>Thu, 23 Jul 2026 14:24:43 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49022152</guid>
+    </item>
+    <item>
+      <title>[翻訳] わずか500行の素のC++でソフトウェアレンダリングを実装</title>
+      <description>最小限のC++コードを使用してソフトウェアレンダリングエンジンを実装するチュートリアル。\nグラフィックスライブラリに依存せず、低レベルのレンダリング原理を学べる教育的なプロジェクト。\n244ポイントを獲得し、HackerNewsで47件のコメントが寄せられている。</description>
+      <link>https://haqr.eu/tinyrenderer/</link>
+      <pubDate>Thu, 23 Jul 2026 14:17:40 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49022038</guid>
+    </item>
+    <item>
+      <title>[翻訳] Emacsはリスプボード：テキストエディタを超えた統合環境</title>
+      <description>EmacsはLisp言語で拡張可能な汎用プラットフォームであり、単なるテキストエディタではなくLispプログラムが動作する統合環境として機能している。
+ユーザーはEmacsの豊富な機能をカスタマイズし、メールクライアント、ファイルマネージャー、開発ツールなど多様なアプリケーションを実装できる。
+このような特性がEmacsを長年愛用されるエディタたらしめており、Lisp学習やプログラミング環境の構築に最適なプラットフォームとなっている。</description>
+      <link>https://en.andros.dev/blog/06bfd107/emacs-is-a-lispboard/</link>
+      <pubDate>Thu, 23 Jul 2026 14:02:45 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49021786</guid>
     </item>
     <item>
       <title>[翻訳] BitTorrent方式で自宅から大規模言語モデルを実行する</title>
@@ -223,17 +399,6 @@ AIの能力と限界を理解した上で、効果的な活用方法を探る記
       <pubDate>Wed, 22 Jul 2026 15:19:23 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=49008211</guid>
-    </item>
-    <item>
-      <title>[翻訳] Ghost Cut – or why Cut and Paste is broken everywhere</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://ishmael.textualize.io/blog/ghost-cut/"&gt;https://ishmael.textualize.io/blog/ghost-cut/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49007626"&gt;https://news.ycombinator.com/item?id=49007626&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 146&lt;/p&gt;
-&lt;p&gt;# Comments: 98&lt;/p&gt;</description>
-      <link>https://ishmael.textualize.io/blog/ghost-cut/</link>
-      <pubDate>Wed, 22 Jul 2026 14:43:28 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49007626</guid>
     </item>
     <item>
       <title>[翻訳] 幸福への10のステップ</title>
@@ -1824,172 +1989,6 @@ Hacker Newsで大きな関心を集め、高いスコアと多くのコメント
       <pubDate>Wed, 15 Jul 2026 18:12:45 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48924912</guid>
-    </item>
-    <item>
-      <title>[翻訳] YCombinatorの投資企業Artie、ソフトウェアエンジニアを募集中</title>
-      <description>YCombinator S23期間中に設立されたArtieが、ソフトウェアエンジニアの採用を進めている。
-同社の採用情報の詳細はAshby採用プラットフォーム上で確認できる。
-Hacker Newsのコミュニティから現在の注目度は限定的となっている。</description>
-      <link>https://jobs.ashbyhq.com/artie</link>
-      <pubDate>Wed, 15 Jul 2026 17:01:02 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48923833</guid>
-    </item>
-    <item>
-      <title>[翻訳] デジタル時計デザインのコレクション</title>
-      <description>デジタル時計のデザイン集を紹介するサイト。
-Hacker Newsで178ポイント、36件のコメントを獲得。
-様々なスタイルのデジタル時計実装例を閲覧できるリソース。</description>
-      <link>https://clocks.dev</link>
-      <pubDate>Wed, 15 Jul 2026 16:33:15 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48923380</guid>
-    </item>
-    <item>
-      <title>[翻訳] misa77 - LZ4の2倍高速なデコーダーコーデック、圧縮率も優秀</title>
-      <description>数ヶ月の開発期間を経て完成したコーデック「misa77」は、LZ4を大幅に上回るデコード性能を実現しており、同じ圧縮率クラスで最高レベルの展開スループットを提供します。\nブランチ削減とアウトオブオーダーコア対応のスマートなフォーマット設計により、misa77は5219 MB/sのデコード速度（LZ4は2505 MB/s）を達成しながら、圧縮率も42.64%と競争力のある数値を実現しています。\nただし圧縮速度は遅く（54.5 MB/s）、デコード性能と圧縮率を優先する用途に特化したコーデックとなっています。</description>
-      <link>https://github.com/welcome-to-the-sunny-side/misa77</link>
-      <pubDate>Wed, 15 Jul 2026 15:58:59 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48922838</guid>
-    </item>
-    <item>
-      <title>[翻訳] 13年前のXeonプロセッサでGPUなしにGemma 4 26Bを毎秒5トークンで実行</title>
-      <description>古いXeonプロセッサを使用してGPUなしで大規模言語モデル（Gemma 4 26B）を実行することに成功した。
-毎秒5トークンという実用的な速度で推論が可能であり、最新のハードウェアがなくても大規模モデルの運用ができることを実証している。
-限られたリソースでもAIモデルを効率的に活用する方法の可能性を示唆している。</description>
-      <link>https://www.neomindlabs.com/2026/06/08/running-gemma-4-26b-at-5-tokens-sec-on-a-13-year-old-xeon-with-no-gpu/</link>
-      <pubDate>Wed, 15 Jul 2026 15:34:05 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48922434</guid>
-    </item>
-    <item>
-      <title>[翻訳] 万能なハーネス技術の実現に向けて</title>
-      <description>汎用的なハーネス技術の開発と実装に関する研究内容が紹介されている。
-Hacker Newsで173ポイントを獲得し、86件のコメントが寄せられ、高い関心を集めている。
-ハーネス技術の応用可能性と将来性について、技術コミュニティから活発な議論が行われている。</description>
-      <link>https://eardatasci.github.io/c/ambiance/index.html</link>
-      <pubDate>Wed, 15 Jul 2026 14:08:28 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48921077</guid>
-    </item>
-    <item>
-      <title>[翻訳] Telegramのデータセンターに関する謎を解き明かす</title>
-      <description>Telegramのデータセンター運用についての詳細な調査記事。
-セキュリティと分散化を実現するための基盤構造の解析。
-メッセージング通信の裏側にある技術的な仕組みを探る。</description>
-      <link>https://dev.moe/en/3025</link>
-      <pubDate>Wed, 15 Jul 2026 13:22:00 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48920475</guid>
-    </item>
-    <item>
-      <title>[翻訳] ジュラシック・パークのコンピュータを徹底解剖</title>
-      <description>映画『ジュラシック・パーク』に登場するコンピュータシステムについての詳細な技術分析記事。
-当時実際に使用されていたハードウェアやソフトウェアの仕様を詳しく解説。
-1990年代のコンピュータ技術とその映画での表現方法に関する興味深い考察。</description>
-      <link>https://fabiensanglard.net/jurrasic_park_computers/index.html</link>
-      <pubDate>Wed, 15 Jul 2026 02:57:47 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48915709</guid>
-    </item>
-    <item>
-      <title>[翻訳] Tailscale SSHの不正な引数処理により root アクセスが可能に（TS-2026-009）</title>
-      <description>Tailscale SSHの引数処理に脆弱性があり、攻撃者が root 権限でコマンドを実行できる可能性がある。
-認証を回避して不正なアクセス権限を取得される恐れがあり、影響を受けたシステムの管理権限が侵害されるリスクがある。
-Tailscale は既に同社のセキュリティ情報ページでこの脆弱性に関する詳細な情報を公開している。</description>
-      <link>https://tailscale.com/security-bulletins</link>
-      <pubDate>Wed, 15 Jul 2026 01:08:26 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48915004</guid>
-    </item>
-    <item>
-      <title>[翻訳] データセンターの電力需要が一般家庭の電気代を230億ドル押し上げ</title>
-      <description>データセンターの急速な拡大に伴う電力需要の増加により、米国の一般家庭の電気料金が約230億ドル上昇したと報告されている。
-AI技術やクラウドサービスの急成長に伴うサーバー施設の増設が電力市場に大きな影響を与えている。
-公共部門と民間部門の電力コストの不均衡が政策議論の焦点となり始めている。</description>
-      <link>https://fortune.com/2026/07/14/data-centers-23-billion-electricity-bills/</link>
-      <pubDate>Wed, 15 Jul 2026 00:20:31 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48914683</guid>
-    </item>
-    <item>
-      <title>[翻訳] 20個のCodexアカウントを並列実行してエルデシュの20個の問題を解く</title>
-      <description>AIモデルのCodexを複数アカウント並列実行することで、数学の難問であるエルデシュ問題の解決に取り組んでいる。
-従来は困難とされていた複雑な数学問題に対し、AIの並列処理能力を活用した新しいアプローチを提案している。
-この手法は、AIを数学研究のツールとして活用する可能性を示すものとなっている。</description>
-      <link>https://www.starfleetmath.com/</link>
-      <pubDate>Wed, 15 Jul 2026 00:15:56 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48914646</guid>
-    </item>
-    <item>
-      <title>[翻訳] バンクーバー警察のウェブサイトに「素早く退出」ボタン、閲覧履歴を自動削除</title>
-      <description>バンクーバー警察（VPD）のウェブサイトに、クリックするとブラウザ履歴から自動的に削除される「Quick Escape」ボタンが実装されている。
-このボタンは、家庭内暴力や虐待のリソースページを訪問している人が、安全かつ素早くサイトを離れる必要がある場合を想定した機能。
-利用者のプライバシーと安全性を保護するための配慮から導入された。</description>
-      <link>https://vpd.ca/</link>
-      <pubDate>Wed, 15 Jul 2026 00:15:53 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48914644</guid>
-    </item>
-    <item>
-      <title>[翻訳] Casio FX-870P電卓のエミュレータが公開</title>
-      <description>懐かしのCasio FX-870P電卓をソフトウェアで再現するエミュレータがGitHubで公開されている。
-オープンソースプロジェクトとして開発されており、誰でもアクセス・利用が可能。
-Hacker Newsで話題となり、レトロなコンピュータ技術への関心の高さを示している。</description>
-      <link>https://github.com/urbancamo/fx870p-emulator</link>
-      <pubDate>Tue, 14 Jul 2026 22:47:58 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913910</guid>
-    </item>
-    <item>
-      <title>[翻訳] スーパーマリオブラザーズでJEPAワールドモデルを学習させるLeMario</title>
-      <description>JEPAフレームワークを用いてスーパーマリオブラザーズ上でワールドモデルの学習を実現したプロジェクト。
-複雑なゲーム環境において、AIが環境の法則を理解し予測する能力を獲得することを目指している。
-このアプローチにより、ゲーム内での動作予測やAIエージェントの制御精度向上を実現している。</description>
-      <link>https://www.benjamin-bai.com/projects/lemario</link>
-      <pubDate>Tue, 14 Jul 2026 22:30:47 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913763</guid>
-    </item>
-    <item>
-      <title>[翻訳] スマート家電の動作確認をしておこう</title>
-      <description>スマートテレビなどのスマート家電の不具合や問題について注意喚起する記事。\n定期的にスマート家電の状態をチェックすることの重要性を説いている。\nユーザーが事前に対応しておくべき点について解説している。</description>
-      <link>https://xeiaso.net/notes/2026/check-your-smart-tv/</link>
-      <pubDate>Tue, 14 Jul 2026 22:00:41 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913457</guid>
-    </item>
-    <item>
-      <title>[翻訳] AI産業の急速な成長を支える資金調達：キャッシュフローから債務へ</title>
-      <description>AI技術への投資拡大に伴い、企業の資金調達手段がキャッシュフローから債務依存へシフトしている動向を分析した国際決済銀行（BIS）の報告書。
-AIインフラストラクチャー構築に必要な莫大な資本支出に対応するため、企業が社債やローンなどの借入による資金調達を増やしている実態を探究。
-AI産業の継続的な成長と金融システムの安定性のバランスについて、政策立案者への示唆を提供している。</description>
-      <link>https://www.bis.org/publ/bisbull120.pdf</link>
-      <pubDate>Tue, 14 Jul 2026 21:58:36 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913443</guid>
-    </item>
-    <item>
-      <title>[翻訳] マイクロソフト、過去最多となる570件のセキュリティ脆弱性をパッチ</title>
-      <description>マイクロソフトが過去最高記録となる570個のセキュリティ脆弱性に対するパッチをリリースした。
-これは同社の定期的なセキュリティアップデートの中でも異例の規模となる大規模なパッチ配布である。
-セキュリティ研究コミュニティから、システムの安定性への影響と脆弱性の重要度分類に関する懸念が寄せられている。</description>
-      <link>https://krebsonsecurity.com/2026/07/microsoft-patches-a-record-570-security-flaws/</link>
-      <pubDate>Tue, 14 Jul 2026 21:32:22 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913190</guid>
-    </item>
-    <item>
-      <title>[翻訳] Dependabotのバージョン更新にデフォルトのパッケージクールダウン機能が追加</title>
-      <description>GitHubのDependabotが新たにデフォルトのパッケージクールダウン機能を導入しました。
-この機能により、依存関係の更新リクエストの頻度を自動的に制御し、過度な更新を防ぐことができます。
-開発者はより安定したパッケージ更新スケジュールを実現でき、CI/CDパイプラインへの負荷軽減が期待できます。</description>
-      <link>https://github.blog/changelog/2026-07-14-dependabot-version-updates-introduce-default-package-cooldown/</link>
-      <pubDate>Tue, 14 Jul 2026 21:15:51 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48913050</guid>
     </item>
   </channel>
 </rss>
