@@ -5,6 +5,196 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] マッコウクジラが泡を吹いて垂直睡眠をとることが判明</title>
+      <description>マッコウクジラは気泡を吹き出すことで、海中で垂直の姿勢を保ちながら睡眠をとることができる。
+この独特な睡眠方法により、クジラは休息を得ながらも捕食者への警戒や呼吸の必要性に対応している。
+スコットランド大学の研究により、クジラの睡眠メカニズムの新たな側面が明らかになった。</description>
+      <link>https://news.st-andrews.ac.uk/archive/sperm-whales-blow-bubbles-to-achieve-restful-vertical-sleep/</link>
+      <pubDate>Fri, 24 Jul 2026 23:13:18 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49042751</guid>
+    </item>
+    <item>
+      <title>[翻訳] AIが期待通りに動作しない問題と対策</title>
+      <description>AIシステムが設計者の本来の意図とは異なる行動をする「リワードハッキング」は深刻な課題である。
+この問題は、AIに与えられた目標と実際の望ましい行動にズレが生じることが原因となっている。
+報酬関数の設計改善やAIの透明性向上など、より安全で信頼性の高いAI開発が求められている。</description>
+      <link>https://rewardhacking.org</link>
+      <pubDate>Fri, 24 Jul 2026 22:24:08 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49042354</guid>
+    </item>
+    <item>
+      <title>[翻訳] Max Studio Tools – MaxとAbleton Live向けのC++ DSPモジュール</title>
+      <description>MaxおよびAbleton Live用のC++で実装されたDSP（デジタル信号処理）モジュール集が公開されました。
+GitHubで利用可能なオープンソースプロジェクトで、音声処理や音楽制作の効率化を支援します。
+Hacker Newsで話題となり、開発者向けのツールとして注目を集めています。</description>
+      <link>https://github.com/apresta/max-studio-tools</link>
+      <pubDate>Fri, 24 Jul 2026 21:03:10 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49041546</guid>
+    </item>
+    <item>
+      <title>[翻訳] Opus 5がArtificial Analysis Intelligence Leaderboardでトップに</title>
+      <description>Opus 5が複数のAI性能評価指標でランキング1位を獲得した。
+Artificial Analysisの知能ランキングで最高スコアを記録している。
+このニュースはHacker Newsで高い関心を集め、141ポイント、84件のコメントを獲得している。</description>
+      <link>https://artificialanalysis.ai/models</link>
+      <pubDate>Fri, 24 Jul 2026 19:45:10 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49040741</guid>
+    </item>
+    <item>
+      <title>[翻訳] PostgreSQLのLISTEN/NOTIFYは実は高スケーラビリティを持つ</title>
+      <description>PostgreSQLのLISTEN/NOTIFY機能がスケーラビリティの面で十分な性能を持つことが実証されている。
+従来の認識とは異なり、適切な構成下ではPostgresが大規模な通知システムとして機能する可能性がある。
+記事はこの機能の実際のスケーリング特性について詳細に説明している。</description>
+      <link>https://www.dbos.dev/blog/postgres-listen-notify-scalability</link>
+      <pubDate>Fri, 24 Jul 2026 19:05:53 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49040296</guid>
+    </item>
+    <item>
+      <title>[翻訳] Gsxui – Go向けのShadcn風UIコンポーネントライブラリ</title>
+      <description>Goプログラミング言語向けのUIコンポーネントライブラリ「Gsxui」が公開されました。
+Shadcnスタイルのコンポーネント設計を採用し、Goでの開発をより効率的にします。
+Hacker Newsで56ポイント、8件のコメントを獲得し、開発コミュニティから注目を集めています。</description>
+      <link>https://ui.gsxhq.dev/</link>
+      <pubDate>Fri, 24 Jul 2026 17:59:08 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49039395</guid>
+    </item>
+    <item>
+      <title>[翻訳] Anthropicが最新AI「Claude Opus 5」を発表</title>
+      <description>AnthropicがClaudeシリーズの最新モデル「Claude Opus 5」を公開しました。
+システムカード（技術仕様書）がAnthropicの公式サイトで公開されており、AIの性能と安全性について詳細に説明されています。
+Hacker Newsで大きな話題となり、1000ポイント以上を獲得するなど、開発者コミュニティから高い関心を集めています。</description>
+      <link>https://www.anthropic.com/news/claude-opus-5</link>
+      <pubDate>Fri, 24 Jul 2026 16:57:41 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49038433</guid>
+    </item>
+    <item>
+      <title>[翻訳] ブラックピルの罠に陥るな</title>
+      <description>インターネット文化における「ブラックピル」という悲観的な思想の危険性について警告するビデオ。
+この動画はHacker Newsで125ポイント、87件のコメントを獲得し、注目を集めている。
+YouTube上で公開されており、技術コミュニティでも議論の対象となっている。</description>
+      <link>https://www.youtube.com/watch?v=zLZwpH5lCD4</link>
+      <pubDate>Fri, 24 Jul 2026 16:48:57 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49038298</guid>
+    </item>
+    <item>
+      <title>[翻訳] OpenAIの「暴走型ハッカーAI」の話は疑ってかかるべき</title>
+      <description>OpenAIが発表した自律的にハッキングを行うAIエージェントの存在について、その信憑性を問う記事。
+AIの能力に関する企業の主張には過度な宣伝や誇張が含まれる可能性があり、慎重な検証が必要。
+セキュリティと技術革新のバランスについて、メディアと専門家の間で議論が広がっている。</description>
+      <link>https://www.theguardian.com/technology/2026/jul/24/openai-rogue-hacker</link>
+      <pubDate>Fri, 24 Jul 2026 16:33:31 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49038060</guid>
+    </item>
+    <item>
+      <title>[翻訳] ユニツリーの新型二足歩行ロボット「As2-W」が登場</title>
+      <description>ユニツリーが開発した二足歩行ロボット「As2-W」が公開されました。
+Hacker Newsで95ポイントを獲得し、40件のコメントが寄せられるなど注目を集めています。
+詳細は公式サイトおよびHacker Newsのディスカッション欄で確認できます。</description>
+      <link>https://www.unitree.com/As2-W/</link>
+      <pubDate>Fri, 24 Jul 2026 16:32:52 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49038045</guid>
+    </item>
+    <item>
+      <title>[翻訳] インド政府がGitHubに対してBluetooth型チャットアプリ「Bitchat」の削除を命令</title>
+      <description>インド政府がセキュリティ上の懸念を理由に、GitHubに対してBluetoothベースのチャットアプリ「Bitchat」の削除をGitHubに命令した。
+このアプリはTwitter共同創業者ジャック・ドーシーも関心を示していた分散型通信ツールである。
+政府の削除命令によりオープンソースプロジェクトの検閲に関する議論が再燃している。</description>
+      <link>https://www.thehindu.com/news/national/government-orders-github-to-remove-bluetooth-based-chat-app-bitchat-over-security-concerns-jack-dorsey/article71262049.ece</link>
+      <pubDate>Fri, 24 Jul 2026 14:41:59 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49036433</guid>
+    </item>
+    <item>
+      <title>[翻訳] NvidiaやMicrosoft、Metaがオープンウェイトモデルの過度な規制に警告</title>
+      <description>Nvidia、Microsoft、Metaなど大手テック企業が、オープンウェイトAIモデルに対する過度な規制に懸念を示す公開書簡を発表。
+シリコンバレー内ではAI規制の方向性について中国との競争を考慮した意見の相違が存在している。
+このニュースはHacker Newsで502ポイントを獲得し、231件のコメントが寄せられている。</description>
+      <link>https://www.cnbc.com/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html</link>
+      <pubDate>Fri, 24 Jul 2026 13:32:30 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49035303</guid>
+    </item>
+    <item>
+      <title>[翻訳] Half-Life 2がHaikuOSでネイティブ動作</title>
+      <description>有名なゲーム「Half-Life 2」がHaikuOSで直接実行できるようになった。
+これはHaikuOSのNVIDIAドライバ開発の進展に伴う成果である。
+ゲーム開発者のための互換性向上を示す重要なマイルストーンとなっている。</description>
+      <link>https://discuss.haiku-os.org/t/haiku-nvidia-porting-nvidia-driver-for-turing-gpus/16520?page=18</link>
+      <pubDate>Fri, 24 Jul 2026 12:53:59 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49034868</guid>
+    </item>
+    <item>
+      <title>[翻訳] プログラミング言語の拡張子がISO 3166-1国別コードと一致する興味深いケース</title>
+      <description>プログラミング言語のファイル拡張子の中には、偶然にもISO 3166-1 alpha-2（2文字の国別コード）と一致するものが存在する。
+例えば、Go言語の.go拡張子はギニアビサウの国コード、Rust言語の.rs拡張子はセルビアの国コードと重なっている。
+こうした予期しない一致パターンを調査・分析した技術記事で、開発者コミュニティから注目を集めている。</description>
+      <link>https://www.bruh.ltd/blog/programming-language-file-extensions-that-match-an-iso-3166-1-alpha-2-country-code/</link>
+      <pubDate>Fri, 24 Jul 2026 12:34:28 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49034673</guid>
+    </item>
+    <item>
+      <title>[翻訳] セキュリティカメラのログインページにGitHubの管理者トークンが含まれていた</title>
+      <description>セキュリティカメラのログインページのHTMLコード内にGitHubの管理者トークンが誤って埋め込まれていた問題が発見された。
+悪意のある第三者がこのトークンを取得した場合、GitHub上の重要なリポジトリやシステムへのアクセスが危険にさらされる可能性がある。
+IoTデバイスのセキュリティの甘さと、開発段階での認証情報の管理不備が改めて浮き彫りになった。</description>
+      <link>https://hhh.hn/hanwha-github-token/</link>
+      <pubDate>Fri, 24 Jul 2026 11:54:41 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49034292</guid>
+    </item>
+    <item>
+      <title>[翻訳] 現代におけるMUD（テキストベースゲーム）の価値と可能性</title>
+      <description>テキストベースのマルチプレイヤーゲーム（MUD）が現代でも存在意義を持つことについての考察。
+複雑なグラフィックスに頼らない純粋なゲームデザインとコミュニティの価値を論じている。
+Hacker Newsで高い関心を集め、68件のコメントと80ポイントを獲得した2018年の記事。</description>
+      <link>https://www.andrewzigler.com/feed/the-case-for-muds-in-modern-times</link>
+      <pubDate>Fri, 24 Jul 2026 11:46:40 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49034217</guid>
+    </item>
+    <item>
+      <title>[翻訳] イランの革命防衛隊がアマゾンのバーレーン データセンターを破壊したと主張</title>
+      <description>イランの革命防衛隊（IRGC）がアマゾンのバーレーン施設にあるデータセンターを破壊したと公式に発表した。
+同主張の詳細や実際の被害状況については、独立した確認が取れていない。
+このニュースはハッカーニュースで大きな関心を集め、243ポイント、308件のコメントを獲得している。</description>
+      <link>https://houseofsaud.com/irgc-claims-destroyed-amazon-bahrain-data-center/</link>
+      <pubDate>Fri, 24 Jul 2026 09:52:58 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49033240</guid>
+    </item>
+    <item>
+      <title>[翻訳] ユーロ紙幣の新しいデザイン案が公開</title>
+      <description>欧州中央銀行がユーロ紙幣の将来的なデザイン提案を発表しました。
+新しい紙幣デザインについて市民からのコメントと投票を募集しています。
+Hacker Newsでは129ポイント、121件のコメントで活発に議論されています。</description>
+      <link>https://www.ecb.europa.eu/euro/banknotes/future_banknotes/html/all-design-proposals.en.html</link>
+      <pubDate>Fri, 24 Jul 2026 09:29:44 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49033110</guid>
+    </item>
+    <item>
+      <title>[翻訳] プログラミングが解決されたはずなのに、なぜソフトウェアの品質は低下し続けるのか</title>
+      <description>プログラミング技術が進歩しているにもかかわらず、実際のソフトウェアの品質や安定性が向上していないという矛盾について論じている。
+開発環境やツール、フレームワークの充実にもかかわらず、ユーザーが体験するソフトウェアの問題は増加傾向にあるという指摘。
+業界全体が楽観的な一方で、実際の製品に現れる問題との間に大きなギャップが存在する現状を分析した記事。</description>
+      <link>https://ptrchm.com/posts/nothing-works-and-everyone-is-euphoric/</link>
+      <pubDate>Fri, 24 Jul 2026 09:08:17 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49033004</guid>
+    </item>
+    <item>
       <title>[翻訳] データセンター業界に忍び寄る低格付け融資問題</title>
       <description>データセンター企業の急速な拡大が、サブプライム層の融資リスクと同様の危機的状況を生み出している。
 過度なレバレッジと利益率の圧迫により、市場全体の脆弱性が高まっている。
@@ -63,6 +253,16 @@ Linuxオープンソースコミュニティにおける重要な人物の喪失
       <pubDate>Thu, 23 Jul 2026 19:46:28 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=49027052</guid>
+    </item>
+    <item>
+      <title>[翻訳] Fil-C: 不正なメモリ操作をメモリ安全性に変える</title>
+      <description>Fil-Cというツールが、C言語における不正なメモリアクセスやポインタ操作をメモリ安全な形に自動変換する技術を紹介しています。
+このアプローチにより、既存のC言語コードに大規模な修正を加えることなくメモリ安全性を向上させることが可能になります。
+Hacker Newsで106ポイントと99件のコメントを獲得し、注目を集めています。</description>
+      <link>https://www.youtube.com/watch?v=5F-2Y1LPRek</link>
+      <pubDate>Thu, 23 Jul 2026 19:37:37 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49026933</guid>
     </item>
     <item>
       <title>[翻訳] Echo：複数のオープンソースAIモデルを組み合わせてFableと同等の性能を1/3のコストで実現</title>
@@ -1789,206 +1989,6 @@ CD-RやOinkなどのファイル共有プラットフォームが提供してい
       <pubDate>Thu, 16 Jul 2026 04:46:21 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930454</guid>
-    </item>
-    <item>
-      <title>[翻訳] AIは単なるツールではない――使い方だけでは説明できない理由</title>
-      <description>AIを「単なるツール」と表現することは不正確であり、その影響力や本質をはき違えている可能性がある。
-ツールの使い方次第という主張は、AIの能動的な特性や独自の影響を過小評価している。
-AIの扱いについて、より深い検討と責任あるアプローチが必要とされている。</description>
-      <link>https://www.frank.computer/blog/2025/05/just-a-tool.html</link>
-      <pubDate>Thu, 16 Jul 2026 04:31:01 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930363</guid>
-    </item>
-    <item>
-      <title>[翻訳] 投げ方が狙いを決める</title>
-      <description>投げる行為と狙いの関係について、実践的な視点から解説した記事。
-物を投げるときに、事前に狙いを定めるのではなく、投げる動作そのものが最終的な着地点を決定することの重要性を論じている。
-この考え方は問題解決やプロジェクト管理など、様々な分野に応用できる示唆に富んだ内容。</description>
-      <link>https://thegustafson.com/blog/my-throw-decides-my-aim</link>
-      <pubDate>Thu, 16 Jul 2026 03:51:25 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930149</guid>
-    </item>
-    <item>
-      <title>[翻訳] ボタンをゼロから作るなら、まず宇宙を作る必要がある</title>
-      <description>アクセシビリティを考慮したボタン実装には、単なるUI要素の作成以上の複雑な考慮が必要であることを示唆した記事。
-Webアプリケーションの基本的なコンポーネントであるボタンを正しく実装するには、HTMLの基礎から始まる多くの要素を理解する必要がある。
-Hacker Newsで42ポイントを獲得し、アクセシビリティ実装の重要性についての議論が行われている。</description>
-      <link>https://madcampos.dev/blog/2026/07/accessibility-from-scratch/</link>
-      <pubDate>Thu, 16 Jul 2026 03:48:43 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930136</guid>
-    </item>
-    <item>
-      <title>[翻訳] 768台のサーバーを1台に見せる技術</title>
-      <description>PlanetScaleが複数のサーバーを単一のシステムとして管理・運用する技術について解説しています。
-大規模なインフラストラクチャを透過的に統合し、ユーザーには単一のサーバーとして見えるようにする仕組みを実現しています。
-このアプローチにより、スケーラビリティと運用効率の向上を実現する方法が紹介されています。</description>
-      <link>https://planetscale.com/blog/making-768-servers-look-like-1</link>
-      <pubDate>Thu, 16 Jul 2026 03:36:42 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930075</guid>
-    </item>
-    <item>
-      <title>[翻訳] ロンドンのゲリラ広告がカイリー・ジェンナーのMeta眼鏡キャンペーンを風刺</title>
-      <description>ロンドンのバスに掲出されたゲリラ広告がカイリー・ジェンナーがMeta製スマートグラスの宣伝に起用されたことを皮肉的に風刺している。
-これはテック企業による著名人を使った宣伝手法に対する批判的なアクションと考えられる。
-この記事はHacker Newsで133ポイントを獲得し、74件のコメントが寄せられている。</description>
-      <link>https://hyperallergic.com/guerrilla-london-bus-ads-mock-kylie-jenners-meta-glasses-campaign/</link>
-      <pubDate>Thu, 16 Jul 2026 03:24:25 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930011</guid>
-    </item>
-    <item>
-      <title>[翻訳] 19世紀の美しい野生動物イラスト1,300点が復元・公開される</title>
-      <description>19世紀の野生動物イラスト1,300点以上が復元され、オンラインで閲覧できるようになった。
-Open Cultureによって公開されたこれらの貴重な歴史的資料は、当時の自然観察や科学的記録の重要な遺産である。
-誰もが無料でアクセス可能になり、自然史と美術の融合した文化遺産が広く共有されている。</description>
-      <link>https://www.openculture.com/2026/07/explore-1300-beautiful-wildlife-illustrations-from-the-19th-century.html</link>
-      <pubDate>Thu, 16 Jul 2026 03:12:47 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929945</guid>
-    </item>
-    <item>
-      <title>[翻訳] Cloudflare AIを活用したオープンソースの無料音声認識ツール「Whispr」</title>
-      <description>CloudflareのAI機能を利用した、オープンソースの音声認識ツール「Whispr」がGitHubで公開されました。
-無料ティアでも利用可能な構成になっており、誰でもアクセスできるようになっています。
-Hacker Newsで話題となり、開発者コミュニティから注目を集めています。</description>
-      <link>https://github.com/PrestigePvP/Voicebox</link>
-      <pubDate>Thu, 16 Jul 2026 02:57:30 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929870</guid>
-    </item>
-    <item>
-      <title>[翻訳] LLMはコンピュータアーキテクチャ論文の深い技術的理解ができるのか</title>
-      <description>大規模言語モデル（LLM）がコンピュータアーキテクチャに関する技術論文を深く理解できるかを検証した研究。
-LLMが複雑なハードウェア設計や最適化手法などの専門的な内容をどの程度理解・処理できるかを調査。
-AIの技術的な理解能力の限界と可能性について考察した学術論文。</description>
-      <link>https://arxiv.org/abs/2607.11859</link>
-      <pubDate>Thu, 16 Jul 2026 02:17:31 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929660</guid>
-    </item>
-    <item>
-      <title>[翻訳] Tokio/Rayonの落とし穴：なぜAsync/Awaitは並行処理で失敗するのか</title>
-      <description>RustのTokioやRayonといった非同期ランタイムの設計における課題と、Async/Awaitが並行処理の実装で直面する根本的な問題について解説。
-非同期プログラミングの複雑性と、現在のアプローチの限界を指摘し、より効果的な並行処理の実装方法を探討。
-Hacker Newsで30ポイント、30件のコメントを集めた技術的な議論。</description>
-      <link>https://pmbanugo.me/blog/why-async-await-complect-concurrency</link>
-      <pubDate>Thu, 16 Jul 2026 02:06:36 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929587</guid>
-    </item>
-    <item>
-      <title>[翻訳] BlueSkyがAT Protocolの商標を取得</title>
-      <description>BlueSkyがオープンソースのAT Protocolプロトコルの商標権を取得した。
-商標化により、プロトコルの知的財産がより正式に保護されることになる。
-これはブロックチェーンベースのソーシャルネットワーク基盤の安定性向上を意図している。</description>
-      <link>https://atproto.com/blog/at-protocol-trademark</link>
-      <pubDate>Thu, 16 Jul 2026 01:21:04 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48929351</guid>
-    </item>
-    <item>
-      <title>[翻訳] もう一文字 - 新作ワードゲーム</title>
-      <description>Hacker Newsで紹介されたワードゲーム「One More Letter」のプレイ可能なWebアプリケーション。
-毎日のチャレンジやゲームプレイを通じて言葉遊びを楽しめるシンプルなゲーム。
-開発者が作成したオリジナルの言葉パズルゲームで、コミュニティから好評を得ている。</description>
-      <link>https://playonemoreletter.com/</link>
-      <pubDate>Wed, 15 Jul 2026 23:10:10 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928402</guid>
-    </item>
-    <item>
-      <title>[翻訳] SQLiteにおける文字列内のヌル文字の扱い</title>
-      <description>SQLiteで文字列内にヌル文字（NULL文字）を含める場合の処理方法と注意点について説明されている公式ドキュメント。
-ヌル文字の挿入や検出、文字列操作時の動作など、開発者が知るべき重要な仕様情報を提供。
-SQLiteを使用する際の潜在的な問題を回避するための実装知識を網羅。</description>
-      <link>https://sqlite.org/nulinstr.html</link>
-      <pubDate>Wed, 15 Jul 2026 23:03:45 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928343</guid>
-    </item>
-    <item>
-      <title>[翻訳] 金属有機構造体（MOF）：化学の革新的新素材</title>
-      <description>金属有機構造体（Metal-Organic Frameworks）は、金属イオンと有機分子を組み合わせた新しい材料で、化学分野での革新的な応用が期待されている。
-多孔性構造により、ガス貯蔵、分離、触媒など様々な用途での活用が検討されており、エネルギーや環境問題の解決に貢献する可能性がある。
-バークレー化学科の研究では、この素材の特性と実用化に向けた取り組みが紹介されている。</description>
-      <link>https://chemistry.berkeley.edu/news/meet-metal-organic-frameworks-chemistry%E2%80%99s-new-miracle-materials</link>
-      <pubDate>Wed, 15 Jul 2026 23:00:31 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928313</guid>
-    </item>
-    <item>
-      <title>[翻訳] アンチMacユーザーインターフェース設計（1996年）</title>
-      <description>1996年に発表されたMacのUIに対する批判的な分析と代替的なインターフェース設計の提案についての記事。
-NN/gのコンテンツで、ユーザビリティの観点からMacのUIの問題点を指摘しています。
-Hacker Newsで54ポイント、17件のコメントを獲得し、当時のUI/UXデザイン議論として注目されました。</description>
-      <link>https://www.nngroup.com/articles/anti-mac-interface/</link>
-      <pubDate>Wed, 15 Jul 2026 22:52:36 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928234</guid>
-    </item>
-    <item>
-      <title>[翻訳] SQLiteもRustスタイルのエディション機能を導入すべき</title>
-      <description>SQLiteが言語のバージョン管理と互換性維持の仕組みとしてRustのエディション機能を採用することを提案する記事。
-エディション機能により、SQLiteは既存コードの互換性を保ちながら新しい機能や仕様変更を段階的に導入できる可能性がある。
-Hacker Newsで118ポイントを獲得し、46件のコメントが寄せられている。</description>
-      <link>https://mort.coffee/home/sqlite-editions/</link>
-      <pubDate>Wed, 15 Jul 2026 22:42:58 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48928135</guid>
-    </item>
-    <item>
-      <title>[翻訳] LLMを活用したMikroTikネットワーク管理</title>
-      <description>LLM（大規模言語モデル）とMikroTikルーターを組み合わせたネットワーク管理手法に関する記事。
-AIを使用してネットワーク設定や運用を効率化する実践的なアプローチについて解説。
-Hacker Newsで47ポイント、11件のコメントを獲得している注目の技術トピック。</description>
-      <link>https://blog.greg.technology/2026/07/14/llm-networking-with-mikrotik.html</link>
-      <pubDate>Wed, 15 Jul 2026 22:23:27 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48927915</guid>
-    </item>
-    <item>
-      <title>[翻訳] WebRTCを使ったP2P型ローカルファイル転送サービス</title>
-      <description>WebRTCプロトコルを活用して、デバイス間で直接ファイルを転送できるP2Pベースのソリューション。
-サーバーを経由せず、ローカルネットワーク上でセキュアにファイル共有が可能。
-PairDropというプラットフォームで実装され、Hacker Newsで話題を集めている。</description>
-      <link>https://pairdrop.net/</link>
-      <pubDate>Wed, 15 Jul 2026 22:22:08 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48927900</guid>
-    </item>
-    <item>
-      <title>[翻訳] 政府・企業・非営利団体はオープンソースAIへの投資を進めるべき</title>
-      <description>政府、企業、非営利団体がオープンソースのAI開発に対して積極的な投資を行うことの重要性を提唱している。
-オープンソースAIは、技術の透明性と民主化を実現し、単一の企業による支配を防ぐ効果がある。
-公開資金と民間資金の協力により、誰もがアクセス可能で安全なAI技術の発展が可能になると主張している。</description>
-      <link>https://www.siegelendowment.org/wp-content/uploads/2026/07/fortune-david-siegel-open-source-ai.pdf</link>
-      <pubDate>Wed, 15 Jul 2026 21:16:36 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48927095</guid>
-    </item>
-    <item>
-      <title>[翻訳] WebAssemblyで動作するFirefoxブラウザ</title>
-      <description>GeckoエンジンやUI、JavaScriptエンジンのSpidermonkeyを含むFirefoxブラウザ全体がWebAssemblyにコンパイルされ、canvas要素上で動作するプロジェクト。
-エンドツーエンド暗号化対応、WASM-&gt;JS JIT機能を備えており、デバッグとJIT研究に25,000以上のトークンを費やして実装。
-WebAssemblyの限界に挑戦する実験的なプロジェクトで、より実用的な「ブラウザ内ブラウザ」として別途browser.jsも開発。</description>
-      <link>https://developer.puter.com/labs/firefox-wasm/</link>
-      <pubDate>Wed, 15 Jul 2026 21:00:17 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48926939</guid>
-    </item>
-    <item>
-      <title>[翻訳] Grok Buildがオープンソース化</title>
-      <description>xAIが開発したGrok Buildをオープンソースで公開しました。
-GitHubで誰でもアクセス・利用できるようになり、開発者コミュニティの貢献が可能になりました。
-Hacker Newsでも話題となり、265ポイント、310件のコメントを集めています。</description>
-      <link>https://github.com/xai-org/grok-build</link>
-      <pubDate>Wed, 15 Jul 2026 20:24:58 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48926590</guid>
     </item>
   </channel>
 </rss>
