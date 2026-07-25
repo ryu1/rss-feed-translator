@@ -5,6 +5,26 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] テイラー・ファームズが回収遅延を求めてホワイトハウスに連絡</title>
+      <description>野菜生産大手のテイラー・ファームズが、サイクロスポーラ汚染に関する製品回収を遅延させるべくホワイトハウスに働きかけを行った。
+同社は政府機関に対して回収の延期を求める圧力をかけていたことが明らかになった。
+食品安全規制と企業利益のバランスをめぐる問題として注目を集めている。</description>
+      <link>https://www.wsj.com/health/taylor-farms-cyclospora-recall-delay-call-41fef0bc</link>
+      <pubDate>Sat, 25 Jul 2026 02:54:36 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49044074</guid>
+    </item>
+    <item>
+      <title>[翻訳] ハンナ・フライ教授が2026年のリーラヴァティ賞を数学普及活動で受賞</title>
+      <description>ケンブリッジ大学のハンナ・フライ教授が、数学の社会への普及と啓発活動の功績により、2026年のリーラヴァティ賞を受賞した。
+リーラヴァティ賞は国際数学連合が授与する賞で、数学を社会に広める優れた活動を表彰するものである。
+フライ教授は数学コミュニケーションの分野で国際的に認識されている専門家として知られている。</description>
+      <link>https://www.maths.cam.ac.uk/features/professor-hannah-fry-wins-leelavati-prize</link>
+      <pubDate>Sat, 25 Jul 2026 01:44:12 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49043724</guid>
+    </item>
+    <item>
       <title>[翻訳] マッコウクジラが泡を吹いて垂直睡眠をとることが判明</title>
       <description>マッコウクジラは気泡を吹き出すことで、海中で垂直の姿勢を保ちながら睡眠をとることができる。
 この独特な睡眠方法により、クジラは休息を得ながらも捕食者への警戒や呼吸の必要性に対応している。
@@ -185,6 +205,17 @@ Hacker Newsでは129ポイント、121件のコメントで活発に議論され
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=49033110</guid>
     </item>
     <item>
+      <title>[翻訳] Buz – A fork of Bun using modern Zig, with sub-1s incremental builds</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://ziggit.dev/t/buz-a-drop-in-replacement-for-bun-using-modern-zig-with-sub-1s-incremental-builds/16891"&gt;https://ziggit.dev/t/buz-a-drop-in-replacement-for-bun-using-modern-zig-with-sub-1s-incremental-builds/16891&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49033099"&gt;https://news.ycombinator.com/item?id=49033099&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 246&lt;/p&gt;
+&lt;p&gt;# Comments: 168&lt;/p&gt;</description>
+      <link>https://ziggit.dev/t/buz-a-drop-in-replacement-for-bun-using-modern-zig-with-sub-1s-incremental-builds/16891</link>
+      <pubDate>Fri, 24 Jul 2026 09:26:40 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49033099</guid>
+    </item>
+    <item>
       <title>[翻訳] プログラミングが解決されたはずなのに、なぜソフトウェアの品質は低下し続けるのか</title>
       <description>プログラミング技術が進歩しているにもかかわらず、実際のソフトウェアの品質や安定性が向上していないという矛盾について論じている。
 開発環境やツール、フレームワークの充実にもかかわらず、ユーザーが体験するソフトウェアの問題は増加傾向にあるという指摘。
@@ -303,6 +334,16 @@ Hacker Newsで130ポイントを獲得し、59件のコメントが寄せられ�
       <pubDate>Thu, 23 Jul 2026 18:08:29 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=49025766</guid>
+    </item>
+    <item>
+      <title>[翻訳] Kimi K3がRedisサーバーの最新の脆弱性を悪用</title>
+      <description>Kimi K3がRedisサーバーの最新の脆弱性を悪用した事例が報告されています。
+Hacker Newsで180ポイントを獲得し、49件のコメントが寄せられている注目のニュースです。
+セキュリティ研究者の間で、このRedis脆弱性の詳細と対策について活発な議論が行われています。</description>
+      <link>https://twitter.com/fried_rice/status/2080059356322918777</link>
+      <pubDate>Thu, 23 Jul 2026 17:10:02 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49024938</guid>
     </item>
     <item>
       <title>[翻訳] Claude-thermosでClaudiのセッションを保ち続ける</title>
@@ -1949,46 +1990,6 @@ Hacker Newsで411ポイントを獲得し、98件のコメントを集めるな�
       <pubDate>Thu, 16 Jul 2026 16:18:21 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48936584</guid>
-    </item>
-    <item>
-      <title>[翻訳] NotebookLMがGemini Notebookへと生まれ変わる</title>
-      <description>GoogleがNotebookLMをGemini Notebookに統合し、Geminiエコシステムの一部として再スタートを切ることを発表した。
-この変更により、ユーザーはより統一されたAI体験を得られるようになる。
-Googleのブログで正式な詳細情報が公開されており、Hacker Newsで高い関心を集めている（242ポイント、126コメント）。</description>
-      <link>https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/</link>
-      <pubDate>Thu, 16 Jul 2026 16:08:13 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48936451</guid>
-    </item>
-    <item>
-      <title>[翻訳] マイクロソフトがコミックチャットをオープンソース化</title>
-      <description>マイクロソフトが1990年代の懐かしいチャットアプリケーション「Comic Chat」をオープンソース化しました。
-この決定により、開発者コミュニティがアプリケーションの改善と拡張に参加できるようになります。
-ハッカーニュースで大きな話題となり、542ポイントを獲得し120件のコメントが寄せられています。</description>
-      <link>https://opensource.microsoft.com/blog/2026/07/16/microsoft-comic-chat-is-now-open-source/</link>
-      <pubDate>Thu, 16 Jul 2026 16:06:27 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48936426</guid>
-    </item>
-    <item>
-      <title>[翻訳] インタラクティブな図で学ぶ没入型線形代数の教科書</title>
-      <description>2015年に公開された線形代数の教科書で、静止した図ではなくインタラクティブなビジュアル要素を活用した学習が可能。
-複雑な線形代数の概念を直感的に理解できるよう、動的な図解と実践的な操作を通じて学ぶことができる。
-Hacker Newsで高い評価（171ポイント）を獲得しており、数学教育の革新的なアプローチとして注目されている。</description>
-      <link>https://immersivemath.com/ila/</link>
-      <pubDate>Thu, 16 Jul 2026 15:32:23 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48935951</guid>
-    </item>
-    <item>
-      <title>[翻訳] 音楽海賊版の時代が失った喜び</title>
-      <description>かつて音楽海賊版の時代に存在した、ユーザーが感じていた特別な体験や自由感について振り返る記事。
-ストリーミング時代への移行により、音楽入手の容易さは増した一方で、探求や発見の喜びなど失われたものがあることを指摘。
-CD-RやOinkなどのファイル共有プラットフォームが提供していた独特の音楽文化と、それが現在のストリーミングサービスとどう異なるかを探る。</description>
-      <link>https://www.pigeonsandplanes.com/read/music-piracy-what-cd-oink-nine-inch-nails-streaming</link>
-      <pubDate>Thu, 16 Jul 2026 04:46:21 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48930454</guid>
     </item>
   </channel>
 </rss>
