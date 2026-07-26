@@ -5,6 +5,204 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] ホルムズ海峡周辺で外来種の大規模拡散イベントが発生する可能性</title>
+      <description>ホルムズ海峡付近で外来種の大規模な拡散が起こる可能性があると科学者が警告。
+船舶の滞留により、侵略的な海洋生物が新たな地域に広がるリスクが高まっている。
+地域の生態系に深刻な影響を与える恐れがあることから、対策が急務となっている。</description>
+      <link>https://abcnews.com/International/scientists-warn-invasive-species-superspreader-event-due-stalling/story?id=135051186</link>
+      <pubDate>Sun, 26 Jul 2026 01:13:19 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49053603</guid>
+    </item>
+    <item>
+      <title>[翻訳] Git rebase -i は思ったほど難しくない</title>
+      <description>Git の対話的リベース（interactive rebase）は、コミット履歴を整理・修正するための強力なツールです。
+多くの開発者が怖いと感じていますが、基本を理解すれば安全かつ効果的に使用できます。
+適切な使い方を学ぶことで、きれいなコミット履歴を保つことができます。</description>
+      <link>https://cachebag.sh/journal/interactive-rebasing/</link>
+      <pubDate>Sun, 26 Jul 2026 00:37:54 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49053385</guid>
+    </item>
+    <item>
+      <title>[翻訳] システムと遅延の関係性</title>
+      <description>複雑なシステムにおける遅延の問題について論じた記事。
+システムの設計と遅延がどのように相互作用するかについての考察。
+技術的課題への実践的なアプローチが示されている。</description>
+      <link>https://martin.janiczek.cz/2026/07/24/systems-and-delays.html</link>
+      <pubDate>Sun, 26 Jul 2026 00:37:30 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49053382</guid>
+    </item>
+    <item>
+      <title>[翻訳] Inflect-Micro-v2：わずか936万パラメータで完全な音声機能を実現</title>
+      <description>Inflect-Micro-v2は、わずか936万個のパラメータで完全な音声処理機能を備えた軽量モデルである。
+Hugging Face上で公開されており、エッジデバイスやリソース制限環境での利用を想定して設計されている。
+ハッカーニュースで共有されており、コンパクトながら高性能な音声AIモデルとして注目を集めている。</description>
+      <link>https://huggingface.co/owensong/Inflect-Micro-v2</link>
+      <pubDate>Sun, 26 Jul 2026 00:36:30 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49053375</guid>
+    </item>
+    <item>
+      <title>[翻訳] DeepSeekが資金調達を一時停止、米国とのAI計算能力の格差に関する発言が流出</title>
+      <description>DeepSeekの最高経営責任者の投資家向けミーティングの文字起こしが流出し、米国とのAI計算能力（コンピュート）における大きな格差についての発言が公開された。
+この流出を受けてDeepSeekは資金調達活動を一時的に中止することを決定した。
+Hacker Newsでは80ポイント、44件のコメントを獲得し、AI業界における競争力と技術格差についての議論を呼んでいる。</description>
+      <link>https://github.com/demo-zexuan/liang-wenfeng-investor-meeting-2026-7-22/blob/master/%E6%A2%81%E6%96%87%E9%94%8B%E6%8A%95%E8%B5%84%E8%80%85%E4%BA%A4%E6%B5%81%E4%BC%9A-%E6%96%87%E5%AD%97%E7%A8%BF_1_18_translate_20260723201651.pdf</link>
+      <pubDate>Sat, 25 Jul 2026 23:32:50 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49052912</guid>
+    </item>
+    <item>
+      <title>[翻訳] 臨床試験の失敗率が数十年で急増している問題</title>
+      <description>医薬品開発における臨床試験の失敗率が過去数十年間で顕著に上昇している。
+新薬開発の効率性が低下し、成功する医薬品の割合が減少している傾向が見られる。
+業界全体での開発コストの増加と上市までの期間延長につながる深刻な課題である。</description>
+      <link>https://www.science.org/content/blog-post/clinical-failure-rates-over-decades-yikes</link>
+      <pubDate>Sat, 25 Jul 2026 22:57:17 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49052628</guid>
+    </item>
+    <item>
+      <title>[翻訳] Cloudflareが顧客向けにAIトラフィック制御オプションを新提供</title>
+      <description>Cloudflareが、顧客がAIクローラーのトラフィックを管理できる新しいオプションを提供開始。
+このオプションにより、ウェブサイト所有者はAIトレーニング用のデータ収集を制限または許可するかを選択可能。
+デジタルコンテンツの独立性と所有者の権利を尊重する取り組みの一環。</description>
+      <link>https://blog.cloudflare.com/content-independence-day-ai-options/</link>
+      <pubDate>Sat, 25 Jul 2026 22:50:49 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49052564</guid>
+    </item>
+    <item>
+      <title>[翻訳] GMが米国の電力網蓄電にナトリウムイオン電池を採用</title>
+      <description>GMがナトリウムイオン電池を米国の電力網蓄電システムに活用する計画を発表。
+リチウムイオン電池よりもコストが低く、材料の供給が安定しているナトリウムイオン電池の導入を推進。
+再生可能エネルギーの普及とエネルギー貯蔵の課題解決に向けた次世代電池技術の実用化が進む。</description>
+      <link>https://spectrum.ieee.org/sodium-ion-battery-peak-energy</link>
+      <pubDate>Sat, 25 Jul 2026 21:48:22 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49051947</guid>
+    </item>
+    <item>
+      <title>[翻訳] 大規模LLM研究室でのリサーチエンジニア職への道</title>
+      <description>大規模言語モデルを手がける研究機関でのリサーチエンジニアの職務と採用プロセスについて解説している。
+技術スキルとリサーチ能力のバランス、キャリア構築のポイントが紹介されている。
+IT業界での研究職志望者向けの実践的なキャリアガイド記事。</description>
+      <link>https://www.maxmynter.com/pages/blog/jobhunt</link>
+      <pubDate>Sat, 25 Jul 2026 21:19:42 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49051707</guid>
+    </item>
+    <item>
+      <title>[翻訳] 自宅ネットワークにおけるマルチキャストテレビ配信の実装</title>
+      <description>ISPのマルチキャスト技術を活用して、自宅ネットワーク上でテレビ放送を配信する方法について解説しています。
+ネットワークインフラとマルチキャストプロトコルの設定、トラブルシューティングなどの実装ノウハウが共有されています。
+Hacker Newsで39ポイント、10件のコメントを獲得し、ネットワーク管理者の関心を集めています。</description>
+      <link>https://www.apalrd.net/posts/2026/isp_mcast/</link>
+      <pubDate>Sat, 25 Jul 2026 20:55:12 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49051463</guid>
+    </item>
+    <item>
+      <title>[翻訳] 変わりゆく技術トレンドに対応する</title>
+      <description>Fly.ioのブログ記事で、技術分野における変化への適応の重要性について論じています。
+Kurt Scottによる記事で、開発者やエンジニアが直面する技術的課題と解決策が紹介されています。
+Hacker Newsで高い関心を集め、141ポイント、112件のコメントを獲得しています。</description>
+      <link>https://fly.io/blog/kurt-scott-money-sprites/</link>
+      <pubDate>Sat, 25 Jul 2026 20:43:11 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49051369</guid>
+    </item>
+    <item>
+      <title>[翻訳] Claude 5世代モデルにおけるコンテキストエンジニアリングの新しい指針</title>
+      <description>Claude 5世代モデルを効果的に活用するためのコンテキストエンジニアリングの新しいルールが発表された。
+これらのルールはモデルの性能を最大限に引き出し、より正確で有用な結果を得るための指針となる。
+Anthropicが提供するこの新しいアプローチにより、開発者はLLMとのインタラクションをより最適化できるようになる。</description>
+      <link>https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models</link>
+      <pubDate>Sat, 25 Jul 2026 20:42:35 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49051361</guid>
+    </item>
+    <item>
+      <title>[翻訳] Writemark：外部依存なしのインラインMarkdownエディタWebコンポーネント</title>
+      <description>プレーンなテキストエリアの代わりに、Markdownをリアルタイムでプレビューしながら編集できるWebコンポーネント「Writemark」が開発された。
+スラッシュコマンド、テーブル、タスクリスト、コードブロックなどの機能を備えており、フレームワークやツールバー、外部依存なしで単一のコンポーネントを挿入するだけで利用可能。
+手書きパーサーとPlaywrightによる951個のテストを含む堅牢な設計が特徴で、GitHubとNPMで公開されている。</description>
+      <link>https://news.ycombinator.com/item?id=49051130</link>
+      <pubDate>Sat, 25 Jul 2026 20:18:54 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49051130</guid>
+    </item>
+    <item>
+      <title>[翻訳] 連絡が途絶えた相手を追跡するウェブサイト</title>
+      <description>相手からの連絡が途絶えたかどうかを確認できるウェブサービス。
+Hacker Newsで296ポイント、130件のコメントを獲得し注目を集めている。
+ユーザー間で「ゴーストされた」という状況を検証・共有するためのプラットフォーム。</description>
+      <link>https://didtheyghostyou.com/</link>
+      <pubDate>Sat, 25 Jul 2026 20:18:03 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49051120</guid>
+    </item>
+    <item>
+      <title>[翻訳] Debianプロジェクトが大規模言語モデル(LLM)の利用について3つの提案を検討</title>
+      <description>DebianプロジェクトがLLM使用に関する3つの提案について投票を実施している。
+これはDebianコミュニティ内でAI技術の活用方針を決定するための公式な提案投票プロセスである。
+Hacker Newsで77ポイント、66件のコメントを集め、コミュニティ内での関心の高さが伺える。</description>
+      <link>https://www.debian.org/vote/2026/vote_002</link>
+      <pubDate>Sat, 25 Jul 2026 19:44:39 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49050859</guid>
+    </item>
+    <item>
+      <title>[翻訳] ミネソタ州モーリスで風力発電を利用したアンモニアと肥料の生産</title>
+      <description>ミネソタ州モーリスで風力発電を活用したアンモニア製造のデモンストレーション施設が稼働開始しました。
+再生可能エネルギーを利用した柔軟なアンモニア生産システムにより、肥料製造の脱炭素化が進む見込みです。
+電力需要の変動に対応できる技術として、農業産業での活用が期待されています。</description>
+      <link>https://ammoniaenergy.org/articles/flexible-renewable-ammonia-demonstrator-now-operational-in-minnesota/</link>
+      <pubDate>Sat, 25 Jul 2026 19:30:24 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49050735</guid>
+    </item>
+    <item>
+      <title>[翻訳] 8ドルのマイコンで2890万パラメータのLLMを実行</title>
+      <description>ESP32マイコンボード上で約2900万パラメータの大規模言語モデルを動作させることに成功。
+わずか8ドル程度の低コストハードウェアで、AIモデルの推論実行が可能なことを実証。
+エッジデバイスでのAI活用の可能性と、ハードウェアコストの削減を示唆するプロジェクト。</description>
+      <link>https://github.com/slvDev/esp32-ai</link>
+      <pubDate>Sat, 25 Jul 2026 18:59:50 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49050512</guid>
+    </item>
+    <item>
+      <title>[翻訳] メモリ安全性を絶対視する人々</title>
+      <description>メモリ安全性の重要性を巡る技術コミュニティの議論と、その実装における現実的な課題についての記事。
+プログラミング言語やシステム設計における安全性と性能のトレードオフについての考察。
+メモリ安全性の追求に対する異なるアプローチと哲学的な立場の対比。</description>
+      <link>https://itsallaboutthebit.com/memory-safety-absolutists/</link>
+      <pubDate>Sat, 25 Jul 2026 18:08:52 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49050058</guid>
+    </item>
+    <item>
+      <title>[翻訳] Brolly：シンプルなプレーンテキスト天気予報サイト</title>
+      <description>UIが複雑になった英国気象庁サイトへの不満から、ミニマリストな天気予報サイト「Brolly」を開発。7日間予報、1時間単位の詳細データ、花粉情報など充実した機能をテキストベースで提供。\nモバイル向けに単一カラムのスクロール設計を採用し、URLに全ての状態を保存することで、特定の表示をシェア・ブックマークできる仕様。\nGo言語とPlainHTML/JavaScript/CSSで構築、open-meteo APIから天気データ取得、PocketBaseでLRUキャッシュを実装し効率化。</description>
+      <link>https://brolly.sh/forecast/RWFP2qW8</link>
+      <pubDate>Sat, 25 Jul 2026 17:34:34 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49049693</guid>
+    </item>
+    <item>
+      <title>[翻訳] SpinWin – macOSのメニューバーアプリで任意のウィンドウを回転・スピンできる</title>
+      <description>macOS用のオープンソースメニューバーアプリ「SpinWin」は、個別のウィンドウを自由に回転またはスピンさせることができます。
+macOSの公開APIではこの機能が提供されていないため、Accessibility APIを使ってウィンドウをオフスクリーンに移動し、ScreenCaptureKitでキャプチャした内容をCALayerで回転させる実装になっています。
+Swiftで開発されたMITライセンスのアプリで、署名・公証済みです。</description>
+      <link>https://github.com/alokdhir/spinwin</link>
+      <pubDate>Sat, 25 Jul 2026 17:29:55 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49049638</guid>
+    </item>
+    <item>
       <title>[翻訳] テイラー・ファームズが回収遅延を求めてホワイトハウスに連絡</title>
       <description>野菜生産大手のテイラー・ファームズが、サイクロスポーラ汚染に関する製品回収を遅延させるべくホワイトハウスに働きかけを行った。
 同社は政府機関に対して回収の延期を求める圧力をかけていたことが明らかになった。
@@ -203,17 +401,6 @@ Hacker Newsでは129ポイント、121件のコメントで活発に議論され
       <pubDate>Fri, 24 Jul 2026 09:29:44 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=49033110</guid>
-    </item>
-    <item>
-      <title>[翻訳] Buz – A fork of Bun using modern Zig, with sub-1s incremental builds</title>
-      <description>&lt;p&gt;Article URL: &lt;a href="https://ziggit.dev/t/buz-a-drop-in-replacement-for-bun-using-modern-zig-with-sub-1s-incremental-builds/16891"&gt;https://ziggit.dev/t/buz-a-drop-in-replacement-for-bun-using-modern-zig-with-sub-1s-incremental-builds/16891&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49033099"&gt;https://news.ycombinator.com/item?id=49033099&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Points: 246&lt;/p&gt;
-&lt;p&gt;# Comments: 168&lt;/p&gt;</description>
-      <link>https://ziggit.dev/t/buz-a-drop-in-replacement-for-bun-using-modern-zig-with-sub-1s-incremental-builds/16891</link>
-      <pubDate>Fri, 24 Jul 2026 09:26:40 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49033099</guid>
     </item>
     <item>
       <title>[翻訳] プログラミングが解決されたはずなのに、なぜソフトウェアの品質は低下し続けるのか</title>
@@ -1800,196 +1987,6 @@ Hacker Newsで高い関心を集め、活発な議論が行われている（164
       <pubDate>Fri, 17 Jul 2026 16:57:27 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48949551</guid>
-    </item>
-    <item>
-      <title>[翻訳] オープンソースAIの現状</title>
-      <description>オープンソースAIの発展状況と現在の動向をまとめたレポート。
-Hacker Newsで高い関心を集め、371ポイント、270件のコメントを獲得。
-詳細は公式サイト(https://stateofopensource.ai/)で確認可能。</description>
-      <link>https://stateofopensource.ai/</link>
-      <pubDate>Fri, 17 Jul 2026 14:31:10 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48947825</guid>
-    </item>
-    <item>
-      <title>[翻訳] Pebbleスマートウォッチ、2026年7月の大型アップデートを発表</title>
-      <description>Pebbleスマートウォッチプロジェクトが2026年7月の大規模なアップデートをリリース。
-新機能や改善内容の詳細がrepebble.comのブログで公開されている。
-Hacker Newsで話題となり、開発コミュニティからの関心が寄せられている。</description>
-      <link>https://repebble.com/blog/pebble-mega-update-july-2026</link>
-      <pubDate>Fri, 17 Jul 2026 03:53:38 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48943174</guid>
-    </item>
-    <item>
-      <title>[翻訳] Googleがカスタム検索APIを2027年1月に廃止予定</title>
-      <description>Googleはカスタム検索API（Google Custom Search API）を2027年1月1日に廃止することを発表した。
-対象ユーザーには2027年1月までの約9ヶ月間の移行期間が設けられている。
-既存のカスタム検索機能に依存しているサービスやアプリケーションは、代替手段への移行を急ぐ必要がある。</description>
-      <link>https://thenextgennexus.com/2026/05/14/google-kills-custom-search-api-on-jan-1-2027-you-have-9-months/</link>
-      <pubDate>Fri, 17 Jul 2026 01:03:25 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48942250</guid>
-    </item>
-    <item>
-      <title>[翻訳] フロリダ州ポンス・インレット東北東147km地点でM3.9の実験的爆発を観測</title>
-      <description>USGSが記録したマグニチュード3.9の実験的爆発がフロリダ州ポンス・インレットの東北東147km地点で発生。
-このイベントは地震観測ネットワークにより検出され、公式の地震情報ページで詳細が提供されている。
-Hacker Newsで27ポイント、7件のコメントを獲得し、注目を集めている。</description>
-      <link>https://earthquake.usgs.gov/earthquakes/eventpage/us7000t13l/executive</link>
-      <pubDate>Fri, 17 Jul 2026 00:45:05 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48942125</guid>
-    </item>
-    <item>
-      <title>[翻訳] ストリーミングデータから3Dシーンを再構成する基盤モデル「Lingbot-map」</title>
-      <description>ストリーミングデータからリアルタイムで3Dシーンを再構成できる基盤モデル「Lingbot-map」が公開されました。
-従来の静的な3D再構成手法と異なり、動的に変化するビデオやセンサーデータに対応可能です。
-GitHubで実装が公開されており、ロボティクスやAR/VRなど様々な応用が期待されています。</description>
-      <link>https://github.com/Robbyant/lingbot-map</link>
-      <pubDate>Fri, 17 Jul 2026 00:07:49 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48941908</guid>
-    </item>
-    <item>
-      <title>[翻訳] Mojibake – C言語で実装した軽量なUnicodeライブラリ</title>
-      <description>既存のUnicodeライブラリに不満を持つ開発者が、mojibake.hとmojibake.cの2つのファイルのみで構成される軽量なUnicodeライブラリを開発しました。
-正規化、大文字小文字変換、テキスト分割、双方向テキスト、照合、類似文字判定など重要なUnicodeアルゴリズムをすべて実装しており、Linux、macOS、複数のBSD、Windows 11など主要OSで定期的にテストされています。
-WASMデモとドキュメントがサイトで提供されており、GitHubリポジトリでのコントリビューション参加も歓迎されています。</description>
-      <link>https://mojibake.zaerl.com/</link>
-      <pubDate>Thu, 16 Jul 2026 22:29:21 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48941123</guid>
-    </item>
-    <item>
-      <title>[翻訳] 強化学習の小さな教科書</title>
-      <description>強化学習の基礎をまとめたGitHubリポジトリが公開されている。
-Hacker Newsで57ポイント獲得し、9件のコメントが付いている。
-強化学習を学ぶための入門的なリソースとして活用できる。</description>
-      <link>https://github.com/alxndrTL/little-book-rl/</link>
-      <pubDate>Thu, 16 Jul 2026 22:27:22 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48941104</guid>
-    </item>
-    <item>
-      <title>[翻訳] FortiSandboxの認証不要なコマンドインジェクション脆弱性がCISA KEVに登録</title>
-      <description>FortiSandboxに存在する認証不要でコマンドインジェクション攻撃が可能なCVE-2026-25089脆弱性が、CISAの既知悪用脆弱性（KEV）カタログに追加された。
-この脆弱性により、認証されていない攻撃者がシステムに対して任意のコマンドを実行できる可能性がある。
-Fortinetユーザーは早急にセキュリティアップデートを適用することが推奨されている。</description>
-      <link>https://hellorecon.com/blog/cve-2026-25089</link>
-      <pubDate>Thu, 16 Jul 2026 22:07:30 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48940895</guid>
-    </item>
-    <item>
-      <title>[翻訳] コンゴ盆地で新種のサル「リクウェリ」が発見される</title>
-      <description>コンゴ盆地で新しいサルの種「リクウェリ」が発見されました。
-この発見は生物多様性研究において重要な意義を持つものとされています。
-イェール大学の研究チームが中心となって調査・発表を行いました。</description>
-      <link>https://news.yale.edu/2026/07/15/meet-likweli-new-monkey-species-discovered-congo-basin</link>
-      <pubDate>Thu, 16 Jul 2026 22:00:00 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48940833</guid>
-    </item>
-    <item>
-      <title>[翻訳] Ring-Zero：1兆パラメータへのゼロRL拡張と推論能力の出現</title>
-      <description>ゼロから学習する強化学習（Zero RL）を1兆パラメータのモデルにまでスケーリングする技術を提案。
-大規模スケーリングにより、明示的な指示なしに複雑な推論能力が自動的に出現することを実証。
-これまで達成困難だった超大規模モデルでの自己学習を実現し、AI学習パラダイムの転換につながる可能性を示唆。</description>
-      <link>https://arxiv.org/abs/2607.12395</link>
-      <pubDate>Thu, 16 Jul 2026 21:38:02 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48940603</guid>
-    </item>
-    <item>
-      <title>[翻訳] データサイエンスの数学的基礎</title>
-      <description>arxivで公開されたデータサイエンスの数学に関する論文。
-Hacker Newsで96ポイントを獲得し、注目を集めている。
-数学的手法を用いたデータサイエンスのアプローチについて論じた記事。</description>
-      <link>https://arxiv.org/abs/2607.11938</link>
-      <pubDate>Thu, 16 Jul 2026 20:38:48 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939896</guid>
-    </item>
-    <item>
-      <title>[翻訳] ハビタブルゾーン内の近傍岩石系外惑星からヘリウムが逃散</title>
-      <description>ハビタブルゾーン内に位置する近い岩石系外惑星からヘリウムが大気中から逃散していることが観測されました。
-本研究は系外惑星の大気組成と進化を理解する上で重要な知見を提供します。
-惑星の大気保持能力が長期的な居住可能性に与える影響についての新たな視点が示されています。</description>
-      <link>https://www.science.org/doi/10.1126/science.aea9708</link>
-      <pubDate>Thu, 16 Jul 2026 20:24:02 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939742</guid>
-    </item>
-    <item>
-      <title>[翻訳] LM Studio Bionicが登場：オープンモデル向けのAIエージェント</title>
-      <description>LM Studioが新たにオープンモデル対応のAIエージェント「Bionic」をリリースした。
-このツールにより、ユーザーはローカルで実行できるオープンソースのLLMを活用したAI自動化が可能になる。
-Hacker Newsで162ポイントを獲得し、64件のコメントが寄せられるなど高い関心を集めている。</description>
-      <link>https://lmstudio.ai/blog/introducing-lm-studio-bionic</link>
-      <pubDate>Thu, 16 Jul 2026 20:18:15 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939662</guid>
-    </item>
-    <item>
-      <title>[翻訳] 生理追跡アプリに隠された個人情報漏洩の問題</title>
-      <description>生理追跡アプリが女性の機密情報を第三者と共有する実態が指摘されている。
-アプリ開発企業の多くがユーザーの同意なしに個人データを広告企業やデータブローカーに販売している。
-プライバシー保護の観点から、ユーザーは利用規約と情報共有ポリシーを事前に確認する必要がある。</description>
-      <link>https://www.bbc.com/future/article/20260715-how-period-trackers-share-womens-private-details</link>
-      <pubDate>Thu, 16 Jul 2026 20:15:58 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939641</guid>
-    </item>
-    <item>
-      <title>[翻訳] 100ドルで作るAIミュージックビデオ：Claude Fable 5 vs GPT-5.6 Sol の比較</title>
-      <description>Claude Fable 5とGPT-5.6 Solという2つのAIモデルを使用して、100ドルの予算でミュージックビデオを制作する比較実験。
-両モデルの画像生成・動画編集能力、創造性、コスト効率性などを実際に検証。
-AIツールの実用的な性能差と、限られた予算でのAI活用の可能性を探る内容。</description>
-      <link>https://www.tryai.dev/blog/ai-music-video-arena-claude-vs-gpt-5.6</link>
-      <pubDate>Thu, 16 Jul 2026 20:03:23 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48939524</guid>
-    </item>
-    <item>
-      <title>[翻訳] Adaptional（YC S25）が採用を開始</title>
-      <description>Y Combinator S25期に選出されたAdaptionalが新規採用を実施中。
-同社の採用情報はY Combinatorの公式ページで確認できます。
-スタートアップの成長段階での人材募集の情報提供。</description>
-      <link>https://www.ycombinator.com/companies/adaptional/jobs</link>
-      <pubDate>Thu, 16 Jul 2026 17:00:55 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48937125</guid>
-    </item>
-    <item>
-      <title>[翻訳] Traceforce：AI アプリケーションの企業全体セキュリティ監視プラットフォーム</title>
-      <description>Traceforce は、ChatGPT や Claude などの AI アプリケーションの使用状況を全デバイスで可視化・制御するセキュリティ監視ソリューション。
-デバイスに軽量バイナリとブラウザ拡張機能をインストールし、30 分以内にリアルタイムデータを収集・ダッシュボード表示。
-既に 10 組織・1,000 デバイス以上に導入され、秘密鍵の露出防止や危険なコマンド実行の警告など、AI 関連のセキュリティリスクを検出・防止している。</description>
-      <link>https://news.ycombinator.com/item?id=48937020</link>
-      <pubDate>Thu, 16 Jul 2026 16:52:16 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48937020</guid>
-    </item>
-    <item>
-      <title>[翻訳] 古典的な機械学習でLLM生成テキストを検出する</title>
-      <description>LLMが生成したテキストを従来の機械学習手法を用いて検出する方法についての記事。
-深層学習ではなく古典的なアルゴリズムを活用することで、実用的で効率的な検出が可能であることを解説。
-Hacker Newsで159ポイント、105件のコメントを獲得し、注目を集めている。</description>
-      <link>https://blog.lyc8503.net/en/post/llm-classifier/</link>
-      <pubDate>Thu, 16 Jul 2026 16:41:37 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48936880</guid>
-    </item>
-    <item>
-      <title>[翻訳] 囮フォント：セキュリティと視覚的欺瞞の実験</title>
-      <description>MixFontが開発した「Decoy Font」は、視覚的な欺瞞を利用したセキュリティ実験プロジェクト。
-フォントを活用して、ユーザーの知覚を意図的に操作し、セキュリティ脅威への認識を高める試み。
-Hacker Newsで411ポイントを獲得し、98件のコメントを集めるなど、技術コミュニティから注目を集めている。</description>
-      <link>https://www.mixfont.com/experiments/decoy-font</link>
-      <pubDate>Thu, 16 Jul 2026 16:18:21 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48936584</guid>
     </item>
   </channel>
 </rss>
