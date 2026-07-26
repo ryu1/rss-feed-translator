@@ -5,6 +5,2085 @@
     <description>DEV Community 日本語翻訳フィード</description>
     <link>https://dev.to</link>
     <item>
+      <title>[翻訳] Building an Autonomy Error Budget Gateway with SigNoz and OpenTelemetry</title>
+      <description>&lt;p&gt;I built an AI agent that's allowed to run database migrations and clean up staging tables on its own. Then I built a second system whose only job is to take that permission away the moment things start going wrong. That second system is LEASH, and this is the story of building it in about a day for the Agents of SigNoz hackathon.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The problem I actually cared about
+&lt;/h2&gt;
+
+&lt;p&gt;Everyone talks about AI agents "acting autonomously" like it's a settled, safe thing. It isn't. If you give an agent write access to a database and it hallucinates, or one of its tools starts failing silently, nothing stops it from doing that ten more times before a human even notices.&lt;/p&gt;
+
+&lt;p&gt;The usual fix people reach for is "human in the loop." Sounds responsible. In practice it doesn't scale. Nobody is reviewing every single tool call an agent makes at 3am. You either become a rubber stamp clicking approve without reading, or the whole pipeline grinds to a halt waiting on you.&lt;/p&gt;
+
+&lt;p&gt;So I asked a dumber, more mechanical question instead: what if the agent's permissions weren't fixed, and instead moved up and down based on whether its recent actions were actually working?&lt;/p&gt;
+
+&lt;p&gt;That's basically an error budget. SRE teams have used this idea for years for deployments, if a service is burning through its error budget, you freeze releases. I just pointed the same idea at an AI agent's tool calls instead of at deploys.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What LEASH actually is
+&lt;/h2&gt;
+
+&lt;p&gt;LEASH sits between an agent and the tools it's allowed to call. The agent doesn't get to decide for itself if it's trustworthy right now, SigNoz decides, based on real telemetry, and LEASH enforces it.&lt;/p&gt;
+
+&lt;p&gt;There are three tiers:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;T3&lt;/strong&gt; - full authority. Read stuff, write stuff, even destructive cleanup calls.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;T2&lt;/strong&gt; and &lt;strong&gt;T1&lt;/strong&gt; below that, progressively more restricted.&lt;/li&gt;
+&lt;li&gt;At &lt;strong&gt;T1&lt;/strong&gt;, it's read-only. Anything destructive gets a hard no.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The agent starts at T3 by default. It stays there as long as its tool calls keep succeeding. The moment failures pile up past a threshold in a 5 minute window, SigNoz's alert fires, hits a webhook on my broker, and the agent gets demoted before it can do anything else destructive.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  How the pieces actually talk to each other
+&lt;/h2&gt;
+
+&lt;p&gt;I split this into four small services instead of one big one, mostly because I wanted the "agent" and the "thing enforcing policy on the agent" to be genuinely separate processes, not just two functions in the same file pretending to be separate.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;agent-runner&lt;/code&gt; - the fake release agent. Calls tools like &lt;code&gt;read_release_notes&lt;/code&gt;, &lt;code&gt;apply_migration&lt;/code&gt;, &lt;code&gt;delete_staging_table&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;leash-broker&lt;/code&gt; - the actual gateway. Every tool call from the agent goes through here first. It checks the current tier, decides allow or deny, and exposes the webhook endpoint SigNoz hits.&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;migration-tool&lt;/code&gt; and &lt;code&gt;resource-tool&lt;/code&gt; - dumb downstream services doing the actual work, with a flag I can flip to make them start failing on demand.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Every one of these is instrumented with the OpenTelemetry Python SDK, shipping spans, metrics and logs straight to SigNoz over OTLP.&lt;/p&gt;
+
+&lt;p&gt;The part I actually spent the most time getting right wasn't the policy logic, it was making sure the span names and attributes told a story on their own. &lt;code&gt;leash.policy.decision&lt;/code&gt; carries the current tier, the required tier, and the verdict. &lt;code&gt;leash.tool.execute&lt;/code&gt; carries the actual call. If you open a trace in SigNoz without reading any of my code, you should be able to tell exactly why a call was allowed or denied just from the span attributes. That's the whole point of doing this with SigNoz instead of just writing decisions to a log file somewhere, the trace itself becomes the evidence.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Setting up the alert that does the actual work
+&lt;/h2&gt;
+
+&lt;p&gt;This is the one piece where I think a lot of hackathon projects fake it, so I want to be specific about what's real here.&lt;/p&gt;
+
+&lt;p&gt;I set up a metric alert on &lt;code&gt;leash_tool_calls_total&lt;/code&gt;, filtered to &lt;code&gt;tool_name = apply_migration&lt;/code&gt; and &lt;code&gt;outcome = error&lt;/code&gt;, aggregated with sum, threshold &amp;gt;= 3, over a 5 minute window. Nothing fancy. When it fires, SigNoz POSTs straight to &lt;code&gt;http://&amp;lt;host&amp;gt;:18001/webhooks/signoz/demote&lt;/code&gt; with a token header I check on my end, and a payload with the agent id and target tier.&lt;/p&gt;
+
+&lt;p&gt;Getting the webhook payload shape right on the first try didn't happen. I had to actually trigger a real failure in my migration tool, watch the alert fire in the SigNoz UI, and look at what actually landed on my endpoint before I could write the handler properly. Reading the docs told me alerts could call webhooks. It did not tell me exactly what json I'd get on the other end for my specific alert type. That's the kind of detail you only get by doing it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The moment that made this feel real
+&lt;/h2&gt;
+
+&lt;p&gt;Once the failure budget is burned, the agent tries to call &lt;code&gt;delete_staging_table&lt;/code&gt;, which needs T3. LEASH intercepts it and sends back a 403 with a body like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight json"&gt;&lt;code&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"error"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"AUTONOMY_TIER_DENIED"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"agent_id"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"release-agent-01"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"current_tier"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"T1"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"required_tier"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"T3"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"reason"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"migration_error_budget_exhausted"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="nl"&gt;"trace_id"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"de4b97f1896593b813ca4cac9e280584"&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;That trace_id isn't decoration. You can take it, paste it into SigNoz, and pull up the exact three failed migration spans that caused the demotion. The agent isn't refused because a prompt told it to behave. It's refused because there's a paper trail of real failures sitting in SigNoz that says it shouldn't be trusted right now.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What I'd tell someone trying this themselves
+&lt;/h2&gt;
+
+&lt;p&gt;If you're instrumenting something similar, don't skip emitting your own decision as a span. It was tempting to just log allow/deny to stdout and move on. But once &lt;code&gt;leash.policy.decision&lt;/code&gt; became a proper span with its own attributes, I could actually see the whole tier history of an agent run just by looking at one trace waterfall in SigNoz. That single choice made debugging my own policy logic about five times faster, because I wasn't guessing why a call got denied, I was reading it off the span.&lt;/p&gt;
+
+&lt;p&gt;Also, test your alert threshold with real failing calls before you trust it. I originally set my window to 60 seconds and it fired way too eagerly during normal jitter. Bumping it to 5 minutes and requiring 3 consecutive failures instead of 1 made the difference between an alert that's actually meaningful and one that's just noisy.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What I'd change next time
+&lt;/h2&gt;
+
+&lt;p&gt;Right now the tiers are hardcoded per tool. In a real deployment you'd want the risk classification of a tool call to be configurable without redeploying the broker. I also only wired up one alert rule for one failure mode (migration errors). The interesting next step is generalizing this so any metric crossing any threshold can demote any agent, not just this one hardcoded path.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Where this leaves me
+&lt;/h2&gt;
+
+&lt;p&gt;Prompt instructions telling an agent "don't do destructive things if errors happen" are not enforcement, they're a suggestion the model can ignore, misread, or get talked out of. What actually enforces something is a system outside the model's control, reading real telemetry, and physically blocking the call. That's what SigNoz's alerts and OpenTelemetry's traces gave me here that a prompt never could.&lt;/p&gt;
+
+&lt;p&gt;Code's here if you want to poke at it: &lt;a href="https://github.com/Vaibhav13Shukla/LEASH" rel="noopener noreferrer"&gt;github.com/Vaibhav13Shukla/LEASH&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Built for the Agents of SigNoz hackathon, Track 1.&lt;/p&gt;</description>
+      <link>https://dev.to/vaibhav_shukla_20/building-an-autonomy-error-budget-gateway-with-signoz-and-opentelemetry-4ia3</link>
+      <pubDate>Sun, 26 Jul 2026 05:38:53 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/vaibhav_shukla_20/building-an-autonomy-error-budget-gateway-with-signoz-and-opentelemetry-4ia3</guid>
+    </item>
+    <item>
+      <title>[翻訳] X-MaP (Cross-Mapped Programming): Treating the Header Row as a Schema, Rows as Instances, and Columns as Lazy Properties</title>
+      <description>&lt;p&gt;&lt;em&gt;A Japanese-language version of this article is available on &lt;a href="https://zenn.dev/mayakashi/articles/518c85f8acf30c" rel="noopener noreferrer"&gt;Zenn&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;I've prepared a blank map.&lt;br /&gt;
+Fill in what you need, as your own — and draw the shipping lanes, the pipelines, so that data, the traveler, can reach the right destination.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Introduction
+&lt;/h2&gt;
+
+&lt;p&gt;There's an old, well-known technique: put a map in the header row and call into it from the middle of your code by key. This article generalizes that pattern into a full paradigm: the header row is a schema, each row is an instance, each column is a lazy property, and each cell is a polymorphic entity that can hold a value, a function, or a predicate expression. We call this paradigm X-MaP (Cross-Mapped Programming), positioned alongside object-oriented and functional programming as a language-agnostic design paradigm.&lt;/p&gt;
+
+&lt;p&gt;This article presents the paradigm's principles, not an implementation guide for any specific language or framework. Implementation details — dependency resolution order, caching strategy, cycle detection, and so on — are deliberately left to the developer to define for their own environment, and are not covered here.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Core Principles (7)
+&lt;/h2&gt;
+
+&lt;p&gt;X-MaP consists of the following seven principles:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;The header row&lt;/strong&gt; = a schema (a pseudo-metaclass). Each column declares the return type of its getter&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;A row&lt;/strong&gt; = an instance&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;A row's identifier&lt;/strong&gt; is an identifier group of 1 to N columns (never fixed to a single id column)&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;A column&lt;/strong&gt; = a lazy property (lazy getter)&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;A cell&lt;/strong&gt; = a polymorphic entity that can be a value, a function, or a predicate expression&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Normalization (3NF-equivalent)&lt;/strong&gt; = the principle for dividing responsibility across multiple dbs&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Cell access&lt;/strong&gt; goes through a single function, &lt;code&gt;lookup&lt;/code&gt;, as its only path. At its fullest, this function can take four kinds of information: which db (table) to look in, which row (identifier group), which column (lazy getter key), and any extra arguments needed to resolve the value (e.g., &lt;code&gt;lookup(table, identifiers, key, args)&lt;/code&gt; — this ordering is one example, not fixed)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;
+  
+  
+  On Principle 3: why an identifier must never be a single column
+&lt;/h3&gt;
+
+&lt;p&gt;The essence of this principle is that it achieves structural typing and human cognition at the same time, as a single outcome of a single choice. A single id column, however unique its value, is an opaque atom with no internal structure — its meaning is unreadable to a machine and a human alike. Split the identifier into a group of 1 to N columns, each carrying its own meaningful dimension (its own type), and the identifier itself becomes structured data.&lt;/p&gt;
+
+&lt;p&gt;From the machine's side, this is structural typing: the shape of the identifier itself becomes something that can be validated, matched, and pattern-matched against. From the human's side, it's the same thing seen differently: the class (row) reveals, directly in its identifier values, how it came to be — what chain of conditions produced it. This is the same information a human used to read by tracing a nested if in code to see why execution ended up on a given branch.&lt;/p&gt;
+
+&lt;p&gt;The point is that this isn't "a benefit for machines" and "a benefit for humans" existing as two separate things — it's one and the same choice, structuring the identifier, that serves both simultaneously. That's precisely why this is treated as a principle rather than a mere recommendation.&lt;/p&gt;
+
+&lt;p&gt;As a secondary benefit: when the number of rows (classes) grows very large, having identifiers spread across multiple columns lets you narrow down target rows by combining conditions, the way a spreadsheet filter works. This makes the scope of a bulk edit or audit explicit, which reduces the chance of missing a row that should have been updated.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  On Principle 6: normalization is about the boundary between dbs, not within one
+&lt;/h3&gt;
+
+&lt;p&gt;3NF is traditionally used to decide how to split rows within a single table. Here, it's repurposed as the criterion for how to divide responsibility across multiple dbs: any attribute group found to have a transitive functional dependency should be split out into its own db.&lt;/p&gt;
+
+&lt;p&gt;This is a completely separate axis from column-wise splitting, discussed next.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  On Principle 7: why route all cell access through a single lookup function
+&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;lookup&lt;/code&gt; can take four kinds of information at its fullest (one example: &lt;code&gt;lookup(table, identifiers, key, args)&lt;/code&gt; — this particular ordering isn't something you need to follow).&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;table&lt;/strong&gt;: which db (table) to look in. Since Principle 6 assumes multiple dbs can exist side by side, lookup in its general form needs to know which one it's addressing&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;identifiers&lt;/strong&gt;: which row. This reflects the identifier group from Principle 3 (spanning 1 to N columns) directly in the signature. A single-key setup just passes a single-element array or tuple; the signature never has to change for the composite-key case&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;key&lt;/strong&gt;: which column (lazy getter key)&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;args&lt;/strong&gt;: any extra arguments a cell's function/predicate needs when it can't derive everything from the row's own values alone&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This is &lt;code&gt;lookup&lt;/code&gt;'s general form, and the principle itself is defined at this full extent.&lt;/p&gt;
+
+&lt;p&gt;When passing a &lt;code&gt;lookup&lt;/code&gt; to a leaf (a terminal processing unit in a pipeline), &lt;code&gt;table&lt;/code&gt; and part of &lt;code&gt;args&lt;/code&gt; are usually already fixed, so what actually gets passed is a closure with those partially applied — reducing to the minimal &lt;code&gt;lookup(identifiers, key)&lt;/code&gt; form. Passing a row object or the entire table directly into a leaf would leak the underlying storage format (md, csv, RDB, in-memory dict) into the leaf; passing only this minimal closure instead means:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The storage format stays hidden inside the lookup function&lt;/li&gt;
+&lt;li&gt;The leaf never needs to know the table exists at all&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In other words, the minimal form isn't the principle itself — it's a special case of the full form, with &lt;code&gt;table&lt;/code&gt; and &lt;code&gt;args&lt;/code&gt; already bound in advance.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  On Column-Wise Splitting (Cognitive Load, Not a Principle)
+&lt;/h2&gt;
+
+&lt;p&gt;As a table grows wider, moving further to the right increases eye movement and the likelihood of misreading which column corresponds to which value. This is a pure UI/cognitive-ergonomics problem, unrelated to 3NF.&lt;/p&gt;
+
+&lt;p&gt;There's a second, separate problem when md/csv files like these are managed under git: most diff tools are built around line-level change detection, and an extremely long line makes it harder to see exactly what changed, which in turn makes review harder — which column actually moved is not obvious at a glance. Column-wise splitting is therefore not just a readability measure for humans; it's also a practical necessity for keeping reviews tractable under version control.&lt;/p&gt;
+
+&lt;p&gt;X-MaP states only that column-wise splitting exists as a necessity when cognitive load becomes a problem; the specific threshold and splitting strategy (a hard column-count limit, grouping by access frequency, splitting by semantic cluster, etc.) are left unspecified, for developers to define per their environment. This mirrors how OOP states only the principles of encapsulation and polymorphism, leaving concrete class-design guidelines (e.g., SOLID) to a separate layer.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Recommendations (Non-Normative, Environment-Dependent)
+&lt;/h2&gt;
+
+&lt;p&gt;The following are recommendations, not principles, and are not mandatory.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Storage format&lt;/strong&gt;: the essential point is that the editing environment behaves like a spreadsheet — not the underlying storage format itself. Whether you choose md tables, csv, spreadsheets, XML, or JSON is purely a means to an end; any format is fine as long as the editing experience lets you see each row as a record, sort and filter by column, and bulk-edit column-wise. Even a format that's poor for at-a-glance reading as raw text — XML or JSON, for instance — is acceptable if a tool (a VS Code extension, for example) presents it as a grid/table view for editing. Conversely, choosing md/csv as the storage format alone doesn't satisfy this recommendation if the editing environment doesn't actually treat it like a spreadsheet&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Template literals in code&lt;/strong&gt;: in environments where real file I/O is constrained or costly — Google Apps Script (GAS) being a typical example — it's fine to embed md-equivalent text as a template literal directly in code and parse it at runtime instead of using an actual file. Think of it as separating "md as notation" from "md as a file": Principles 1–7 don't depend on where the text physically lives, so this substitution doesn't compromise the paradigm. When hardcoded as a template literal, edits are better made by copying the string out into a proper file of the matching notation (md/csv/etc.), editing it there where syntax highlighting and table-alignment tooling can catch mistakes, and pasting it back — rather than editing the string literal in place, where a misaligned column can go unnoticed by the editor&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Avoid empty cells&lt;/strong&gt;: when a column is added, this forces every existing row to explicitly declare a value, which prevents implementation gaps from silently persisting. Whether this constraint can be machine-verified by the format itself depends on which storage format you choose. Formats with mature schema-validation mechanisms — XSD or RelaxNG for XML, JSON Schema for JSON — let you enforce a rule like "no empty cells" declaratively, via minOccurs or a required-property list, with no need to write a custom linter. Plain md/csv has no such mechanism, so enforcing the same constraint means building your own validation tooling. This is a separate axis from the editing-experience question above — it's worth evaluating storage formats on "can constraints be machine-verified" as its own criterion&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Error handling on lookup failure&lt;/strong&gt;: dumping the call arguments (or otherwise preserving context) at the point of failure keeps pipeline design simpler&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;A column describing the class&lt;/strong&gt;: a self-documenting column explaining what each row (instance) represents is desirable&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Load and cache the db at startup&lt;/strong&gt;: if the file is re-read on every lookup call, using a real file format (md/csv, etc.) means paying I/O cost on every single access. It's better to load the table once at startup, keep it in memory, and have lookup read from that cache. This is distinct from how you memoize the computed result of each lazily-evaluated cell (left as an unspecified corollary) — this recommendation is only about keeping the cost of loading the table itself to a single pass at startup&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  Benefits
+&lt;/h2&gt;
+
+&lt;h3&gt;
+  
+  
+  1. The db becomes part of the specification
+&lt;/h3&gt;
+
+&lt;p&gt;Because the header declares each getter's return type, the schema table doubles as a type-signature table. Since the specification and the implementation live in the same file, drift between spec and implementation is structurally discouraged.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  2. Solves management problems inherent to OOP and FP
+&lt;/h3&gt;
+
+&lt;h4&gt;
+  
+  
+  2-1. Makes implicit dependencies visible
+&lt;/h4&gt;
+
+&lt;p&gt;In OOP, state tends to be implicitly scattered across classes, making dependencies hard to see. In FP, the type signatures of composed functions often aren't visible until runtime. X-MaP forces both onto a single visible surface — the table — so implicit dependencies are structurally exposed.&lt;/p&gt;
+
+&lt;h4&gt;
+  
+  
+  2-2. Structurally prevents implementation gaps
+&lt;/h4&gt;
+
+&lt;p&gt;This follows directly from the "avoid empty cells" recommendation. Adding a column (a feature) forces every existing row (a class) to declare a value. This mechanically prevents the kind of gap that occurs in OOP when a new method is added and a subclass silently fails to override it — the table's visibility alone catches it.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  3. Reduced branching frequency → theoretical speed gains
+&lt;/h3&gt;
+
+&lt;p&gt;Replacing branches with dispatch-table lookups can convert the cost of CPU branch mispredictions (and the resulting pipeline flush) into the cost of a table lookup instead. As of this writing, no benchmarks have been run — this remains a theoretical expectation, not a measured result.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  4. Decoupled leaves enable separated testing responsibility
+&lt;/h3&gt;
+
+&lt;p&gt;As long as a leaf satisfies its contract — "given input, return the type declared in the schema" — the pipeline only needs to verify that the wiring is correct. This structurally separates contract testing (schema conformance) from wiring testing (pipeline design). The identifiers-bound lookup closure described above strengthens this decoupling further.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  5. Ease of extension
+&lt;/h3&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;To add...&lt;/th&gt;
+&lt;th&gt;Do this&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;A class (instance type)&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Add a row&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;A feature (property)&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Add a column&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;The implementation&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Fill in the intersecting cells&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;p&gt;Because empty cells are disallowed by recommendation, adding a column mechanically forces implementation across every existing row, so extension never leaves gaps.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  6. Fewer concurrent-editing conflicts
+&lt;/h3&gt;
+
+&lt;p&gt;Adding a row or a column is each an independent unit of change. When multiple people edit different rows or columns at the same time, merge conflicts are unlikely unless the changes actually intersect. This gives a structurally smaller conflict surface than OOP, where several developers touching different parts of the same class is a common source of merge friction.&lt;/p&gt;
+
+&lt;p&gt;As an aside: because rows are enumerable instances and each cell's return type is declared in the schema, the same table doubles fairly naturally as input data for table-driven tests.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Scope of Applicability: Use Alongside OOP/FP
+&lt;/h2&gt;
+
+&lt;p&gt;In tight hot paths — a simple while loop doing sequential computation, for example — the overhead of a function call plus a type check on every cell resolution can outweigh the cost of a plain if branch.&lt;/p&gt;
+
+&lt;p&gt;For this reason, X-MaP is best understood not as a replacement for OOP/FP but as a design principle applied to the layer defining relationships between entities, branching logic, and business rules. The practical approach is to keep hot-path computation in OOP/FP as usual, and use X-MaP to loosely couple the pieces around it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Adoption Path When Developing with AI
+&lt;/h2&gt;
+
+&lt;p&gt;When development is done by having an LLM write the code, AI as of this writing hasn't seen X-MaP in its training data. Simply instructing it to "write this in X-MaP" tends to produce output that ignores the principles inconsistently.&lt;/p&gt;
+
+&lt;p&gt;A more realistic adoption path is to first have the AI implement things the conventional way (OOP/FP style, nested if statements included), then have it refactor that into X-MaP's structure with this article as a reference. The correspondence between nested if branches and identifier groups / predicate cells (see the note under Principle 3) fits naturally with this staged refactoring approach.&lt;/p&gt;
+
+&lt;p&gt;As AI models pick up enough X-MaP in their training data, this two-stage transitional workflow should become unnecessary.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Left Unspecified (Corollaries, Left to the Developer)
+&lt;/h2&gt;
+
+&lt;p&gt;The following are deliberately excluded from the X-MaP principles and left for implementers to resolve per their environment:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Dependency resolution order between cells, and cycle detection&lt;/li&gt;
+&lt;li&gt;Caching strategy for lazily-evaluated results&lt;/li&gt;
+&lt;li&gt;The concrete design of the boundary between X-MaP and hot-path code&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  On the Name
+&lt;/h2&gt;
+
+&lt;p&gt;Cross-Mapped Programming (X-MaP). The choice of "Mapped" — a past-participle adjective — was made so that it sits grammatically parallel to "Oriented" in Object-Oriented Programming. The abbreviation X-MaP is used as an informal short form throughout.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Summary
+&lt;/h2&gt;
+
+&lt;p&gt;X-MaP is a language-agnostic design paradigm built on the structure "header = schema, row = instance, column = lazy property, cell = polymorphic getter entity," with 3NF repurposed as the criterion for dividing responsibility across dbs, and a single lookup function as the sole path for cell access. Implementation details such as concrete splitting strategies and caching are deliberately left unspecified, presenting X-MaP as a set of principles that can stand alongside OOP and FP rather than replace them.&lt;/p&gt;
+
+
+
+
+&lt;h3&gt;
+  
+  
+  A Disclaimer
+&lt;/h3&gt;
+
+&lt;p&gt;If reading this article leaves you feeling lost about what to do with it, that probably just means it's not the right time to use it yet.&lt;/p&gt;
+
+&lt;p&gt;What I've handed over here is nothing more than a blank map. Fill it in with whatever you need for your own journey (your own development work). Some people will draw in the terrain; others will mark the spots worth visiting along the way. Both are valid uses of the same map. And if you can't think of anything to add to it, that probably just means you haven't yet run into the situation where this map would help.&lt;/p&gt;</description>
+      <link>https://dev.to/mayakashi/x-map-cross-mapped-programming-treating-the-header-row-as-a-schema-rows-as-instances-and-3524</link>
+      <pubDate>Sun, 26 Jul 2026 05:26:53 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/mayakashi/x-map-cross-mapped-programming-treating-the-header-row-as-a-schema-rows-as-instances-and-3524</guid>
+    </item>
+    <item>
+      <title>[翻訳] A changed payTo address is not a honeypot: 272 payTo changes, 13 lookalikes, zero proof</title>
+      <description>&lt;p&gt;In my &lt;a href="https://tryfrisk.dev/blog/screening-x402-payments" rel="noopener noreferrer"&gt;last post&lt;/a&gt; I listed the ways an x402 payment can go wrong. Vector number one was the &lt;strong&gt;dynamic &lt;code&gt;payTo&lt;/code&gt; swap&lt;/strong&gt;: in x402 the destination address can change per request, so a seller can quote you address A and then take payment to address B. I said it was one of the checkable ones.&lt;/p&gt;
+
+&lt;p&gt;So I built the check, wired it into &lt;a href="https://github.com/Jiangw2718i/frisk" rel="noopener noreferrer"&gt;Frisk&lt;/a&gt;'s hosted reputation side, and pointed it at the x402 Bazaar — the public directory of paid endpoints — on a daily crawl. The idea was simple: remember each endpoint's advertised &lt;code&gt;payTo&lt;/code&gt;, and if it changes, that is a swap, so flag the counterparty.&lt;/p&gt;
+
+&lt;p&gt;Over about a month it recorded &lt;strong&gt;272 payTo changes&lt;/strong&gt; across 246 endpoints, and promoted them into &lt;strong&gt;57 &lt;code&gt;honeypot:payto_swap&lt;/code&gt; reputation labels&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Then I looked at what it had actually flagged. The endpoint with the most flags in the entire dataset was &lt;code&gt;x402.browserbase.com&lt;/code&gt;, with 9. Second was &lt;code&gt;x402.tavily.com&lt;/code&gt;, with 8. Browserbase and Tavily are real, funded infrastructure companies. My detector had scored them 0 and told callers they were honeypots.&lt;/p&gt;
+
+&lt;p&gt;Those flags were wrong. So were the rest. What took longer to admit is that they were wrong in five separate ways, and only one of them was the mistake I thought I was making.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What the label actually said
+&lt;/h2&gt;
+
+&lt;p&gt;Before the excuses, the exact damage. A &lt;code&gt;honeypot:payto_swap&lt;/code&gt; label drives the trust score to 0 and raises a &lt;code&gt;high&lt;/code&gt; severity signal. At the default strictness of 0.3 that returns a &lt;strong&gt;&lt;code&gt;review&lt;/code&gt;&lt;/strong&gt; verdict, escalating to &lt;code&gt;block&lt;/code&gt; for a strict caller or any payment over 1000. So Frisk did not literally say "do not pay" — it said "stop and look at this one," which is bad enough when the counterparty is a legitimate vendor rotating a key.&lt;/p&gt;
+
+&lt;p&gt;Worse is the reason string that came with it, which was hardcoded:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;observed in active probing: payto_swap
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Nothing had probed them. These labels came from a passive daily crawl of a public directory. The snapshot job was borrowing the active probe's language, so the API was telling callers it had tested something it never touched. That is the part I find hardest to write down.&lt;/p&gt;
+
+&lt;p&gt;Two things keep this from being a disaster rather than an embarrassment: the hosted API has three keys issued and one active, so almost nobody could have read those labels — and the local, MIT-licensed screening library that most people actually use never had this bug, because it never sees other people's addresses at all.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What a rotating crawl can actually see
+&lt;/h2&gt;
+
+&lt;p&gt;Here is the whole flawed idea in one line: &lt;em&gt;the address changed, therefore something is wrong.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Start with what the crawler can see. It runs once a day and walks a rotating window of 8,000 listings. I had described this as a "daily snapshot," which was wrong twice over. The registry is not a fixed size — my table has accumulated 41,286 endpoint URLs since I started, and never deletes, while the live directory reports a total of about &lt;strong&gt;14,345&lt;/strong&gt; today, drifting by a few between pulls. Against a registry that size an endpoint comes back around every &lt;strong&gt;three to five days&lt;/strong&gt;, not daily, and the tail goes longer.&lt;/p&gt;
+
+&lt;p&gt;It is worse than that. While writing this I checked the crawl cursor and found it had been &lt;strong&gt;stuck since 2026-07-23&lt;/strong&gt;. The registry shrank below the saved offset, so every run fetched an empty window and returned early without rewinding the cursor. Three days of no data collection, silently, because the resume logic could not handle a registry that gets smaller. That is fixed now — an empty window rewinds to zero — but a detector whose evidence depends on visit cadence had been quietly not visiting.&lt;/p&gt;
+
+&lt;p&gt;So when the crawler sees address A on one visit and address B on the next, all it knows is &lt;code&gt;A -&amp;gt; B&lt;/code&gt;, somewhere inside a multi-day gap. That fact is &lt;strong&gt;identical&lt;/strong&gt; whether:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;an honest operator rotated its receiving wallet on a schedule, or migrated its whole fleet to a new treasury address, or&lt;/li&gt;
+&lt;li&gt;an attacker quietly swapped in a wallet they control.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Nothing in &lt;code&gt;A -&amp;gt; B&lt;/code&gt;, observed days apart, distinguishes those. The address change is not evidence of fraud. It is evidence of an address change.&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;count&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;payTo changes recorded&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;272&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;distinct endpoints affected&lt;/td&gt;
+&lt;td&gt;246&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;distinct addresses labeled&lt;/td&gt;
+&lt;td&gt;57&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;accounted for by a single fleet migration&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;109&lt;/strong&gt; (40%)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;matched the address-poisoning &lt;em&gt;lookalike&lt;/em&gt; shape&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;13&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;that the crawl could prove were an attack&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;0&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;h2&gt;
+  
+  
+  The vendors were not rotating nine times. I was sampling nine times.
+&lt;/h2&gt;
+
+&lt;p&gt;The first thing that fell apart was my own headline number.&lt;/p&gt;
+
+&lt;p&gt;Browserbase's endpoint produced 9 recorded changes, Tavily's 8. But when I lined the rows up, &lt;strong&gt;no address ever appeared twice&lt;/strong&gt;. Browserbase's chain runs through ten distinct addresses across those nine changes; Tavily's through nine. Not one repeat, and not one return to a previous address.&lt;/p&gt;
+
+&lt;p&gt;That is not a vendor who rotated nine times. That is a vendor whose address changes at least as often as I look, measured by a crawler that happened to look nine times. My "rotation count" was a fact about my cron schedule. And "the two worst offenders" was wrong in its own right — by raw flag count they rank fifth and sixth, behind hosts that contributed 109, 28, 21 and 15 rows. They only top the list &lt;em&gt;per endpoint&lt;/em&gt;: one endpoint each, changing every single visit.&lt;/p&gt;
+
+&lt;p&gt;You can watch it happen live. Pulling the public discovery API three times over about three hours while writing this, each vendor advertised a different Base address every time:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight console"&gt;&lt;code&gt;&lt;span class="gp"&gt;x402.tavily.com        0x2a09d4fd…fa09a  -&amp;gt;&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;0x68459d07…091af  -&amp;gt;  0x043d2e40…29c7
+&lt;span class="gp"&gt;x402.browserbase.com   0x61ce240e…0633e  -&amp;gt;&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;0x100f307A…13834  -&amp;gt;  0xC09B2303…be12
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Two pulls seventy seconds apart returned identical addresses, so this is not per-request minting visible from the directory — but it is comfortably faster than a crawler that comes back every three to five days.&lt;/p&gt;
+
+&lt;p&gt;Tavily also publishes something worth reading carefully. Its listing quotes two rails, and the second one is not an address at all:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight properties"&gt;&lt;code&gt;&lt;span class="py"&gt;eip155&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s"&gt;8453   0x043d2e40ced48199415f3b2463d0bfab4fc029c7&lt;/span&gt;
+&lt;span class="py"&gt;aws&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s"&gt;base      urn:x402:agent-pay:see-quote&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;A placeholder meaning &lt;em&gt;the address is decided when you ask for a quote&lt;/em&gt;. I want to be precise here, because I got this wrong in an earlier draft of this post: Tavily does advertise a concrete Base address on the standard EVM rail, and that address is the one my pipeline reads. The placeholder sits on a separate rail. But it is still the operator saying out loud that the payment address is not a stable identifier.&lt;/p&gt;
+
+&lt;p&gt;Fresh-address-per-payment is a deliberate design — whatever the motive, it is the opposite of negligent — and a reputation system built on "the address should stay the same" declares the most carefully built endpoints to be the most dangerous ones. That is the failure mode exactly backwards.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Forty percent of my evidence was one event
+&lt;/h2&gt;
+
+&lt;p&gt;Of the 272 changes, &lt;strong&gt;109 came from a single host on a single day&lt;/strong&gt;, every one of them the same old address moving to the same new address. One operator moved its treasury and my detector recorded it 109 times, then wrote a reputation label as if 109 endpoints had independently gone bad. The next largest cluster is 27, also one host, also one day.&lt;/p&gt;
+
+&lt;p&gt;Counting one business decision 109 times is how a scary-looking number gets built. It is also trivially fixable: three or more endpoints under one host making the identical move now collapse into a single observation.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The 13 that looked like an attack
+&lt;/h2&gt;
+
+&lt;p&gt;I do not get to claim the whole dataset was innocent, because 13 of the changes were not ordinary rotation. They belonged to one operator — ten endpoints spread across four subdomains of a single gateway — and each moved between two addresses that are identical except for &lt;strong&gt;one character&lt;/strong&gt;:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;0xb3c2776ce3f99…942ab6
+0xb3c2776ce4f99…942ab6
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Forty-two characters counting the &lt;code&gt;0x&lt;/code&gt;; forty hex digits, of which thirty-nine match. Same leading characters, same trailing characters, one digit different in between. That is the copy-paste-poisoning shape — a near-twin address swapped in so a human eyeballing the ends signs off on it — and it is exactly what my lookalike class was built to catch.&lt;/p&gt;
+
+&lt;p&gt;It is also, on inspection, impossible to be that.&lt;/p&gt;
+
+&lt;p&gt;Address poisoning works by mining a vanity address: you generate keypairs until one lands on an address whose first and last few characters match your target. Matching six characters is cheap. Matching &lt;strong&gt;thirty-nine of forty&lt;/strong&gt; is not — you would be searching on the order of 2^156 keys for the privilege. Nobody mined the second address to look like the first. For the same reason, this cannot be one operator deliberately alternating between two near-twin wallets it controls: nobody can generate that pair on purpose either. Both are plain externally-owned accounts with no contract code, so no CREATE2 salt-grinding produced them either — and that grind costs the same 2^156.&lt;/p&gt;
+
+&lt;p&gt;The rows do not describe a swap, either. Ten endpoints moved from &lt;code&gt;…ce3…&lt;/code&gt; to &lt;code&gt;…ce4…&lt;/code&gt;, and then three moved back. Right now the gateway serves both addresses side by side: on one page of a thousand listings I count 22 pointing at the first and 6 at the second. That is two deployment configurations being rolled in and out, one of which almost certainly contains a mistyped character — one finger landing on the 4 instead of the 3.&lt;/p&gt;
+
+&lt;p&gt;On Base, the first address holds 102.19 USDC and the second holds 1.32, and neither has ever originated a transaction. That last part proves less than it sounds: x402's &lt;code&gt;exact&lt;/code&gt; scheme settles USDC through EIP-3009 &lt;code&gt;transferWithAuthorization&lt;/code&gt;, so a receiving address never needs to send anything, and either balance could be swept by a relayed signature without the nonce ever moving. Whether anyone holds the key to the second address is not something I can see from outside.&lt;/p&gt;
+
+&lt;p&gt;So the scariest-looking flag in the batch is not a honeypot, not a poisoning attempt, and probably not adversarial at all. My detector's most alarming class fired hardest on what looks like a config typo — and if I had shipped that label, I would have published an accusation of fraud against an operator whose actual problem is a stuck digit.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  And one of the false positives was mine alone
+&lt;/h2&gt;
+
+&lt;p&gt;The fourth failure was not in the data. It was in my parser.&lt;/p&gt;
+
+&lt;p&gt;An x402 listing quotes the same resource on several chains, and each quote carries its own &lt;code&gt;payTo&lt;/code&gt;. On the page I sampled, &lt;strong&gt;443 of 1,000 listings advertise more than one distinct payment address at the same time&lt;/strong&gt; — the proportion drifts between pulls, and it is closer to a third across the first five pages. Almost always that is an EVM address plus a Solana one; three distinct EVM addresses on one listing showed up twice in a thousand. I was storing a single &lt;code&gt;counterparty&lt;/code&gt; per endpoint, taken from &lt;code&gt;accepts[0]&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;So "the endpoint's payTo" was never a well-defined value, and the one I recorded depended on the order the registry happened to return. A listing that reordered its array — changing nothing about who gets paid — would appear in my database as a payment address swap.&lt;/p&gt;
+
+&lt;p&gt;Here I have to correct the correction. My first instinct was to say I could not tell how many of the 272 this produced. I can, roughly, and the answer is &lt;em&gt;almost none&lt;/em&gt;: every one of the 272 changes is EVM-to-EVM, and a reordering between the two common rails would show up as an EVM-to-Solana flip, of which there are zero. Only three listings in a thousand carry two distinct EVM addresses. It was a latent landmine, not a contributor — and I only found it by reading the code instead of the counts, which is its own lesson.&lt;/p&gt;
+
+&lt;p&gt;The fix is boring: pick deterministically instead of positionally.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// A listing quoted on several chains carries several payTo values. Taking&lt;/span&gt;
+&lt;span class="c1"&gt;// accepts[0] makes the address we record depend on the order the registry&lt;/span&gt;
+&lt;span class="c1"&gt;// returns, so a reordering upstream reads as a payTo change. Pick the lowest&lt;/span&gt;
+&lt;span class="c1"&gt;// payTo instead: any deterministic rule removes the artifact.&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;quoted&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;accepts&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;filter&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="nx"&gt;accept&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;accept&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;payTo&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;quoted&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;length&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;quoted&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;??&lt;/span&gt; &lt;span class="nx"&gt;accepts&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;quoted&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;reduce&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="nx"&gt;lowest&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;accept&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt;
+  &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;accept&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;payTo&lt;/span&gt; &lt;span class="o"&gt;??&lt;/span&gt; &lt;span class="dl"&gt;""&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;toLowerCase&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;lowest&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;payTo&lt;/span&gt; &lt;span class="o"&gt;??&lt;/span&gt; &lt;span class="dl"&gt;""&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;toLowerCase&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="nx"&gt;accept&lt;/span&gt;
+    &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;lowest&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h2&gt;
+  
+  
+  The signal I confused for a swap — and how it was also broken
+&lt;/h2&gt;
+
+&lt;p&gt;There &lt;strong&gt;is&lt;/strong&gt; a real dynamic-payTo attack, and it is genuinely catchable before you pay. I had aimed the label at the wrong observation.&lt;/p&gt;
+
+&lt;p&gt;The real attack lives &lt;em&gt;inside a single burst of requests&lt;/em&gt;. It is when the endpoint hands different addresses to different callers at the same moment — quote address A to your discovery call, then return address B in the payment requirement a second later. You catch it by probing the same endpoint several times in one burst and checking whether it ever offers two addresses for the same rail.&lt;/p&gt;
+
+&lt;p&gt;That last qualifier is doing a lot of work, and until this week my code did not implement it. The active probe unioned every &lt;code&gt;payTo&lt;/code&gt; across probes with no notion of which chain each quote was for, and read &lt;code&gt;accepts[0]&lt;/code&gt; exactly like the snapshot job did — on the &lt;em&gt;only&lt;/em&gt; code path allowed to write a reputation label. So a multi-chain endpoint whose &lt;code&gt;accepts&lt;/code&gt; came back in a different order across two probes would have promoted a public honeypot label. The bug I was writing a post about was still live in the more dangerous place.&lt;/p&gt;
+
+&lt;p&gt;Worse, the check as written could re-flag the very vendors this post exists to exonerate. If an endpoint mints a fresh address often enough, a "burst" loose enough to straddle one rotation sees two addresses and promotes. So the check now requires both qualifiers — same rail, and inside a window tight enough that ordinary rotation cannot explain it:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// The dynamic-payTo attack is two addresses offered in one breath. Honest&lt;/span&gt;
+&lt;span class="c1"&gt;// operators that mint a fresh address per payment also show two addresses if&lt;/span&gt;
+&lt;span class="c1"&gt;// you watch them long enough — the busiest listings in the Bazaar advertised a&lt;/span&gt;
+&lt;span class="c1"&gt;// different address on every pull hours apart, and never repeated one across a&lt;/span&gt;
+&lt;span class="c1"&gt;// month of crawling — so the burst has to be tight enough that ordinary&lt;/span&gt;
+&lt;span class="c1"&gt;// rotation cannot explain it.&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;BURST_WINDOW_MS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="nx"&gt;_000&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;A change between two crawl visits is the opposite kind of observation. It needs context that a multi-day cadence does not have, so it must &lt;strong&gt;not&lt;/strong&gt; promote:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Longitudinal drift: address differs from the prior snapshot of this endpoint.&lt;/span&gt;
+&lt;span class="c1"&gt;// At crawl cadence this looks identical whether it is a scheduled key rotation&lt;/span&gt;
+&lt;span class="c1"&gt;// by an honest vendor or a rug, so we record it as an observation and never&lt;/span&gt;
+&lt;span class="c1"&gt;// write a reputation label from it.&lt;/span&gt;
+&lt;span class="nx"&gt;findings&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;push&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;behavior&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;payto_swap&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;detail&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;isLookalike&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;from&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;to&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="s2"&gt;`payTo changed to a lookalike of the prior address: &lt;/span&gt;&lt;span class="p"&gt;${&lt;/span&gt;&lt;span class="k"&gt;from&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; -&amp;gt; &lt;/span&gt;&lt;span class="p"&gt;${&lt;/span&gt;&lt;span class="nx"&gt;to&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;`&lt;/span&gt;
+    &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;`payTo changed since prior snapshot: &lt;/span&gt;&lt;span class="p"&gt;${&lt;/span&gt;&lt;span class="k"&gt;from&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; -&amp;gt; &lt;/span&gt;&lt;span class="p"&gt;${&lt;/span&gt;&lt;span class="nx"&gt;to&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;`&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;promote&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="c1"&gt;// recorded, never a reputation label&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;I should be clear about what this remedy has proven: nothing yet. There is no cron for the active probe — it runs by hand — and &lt;code&gt;honeypot_observations&lt;/code&gt; contains &lt;strong&gt;zero&lt;/strong&gt; intra-burst findings to date. The signal I am elevating as the real one has never fired in production. It is the right shape, not a track record.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What changed
+&lt;/h2&gt;
+
+&lt;p&gt;Five changes, all in the direction of claiming less:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;
+&lt;strong&gt;Only intra-burst rotation promotes.&lt;/strong&gt; Snapshot-to-snapshot drift is recorded with &lt;code&gt;promote: false&lt;/code&gt;. It stays in the database so I can study it; it never becomes a public label.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Bulk migrations collapse.&lt;/strong&gt; Three or more endpoints under one host making the identical move become one observation instead of a pile of 109.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Lookalikes are their own class, and survive the collapse.&lt;/strong&gt; A move to a near-twin of the previous address is tagged even when it is part of a fleet migration — which is exactly where the naive version would have hidden it.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;The recorded payTo is chosen deterministically&lt;/strong&gt; on both the snapshot path and the probe path, so a reordered listing stops looking like a swap.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;The intra-burst check is rail-aware and time-bounded&lt;/strong&gt;, so multi-chain listings and per-payment rotation stop looking like attacks.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Then I deleted the damage: the 57 reputation rows the old logic had written, including the ones covering Browserbase and Tavily, purged from production.&lt;/p&gt;
+
+&lt;p&gt;One honest caveat about the guard I put on this. A data-review check counts reputation rows carrying &lt;code&gt;honeypot:payto_swap&lt;/code&gt; and expects zero. It does not assert, and it &lt;em&gt;cannot&lt;/em&gt; tell a drift-written label from a genuine probe-written one, because the reputation row keeps no provenance. A real intra-burst catch would trip it too. Today it reads zero, which today means nothing has re-polluted it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why I am telling you this
+&lt;/h2&gt;
+
+&lt;p&gt;Frisk is meant to be the neutral, auditable place an agent checks before it pays. That only means something if I am willing to audit it out loud — including the times it was wrong. A closed reputation API can quietly score Browserbase at zero and nobody outside ever knows.&lt;/p&gt;
+
+&lt;p&gt;So here is the work: a plausible-sounding heuristic fired 272 times, scored two legitimate companies at zero for doing something &lt;em&gt;better&lt;/em&gt; than the standard, told callers it had actively probed addresses it had never touched, inflated its own evidence 109-to-1, and produced exactly one cluster that looked like a real attack — which turned out to be a typo. Zero of the 272 supported the claim the label made. And the check I had been holding up as the correct one had the same parser bug, on the only path that can write a label.&lt;/p&gt;
+
+&lt;p&gt;The lesson is narrow and I think correct: &lt;strong&gt;do not promote an observation to a reputation claim unless the observation, by itself, supports the claim.&lt;/strong&gt; A payTo change seen once every few days does not — whether it looks innocent or looks like poisoning. An endpoint quoting two addresses for the same rail in the same breath does.&lt;/p&gt;
+
+&lt;p&gt;The local, deterministic checks from the &lt;a href="https://tryfrisk.dev/blog/screening-x402-payments" rel="noopener noreferrer"&gt;first post&lt;/a&gt; are untouched by all of this — none of it changes what runs on your machine before a payment. What changed is what I am willing to say &lt;em&gt;about someone else's&lt;/em&gt; address, and how much evidence I now require before saying it.&lt;/p&gt;
+
+&lt;p&gt;Frisk is MIT-licensed and the screening runs locally with no API key: &lt;a href="https://github.com/Jiangw2718i/frisk" rel="noopener noreferrer"&gt;github.com/Jiangw2718i/frisk&lt;/a&gt;. If you find a case where it is still wrong, that is the most useful bug report I can get — this post is what happens when someone does.&lt;/p&gt;</description>
+      <link>https://dev.to/jiangw2718i/a-changed-payto-address-is-not-a-honeypot-272-payto-changes-13-lookalikes-zero-proof-1jb</link>
+      <pubDate>Sun, 26 Jul 2026 05:17:44 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/jiangw2718i/a-changed-payto-address-is-not-a-honeypot-272-payto-changes-13-lookalikes-zero-proof-1jb</guid>
+    </item>
+    <item>
+      <title>[翻訳] I Built a Security App. Then I Tried to Break It Myself.</title>
+      <description>&lt;p&gt;The day I thought my application was finally "finished"...&lt;/p&gt;
+
+&lt;p&gt;I stopped being its developer.&lt;/p&gt;
+
+&lt;p&gt;And became its attacker.&lt;/p&gt;
+
+&lt;p&gt;That mindset changed everything.&lt;/p&gt;
+
+&lt;p&gt;Most Developers Test Their Software.&lt;/p&gt;
+
+&lt;p&gt;I wanted to challenge mine.&lt;/p&gt;
+
+&lt;p&gt;Instead of asking:&lt;/p&gt;
+
+&lt;p&gt;"Does it work?"&lt;/p&gt;
+
+&lt;p&gt;I started asking questions like:&lt;/p&gt;
+
+&lt;p&gt;What happens if I enter the wrong password repeatedly?&lt;br /&gt;
+Can I bypass my own restrictions?&lt;br /&gt;
+What happens if the application crashes unexpectedly?&lt;br /&gt;
+What if a user does something I never expected?&lt;/p&gt;
+
+&lt;p&gt;Those questions uncovered problems I would never have found through normal testing.&lt;/p&gt;
+
+&lt;p&gt;Working Isn't the Same as Secure&lt;/p&gt;
+
+&lt;p&gt;One of the biggest lessons I learned while building desktop security software is that successful testing can create false confidence.&lt;/p&gt;
+
+&lt;p&gt;A feature can work perfectly under normal conditions...&lt;/p&gt;
+
+&lt;p&gt;...and completely fail when someone intentionally tries to misuse it.&lt;/p&gt;
+
+&lt;p&gt;Security isn't about proving your software works.&lt;/p&gt;
+
+&lt;p&gt;It's about discovering how it fails.&lt;/p&gt;
+
+&lt;p&gt;Developer Mindset&lt;/p&gt;
+
+&lt;p&gt;Does it work?&lt;br /&gt;
+      │&lt;br /&gt;
+      ▼&lt;br /&gt;
+Ship&lt;/p&gt;
+
+&lt;p&gt;Security Mindset&lt;/p&gt;
+
+&lt;p&gt;How can I break it?&lt;br /&gt;
+      │&lt;br /&gt;
+      ▼&lt;br /&gt;
+Find Weakness&lt;br /&gt;
+      │&lt;br /&gt;
+      ▼&lt;br /&gt;
+Improve&lt;br /&gt;
+      │&lt;br /&gt;
+      ▼&lt;br /&gt;
+Repeat&lt;br /&gt;
+Every Weakness Was a Lesson&lt;/p&gt;
+
+&lt;p&gt;Every issue I found forced me to rethink my design.&lt;/p&gt;
+
+&lt;p&gt;Sometimes I rewrote entire modules.&lt;/p&gt;
+
+&lt;p&gt;Sometimes the fix was surprisingly small.&lt;/p&gt;
+
+&lt;p&gt;The important part wasn't avoiding mistakes.&lt;/p&gt;
+
+&lt;p&gt;It was refusing to ignore them.&lt;/p&gt;
+
+&lt;p&gt;Building ATLOCK Changed My Perspective&lt;/p&gt;
+
+&lt;p&gt;Before this project, I thought writing software meant adding features.&lt;/p&gt;
+
+&lt;p&gt;Now I think writing security software means asking uncomfortable questions.&lt;/p&gt;
+
+&lt;p&gt;Every feature should survive not only normal use...&lt;/p&gt;
+
+&lt;p&gt;...but also determined misuse.&lt;/p&gt;
+
+&lt;p&gt;That's a completely different way of thinking.&lt;/p&gt;
+
+&lt;p&gt;One Habit I'll Keep Forever&lt;/p&gt;
+
+&lt;p&gt;Whenever I finish building a feature, I now ask myself one question before calling it complete:&lt;/p&gt;
+
+&lt;p&gt;"If I wanted to bypass this, what would I try first?"&lt;/p&gt;
+
+&lt;p&gt;That single question has improved my software more than any framework, library, or tool I've used.&lt;/p&gt;
+
+&lt;p&gt;Security isn't a destination.&lt;/p&gt;
+
+&lt;p&gt;It's a mindset.&lt;/p&gt;
+
+&lt;p&gt;And sometimes your best tester...&lt;/p&gt;
+
+&lt;p&gt;is the person who built the software.&lt;/p&gt;
+
+&lt;p&gt;If you've built software before, what's one bug or design flaw you only discovered after trying to break your own project? I'd love to hear those stories.&lt;br /&gt;
+Try ATLOCK now: &lt;a href="https://github.com/Akhouri-Anmol-Kumar/ATLOCK" rel="noopener noreferrer"&gt;https://github.com/Akhouri-Anmol-Kumar/ATLOCK&lt;/a&gt;&lt;br /&gt;
+Get ATLOCK downloaded in one click: &lt;a href="https://github.com/Akhouri-Anmol-Kumar/ATLOCK/releases/download/v4.0/ATLOCK.zip" rel="noopener noreferrer"&gt;https://github.com/Akhouri-Anmol-Kumar/ATLOCK/releases/download/v4.0/ATLOCK.zip&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;"We Build What Others Forgot To Fix"&lt;/p&gt;</description>
+      <link>https://dev.to/akhourianmolkumar/i-built-a-security-app-then-i-tried-to-break-it-myself-59he</link>
+      <pubDate>Sun, 26 Jul 2026 05:17:43 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/akhourianmolkumar/i-built-a-security-app-then-i-tried-to-break-it-myself-59he</guid>
+    </item>
+    <item>
+      <title>[翻訳] Empire LLM for Codex: AI Code Review Without the Chaos</title>
+      <description>&lt;h2&gt;
+  
+  
+  The single principle that makes this plugin worth installing
+&lt;/h2&gt;
+
+&lt;p&gt;A clean principle beats a clever feature every time. Empire LLM for Codex ships one: &lt;strong&gt;external models contribute evidence, not authority&lt;/strong&gt;. That sentence is the product. It is also the right answer to a problem every team shipping with multiple AI models has already hit.&lt;/p&gt;
+
+&lt;p&gt;Most "AI code review" plugins treat external models like copilots with partial access. Some will edit files. Some will run commands. A few will quietly approve their own patches. When you stack three or four of these together you do not get three or four opinions — you get three or four partial agents arguing about your repository at 2am while your cost dashboard quietly catches fire.&lt;/p&gt;
+
+&lt;p&gt;Empire LLM for Codex takes the opposite bet. Codex stays the lead. The plugin routes a bounded request through OpenRouter, applies capability / privacy / availability / cost policies, and brings back a response with its provenance and cost visible. Codex then decides what — if anything — to do with it. The external model cannot edit the project, cannot execute code, cannot approve its own proposal, and cannot silently merge a result. That boundary is the entire product.&lt;/p&gt;
+
+&lt;p&gt;That is the part worth celebrating. It is also rare.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The chaos this is replacing
+&lt;/h2&gt;
+
+&lt;p&gt;Developers already ask multiple AI models for help. The workflow looks like this:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Copy a diff into another chat&lt;/li&gt;
+&lt;li&gt;Ask a different model to challenge the architecture&lt;/li&gt;
+&lt;li&gt;Compare answers&lt;/li&gt;
+&lt;li&gt;Return to the original coding environment and decide what to trust&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;That workflow is useful. It is also informal in every way that matters. The evidence sent to each model is inconsistent. Model selection relies on reputation rather than current capability. Cost only becomes clear after the call. Provider substitutions are invisible. And the line between &lt;em&gt;advice&lt;/em&gt; and &lt;em&gt;implementation authority&lt;/em&gt; blurs every time you paste a suggestion back into the editor.&lt;/p&gt;
+
+&lt;p&gt;Empire LLM for Codex formalises exactly this loop. Codex defines a focused request and selects the minimum useful context. The plugin applies the policies. The response comes back bounded and labelled. Codex evaluates and decides.&lt;/p&gt;
+
+&lt;p&gt;That is a meaningful upgrade over copy-paste-between-tabs:&lt;/p&gt;
+
+&lt;div class="table-wrapper-paragraph"&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Informal multi-model review&lt;/th&gt;
+&lt;th&gt;Empire LLM for Codex&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Context selection is ad hoc&lt;/td&gt;
+&lt;td&gt;Codex picks the minimum useful context&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Model choice is reputation-driven&lt;/td&gt;
+&lt;td&gt;Capability / availability / cost policy applied&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Cost shows up after the call&lt;/td&gt;
+&lt;td&gt;Cost is visible on the response&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Provenance is your memory&lt;/td&gt;
+&lt;td&gt;Provenance travels with the response&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Authority and advice blur&lt;/td&gt;
+&lt;td&gt;Authority stays with Codex&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+&lt;h2&gt;
+  
+  
+  What "evidence, not authority" actually enforces
+&lt;/h2&gt;
+
+&lt;p&gt;The principle sounds like marketing copy until you read what the plugin blocks. From the plugin's own framing in &lt;a href="https://medium.com/@web5labs.llc/empire-llm-for-codex-ai-code-review-without-agent-chaos-129edc50e74d" rel="noopener noreferrer"&gt;Empire LLM for Codex: AI Code Review Without Agent Chaos&lt;/a&gt;, the external model:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;cannot edit the project&lt;/li&gt;
+&lt;li&gt;cannot execute code&lt;/li&gt;
+&lt;li&gt;cannot approve its own proposal&lt;/li&gt;
+&lt;li&gt;cannot silently merge a result&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That is four explicit refusals. Each one closes a real failure mode that has cost real teams real money. Silent merges from over-permissioned agents, runaway execution from "helpful" bots, and self-approving patches that look reviewed because a model produced them — all four are blocked at the boundary.&lt;/p&gt;
+
+&lt;p&gt;The implementation shape that makes this enforceable is straightforward:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Codex stays the decision-maker&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;task&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;codex&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;defineTask&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;intent&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;review this diff for race conditions&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;context&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;codex&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;minimumUsefulContext&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;diff&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Plugin routes through OpenRouter under explicit policy&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;opinion&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;empire&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;route&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="nx"&gt;task&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;policies&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="na"&gt;capability&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;   &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;reasoning&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;code-review&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="na"&gt;privacy&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;      &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;no-repo-contents&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="na"&gt;availability&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;primary-or-failover&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="na"&gt;cost&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;         &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;perCallCeilingUsd&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.05&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Empire returns evidence with provenance + cost&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;receipt&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="na"&gt;provider&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;  &lt;span class="nx"&gt;opinion&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;provider&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;   &lt;span class="c1"&gt;// actual OpenRouter route taken&lt;/span&gt;
+  &lt;span class="na"&gt;model&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;     &lt;span class="nx"&gt;opinion&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;model&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;      &lt;span class="c1"&gt;// which model actually answered&lt;/span&gt;
+  &lt;span class="na"&gt;tokens&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;    &lt;span class="nx"&gt;opinion&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;usage&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;costUsd&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;   &lt;span class="nx"&gt;opinion&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;cost&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;citations&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;opinion&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;evidenceRefs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="na"&gt;proposal&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;  &lt;span class="nx"&gt;opinion&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;text&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Codex decides — never the external model&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;decision&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;codex&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;evaluate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;receipt&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;decision&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;accepted&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nx"&gt;codex&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;apply&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;decision&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;patch&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The exact field names may vary in your install, but the shape is the point: the request is bounded, the response is bounded, the cost is visible, and the authority to mutate lives in exactly one place.&lt;/p&gt;
+
+&lt;p&gt;[[DIAGRAM: Codex defines task and minimum context → plugin routes request through OpenRouter under policy → external model returns bounded response with provenance and cost → Codex evaluates receipt and decides what to apply]]&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  How to actually use this today
+&lt;/h2&gt;
+
+&lt;p&gt;If you already run Codex as your coding agent, the plugin fits the workflow you already have. Three concrete steps get you a working first review.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1. Install the plugin alongside Codex.&lt;/strong&gt; It plugs into the Codex surface you already use, not replaces it. Codex remains your editor, your committer, and your reviewer of record.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2. Define a task with minimum context.&lt;/strong&gt; The cost and quality of any external review is dominated by what you send in. Treat the request payload like a prompt you would hand to a senior reviewer: the diff, the relevant files, the question you actually want answered, and nothing else. Smaller context = cheaper call = better answer.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3. Read the receipt before you act.&lt;/strong&gt; Every external response comes back with provider, model, token usage, cost, and the evidence the model cited. Treat that receipt the way you would treat a code comment from a contractor: useful, attributed, but never authoritative.&lt;/p&gt;
+
+&lt;p&gt;The governed-media-generation piece is the other half worth noting. External models can produce diagrams, mock-ups, and reference images — useful artefacts, but the kind of thing that historically slips past review because it "looks like a design." Empire treats generated media the same way it treats text suggestions: produced, labelled, returned, and decided on by Codex. The pipeline does not quietly drop a generated diagram into your assets folder.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The deeper pattern: more models is not more intelligence
+&lt;/h2&gt;
+
+&lt;p&gt;The plugin's framing is sharper than most launch posts: &lt;em&gt;more models do not automatically produce more intelligence&lt;/em&gt;. Without boundaries they produce more cost, more exposure, and more ambiguity.&lt;/p&gt;
+
+&lt;p&gt;That is the line to keep. Every six months a new flagship model ships, a new "agentic" wrapper lands, and a new tool promises to coordinate them. Most of them work. Some of them are genuinely impressive. The thing that does not change across any of that churn is the boundary you draw between &lt;em&gt;advice&lt;/em&gt; and &lt;em&gt;authority&lt;/em&gt; — and the artefact you actually ship.&lt;/p&gt;
+
+&lt;p&gt;This is where a controlled review pipeline and a stable cross-platform component layer stop competing and start composing. While the model layer rotates underneath you, the part your users touch should look and behave the same on web, iOS, and Android — one API, one set of components, one design language. That is the durable layer that does not depend on which model reviewed your last PR. The OTF component kit plays exactly this role: it sits underneath whichever AI tool shipped this week and stays standing when the next one ships next month.&lt;/p&gt;
+
+&lt;p&gt;Use Empire LLM for Codex to keep the intelligence layer honest. Use a cross-platform UI layer to keep the shipping layer boring. The boring part is the part your users remember.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What to watch
+&lt;/h2&gt;
+
+&lt;p&gt;The plugin ships three boundaries that are easy to under-appreciate until you need them: bounded request scope, provenance on every response, and explicit refusal to grant repository authority. The combination is what separates a useful second opinion from a coworker you cannot fire.&lt;/p&gt;
+
+&lt;p&gt;The honest gap: there are no public benchmarks yet for review quality, false-positive rate on adversarial diffs, or cost variance across providers. That is the thing to watch. For now the architectural choice — Codex as lead, external model as evidence — is the part that does not depend on any single benchmark number.&lt;/p&gt;
+
+&lt;p&gt;If you are already pulling multiple models into your Codex loop, this is the cleanest way to do it without granting any of them the keys.&lt;/p&gt;</description>
+      <link>https://dev.to/davekurian/empire-llm-for-codex-ai-code-review-without-the-chaos-838</link>
+      <pubDate>Sun, 26 Jul 2026 05:05:56 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/davekurian/empire-llm-for-codex-ai-code-review-without-the-chaos-838</guid>
+    </item>
+    <item>
+      <title>[翻訳] A Smarter Workflow for Debugging and Problem-Solving</title>
+      <description>&lt;p&gt;There is a moment every developer knows well: you stare at a function that worked perfectly yesterday, and now it doesn't. The test suite is red, the logs say nothing useful, and you've been looking at the same twenty lines for forty minutes. The problem isn't that &lt;a href="https://dte.telkomuniversity.ac.id/debugging-dan-penanganan-error-dalam-kode-program/" rel="noopener noreferrer"&gt;debugging&lt;/a&gt; is hard. The problem is that most developers never build a real debugging workflow — they improvise, every single time.&lt;/p&gt;
+
+&lt;p&gt;A structured debugging workflow changes that. It turns a frustrating, open-ended process into a repeatable sequence of decisions, and it gets you to the root cause faster than instinct alone ever will.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Stop Guessing, Start Observing
+&lt;/h2&gt;
+
+&lt;p&gt;The most common debugging mistake is jumping straight to a fix before you understand the problem. You see an unexpected &lt;code&gt;null&lt;/code&gt; and immediately start adding guard clauses. You get a &lt;code&gt;500&lt;/code&gt; error and start commenting out code. This produces a cycle of blind changes that can mask the real issue — or introduce new ones.&lt;/p&gt;
+
+&lt;p&gt;Before touching a single line of code, your first move should be to describe the problem in plain language. Write it down if you have to. What did you expect to happen? What actually happened? Where is the boundary between the two? This sounds trivially simple, but forcing yourself to articulate the discrepancy shifts your brain from reaction mode into observation mode. You stop guessing and start reading.&lt;/p&gt;
+
+&lt;p&gt;A useful exercise here is rubber duck debugging, named after the idea of explaining your code to an inanimate object. The act of narrating your logic out loud — or even in a comment block — has a remarkable tendency to surface the flaw. The moment you say "and then this function returns the updated value, which gets passed to..." you often catch the exact step where your mental model diverges from reality.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Reproduce the Bug Reliably
+&lt;/h2&gt;
+
+&lt;p&gt;You cannot fix what you cannot reproduce. If the bug only appears sometimes, or only on your colleague's machine, your first task is to identify the exact conditions that trigger it. Environment, data shape, call order, timing — any of these can be a hidden variable.&lt;/p&gt;
+
+&lt;p&gt;The goal is a minimum reproducible example: the smallest possible piece of code that demonstrates the failure. Strip out every dependency that isn't directly involved. Replace real API calls with stub data. Reduce the input to the simplest case that still breaks.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="c1"&gt;# Before: hard to isolate because of real dependencies
+&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;test_order_total&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;user&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;fetch_user_from_db&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;cart&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;get_active_cart&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nf"&gt;apply_discount&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cart&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;promo_code&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;SAVE10&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;calculate_total&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cart&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mf"&gt;90.0&lt;/span&gt;
+
+&lt;span class="c1"&gt;# After: minimum reproducible example
+&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;test_order_total_isolated&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;cart&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;items&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;price&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;100.0&lt;/span&gt;&lt;span class="p"&gt;}]}&lt;/span&gt;
+    &lt;span class="n"&gt;discount&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.10&lt;/span&gt;
+    &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;price&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cart&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;items&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;discount&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mf"&gt;90.0&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Once you have a reproducible case, you've already done half the work. You've proven the bug exists independently of external systems, and you have a clear target for your fix.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Read the Error Message — Actually Read It
+&lt;/h2&gt;
+
+&lt;p&gt;This sounds obvious, but error messages are consistently underread. Developers scan the first line, recognize a familiar exception type, and jump to conclusions. The stack trace contains the actual story, and it's usually worth reading from bottom to top.&lt;/p&gt;
+
+&lt;p&gt;Python tracebacks, for instance, show the outermost call at the top and the point of failure at the bottom. The line that matters is almost always near the end — the specific file, line number, and expression where execution stopped. Similarly, JavaScript console errors frequently include the call stack, which tells you exactly how you arrived at the failing state.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Misread: "TypeError: Cannot read properties of undefined"&lt;/span&gt;
+&lt;span class="c1"&gt;// → Developer thinks: "something is undefined, add a check"&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Actually read: line 47, `user.profile.avatar`&lt;/span&gt;
+&lt;span class="c1"&gt;// → user exists, but user.profile is undefined&lt;/span&gt;
+&lt;span class="c1"&gt;// → the real question is: why was the profile not populated?&lt;/span&gt;
+
+&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;getUserAvatar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;userId&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;user&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nf"&gt;fetchUser&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;userId&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// user arrives without profile key&lt;/span&gt;
+  &lt;span class="nx"&gt;console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;user&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// { id: 1, name: "Alex" } — profile missing entirely&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;profile&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;avatar&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// crashes here&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;When you take the error message seriously, you're often led directly to the root cause rather than a symptom. The TypeError above isn't about adding a null check — it's about a missing field from the data source, which is a fundamentally different problem.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Isolate the Failing Layer
+&lt;/h2&gt;
+
+&lt;p&gt;Complex applications involve multiple systems talking to each other: a frontend, an API layer, a database, external services. When something breaks, your debugging workflow needs a way to narrow down which layer owns the problem without testing all of them at once.&lt;/p&gt;
+
+&lt;p&gt;The most reliable technique is bisection. If you suspect a pipeline of five steps, test the midpoint. If the midpoint is correct, the problem is downstream. If it's wrong, the problem is upstream. Keep bisecting until you've pinpointed the single step that produces unexpected output.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;process_pipeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;raw_input&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;step1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;parse_input&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;raw_input&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;step2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;validate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;step1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;step3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;transform&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;step2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;step4&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;enrich&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;step3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;step5&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;format_output&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;step4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;step5&lt;/span&gt;
+
+&lt;span class="c1"&gt;# Debugging via bisection:
+&lt;/span&gt;&lt;span class="nb"&gt;raw_input&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;get_test_input&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;step1&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;parse_input&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;raw_input&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;After parse:&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;step1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;# looks correct
+&lt;/span&gt;
+&lt;span class="n"&gt;step3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;transform&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;validate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;step1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;After transform:&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;step3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;# wrong value here
+&lt;/span&gt;
+&lt;span class="c1"&gt;# Now we know: the bug is in validate() or transform()
+&lt;/span&gt;&lt;span class="n"&gt;step2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;validate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;step1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nf"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;After validate:&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;step2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;# also wrong — problem is in validate()
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This approach avoids the trap of testing everything from scratch every time. You divide the search space, confirm the safe zones, and close in on the problem systematically.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Use Logging as a First-Class Tool
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;print()&lt;/code&gt; debugging has a bad reputation, but the underlying idea — inserting observability into your code — is sound. The issue isn't logging; it's logging poorly. Printing a variable name without context, or logging after the fact when you don't know what you needed to capture, wastes time.&lt;/p&gt;
+
+&lt;p&gt;The smarter approach is to set up structured logging before problems arise, so that when things break, you already have the information you need. In Python, the &lt;code&gt;logging&lt;/code&gt; module gives you control over levels, formats, and output destinations. In production systems, structured JSON logs are often the difference between a fifteen-minute fix and a three-hour hunt.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;logging&lt;/span&gt;
+
+&lt;span class="n"&gt;logging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;basicConfig&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;level&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;logging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DEBUG&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nb"&gt;format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;%(asctime)s [%(levelname)s] %(name)s: %(message)s&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;logger&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;logging&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;getLogger&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;calculate_discount&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;price&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;promo_code&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;debug&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Calculating discount | price=%.2f promo=%s&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;price&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;promo_code&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;discount&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;lookup_discount&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;promo_code&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;debug&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Discount rate resolved | rate=%.2f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;discount&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;final&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;price&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;discount&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;Discount applied | original=%.2f final=%.2f&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;price&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;final&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;final&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;When you log inputs, outputs, and key intermediate values with consistent labels, you can reconstruct the execution path without a debugger. More importantly, you can grep your logs for patterns across many requests — which is something &lt;code&gt;print()&lt;/code&gt; alone can't give you.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Know When to Walk Away
+&lt;/h2&gt;
+
+&lt;p&gt;There is a productivity illusion in debugging where the longer you sit with a problem, the closer you feel to solving it. Most of the time, the opposite is true. After a certain point, continued staring degrades your judgment rather than improving it.&lt;/p&gt;
+
+&lt;p&gt;The best thing you can do after thirty to forty-five minutes of making no progress is to step away from the screen entirely. A short walk, a different task, or even a night's sleep causes what researchers call diffuse thinking — the brain continues working on the problem in the background, making connections that focused attention misses. The "shower insight" phenomenon is real, and it's not a luxury; it's a legitimate part of the problem-solving process.&lt;/p&gt;
+
+&lt;p&gt;When you return, start fresh. Re-read your notes on the problem. Ask yourself whether your original assumption about what broke is still justified, or whether new evidence has shifted things. Often, the first hypothesis was wrong, and you've been chasing a ghost.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Workflow in Practice
+&lt;/h2&gt;
+
+&lt;p&gt;A reliable debugging workflow isn't about following rigid steps on every small bug. It's about having a default sequence you reach for when you're stuck, rather than spending that time thrashing. Reproduce reliably, observe before acting, read the error in full, bisect the failing layer, log with intention, and rest when you're spinning. The best engineers aren't the ones who never get stuck — they're the ones who get unstuck fastest.&lt;/p&gt;
+
+&lt;p&gt;If you take only one thing from this, let it be the reproducible example. Everything else in a good debugging workflow depends on having a clean, isolated case to work with. Build that first, and the path forward becomes much shorter.&lt;/p&gt;</description>
+      <link>https://dev.to/fuadhusnan_f44f3e13/a-smarter-workflow-for-debugging-and-problem-solving-l3m</link>
+      <pubDate>Sun, 26 Jul 2026 04:54:23 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/fuadhusnan_f44f3e13/a-smarter-workflow-for-debugging-and-problem-solving-l3m</guid>
+    </item>
+    <item>
+      <title>[翻訳] Closing Angular's aesthetic gap</title>
+      <description>&lt;h2&gt;
+  
+  
+  Closing Angular's aesthetic gap: building AxisUI, a signals-first component library
+&lt;/h2&gt;
+
+&lt;p&gt;If you've built an Angular product in the last two years, you've felt this. The libraries that redefined what "modern component design" looks like — shadcn/ui, Radix, Park UI — showed up for React and mostly stayed there. Angular got thin ports, abandoned ports, or nothing.&lt;/p&gt;
+
+&lt;p&gt;So Angular teams keep making the same trade: adopt Angular Material and accept its Material-Design aesthetic everywhere, or wire up Tailwind plus a headless-primitive library by hand and absorb the cost of keeping fifty components visually consistent yourselves.&lt;/p&gt;
+
+&lt;p&gt;I got tired of that trade, so I built the third option.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;AxisUI&lt;/strong&gt; is a UI component library for Angular 20: 100+ components, signals-first, standalone by default, styled with Tailwind v4 and OKLCH tokens, accessible to WCAG 2.2 AA — with the accessibility checks running in CI, not just claimed in a README. Every component is MIT.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Live demo:&lt;/strong&gt; &lt;a href="https://axisui-demo.pages.dev" rel="noopener noreferrer"&gt;https://axisui-demo.pages.dev&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Docs:&lt;/strong&gt; &lt;a href="https://axisui.dev" rel="noopener noreferrer"&gt;https://axisui.dev&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;Storybook:&lt;/strong&gt; &lt;a href="https://axisui-storybook.pages.dev" rel="noopener noreferrer"&gt;https://axisui-storybook.pages.dev&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;npm:&lt;/strong&gt; &lt;code&gt;@axisui-ng/angular&lt;/code&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;
+  
+  
+  What "Angular 20, done right" actually means
+&lt;/h3&gt;
+
+&lt;p&gt;No &lt;code&gt;NgModule&lt;/code&gt;. No &lt;code&gt;@Input()&lt;/code&gt;/&lt;code&gt;@Output()&lt;/code&gt; decorators. The whole library is built on the modern reactivity primitives:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;Component&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;@angular/core&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;AxButtonComponent&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;@axisui-ng/angular&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="p"&gt;@&lt;/span&gt;&lt;span class="nd"&gt;Component&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;imports&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;AxButtonComponent&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+  &lt;span class="na"&gt;template&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;`
+    &amp;lt;ax-button variant="primary" size="md" (clickEvent)="save()"&amp;gt;
+      Save changes
+    &amp;lt;/ax-button&amp;gt;
+  `&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;})&lt;/span&gt;
+&lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;SettingsComponent&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Components use &lt;code&gt;input()&lt;/code&gt; / &lt;code&gt;output()&lt;/code&gt; / &lt;code&gt;model()&lt;/code&gt;, run &lt;code&gt;OnPush&lt;/code&gt; everywhere, and are zoneless-ready and SSR-safe — they work in Angular Universal and in both zoneless and Zone.js apps. Standalone means you import the component, not a module barrel.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Accessibility is a test, not a promise
+&lt;/h3&gt;
+
+&lt;p&gt;Most libraries say "accessible." AxisUI runs &lt;code&gt;jest-axe&lt;/code&gt; against every component in CI, in three axes: LTR and RTL, and light and dark. A component that regresses an ARIA contract or a contrast ratio fails the build. There are 150 test suites behind the library doing this and more.&lt;/p&gt;
+
+&lt;p&gt;That's the part I most want scrutinized — if you find an a11y gap, that's a bug report I want.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Install only what you ship
+&lt;/h3&gt;
+
+&lt;p&gt;AxisUI is published as per-category packages behind one umbrella. Want everything, wired up with Tailwind and tokens in one step?&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;ng add @axisui-ng/angular
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Want just a button and forms in an existing app?&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;npm i @axisui-ng/buttons @axisui-ng/forms
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;A consumer who only imports a button ships a button. The category split (&lt;code&gt;buttons&lt;/code&gt;, &lt;code&gt;forms&lt;/code&gt;, &lt;code&gt;data&lt;/code&gt;, &lt;code&gt;overlays&lt;/code&gt;, &lt;code&gt;navigation&lt;/code&gt;, &lt;code&gt;charts&lt;/code&gt;, &lt;code&gt;feedback&lt;/code&gt;, &lt;code&gt;layout&lt;/code&gt;, and more) keeps that honest.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Theming: Tailwind v4 + OKLCH
+&lt;/h3&gt;
+
+&lt;p&gt;Theming lives in a Tailwind v4 &lt;code&gt;@theme&lt;/code&gt; block as OKLCH tokens — a light/dark cascade, density presets, and industry palettes. Because it's OKLCH, lightness is perceptually even across hues, so a generated palette doesn't have the muddy mid-tones you get shifting HSL. The charts are dependency-free SVG themed from the same &lt;code&gt;--color-chart-*&lt;/code&gt; tokens — no charting library in your bundle.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  It composes into real products
+&lt;/h3&gt;
+
+&lt;p&gt;The thing I'm proudest of isn't any single component — it's that they compose. The demo ships eight full application templates built entirely from AxisUI: analytics, banking, CRM, healthcare, logistics, automotive, and government dashboards, plus a data-grid workbench, auth and landing pages, a ⌘K command palette, and a live theme configurator.&lt;/p&gt;
+
+&lt;p&gt;Click through them: &lt;a href="https://axisui-demo.pages.dev" rel="noopener noreferrer"&gt;https://axisui-demo.pages.dev&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  Where it's at, honestly
+&lt;/h3&gt;
+
+&lt;p&gt;It's new, and it's mostly one person's work. The API surface is stable enough that I've built those eight templates on it without fighting it, but it hasn't been battle-tested across hundreds of teams yet. That's exactly why I'm posting: I want Angular developers to try it, break it, and tell me where it falls short.&lt;/p&gt;
+
+&lt;p&gt;If it saves you from the Material-or-hand-roll trade even once, it did its job.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Try the demo → &lt;a href="https://axisui-demo.pages.dev" rel="noopener noreferrer"&gt;https://axisui-demo.pages.dev&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;Star / file issues → &lt;a href="https://github.com/Kishan009/axisui-ng" rel="noopener noreferrer"&gt;https://github.com/Kishan009/axisui-ng&lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ng add @axisui-ng/angular&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;What would make you switch a real project to it? I'm reading every reply.&lt;/p&gt;</description>
+      <link>https://dev.to/kishan_hadiyal_8cf48e733d/closing-angulars-aesthetic-gap-1d26</link>
+      <pubDate>Sun, 26 Jul 2026 04:46:24 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/kishan_hadiyal_8cf48e733d/closing-angulars-aesthetic-gap-1d26</guid>
+    </item>
+    <item>
+      <title>[翻訳] AI-Assisted Debugging: Speed Boost or Chaos?</title>
+      <description>&lt;p&gt;AI-assisted debugging has gone from novelty to daily habit for a meaningful share of working developers. You paste a stack trace into ChatGPT, describe unexpected behavior to Copilot Chat, or let Cursor highlight a suspicious function — and within seconds you have a hypothesis, sometimes even a working fix. It sounds like exactly what developers have always needed. But the closer you look at how these tools actually perform under real conditions, the more complicated the picture becomes.&lt;/p&gt;
+
+&lt;p&gt;This isn't a verdict on whether &lt;a href="https://fandhip.staff.telkomuniversity.ac.id/2026/07/14/panduan-lengkap-belajar-pemrograman-di-era-ai-2026/" rel="noopener noreferrer"&gt;AI debugging&lt;/a&gt; tools are "good" or "bad." It's a closer look at where they genuinely save time, where they introduce new categories of risk, and how to structure your workflow so you get the speed without the chaos.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  What AI Debugging Tools Are Actually Doing
+&lt;/h2&gt;
+
+&lt;p&gt;When you hand a bug to an AI assistant, it isn't running your code or analyzing runtime behavior the way a traditional debugger does. It's doing pattern matching — drawing on enormous amounts of training data to recognize symptoms that resemble patterns it's seen before. That's both the source of its power and its most significant limitation.&lt;/p&gt;
+
+&lt;p&gt;A function that throws &lt;code&gt;ZeroDivisionError&lt;/code&gt; on an empty list is a pattern the model has encountered thousands of times. Consider this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;calculate_average&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="nf"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Pass an empty list, and you get a crash. An AI assistant will catch this immediately and suggest a guard clause:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;calculate_average&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;  &lt;span class="c1"&gt;# or 0, depending on your domain logic
+&lt;/span&gt;    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nf"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="nf"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;For problems like this — surface-level, well-documented, with clear error messages — AI debugging is genuinely fast. The model recognizes the pattern, generates the fix, and you move on. There's no reason to dispute the speed benefit here. It's real.&lt;/p&gt;
+
+&lt;p&gt;The pattern-matching engine also works well across language ecosystems. A developer unfamiliar with how JavaScript handles async errors can paste a confusing &lt;code&gt;UnhandledPromiseRejectionWarning&lt;/code&gt; and get a clear explanation of what went wrong and why. A backend engineer debugging a Rust borrow checker error gets a readable walkthrough of the ownership model involved. For cross-language or cross-framework situations — places where a developer's knowledge has gaps — AI tools can compress learning curves dramatically.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Where the Chaos Comes In
+&lt;/h2&gt;
+
+&lt;p&gt;The problem starts when the bug doesn't match a familiar pattern. AI models don't know what they don't know, and they don't express uncertainty the way a senior colleague would. A colleague might say, "I'm not sure — this could be a race condition or a caching issue; let's add some logging and find out." An AI assistant tends to give you a confident answer either way.&lt;/p&gt;
+
+&lt;p&gt;Here's a concrete example of what that looks like in practice. Suppose you're working with a Sequelize query and you get a &lt;code&gt;TypeError&lt;/code&gt; on a result set:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;users&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;User&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;findAll&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt; &lt;span class="na"&gt;where&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;active&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;sorted&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;users&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;sortByCreatedAt&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// TypeError: users.sortByCreatedAt is not a function&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Some AI responses will invent a method — suggesting &lt;code&gt;sortByCreatedAt()&lt;/code&gt; exists as a Sequelize utility or proposing a library method that doesn't exist in the version you're running. The fix sounds plausible. The code looks reasonable. If you paste it in without checking, you've just introduced a second bug while trying to fix the first one.&lt;/p&gt;
+
+&lt;p&gt;The correct approach is straightforward:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;users&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;await&lt;/span&gt; &lt;span class="nx"&gt;User&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;findAll&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+  &lt;span class="na"&gt;where&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;active&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="na"&gt;order&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;createdAt&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;DESC&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;But getting there requires knowing that Sequelize handles sorting at the query level, not after the fact on the result array. An AI assistant with stale training data or insufficient context about your environment may not get there reliably.&lt;/p&gt;
+
+&lt;p&gt;This pattern — confident, plausible, wrong — is the defining failure mode of AI debugging. And it's more dangerous than an obvious failure, because it passes the eye test. Junior developers in particular may not have the domain knowledge to catch it.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Context Problem
+&lt;/h2&gt;
+
+&lt;p&gt;Most debugging problems don't exist in isolation. A production bug is usually the intersection of a specific environment, a particular data state, an architectural decision made eighteen months ago, and a library version that introduced a subtle behavior change in its last minor release. AI tools only know what you tell them in the prompt.&lt;/p&gt;
+
+&lt;p&gt;The quality of your AI debugging interaction is almost entirely determined by the quality of your context. A weak prompt produces a generic answer:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;// What not to do
+"Why is my API returning 500?"
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;A specific, contextualized prompt produces something genuinely useful:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;// What actually works
+"Node.js 18, Express 4.18, Prisma 5.x. POST /users returns 500 only
+when the email field contains a plus sign (+). The request reaches the
+controller — I've confirmed with a log — but Prisma throws before the
+INSERT. Here's the exact error and the schema field definition: [...]"
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The difference in output quality between these two prompts is substantial. Developers who get consistently good results from AI debugging have internalized this. They treat the AI like a collaborator who needs onboarding, not an oracle who already knows your codebase.&lt;/p&gt;
+
+&lt;p&gt;This also means AI debugging compounds skill rather than replacing it. An experienced engineer who knows exactly what context to surface will use these tools effectively. A developer who doesn't yet have the mental model to articulate what's relevant will get noise back, or worse, a confident wrong answer they can't evaluate.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Bugs That AI Misses Systematically
+&lt;/h2&gt;
+
+&lt;p&gt;Some categories of bugs are effectively invisible to AI assistants because they don't manifest in the code itself. Race conditions in concurrent systems, memory leaks that only surface under load, heisenbugs that disappear when you add logging, performance regressions tied to database query plans — these are problems that require runtime observation, profiling tools, and time. An AI assistant given a code snippet and asked whether it has a race condition will often say no, because the snippet looks fine in isolation.&lt;/p&gt;
+
+&lt;p&gt;Distributed systems failures are particularly resistant to AI diagnosis. When a microservice fails intermittently because a downstream dependency is returning inconsistent data under high concurrency, there's no stack trace to paste. The debugging work happens in observability tooling, and the AI's contribution is limited to helping you reason about what you're seeing — not finding the bug for you.&lt;/p&gt;
+
+&lt;p&gt;This isn't a criticism so much as a scope clarification. AI-assisted debugging is genuinely excellent for a certain class of problem. It's ineffective for another class. Understanding where the boundary is prevents you from wasting time prompting an AI about a problem it structurally cannot see.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Getting the Speed Without the Surprises
+&lt;/h2&gt;
+
+&lt;p&gt;The developers who use AI debugging most effectively treat AI output as a starting hypothesis, not a final answer. They ask the AI to explain its reasoning, not just produce a fix. They look up the suggested API calls before using them. They test the fix against the specific conditions that triggered the original bug, not just the happy path.&lt;/p&gt;
+
+&lt;p&gt;A few practices that consistently improve results: provide the full error message and stack trace, not just the function you suspect; include your runtime version and relevant dependency versions; tell the AI what you've already tried so it doesn't repeat suggestions; and ask explicitly for alternative explanations when the first answer doesn't sit right.&lt;/p&gt;
+
+&lt;p&gt;It's also worth maintaining healthy skepticism about fixes that involve methods, configuration options, or library features you haven't encountered before. A quick documentation check takes thirty seconds and prevents the scenario where you've applied a confidently stated fix that references an API that doesn't exist in your version.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Honest Trade-Off
+&lt;/h2&gt;
+
+&lt;p&gt;AI-assisted debugging makes certain developers faster in certain situations. That's not hype — it's a measurable change in how quickly routine bugs get resolved, and it meaningfully reduces the time junior developers spend stuck on well-documented problems. The tools are worth using.&lt;/p&gt;
+
+&lt;p&gt;But they don't replace the need to understand your system. They don't catch the bugs that require observability. They produce wrong answers confidently and often, and the wrong answers tend to be sophisticated enough that catching them requires the same domain knowledge you would have needed to find the bug yourself.&lt;/p&gt;
+
+&lt;p&gt;Use AI debugging as acceleration, not as a substitute for understanding. Verify what it tells you. Provide real context. Treat the output like a code review comment from a smart colleague who hasn't read your codebase — worth considering, not worth following blindly. Done that way, the speed gains are real, and the chaos stays manageable.&lt;/p&gt;</description>
+      <link>https://dev.to/fuadhusnan_f44f3e13/ai-assisted-debugging-speed-boost-or-chaos-aih</link>
+      <pubDate>Sun, 26 Jul 2026 04:45:34 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/fuadhusnan_f44f3e13/ai-assisted-debugging-speed-boost-or-chaos-aih</guid>
+    </item>
+    <item>
+      <title>[翻訳] Modern Debugging: The Art of Finding a Needle in a Haystack</title>
+      <description>&lt;p&gt;Most developers spend nearly half their working hours &lt;a href="https://jakarta.telkomuniversity.ac.id/en/tips-debugging-cara-mengatasi-error-dengan-efektif/" rel="noopener noreferrer"&gt;debugging&lt;/a&gt;. That's not a productivity failure — it's the nature of software. But &lt;strong&gt;modern debugging&lt;/strong&gt; has evolved far beyond adding &lt;code&gt;console.log&lt;/code&gt; statements and hoping for the best. Today's systems are distributed, asynchronous, and layered in ways that make traditional debugging habits feel painfully inadequate against the complexity they were never designed to handle.&lt;/p&gt;
+
+&lt;p&gt;This article walks through practical, proven techniques for tracking down bugs in both development and production environments — from structured logging and binary search strategies to distributed tracing and using debuggers the way they were actually designed to be used.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Why Bugs Hide Better in Modern Systems
+&lt;/h2&gt;
+
+&lt;p&gt;Bugs don't just hide in your code anymore. They hide in network latency, race conditions, configuration drift, and the emergent behavior that surfaces when three microservices communicate under load. A defect that's perfectly reproducible on your laptop might vanish entirely in a staging environment and reappear two weeks later in production under a specific, hard-to-replicate sequence of user actions.&lt;/p&gt;
+
+&lt;p&gt;This isn't a bug in your system — it's the nature of complexity. The more moving parts a system has, the more surface area bugs have to hide in. State becomes harder to reason about, causality becomes harder to trace, and the mental model you hold in your head inevitably diverges from what's actually running. That gap is where bugs live.&lt;/p&gt;
+
+&lt;p&gt;The first shift you need to make is conceptual. Debugging isn't guessing. It's a scientific process of forming hypotheses and eliminating them systematically, one by one, until only one explanation remains. Every minute you spend randomly changing things and checking if the bug disappears is a minute not spent actually understanding your system.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Reproduce First, Fix Second
+&lt;/h2&gt;
+
+&lt;p&gt;The single biggest mistake developers make when debugging is jumping straight to a fix. Before you touch a single line of code, your primary job is to make the bug happen reliably and on demand. A bug you can reproduce consistently is already 80% solved.&lt;/p&gt;
+
+&lt;p&gt;Start by capturing the exact conditions that trigger the failure: the input, the environment, the sequence of events, and the state of the system at the moment the failure occurred. If you can't reproduce it in isolation, you'll never be confident that your fix actually worked — you'll just be hoping it did, which is a different thing entirely.&lt;/p&gt;
+
+&lt;p&gt;In many cases, writing a failing test before you write any fix is the most reliable way to codify the reproduction step. The test serves simultaneously as proof that the bug exists and proof that your eventual fix actually resolves it.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="c1"&gt;# Write the failing test before touching the implementation
+&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;test_user_balance_never_goes_negative&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;user&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;10.0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;pytest&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;raises&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;InsufficientFundsError&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;deduct&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;15.0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;# Should raise, not silently set balance to -5.0
+&lt;/span&gt;
+    &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mf"&gt;10.0&lt;/span&gt;  &lt;span class="c1"&gt;# Balance should be unchanged after a failed deduction
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;When the test fails, the bug is real and documented. When it passes after your change, you're done — and you've added a permanent regression guard in the process.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The Binary Search Method
+&lt;/h2&gt;
+
+&lt;p&gt;When you're staring at a large codebase and genuinely don't know where a bug originates, binary search is your most reliable compass. The idea is borrowed directly from computer science fundamentals: divide the problem space in half with each diagnostic step.&lt;/p&gt;
+
+&lt;p&gt;If a bug exists somewhere in a 2,000-line data pipeline, don't start reading from line one. Insert a checkpoint in the middle. If the data looks correct at that checkpoint, the bug lives in the second half. If the data is already wrong, it's in the first half. Repeat the process until the scope is small enough to reason about without overwhelming your working memory.&lt;/p&gt;
+
+&lt;p&gt;Version control makes this approach even more powerful. Git's &lt;code&gt;bisect&lt;/code&gt; command was designed specifically for this kind of search. It performs an automated binary search through your commit history to identify the exact commit that introduced a regression:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;git bisect start
+git bisect bad                  &lt;span class="c"&gt;# Mark the current (broken) commit&lt;/span&gt;
+git bisect good v1.4.0          &lt;span class="c"&gt;# Mark a known-good version&lt;/span&gt;
+
+&lt;span class="c"&gt;# Git checks out the midpoint commit automatically.&lt;/span&gt;
+&lt;span class="c"&gt;# Run your tests, then report the result:&lt;/span&gt;
+git bisect good   &lt;span class="c"&gt;# This commit is fine — bug is in the later half&lt;/span&gt;
+&lt;span class="c"&gt;# or:&lt;/span&gt;
+git bisect bad    &lt;span class="c"&gt;# This commit is broken — bug is in the earlier half&lt;/span&gt;
+
+&lt;span class="c"&gt;# Git keeps narrowing until it identifies the first bad commit.&lt;/span&gt;
+git bisect reset  &lt;span class="c"&gt;# Restore HEAD when you're done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;&lt;code&gt;git bisect&lt;/code&gt; can search through hundreds of commits in under ten iterations. When you land on the first bad commit, reading the diff usually tells you everything you need to know about why the bug exists.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Structured Logging: Your Debugging Time Machine
+&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;console.log("here")&lt;/code&gt; is not logging — it's noise. Structured logging treats each log entry as a data record rather than a free-form string, making it filterable, searchable, and machine-parseable in ways that plain text logs never can be.&lt;/p&gt;
+
+&lt;p&gt;That distinction matters enormously when something goes wrong in production at 2 a.m., and you need to reconstruct exactly what the system was doing when a request failed. A string like &lt;code&gt;"Payment failed for user"&lt;/code&gt; tells you almost nothing. A structured event with user ID, amount, error code, and timestamp tells you everything.&lt;/p&gt;
+
+&lt;h3&gt;
+  
+  
+  What Good Logging Looks Like
+&lt;/h3&gt;
+
+&lt;p&gt;Well-structured logs capture context — not just what happened, but who triggered it, what data was in play, and how long the operation took. Libraries like Python's &lt;code&gt;structlog&lt;/code&gt; or Node's &lt;code&gt;pino&lt;/code&gt; make this the path of least resistance.&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;structlog&lt;/span&gt;
+
+&lt;span class="n"&gt;log&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;structlog&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;get_logger&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;process_payment&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;payment_initiated&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;amount&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;currency&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;USD&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;payment_gateway&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;charge&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;payment_succeeded&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;transaction_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+            &lt;span class="n"&gt;duration_ms&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;duration_ms&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;
+    &lt;span class="k"&gt;except&lt;/span&gt; &lt;span class="n"&gt;PaymentError&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;payment_failed&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;amount&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;amount&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;error_code&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;code&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;error_message&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nf"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;raise&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Every log entry here carries enough context to stand alone. If you aggregate these entries and filter by &lt;code&gt;user_id&lt;/code&gt;, you get a complete timeline of everything that happened during that user's payment flow — no extra debugging code required, no reproduction needed. The logs are the reproduction.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Using a Debugger the Right Way
+&lt;/h2&gt;
+
+&lt;p&gt;Most developers know their IDE includes a debugger. Far fewer use it effectively. The most common misuse is stepping through code line by line, looking for something that looks wrong. It's the slowest possible way to use the tool — and it puts the burden of verification entirely on your memory rather than on the machine.&lt;/p&gt;
+
+&lt;p&gt;The right approach is to set breakpoints at decision points, not at every line. A decision point is anywhere the program branches: an &lt;code&gt;if&lt;/code&gt; statement, a loop condition, a function that could return multiple distinct values. When execution pauses, your job is to verify or falsify a specific hypothesis about the data — not to read the code as if you've never seen it before.&lt;/p&gt;
+
+&lt;p&gt;Watch expressions change this completely. Instead of manually inspecting multiple variables each time execution pauses, you define expressions that evaluate automatically at every breakpoint:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Set in browser DevTools or your IDE debugger as a watch expression:&lt;/span&gt;
+&lt;span class="c1"&gt;// user.permissions.includes("admin") &amp;amp;&amp;amp; user.session.isActive&lt;/span&gt;
+
+&lt;span class="c1"&gt;// The debugger evaluates this automatically every time execution pauses.&lt;/span&gt;
+&lt;span class="c1"&gt;// You see immediately whether both conditions are true, without manually&lt;/span&gt;
+&lt;span class="c1"&gt;// opening two nested objects every single time.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Conditional breakpoints extend this further. If a bug only surfaces on the 50th iteration of a loop, you should never have to click "continue" 49 times. Right-click the breakpoint and set a condition — pause only when &lt;code&gt;i === 49&lt;/code&gt; or when &lt;code&gt;response.status === 500&lt;/code&gt;. The debugger does the tedious work; you think.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Observability in Distributed Systems
+&lt;/h2&gt;
+
+&lt;p&gt;When your application spans multiple services, traditional debugging stops working at the boundaries. You can't set a breakpoint in a production container. You can't reliably reproduce a multi-service interaction on your laptop. You can't read logs from five different services simultaneously and manually correlate events by timestamp. This is where observability becomes the only viable strategy.&lt;/p&gt;
+
+&lt;p&gt;Observability rests on three pillars: logs, metrics, and distributed traces. Logs tell you what happened on a single service at a specific moment. Metrics tell you whether the system is behaving normally at a statistical level over time. Distributed traces stitch together the full lifecycle of a single request as it crosses service boundaries.&lt;/p&gt;
+
+&lt;p&gt;OpenTelemetry has become the vendor-neutral standard for adding trace instrumentation to services. It propagates a shared trace context across every service hop, so you can reconstruct the full request path after the fact:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight python"&gt;&lt;code&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;opentelemetry&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;trace&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="n"&gt;opentelemetry.sdk.trace&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;TracerProvider&lt;/span&gt;
+
+&lt;span class="n"&gt;provider&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;TracerProvider&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;trace&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;set_tracer_provider&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;provider&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;tracer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;trace&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;get_tracer&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;fetch_user_profile&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;tracer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;start_as_current_span&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;fetch_user_profile&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;span&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;span&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;set_attribute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;user.id&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;query&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;SELECT * FROM users WHERE id = ?&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+        &lt;span class="n"&gt;span&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;set_attribute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;db.result.found&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;span&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;set_attribute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="s"&gt;db.query.rows&lt;/span&gt;&lt;span class="sh"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;With this in place, every invocation of &lt;code&gt;fetch_user_profile&lt;/code&gt; is tracked across service calls, giving you a timeline of the entire request lifecycle. When a request fails, you pull its trace ID from the error log and see the exact sequence of service calls, their durations, and where the chain broke — which is information no local debugger can give you.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  When to Stop and Rethink
+&lt;/h2&gt;
+
+&lt;p&gt;One debugging trap that rarely gets discussed is the sunk cost of a wrong hypothesis. You spend three hours convinced the bug is in the authentication layer, chasing signals that seem to confirm it, and finally realize the real issue is a misconfigured environment variable in a completely different service. Those three hours are gone.&lt;/p&gt;
+
+&lt;p&gt;The discipline here is to set a time budget for each hypothesis. If you haven't found confirming evidence within 30 to 45 minutes of focused investigation, abandon the hypothesis and start fresh. It feels counterintuitive, but the willingness to throw away a working theory is one of the most underrated debugging skills there is.&lt;/p&gt;
+
+&lt;p&gt;Write down your hypothesis explicitly before you start investigating it. That small act of externalizing forces you to be precise about what you believe, and it makes it much easier to recognize when the evidence is pointing somewhere else entirely.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Conclusion: From Noise to Signal
+&lt;/h2&gt;
+
+&lt;p&gt;The gap between an average debugger and a skilled one isn't about knowing more tools. It's about having a method. Reproduce first. Form a hypothesis. Narrow the search space systematically. Verify with evidence. Every productive debugging session is a compressed scientific experiment with a clear question, a testable prediction, and an outcome that either confirms or refutes the theory.&lt;/p&gt;
+
+&lt;p&gt;Modern debugging demands that you treat your code as a system to observe, not just a text file to read. Instrument it deliberately, log with intent, and reach for the right tool at the right layer of the stack. When you build those habits consistently, the needle stops hiding — and the haystack starts to shrink.&lt;/p&gt;
+
+&lt;p&gt;If you're ready to sharpen these skills in practice, pick one technique from this article and apply it to the next real bug you encounter. Don't wait for the perfect bug or the perfect system. Methodology compounds over time — every bug you debug deliberately makes the next one faster to find.&lt;/p&gt;</description>
+      <link>https://dev.to/fuadhusnan_f44f3e13/modern-debugging-the-art-of-finding-a-needle-in-a-haystack-e3h</link>
+      <pubDate>Sun, 26 Jul 2026 04:38:10 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/fuadhusnan_f44f3e13/modern-debugging-the-art-of-finding-a-needle-in-a-haystack-e3h</guid>
+    </item>
+    <item>
+      <title>[翻訳] Designing an RBT Practice App Around Error Analysis, Not Score Chasing</title>
+      <description>&lt;p&gt;I publish an Android study app called &lt;strong&gt;RBT Practice Questions 2026&lt;/strong&gt;. The most important product decision was not adding another score screen. It was making a wrong answer useful.&lt;/p&gt;
+
+&lt;p&gt;A practice score compresses several different problems into one number: a learner may have missed a definition, overlooked a qualifier, confused the RBT role with the supervisor role, or selected a familiar procedure that did not fit the scenario. Those errors need different review actions.&lt;/p&gt;
+
+&lt;p&gt;This post explains the product-design principles behind our approach. It is not an official certification guide, and it does not include recalled or administered exam content.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  1. Explain every option, not only the key
+&lt;/h2&gt;
+
+&lt;p&gt;A correct-answer explanation answers one question: why is this option best?&lt;/p&gt;
+
+&lt;p&gt;A useful review also answers:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;What detail in the scenario rules out each distractor?&lt;/li&gt;
+&lt;li&gt;Is the mistake conceptual, procedural, ethical, or just a reading error?&lt;/li&gt;
+&lt;li&gt;What rule can the learner reuse in a different scenario?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That is why the app includes a rationale for every answer option. The goal is to turn elimination into an explicit reasoning skill instead of encouraging answer-pattern memorization.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  2. Treat review as a state, not a screen
+&lt;/h2&gt;
+
+&lt;p&gt;A missed item should not disappear when the result page closes. At minimum, a review system needs to remember the content domain, the selected option, the outcome, and whether the learner has revisited the explanation.&lt;/p&gt;
+
+&lt;p&gt;A conceptual review record might look like this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;ReviewEntry
+  itemId
+  contentDomain
+  selectedOption
+  outcome
+  reviewedAt
+  retestDueAt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;This is a product model, not a code excerpt. The useful idea is the lifecycle: attempt, diagnose, review, delay, and retest. The delayed retest matters because an immediate retry often measures short-term recognition rather than durable understanding.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  3. Give mock forms real constraints
+&lt;/h2&gt;
+
+&lt;p&gt;A random pile of questions is not automatically a mock exam. A useful mock needs a defined item count, time boundary, domain coverage, completion state, and post-form review path.&lt;/p&gt;
+
+&lt;p&gt;Our app includes 12 mock forms with 85 questions and a 90-minute timer. The timer is there to expose pacing problems. It is not a promise that an in-app percentage predicts a certification result.&lt;/p&gt;
+
+&lt;p&gt;The product also includes shorter practice sets because a full mock is expensive in attention. The two modes solve different jobs:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;short sets support targeted learning and frequent feedback;&lt;/li&gt;
+&lt;li&gt;full forms support pacing, endurance, and mixed-domain switching.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  4. Map content to the current blueprint
+&lt;/h2&gt;
+
+&lt;p&gt;The official source of truth is the BACB, not a third-party app. We organize practice across the six domains in the current RBT Test Content Outline, 3rd edition, and point learners back to official documents when requirements matter.&lt;/p&gt;
+
+&lt;p&gt;The content boundary is equally important. A legitimate practice product should use original items and public concepts. It should not solicit, reproduce, or imply access to recalled, leaked, confidential, or administered questions.&lt;/p&gt;
+
+&lt;p&gt;Official references:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://www.bacb.com/rbt/?topic=rbt" rel="noopener noreferrer"&gt;BACB RBT page&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.bacb.com/wp-content/rbt-outline-3rdEd/" rel="noopener noreferrer"&gt;RBT Test Content Outline, 3rd edition&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  5. Design a repeatable learner loop
+&lt;/h2&gt;
+
+&lt;p&gt;The simplest useful loop is:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Complete a short mixed set.&lt;/li&gt;
+&lt;li&gt;Write why the selected option failed.&lt;/li&gt;
+&lt;li&gt;Explain why each distractor failed.&lt;/li&gt;
+&lt;li&gt;Review the underlying concept in an official or authoritative source.&lt;/li&gt;
+&lt;li&gt;Retest after a delay.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;This loop is why mistake review, lessons, flashcards, and mock forms should connect rather than behave like unrelated feature tabs.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Where the app fits
+&lt;/h2&gt;
+
+&lt;p&gt;RBT Practice Questions 2026 currently includes 1,500 original questions, rationales for every option, 12 timed mock forms, 58 lessons, 600 flashcards, mistake review, and offline progress.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://play.google.com/store/apps/details?id=com.dahmanilimited.rbtpractice" rel="noopener noreferrer"&gt;View RBT Practice Questions 2026 on Google Play&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I am Mohammed Dahmani, owner of Dahmani Limited, the app publisher. The app is independent and is not affiliated with, approved by, sponsored by, or endorsed by the Behavior Analyst Certification Board. No study product can guarantee an exam result.&lt;/p&gt;</description>
+      <link>https://dev.to/thekingyouneed/designing-an-rbt-practice-app-around-error-analysis-not-score-chasing-0</link>
+      <pubDate>Sun, 26 Jul 2026 04:37:45 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/thekingyouneed/designing-an-rbt-practice-app-around-error-analysis-not-score-chasing-0</guid>
+    </item>
+    <item>
+      <title>[翻訳] I modeled GLP-1 pharmacokinetics in TypeScript (and open-sourced it)</title>
+      <description>&lt;p&gt;Every "medication level" chart I saw in a GLP-1 tracking app was wrong in the same two ways. So while building &lt;a href="https://tiroglp1.app" rel="noopener noreferrer"&gt;Tiro&lt;/a&gt;, a tracker for people on semaglutide and tirzepatide, I wrote a proper pharmacokinetic model — and I just pulled the pure math out into a zero-dependency package: &lt;strong&gt;&lt;a href="https://github.com/navidmosleminiya/glp1-pk" rel="noopener noreferrer"&gt;glp1-pk&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Here's the interesting part of the problem.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The two bugs in every naive "drug level" curve
+&lt;/h2&gt;
+
+&lt;p&gt;If you plot "how much drug is in your body" as a single exponential decay, you get this:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;level(Δ) = dose · e^(−k·Δ)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;That's wrong twice.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Bug 1 — it ignores absorption.&lt;/strong&gt; A subcutaneous injection isn't instantly in your bloodstream. The level &lt;em&gt;rises&lt;/em&gt; to a peak over hours or days, then falls. A pure decay starts at maximum, which never happens with a depot injection.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Bug 2 — it ignores route.&lt;/strong&gt; Oral semaglutide has a bioavailability of roughly &lt;strong&gt;0.8%&lt;/strong&gt;. Injected, it's about &lt;strong&gt;89%&lt;/strong&gt;. So "14 mg" taken orally puts about two orders of magnitude &lt;em&gt;less&lt;/em&gt; drug on board than 14 mg injected. A decay curve keyed only on milligrams gets this exactly backwards.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The fix: the Bateman function
+&lt;/h2&gt;
+
+&lt;p&gt;A one-compartment model with first-order absorption and first-order elimination gives you the &lt;strong&gt;Bateman function&lt;/strong&gt;. For a single dose &lt;code&gt;D&lt;/code&gt; at elapsed time &lt;code&gt;Δ&lt;/code&gt;:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;c(Δ) = D · kA/(kA − kE) · (e^(−kE·Δ) − e^(−kA·Δ))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;code&gt;kE&lt;/code&gt; is the &lt;strong&gt;elimination&lt;/strong&gt; rate — &lt;code&gt;ln(2) / half_life&lt;/code&gt;. It's a property of the &lt;em&gt;compound&lt;/em&gt; (semaglutide's half-life is ~1 week; liraglutide's is ~13 hours).&lt;/li&gt;
+&lt;li&gt;
+&lt;code&gt;kA&lt;/code&gt; is the &lt;strong&gt;absorption&lt;/strong&gt; rate, solved from the drug's &lt;strong&gt;time-to-peak&lt;/strong&gt; (&lt;code&gt;tMax&lt;/code&gt;), which depends on &lt;strong&gt;route&lt;/strong&gt; — a slow subcutaneous depot peaks in days, an oral dose in ~1 hour.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The catch: you can't invert &lt;code&gt;tMax = ln(kA/kE) / (kA − kE)&lt;/code&gt; for &lt;code&gt;kA&lt;/code&gt; in closed form. It's transcendental. So you solve it numerically with bisection (tMax is strictly decreasing in kA, so it's bulletproof):&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;absorptionRateFromTmax&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;target&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;kE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;ceiling&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="nx"&gt;kE&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;                 &lt;span class="c1"&gt;// limit of tMax as kA → kE⁺&lt;/span&gt;
+  &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;t&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;target&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="nx"&gt;ceiling&lt;/span&gt; &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="mf"&gt;0.98&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="nx"&gt;ceiling&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;target&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;lo&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;kE&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="nx"&gt;hi&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;kE&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="k"&gt;while &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;tMaxFromRates&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;hi&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;kE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;t&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nx"&gt;hi&lt;/span&gt; &lt;span class="o"&gt;*=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;   &lt;span class="c1"&gt;// bracket the root&lt;/span&gt;
+  &lt;span class="k"&gt;for &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nx"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;mid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;lo&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="nx"&gt;hi&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;tMaxFromRates&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;mid&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;kE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="nx"&gt;t&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nx"&gt;lo&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;mid&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="nx"&gt;hi&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;mid&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;lo&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="nx"&gt;hi&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Two things I care about here:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;strong&gt;Totality.&lt;/strong&gt; A real &lt;code&gt;kA &amp;gt; kE&lt;/code&gt; only exists when &lt;code&gt;tMax &amp;lt; 1/kE&lt;/code&gt;. Rather than return &lt;code&gt;NaN&lt;/code&gt; on an out-of-range input, it clamps to just under the ceiling so you always get a finite, sane rate. Health-adjacent code should never surface a &lt;code&gt;NaN&lt;/code&gt; to a chart.&lt;/li&gt;
+&lt;li&gt;
+&lt;strong&gt;The &lt;code&gt;kA ≈ kE&lt;/code&gt; singularity.&lt;/strong&gt; When the two rates are nearly equal the formula divides by ~0, so the level function falls back to the L'Hôpital limit &lt;code&gt;D · kE · Δ · e^(−kE·Δ)&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;
+  
+  
+  From "mg on board" to nmol/L
+&lt;/h2&gt;
+
+&lt;p&gt;Milligrams-on-board is fine for a relative curve, but to compare against published exposures you want a concentration:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;C[mg/L]   = absorbedMg / Vd            // volume of distribution
+C[nmol/L] = C[mg/L] · 1e6 / molarMass  // mg → nmol
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;The molar mass matters more than you'd guess. Dulaglutide is a ~59.7 kDa antibody-Fc fusion — about &lt;strong&gt;15× heavier&lt;/strong&gt; than semaglutide (~4.1 kDa). For the same mass on board, its &lt;em&gt;molar&lt;/em&gt; concentration is ~15× lower. A model that hard-codes one "nmol per mg" factor is wrong for every compound but one.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Superposition = a real dose history
+&lt;/h2&gt;
+
+&lt;p&gt;Because the model is linear, a full history is just the sum of each dose's curve:&lt;br /&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;levelAt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;doses&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;t&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;pk&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="k"&gt;for &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;d&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt; &lt;span class="nx"&gt;doses&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nx"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="nf"&gt;doseLevelAt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;amountMg&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;t&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="nx"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;takenAt&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;pk&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Doses in the future contribute zero (negative elapsed time → guarded to 0). That's the whole "estimated medication level" line.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  Using it
+&lt;/h2&gt;
+
+
+
+&lt;div class="highlight js-code-highlight"&gt;
+&lt;pre class="highlight typescript"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nx"&gt;pkFor&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;levelAt&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;sampleLevelSeries&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;glp1-pk&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;pk&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;pkFor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;tirzepatide&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;injection&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;doses&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+  &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;amountMg&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;2.5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;takenAt&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;Date&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;2026-06-01T09:00:00Z&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;amountMg&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;5.0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;takenAt&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;Date&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="s2"&gt;2026-06-08T09:00:00Z&lt;/span&gt;&lt;span class="dl"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;span class="p"&gt;];&lt;/span&gt;
+
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;mgNow&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;levelAt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;doses&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;Date&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;now&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="nx"&gt;pk&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;curve&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;sampleLevelSeries&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;doses&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;Date&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;now&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="nb"&gt;Date&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;now&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;864&lt;/span&gt;&lt;span class="nx"&gt;e5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;pk&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;// curve → [{ t, mg }, …] ready to plot&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;p&gt;Zero dependencies, ships types, pure functions, 16 tests on Node's built-in runner (no jest). MIT: &lt;strong&gt;&lt;a href="https://github.com/navidmosleminiya/glp1-pk" rel="noopener noreferrer"&gt;github.com/navidmosleminiya/glp1-pk&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h2&gt;
+  
+  
+  The disclaimer that actually matters
+&lt;/h2&gt;
+
+&lt;p&gt;The per-compound constants (half-life, tMax, bioavailability, Vd, molar mass) are central population-PK &lt;strong&gt;estimates&lt;/strong&gt; from public literature and labels. Individual pharmacokinetics vary a lot. This is a tracking/visualisation/teaching tool — an estimate from &lt;em&gt;logged doses&lt;/em&gt;, not a measured concentration, and &lt;strong&gt;not&lt;/strong&gt; a dosing tool. That framing is load-bearing for anything health-adjacent, and it's in the README and the types.&lt;/p&gt;
+
+&lt;p&gt;I build this full-time on &lt;a href="https://tiroglp1.app" rel="noopener noreferrer"&gt;Tiro&lt;/a&gt;, a GLP-1 companion that unifies your shots, protein, and a private body scan. If you want the model without the app, the package is right there. PRs on the parameter tables welcome — especially if you have better retatrutide numbers.&lt;/p&gt;</description>
+      <link>https://dev.to/navidmosleminiya/i-modeled-glp-1-pharmacokinetics-in-typescript-and-open-sourced-it-1167</link>
+      <pubDate>Sun, 26 Jul 2026 04:32:42 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/navidmosleminiya/i-modeled-glp-1-pharmacokinetics-in-typescript-and-open-sourced-it-1167</guid>
+    </item>
+    <item>
+      <title>[翻訳] How I Built a Free Music Streaming App in Flutter That Streams Millions of Songs — No Ads, No Subscription</title>
+      <description>&lt;p&gt;Tags: flutter, dart, opensource, music, mobile&lt;/p&gt;
+
+&lt;p&gt;I was tired of paying Spotify $10/month and still getting ads on free tiers. So I built my own.&lt;/p&gt;
+
+&lt;p&gt;HeySongers is a free, open-source music streaming app for Android and Windows that streams from YouTube Music, supports offline downloads, and has zero ads. Here's how it works under the hood.&lt;/p&gt;
+
+&lt;p&gt;The Stack&lt;br /&gt;
+Layer   Technology&lt;br /&gt;
+Frontend    Flutter + Dart&lt;br /&gt;
+Music Source    dart_ytmusic_api + youtube_explode_dart&lt;br /&gt;
+Audio Engine    media_kit + audio_service for background playback&lt;br /&gt;
+State Management    provider&lt;br /&gt;
+Local Storage   hive for playlists + sqflite for offline tracks&lt;br /&gt;
+Networking  dio with caching via cached_network_image&lt;br /&gt;
+UI  shimmer for loading, phosphor_flutter for icons, google_fonts for typography&lt;br /&gt;
+How Music Streaming Works&lt;br /&gt;
+The core challenge was streaming audio from YouTube without any official API.&lt;/p&gt;
+
+&lt;p&gt;Step 1: Search &amp;amp; Metadata dart_ytmusic_api handles search queries. It returns song metadata — title, artist, album art, duration, and most importantly, the video ID.&lt;/p&gt;
+
+&lt;p&gt;Step 2: Extracting Audio Streams youtube_explode_dart takes that video ID and extracts the raw audio stream URL. It parses the YouTube player response to get the adaptive audio format (usually opus or m4a).&lt;/p&gt;
+
+&lt;p&gt;Step 3: Playback media_kit handles the actual audio rendering. It's lightweight, supports gapless playback, and works reliably across Android and Windows.&lt;/p&gt;
+
+&lt;p&gt;Step 4: Offline Downloads When a user taps download, the audio stream is fetched via dio and written to local storage using path_provider. hive indexes the downloaded files so the app can serve them instantly in offline mode.&lt;/p&gt;
+
+&lt;p&gt;Background Playback (The Hard Part)&lt;br /&gt;
+Mobile apps that stop playing when you switch apps are annoying. Flutter's audio_service makes this work by running a headless isolate that survives app suspension. The audio controls (play/pause/seek) sync with the Android notification shade and Windows taskbar via platform channels.&lt;/p&gt;
+
+&lt;p&gt;The UI&lt;br /&gt;
+I wanted it to feel premium despite being free. Dark theme by default with an optional light theme. shimmer loading skeletons make searches feel instant. Album art loads lazily via cached_network_image so scrolling through playlists is smooth.&lt;/p&gt;
+
+&lt;p&gt;Biggest Challenge&lt;br /&gt;
+The YouTube streaming endpoints change frequently. youtube_explode_dart handles most of it, but I had to add retry logic and fallback formats because not all videos serve the same audio codecs. Some return opus, some m4a, and the extraction logic needs to handle both.&lt;/p&gt;
+
+&lt;p&gt;What's Next&lt;br /&gt;
+AI-powered recommendations&lt;br /&gt;
+Lyrics sync&lt;br /&gt;
+Equalizer&lt;br /&gt;
+iOS &amp;amp; Linux support&lt;br /&gt;
+Try It&lt;br /&gt;
+HeySongers is 100% open source. No premium tier, no ads, no tracking. Just music.&lt;/p&gt;
+
+&lt;p&gt;⭐ Star on GitHub: &lt;a href="https://github.com/pgboyahpgr-commits/heysongershtg" rel="noopener noreferrer"&gt;&lt;/a&gt; 📥 Download:&lt;a href="https://github.com/pgboyahpgr-commits/heysongershtg/releases/tag/music" rel="noopener noreferrer"&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Built with ❤️ by Ruthvik Pedapondara (&lt;a class="mentioned-user" href="https://dev.to/geethudinoyt"&gt;@geethudinoyt&lt;/a&gt;)&lt;/p&gt;</description>
+      <link>https://dev.to/geethudinoyt/how-i-built-a-free-music-streaming-app-in-flutter-that-streams-millions-of-songs-no-ads-no-1ekf</link>
+      <pubDate>Sun, 26 Jul 2026 04:30:14 +0000</pubDate>
+      <source>DEV Community</source>
+      <guid isPermaLink="false">https://dev.to/geethudinoyt/how-i-built-a-free-music-streaming-app-in-flutter-that-streams-millions-of-songs-no-ads-no-1ekf</guid>
+    </item>
+    <item>
       <title>[翻訳] 手を触れずにX（旧Twitter）に毎日自動投稿する仕組み — Raspberry PiとAIで実現</title>
       <description>Raspberry Piなどの常時稼働マシンにClaude Codeを走らせ、cronジョブで定期実行させることで、毎朝毎晩Xとnoteへの自動投稿を実現。スマートフォンからのリモート操作にも対応している。
 メインのノートパソコンが自動化タスクで占有されず、旅先でも投稿が継続され、失敗が分離された環境で起きるため本業への影響がない利点がある。
@@ -1823,124 +3902,6 @@ Tendermint RPC・LCD/REST・gRPCの3つのインターフェースを使い分�
       <pubDate>Wed, 15 Jul 2026 04:45:09 +0000</pubDate>
       <source>DEV Community</source>
       <guid isPermaLink="false">https://dev.to/swiftnodes/osmosis-rpc-querying-the-cosmos-dex-where-the-amm-is-a-chain-module-3lgd</guid>
-    </item>
-    <item>
-      <title>[翻訳] Codex が Claude Code を追い抜いたのか？700万ユーザーが示す真実</title>
-      <description>Codex は 2026 年 7 月に 700 万ユーザーに達し、6 ヶ月で 10 倍成長を遂げたが、これはChatGPT に統合されたことによる数字で、実際には 20% が非開発者ユーザーである。
-Claude Code は月間ユーザー数では劣るものの、2 月時点で 25 億ドルの年間経常収益を達成しており、ユーザー 1 人あたりの収益が約 500 ドルと圧倒的に高い。
-開発者の実際の使い分けは「Codex でタスク割り当て、Claude Code で深い実装」という棲み分けが進んでおり、勝者を決めるのではなく複数ツールの活用戦略が重要になっている。</description>
-      <link>https://dev.to/max_quimby/did-codex-overtake-claude-code-the-7m-user-question-5bam</link>
-      <pubDate>Wed, 15 Jul 2026 04:44:12 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/max_quimby/did-codex-overtake-claude-code-the-7m-user-question-5bam</guid>
-    </item>
-    <item>
-      <title>[翻訳] 実践プロジェクトが従来のコース学習を上回る学習効果をもたらす理由</title>
-      <description>コースは理論と予測可能なエラーを提供するが、実際のプロジェクトは予測不能なバグやエッジケースを通じてより深い理解をもたらす。
-HTTP 429エラーやメモリリークなどの実世界の問題に直面することで、スレッド処理やメモリ管理といった教科書では学べない実践的なスキルが身につく。
-プログラマーは理論的な知識よりも、問題解決を強いられるプロジェクトを優先すべきで、その過程での試行錯誤こそが最高の学習となる。</description>
-      <link>https://dev.to/romdevin/real-world-projects-enhance-learning-depth-compared-to-traditional-course-completion-in-programming-3ki4</link>
-      <pubDate>Wed, 15 Jul 2026 04:42:35 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/romdevin/real-world-projects-enhance-learning-depth-compared-to-traditional-course-completion-in-programming-3ki4</guid>
-    </item>
-    <item>
-      <title>[翻訳] apitapでPostgresからClickHouseへ1000万行を9.9秒で転送する方法</title>
-      <description>データエンジニアが開発したapitapというオープンソースツールを使うと、1000万行のテーブルを複数データベース間で超高速に転送できます。既存ツール（dlt、ingestr）と比べて圧倒的に高速であり、メモリ効率も優れているため、小規模なインフラで大規模なデータ移動が可能です。
-ベンチマーク結果の解釈には注意が必要で、「行数/時間」ではなく「バイト/時間」で正規化して比較することが重要です。apitapがテーブル内の並列化、ゼロコピー設計、メモリ効率による設計により、既存ツールより数十倍高速化を実現しました。
-apitapはPythonパッケージで気軽に導入でき、小規模なリソースで大規模なデータ転送を行いたいユーザーに最適です。将来的にはSnowflakeやBigQueryなど複数のデータベース対応とインクリメンタル同期機能が計画されています。</description>
-      <link>https://dev.to/abdul_haris_61d92398e38a8/i-moved-10-million-rows-in-99-seconds-with-pip-install-apitap-42ih</link>
-      <pubDate>Wed, 15 Jul 2026 04:40:13 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/abdul_haris_61d92398e38a8/i-moved-10-million-rows-in-99-seconds-with-pip-install-apitap-42ih</guid>
-    </item>
-    <item>
-      <title>[翻訳] Webアプリケーションのリクエスト経路：NGINXがDockerコンテナ間のトラフィックをどう制御するか</title>
-      <description>ブラウザがURLを入力してからデータベースから戻ってくるまでの完全なリクエストの流れを解説。
-NGINXがリバースプロキシとして機能し、インターネットの唯一の入口となってリクエストをフロントエンド/バックエンドに振り分ける仕組み。
-DNS解決から始まり、コントローラー層・サービス層・ORM・データベース処理を経て、レスポンスが同じ経路で戻る一連のプロセスを図解で理解できる。</description>
-      <link>https://dev.to/roshan_singh_dd54d52bbaa7/-the-journey-of-a-request-how-nginx-routes-traffic-between-docker-containers-in-a-modern-web-47k0</link>
-      <pubDate>Wed, 15 Jul 2026 04:35:50 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/roshan_singh_dd54d52bbaa7/-the-journey-of-a-request-how-nginx-routes-traffic-between-docker-containers-in-a-modern-web-47k0</guid>
-    </item>
-    <item>
-      <title>[翻訳] ドキュメント不要時代は幻想？AIの時代における技術文書の重要性</title>
-      <description>コードのロジックと開発者の意図のギャップについて、ドキュメント廃止論の問題点を考察する記事。
-AIの進化によってコード解析が容易になっても、なぜドキュメントは依然として重要なのかを議論。
-オープンソース開発とコード品質の観点から、ドキュメント文化の必要性を主張しています。</description>
-      <link>https://dev.to/theycallmeswift/-nom</link>
-      <pubDate>Wed, 15 Jul 2026 01:30:18 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/theycallmeswift/-nom</guid>
-    </item>
-    <item>
-      <title>[翻訳] 2026年のエージェンシー向けRailway代替プラットフォーム：本番環境にプロトタイププラットフォームを使うな</title>
-      <description>Railwayはデモやプロトタイプに優れているが、複数クライアントの本番環境ホスティングには向かない。共有インフラの障害が複数クライアントに同時波及し、SLA保証なし、固定ボリューム制限、従量課金モデルなどが大きなリスク要因になる。
-フロントエンド重視はVercel・Netlify・Cloudflare、フルスタック・AI向けはRender・Heroku・DigitalOcean・Upsun、地域別配置はFly.io、エンタープライズ要件ならNorthflank・AWS・GCP・Azureを選択すべき。
-エージェンシーはワークロードの形状と障害モデルに基づいてプラットフォームを選び、初回デプロイの利便性よりも本番環境での信頼性とクライアント引き継ぎの円滑性を優先すべき。</description>
-      <link>https://dev.to/engineeringjournal/best-railway-alternatives-for-agencies-in-2026-do-not-put-client-production-work-on-a-prototype-mih</link>
-      <pubDate>Wed, 15 Jul 2026 01:28:00 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/engineeringjournal/best-railway-alternatives-for-agencies-in-2026-do-not-put-client-production-work-on-a-prototype-mih</guid>
-    </item>
-    <item>
-      <title>[翻訳] 乱数生成器の描画タイミング：即座 vs 遅延の選択</title>
-      <description>決定論的なシステムにおいて、乱数を「いつ」引くかは「何を」引くかと同じくらい重要な契約事項である。
-ペルソナバンドルの乱数ブロックを構築時に即座に引く方式では、フィールドの並び替えやプロパティ追加時にも値が変わらない安定性が得られる。
-遅延評価方式よりもユーザーの実際の変更パターンに対応でき、モデル編集が頻繁なシード・デモ用途に適している。</description>
-      <link>https://dev.to/ernestohs/the-prng-draw-tape-eager-versus-lazy-1408</link>
-      <pubDate>Wed, 15 Jul 2026 01:24:53 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/ernestohs/the-prng-draw-tape-eager-versus-lazy-1408</guid>
-    </item>
-    <item>
-      <title>[翻訳] ブラウザのビデオレンダラーをフレーム処理時間で80%高速化した方法</title>
-      <description>30秒のビデオプロモーション（1920×1080で1,050フレーム）が毎秒1フレームという極端に遅い描画速度だったのを、4つの別々の問題を特定して1つのコミットで修正し、フレームあたりの処理時間を0.5～1.0秒から90～165msに短縮した。
-プレビューUI用オーバーレイの無駄な処理、WebGLコンテキストの頻繁な再作成、DOM要素の不必要な再キャッシュ、不正なアルファ値の二重適用という4つの根本原因を解決。
-修正により30秒のビデオレンダリング時間がサーバー上で約10分から3分に短縮され、ローカルエクスポートがリアルタイム以上の速度で動作するようになった。</description>
-      <link>https://dev.to/ilovevideoeditor/how-we-cut-our-browser-video-renderers-frame-time-by-80-3db1</link>
-      <pubDate>Wed, 15 Jul 2026 01:22:58 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/ilovevideoeditor/how-we-cut-our-browser-video-renderers-frame-time-by-80-3db1</guid>
-    </item>
-    <item>
-      <title>[翻訳] AIコーディングツールにプロジェクト知識を一度だけ設定する「cast-skills」</title>
-      <description>AIコーディングエージェントがセッションごとにプロジェクトのルールやアーキテクチャを忘れてしまう問題を解決するCLIツール。\nプロジェクト知識を一度書くだけで、Claude Code、GitHub Copilot、Cursor、Windsurfなど複数のAIツールに自動インストール可能。\n専用の「スキル」フォーマットを使うことで、トークン消費を抑えながら安定したプロジェクトメモリを実現する。</description>
-      <link>https://dev.to/pedrocastanha/stop-re-explaining-your-codebase-to-every-ai-agent-cast-skills-3dac</link>
-      <pubDate>Wed, 15 Jul 2026 01:12:25 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/pedrocastanha/stop-re-explaining-your-codebase-to-every-ai-agent-cast-skills-3dac</guid>
-    </item>
-    <item>
-      <title>[翻訳] AI コスト管理機能付きLINE連携フィットネスエージェントの構築</title>
-      <description>LINEプラットフォームを中心とした、AI駆動のフィットネスエージェント開発について解説。
-AI利用時のコスト最適化と制御（Cost Gates）を実装することで、運用効率を向上させる方法を紹介。
-チャットボット型のフィットネス支援システムにおける実用的なAI活用とコスト管理のベストプラクティスを提案。</description>
-      <link>https://dev.to/kevincoto/building-a-line-first-fitness-agent-with-ai-cost-gates-8e5</link>
-      <pubDate>Wed, 15 Jul 2026 01:04:49 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/kevincoto/building-a-line-first-fitness-agent-with-ai-cost-gates-8e5</guid>
-    </item>
-    <item>
-      <title>[翻訳] 複数言語対応のフィードバックプラットフォーム：Django、Next.js、Elixirの連携</title>
-      <description>Django、Next.js、Elixirという異なるテクノロジースタックを組み合わせたフィードバックプラットフォームの構築について紹介している。
-各技術の役割分担と、マイクロサービスアーキテクチャにおけるポリグロット・アーキテクチャの実装方法を解説している。
-異なるプログラミング言語やフレームワークを統合する際のベストプラクティスとアーキテクチャ設計の考え方を学べる。</description>
-      <link>https://dev.to/kevincoto/a-polyglot-feedback-platform-django-nextjs-and-elixir-working-together-b9c</link>
-      <pubDate>Wed, 15 Jul 2026 01:03:53 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/kevincoto/a-polyglot-feedback-platform-django-nextjs-and-elixir-working-together-b9c</guid>
-    </item>
-    <item>
-      <title>[翻訳] あなたの習慣を理解するAI責任コーチの構築</title>
-      <description>個人の習慣やパターンを学習し、目標達成をサポートするAIコーチの開発について紹介している。
-ユーザーの行動データを分析して、カスタマイズされたアドバイスとモチベーション管理を提供する仕組みを解説している。
-機械学習と行動心理学を組み合わせた、実用的なAIアプリケーションの実装方法を探っている。</description>
-      <link>https://dev.to/kevincoto/building-an-ai-accountability-coach-that-knows-your-habits-28fh</link>
-      <pubDate>Wed, 15 Jul 2026 01:03:50 +0000</pubDate>
-      <source>DEV Community</source>
-      <guid isPermaLink="false">https://dev.to/kevincoto/building-an-ai-accountability-coach-that-knows-your-habits-28fh</guid>
     </item>
   </channel>
 </rss>

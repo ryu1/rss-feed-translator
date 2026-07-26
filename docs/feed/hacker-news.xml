@@ -5,6 +5,74 @@
     <description>Hacker News 日本語翻訳フィード</description>
     <link>https://news.ycombinator.com</link>
     <item>
+      <title>[翻訳] W4ME Station – a WASM-4 runtime for Java ME phones</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://github.com/mulfyx/w4me-station"&gt;https://github.com/mulfyx/w4me-station&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49054697"&gt;https://news.ycombinator.com/item?id=49054697&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 10&lt;/p&gt;
+&lt;p&gt;# Comments: 1&lt;/p&gt;</description>
+      <link>https://github.com/mulfyx/w4me-station</link>
+      <pubDate>Sun, 26 Jul 2026 04:19:59 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49054697</guid>
+    </item>
+    <item>
+      <title>[翻訳] Humans haven't stopped evolving</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://www.harvardmagazine.com/research/harvard-human-evolution-genes-selective-pressure"&gt;https://www.harvardmagazine.com/research/harvard-human-evolution-genes-selective-pressure&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49054307"&gt;https://news.ycombinator.com/item?id=49054307&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 45&lt;/p&gt;
+&lt;p&gt;# Comments: 46&lt;/p&gt;</description>
+      <link>https://www.harvardmagazine.com/research/harvard-human-evolution-genes-selective-pressure</link>
+      <pubDate>Sun, 26 Jul 2026 03:09:46 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49054307</guid>
+    </item>
+    <item>
+      <title>[翻訳] JetZero</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://www.jetzero.aero"&gt;https://www.jetzero.aero&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49054224"&gt;https://news.ycombinator.com/item?id=49054224&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 128&lt;/p&gt;
+&lt;p&gt;# Comments: 91&lt;/p&gt;</description>
+      <link>https://www.jetzero.aero</link>
+      <pubDate>Sun, 26 Jul 2026 02:55:50 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49054224</guid>
+    </item>
+    <item>
+      <title>[翻訳] An ESP32 based plane radar for my desk</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://blog.ktz.me/esp32-plane-radar/"&gt;https://blog.ktz.me/esp32-plane-radar/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49054107"&gt;https://news.ycombinator.com/item?id=49054107&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 68&lt;/p&gt;
+&lt;p&gt;# Comments: 13&lt;/p&gt;</description>
+      <link>https://blog.ktz.me/esp32-plane-radar/</link>
+      <pubDate>Sun, 26 Jul 2026 02:35:43 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49054107</guid>
+    </item>
+    <item>
+      <title>[翻訳] Show HN: I mapped every US golf course</title>
+      <description>&lt;p&gt;I got tired of Googling basic course info, so I made a free directory of every US course&lt;p&gt;Google filters for golf course results are terrible so I built a better way to browse courses using OSM as the backbone.... &lt;a href="https://golfcoursebrowser.com/" rel="nofollow"&gt;https://golfcoursebrowser.com/&lt;/a&gt;&lt;p&gt;It's a work in progress and mostly US for now, but I want to expand to the rest of North America, the EU, and the rest of the world ASAP.&lt;p&gt;It's free, no ads, no login, no bs. If you spot anything wrong (bad info, a missing course, wrong scorecard), you can flag it right on the course page. I actually read those and fix them.&lt;p&gt;Still a lot of missing info, but I'm filling out more and more each day. The goal is the most complete, and current golf course directory in the world, verified and maintained by actual golfers. I think is attainable in the next few months.
+The base layer is OpenStreetMap, cross-checked against course websites and enriched with scorecards, USGA rating/slope, and public/private status. User corrections from golfers who know their home course have beaten every commercial data source we check against.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49054010"&gt;https://news.ycombinator.com/item?id=49054010&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 90&lt;/p&gt;
+&lt;p&gt;# Comments: 39&lt;/p&gt;</description>
+      <link>https://golfcoursebrowser.com/</link>
+      <pubDate>Sun, 26 Jul 2026 02:22:26 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49054010</guid>
+    </item>
+    <item>
+      <title>[翻訳] Alien World Chemistry Found Inside Meteorite That Struck New Jersey Home</title>
+      <description>&lt;p&gt;Article URL: &lt;a href="https://www.seti.org/news/alien-world-chemistry-found-inside-meteorite/"&gt;https://www.seti.org/news/alien-world-chemistry-found-inside-meteorite/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Comments URL: &lt;a href="https://news.ycombinator.com/item?id=49053708"&gt;https://news.ycombinator.com/item?id=49053708&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Points: 27&lt;/p&gt;
+&lt;p&gt;# Comments: 7&lt;/p&gt;</description>
+      <link>https://www.seti.org/news/alien-world-chemistry-found-inside-meteorite/</link>
+      <pubDate>Sun, 26 Jul 2026 01:35:03 +0000</pubDate>
+      <source>Hacker News</source>
+      <guid isPermaLink="false">https://news.ycombinator.com/item?id=49053708</guid>
+    </item>
+    <item>
       <title>[翻訳] ホルムズ海峡周辺で外来種の大規模拡散イベントが発生する可能性</title>
       <description>ホルムズ海峡付近で外来種の大規模な拡散が起こる可能性があると科学者が警告。
 船舶の滞留により、侵略的な海洋生物が新たな地域に広がるリスクが高まっている。
@@ -1927,66 +1995,6 @@ Hacker Newsでも注目を集め、40ポイント、27件のコメントで活�
       <pubDate>Fri, 17 Jul 2026 20:24:55 +0000</pubDate>
       <source>Hacker News</source>
       <guid isPermaLink="false">https://news.ycombinator.com/item?id=48951898</guid>
-    </item>
-    <item>
-      <title>[翻訳] 列車の脱線防止のため、線路の側面を白く塗装する取り組み</title>
-      <description>列車の脱線事故を減らすため、鉄道会社が線路の側面を白く塗装する新しい対策を導入している。
-白い塗装により線路の温度上昇を抑制し、熱による変形や膨張を防ぐことが目的である。
-ユニオン・パシフィック鉄道が実施しており、安全性向上と脱線リスク低減の効果が期待されている。</description>
-      <link>https://www.up.com/news/safety/Tracking-Rail-Heat-260608</link>
-      <pubDate>Fri, 17 Jul 2026 20:12:59 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48951780</guid>
-    </item>
-    <item>
-      <title>[翻訳] 伝説のプロセッサ「Zilog Z80」が50周年を迎える</title>
-      <description>1974年に発表されたZilog Z80プロセッサが50周年を迎えた。
-8ビットマイクロプロセッサの代表的存在として、コンピュータ史に大きな影響を与えた。
-現在もなお、組み込みシステムやレトロコンピューティング愛好家に愛用されている。</description>
-      <link>https://goliath32.com/blog/z80.html</link>
-      <pubDate>Fri, 17 Jul 2026 19:41:02 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48951461</guid>
-    </item>
-    <item>
-      <title>[翻訳] Wikipedia史上400万件のイベントをズーム機能付きタイムラインで可視化</title>
-      <description>Kotlin Multiplatformで開発されたジャーナルアプリ向けに作られたズーム可能なタイムラインインターフェースが、WikipediaとWikidataから取得した400万件のイベントを表示。
-PageRankアルゴリズムでスコアリングされたイベントを、KotlinxRPC通信とPostgresデータベースを使用して効率的に処理・表示。
-Compose Multiplatformとサーバー側の実装により、複雑な履歴データを直感的に探索できるインタラクティブなビジュアライゼーションを実現。</description>
-      <link>https://app.everything.diena.co/</link>
-      <pubDate>Fri, 17 Jul 2026 18:37:33 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48950774</guid>
-    </item>
-    <item>
-      <title>[翻訳] レゴの組み立て説明書の進化の歴史</title>
-      <description>レゴの組み立て説明書がどのように時代とともに変化してきたかを紹介する記事。
-初期の手書きイラストから現代のデジタル化された詳細な指示へと進化した過程を探る。
-レゴ公式の歴史記事で、製品デザインと説明方法の発展を通じて企業の成長を振り返っている。</description>
-      <link>https://www.lego.com/en-us/history/articles/d-lego-building-instructions-through-time</link>
-      <pubDate>Fri, 17 Jul 2026 18:21:14 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48950518</guid>
-    </item>
-    <item>
-      <title>[翻訳] SQLiteの運用について学んだことあれこれ</title>
-      <description>SQLiteの実運用における重要な知見や注意点について解説した記事。
-データベース管理者や開発者が実装時に押さえておくべき実践的な情報を提供。
-Hacker Newsで高い関心を集め、活発な議論が行われている（164ポイント、39コメント）。</description>
-      <link>https://jvns.ca/blog/2026/07/17/learning-about-running-sqlite/</link>
-      <pubDate>Fri, 17 Jul 2026 17:45:41 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48950122</guid>
-    </item>
-    <item>
-      <title>[翻訳] Recurse Centerが15周年、HackerNewsのコミュニティが与えてくれた支援への感謝</title>
-      <description>Recurse Centerの創業者が15周年を迎え、HackerNewsでの公開がどのように事業の成長を助けたかを振り返っている。
-初期段階ではいくつかのアイデアが失敗したが、プログラマーが集まる自主的なプログラミング修行の場というコンセプトが成功し、現在までに3,000人以上に影響を与えている。
-ビジネスとしての成功よりも、プログラマーコミュニティに価値を提供することが重要であり、人生の仕事を見つけるのを助けてくれたHackerNewsへの感謝を表明している。</description>
-      <link>https://news.ycombinator.com/item?id=48949551</link>
-      <pubDate>Fri, 17 Jul 2026 16:57:27 +0000</pubDate>
-      <source>Hacker News</source>
-      <guid isPermaLink="false">https://news.ycombinator.com/item?id=48949551</guid>
     </item>
   </channel>
 </rss>
